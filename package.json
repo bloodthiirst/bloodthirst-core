@@ -1,0 +1,18 @@
+{
+  "name": "com.bloodthirst.bloodthirst-core",
+  "version": "1.0.0",
+  "displayName": "Bloodthirst Core",
+  "description": "Core tools used for most projects",
+  "unity": "2019.1",
+  "keywords": [
+    "core",
+    "bloodthirst",
+    "tools"
+  ],
+  "author": {
+    "name": "bloodthirst",
+    "email": "rey199677@gmail.com",
+    "url": ""
+  },
+  "type": "tool"
+}
