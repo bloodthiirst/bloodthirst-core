@@ -1,0 +1,22 @@
+﻿using Assets.Scripts.BISDSystem;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+
+namespace Assets.Scripts.Game.[MODELNAME]Model
+{
+    [Serializable]
+    public class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State>
+    {
+		public [MODELNAME]Instance() {
+			
+		}
+
+		public [MODELNAME]Instance([MODELNAME]State state) {
+			RefState = state;	
+		}
+    }
+}

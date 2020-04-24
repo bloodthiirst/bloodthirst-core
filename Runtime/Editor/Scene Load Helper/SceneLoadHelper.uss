@@ -1,0 +1,13 @@
+.row {
+    flex-direction : row;
+    justify-content : center;
+    align-items : center;
+}
+
+.btn {
+    flex-grow : 1;
+}
+
+.h-50 {
+    height : 50;
+}

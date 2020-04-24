@@ -1,0 +1,57 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Bloodthirst.Core.Utils
+{
+    /// <summary>
+    /// an extension class containing helper methods for collections
+    /// </summary>
+    public static class CollectionsUtils
+    {
+
+        public static string ReplaceInterval(this string value , int startIndex , int endIndex , char replacementChar)
+        {
+            char[] chatArray = value.ToCharArray();
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                chatArray[i] = replacementChar;
+            }
+
+            return new string(chatArray);
+        }
+
+        /// <summary>
+        /// Add a new key-value pair to the dictionary if the key doesnt exist
+        /// </summary>
+        /// <typeparam name="K">TKey</typeparam>
+        /// <typeparam name="V">TValue</typeparam>
+        /// <param name="dict">dictionaty</param>
+        /// <param name="key">Key value</param>
+        public static void AddKeyValue<K,V>( this Dictionary<K,V> dict , K key) where V : new() {
+            if (!dict.ContainsKey(key))
+            {
+                dict.Add(key, new V());
+            }
+        }
+
+        /// <summary>
+        /// Copy the dictionary's content to another dictionary
+        /// doesn't clear the 'to' dictionary
+        /// </summary>
+        /// <typeparam name="K"></typeparam>
+        /// <typeparam name="V"></typeparam>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        public static void CopyDictionary<K,V>( this IDictionary<K,V> from, IDictionary<K, V> to )
+        {
+            foreach(KeyValuePair<K, V> kv in from)
+            {
+                to.Add(kv.Key, kv.Value);
+            }
+        }
+    }
+}

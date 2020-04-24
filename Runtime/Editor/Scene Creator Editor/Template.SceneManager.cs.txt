@@ -1,0 +1,8 @@
+﻿using Bloodthirst.Core.SceneManager;
+
+namespace Assets.Scripts.Scene.[SCENENAME]
+{
+    public class [SCENENAME]SceneManager : SceneInstanceManager<[SCENENAME]SceneManager>
+    {
+    }
+}

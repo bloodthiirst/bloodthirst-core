@@ -1,0 +1,13 @@
+﻿using Assets.Scripts.BISDSystem.Base;
+using Assets.Scripts.Game;
+using System;
+
+[Serializable]
+public struct [MODELNAME]State : IEntityState<[MODELNAME]Data>
+{
+    public [MODELNAME]Data data;
+    public [MODELNAME]Data Data { get => data; set => data = value; }
+
+    public int id;
+    public int Id { get => id; set => id = value; }
+}

@@ -1,0 +1,13 @@
+﻿using Assets.Scripts.BISDSystem;
+using UnityEngine;
+
+namespace Assets.Scripts.Game.[MODELNAME]Model
+{
+    public class [MODELNAME]Behaviour : EntityBehaviour<[MODELNAME]Data, [MODELNAME]State, [MODELNAME]Instance>
+    {
+        public override void OnSetInstance([MODELNAME]Instance instance)
+        {
+            Debug.Log("Instance has been set");
+        }
+    }
+}
