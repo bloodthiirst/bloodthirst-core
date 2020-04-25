@@ -17,8 +17,6 @@ namespace Assets.Scripts.BISDSystem
         where INSTANCE : EntityInstance<DATA,STATE> , new()
     {
 
-
-
         public INSTANCE Instance => instance;
 
         public DATA Data => instance.State.Data;
