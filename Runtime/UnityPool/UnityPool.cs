@@ -157,7 +157,7 @@ namespace Assets.Scripts.Core.UnityPool
         public BEHAVIOUR Load<DATA, STATE, INSTANCE, BEHAVIOUR>(STATE state)
             where DATA : EntityData
             where INSTANCE : EntityInstance<DATA, STATE>, new()
-            where STATE : IEntityState<DATA>
+            where STATE : IEntityState<DATA> , new()
             where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
 
 

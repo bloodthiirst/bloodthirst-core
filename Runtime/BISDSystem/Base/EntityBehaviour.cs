@@ -5,13 +5,19 @@ using UnityEngine;
 
 namespace Assets.Scripts.BISDSystem
 {
+    public enum LOAD_METHOD
+    {
+        FROM_DATA,
+        FROM_INSTANCE
+    }
+
     public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour
         where DATA : EntityData
-        where STATE : IEntityState<DATA>
-        where INSTANCE : EntityInstance<DATA,STATE>
+        where STATE : IEntityState<DATA> , new()
+        where INSTANCE : EntityInstance<DATA,STATE> , new()
     {
-        [SerializeField]
-        private INSTANCE instance;
+
+
 
         public INSTANCE Instance => instance;
 
@@ -21,10 +27,45 @@ namespace Assets.Scripts.BISDSystem
 
         public ref STATE RefState => ref instance.RefState;
 
+        [SerializeField]
+        private LOAD_METHOD loadMethod;
+
+        [SerializeField]
+        [ShowIf("loadMethod", LOAD_METHOD.FROM_DATA)]
+        private DATA loadData;
+
+        [SerializeField]
+        [ShowIf("loadMethod", LOAD_METHOD.FROM_INSTANCE)]
+        private INSTANCE instance;
+
         public void SetInstance(INSTANCE instance)
         {
             this.instance = instance;
             OnSetInstance(this.instance);
+        }
+
+        /// <summary>
+        /// Inject the instance either by using the exterior data or by using the serialized instance
+        /// </summary>
+        public virtual void Initialize()
+        {
+            switch (loadMethod)
+            {
+                case LOAD_METHOD.FROM_DATA:
+                    STATE st = new STATE();
+                    st.Data = loadData;
+
+                    INSTANCE ins = new INSTANCE();
+                    ins.SetState(st);
+                    
+                    SetInstance(ins);
+                    break;
+                case LOAD_METHOD.FROM_INSTANCE:
+                    SetInstance(Instance);
+                    break;
+                default:
+                    break;
+            }
         }
 
         public abstract void OnSetInstance(INSTANCE instance);
