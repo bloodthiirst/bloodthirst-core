@@ -1,6 +1,6 @@
 {
   "name": "com.bloodthirst.bloodthirst-core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "Bloodthirst Core",
   "description": "Core tools used for most projects",
   "unity": "2019.1",

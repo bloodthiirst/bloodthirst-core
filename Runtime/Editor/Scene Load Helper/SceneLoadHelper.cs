@@ -29,7 +29,7 @@ public class SceneLoadHelper : EditorWindow
 
 
         // Import UXML
-        VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/Scene Load Helper/SceneLoadHelper.uxml");
+        VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Scene Load Helper/SceneLoadHelper.uxml");
 
         VisualElement labelFromUXML = visualTree.CloneTree();
 
@@ -37,7 +37,7 @@ public class SceneLoadHelper : EditorWindow
 
         // A stylesheet can be added to a VisualElement.
         // The style will be applied to the VisualElement and all of its children.
-        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/Scene Load Helper/SceneLoadHelper.uss");
+        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Scene Load Helper/SceneLoadHelper.uss");
 
         root.styleSheets.Add(styleSheet);
 
