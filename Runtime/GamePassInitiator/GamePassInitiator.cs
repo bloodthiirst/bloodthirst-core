@@ -95,6 +95,7 @@ namespace Assets.Scripts.Core.GameInitPass
 
         private void QueryAllPasses()
         {
+            QueryScenes(ref scenePasses);
             QueryScenes(ref singletonPasses);
             QueryScenes(ref loadPasses);
             QueryScenes(ref injectPasses);

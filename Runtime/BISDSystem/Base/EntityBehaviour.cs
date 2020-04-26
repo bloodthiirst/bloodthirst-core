@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.BISDSystem.Base;
 using Assets.Scripts.Core.UnityPool;
+using Packages.BloodthirstCore.Runtime.BISDSystem.Base;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace Assets.Scripts.BISDSystem
         FROM_INSTANCE
     }
 
-    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour
+    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInstance<INSTANCE>, IInitializeInstance
         where DATA : EntityData
         where STATE : IEntityState<DATA> , new()
         where INSTANCE : EntityInstance<DATA,STATE> , new()
@@ -50,17 +51,22 @@ namespace Assets.Scripts.BISDSystem
             switch (loadMethod)
             {
                 case LOAD_METHOD.FROM_DATA:
-                    STATE st = new STATE();
-                    st.Data = loadData;
+                    {
+                        STATE st = new STATE();
+                        st.Data = loadData;
 
-                    INSTANCE ins = new INSTANCE();
-                    ins.SetState(st);
-                    
-                    SetInstance(ins);
-                    break;
+                        INSTANCE ins = new INSTANCE();
+                        ins.SetState(st);
+
+                        SetInstance(ins);
+                        break;
+                    }
                 case LOAD_METHOD.FROM_INSTANCE:
-                    SetInstance(Instance);
-                    break;
+                    {
+                        SetInstance(Instance);
+                        break;
+                    }
+
                 default:
                     break;
             }
@@ -87,5 +93,9 @@ namespace Assets.Scripts.BISDSystem
             return behaviour;
         }
 
+        public INSTANCE GetInstance()
+        {
+            return instance;
+        }
     }
 }

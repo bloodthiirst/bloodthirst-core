@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
-namespace Assets.Scripts.Game.[MODELNAME]Model
+namespace Packages.BloodthirstCore.Runtime.BISDSystem.Base
 {
-    [CreateAssetMenu(menuName ="[MODELNAME]/Data")]
-    public class [MODELNAME]Data : EntityData
+    public interface IInstance<INSTANCE>
     {
-
+        INSTANCE GetInstance();
     }
 }

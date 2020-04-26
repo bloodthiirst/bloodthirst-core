@@ -16,7 +16,7 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public class SceneLoadingManager : SerializedUnitySingleton<SceneLoadingManager> , IScenePass
+    public class SceneLoadingManager : SerializedUnitySingleton<SceneLoadingManager>
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport
 #endif
@@ -54,9 +54,17 @@ namespace Bloodthirst.Core.SceneManager
         [SerializeField]
         public UnityEvent AfterAllScenesLoaded;
 
+        [SerializeField]
+        private bool loadInStart;
+
         protected override void Awake()
         {
             base.Awake();
+        }
+
+        private IEnumerator Start()
+        {
+            yield return CrtLoadScenes();
         }
 
         private IEnumerator CrtLoadScenes() {
@@ -96,11 +104,6 @@ namespace Bloodthirst.Core.SceneManager
                 if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex).isLoaded)
                     asyncOperations.Add(UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive));
             }
-        }
-
-        public void DoScenePass()
-        {
-            StartCoroutine(CrtLoadScenes());
         }
     }
 
