@@ -1,10 +1,5 @@
 ﻿using Assets.Scripts.BISDSystem.Base;
-using Sirenix.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.Scripts.BISDSystem
@@ -40,6 +35,8 @@ namespace Assets.Scripts.BISDSystem
         /// State accessor read-write
         /// </summary>
         public ref STATE RefState { get => ref state; }
+
+        public IInstanceProvider InstanceProvider { get; set; }
 
         public EntityInstance()
         {

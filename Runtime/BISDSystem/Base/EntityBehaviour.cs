@@ -12,7 +12,7 @@ namespace Assets.Scripts.BISDSystem
         FROM_INSTANCE
     }
 
-    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInstance<INSTANCE>, IInitializeInstance
+    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInitializeInstance
         where DATA : EntityData
         where STATE : IEntityState<DATA> , new()
         where INSTANCE : EntityInstance<DATA,STATE> , new()
@@ -70,6 +70,14 @@ namespace Assets.Scripts.BISDSystem
                 default:
                     break;
             }
+
+            // set the instance provider
+
+            Instance.InstanceProvider = GetComponent<IInstanceProviderBehaviour>().InstanceProvider;
+
+            // register the instance
+
+            Instance.InstanceProvider.Register<INSTANCE>(Instance);
         }
 
         public abstract void OnSetInstance(INSTANCE instance);
@@ -91,11 +99,6 @@ namespace Assets.Scripts.BISDSystem
             behaviour.SetInstance(behaviour.Instance);
 
             return behaviour;
-        }
-
-        public INSTANCE GetInstance()
-        {
-            return instance;
         }
     }
 }
