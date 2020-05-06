@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Packages.BloodthirstCore.Runtime.BISDSystem.Base
 {
-    public interface IInitializeInstance
+    public interface IInitializeProvider
     {
-        void InitializeInstance();
+        void InitializeProvider(IInstanceProvider instanceProvider);
     }
 }

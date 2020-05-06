@@ -12,7 +12,7 @@ namespace Assets.Scripts.BISDSystem
         FROM_INSTANCE
     }
 
-    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInitializeInstance
+    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInitializeInstance , IRegisterInstance , IInitializeProvider
         where DATA : EntityData
         where STATE : IEntityState<DATA> , new()
         where INSTANCE : EntityInstance<DATA,STATE> , new()
@@ -46,7 +46,7 @@ namespace Assets.Scripts.BISDSystem
         /// <summary>
         /// Inject the instance either by using the exterior data or by using the serialized instance
         /// </summary>
-        public virtual void Initialize()
+        public virtual void InitializeInstance()
         {
             switch (loadMethod)
             {
@@ -70,14 +70,11 @@ namespace Assets.Scripts.BISDSystem
                 default:
                     break;
             }
+        }
 
-            // set the instance provider
-
-            Instance.InstanceProvider = GetComponent<IInstanceProviderBehaviour>().InstanceProvider;
-
-            // register the instance
-
-            Instance.InstanceProvider.Register<INSTANCE>(Instance);
+        public void RegisterInstance(IInstanceRegister instanceRegister)
+        {
+            instanceRegister.Register(Instance);
         }
 
         public abstract void OnSetInstance(INSTANCE instance);
@@ -99,6 +96,11 @@ namespace Assets.Scripts.BISDSystem
             behaviour.SetInstance(behaviour.Instance);
 
             return behaviour;
+        }
+
+        public void InitializeProvider(IInstanceProvider instanceProvider)
+        {
+            Instance.InstanceProvider = instanceProvider;
         }
     }
 }
