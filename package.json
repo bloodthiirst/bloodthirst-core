@@ -1,6 +1,6 @@
 {
   "name": "com.bloodthirst.bloodthirst-core",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "displayName": "Bloodthirst Core",
   "description": "Core tools used for most projects",
   "unity": "2019.1",
@@ -14,5 +14,6 @@
     "email": "rey199677@gmail.com",
     "url": "https://www.bloodthirst.com"
   },
-  "type": "tool"
+  "type": "tool",
+  "hideInEditor": false
 }
