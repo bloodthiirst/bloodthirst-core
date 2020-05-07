@@ -33,9 +33,9 @@ namespace Bloodthirst.Core.PersistantAsset
 
             // get singleton types
 
-            List<Type> validTypes = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
+            List<Type> validTypes = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany( asm => asm.GetTypes())
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsGenericType)
                 .Where(t => t.GetInterfaces().Contains(typeof(ISingletonScriptableObject)))
@@ -185,9 +185,9 @@ namespace Bloodthirst.Core.PersistantAsset
         {
             // get singleton types
 
-            List<Type> validTypes = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
+            List<Type> validTypes = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(asm => asm.GetTypes())
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsGenericType)
                 .Where(t => t.GetInterfaces().Contains(typeof(ISingletonScriptableObject)))
