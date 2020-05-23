@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +11,9 @@ namespace Bloodthirst.System.CommandSystem
     }
     public abstract class CommandBase<T> : ICommandBase where T : CommandBase<T>
     {
-
+#if UNITY_EDITOR
+        public bool detailedInfo;
+#endif
         public event Action OnCommandStart;
 
         public event Action OnCommandEnd;
@@ -18,22 +21,28 @@ namespace Bloodthirst.System.CommandSystem
         public event Action<ICommandBase> OnSpecificCommandEnd;
 
         [SerializeField]
+        [ShowIf( nameof(detailedInfo) , Value = true )]
         private COMMAND_STATE commandState;
         public COMMAND_STATE CommandState { get => commandState; set => commandState = value; }
 
         [SerializeField]
+        [ShowIf(nameof(detailedInfo), Value = true)]
         private List<ICommandBase> fallbackCommands;
+
         public List<ICommandBase> FallbackCommands { get => fallbackCommands; set => fallbackCommands = value; }
 
         [SerializeField]
+        [ShowIf(nameof(detailedInfo), Value = true)]
         private bool isDone;
         public bool IsDone { get => isDone; set => isDone = value; }
 
         [SerializeField]
+        [ShowIf(nameof(detailedInfo), Value = true)]
         private bool isStarted;
         public bool IsStarted { get => isStarted; set => isStarted = value; }
 
         [SerializeField]
+        [ShowIf(nameof(detailedInfo), Value = true)]
         private bool remove;
         public bool Remove { get => remove; set => remove = value; }
 
@@ -114,6 +123,11 @@ namespace Bloodthirst.System.CommandSystem
 
             OnCommandEnd?.Invoke();
             OnSpecificCommandEnd?.Invoke(this);
+        }
+       
+        public void Toggle()
+        {
+
         }
     }
 }

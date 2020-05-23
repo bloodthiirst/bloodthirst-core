@@ -10,6 +10,7 @@ using UnityEditor.Callbacks;
 using System.Linq;
 using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.PersistantAsset;
+using System.Collections.Generic;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -26,11 +27,12 @@ public class SceneCreatorEditor : EditorWindow
         {
             Scene scene = EditorSceneManager.GetSceneAt(i);
 
-            if(scene.buildIndex == -1)
+            /*
+            if (scene.buildIndex == -1)
             {
                 continue;
             }
-
+            */
             bool hasManager = scene.GetRootGameObjects().FirstOrDefault(g => g.name.Equals("Scene Manager")) != null;
 
             // if scene does not have a manager
@@ -43,25 +45,26 @@ public class SceneCreatorEditor : EditorWindow
 
                 Type sceneManagerType = null;
 
-                foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+                IEnumerable<Type> allTypes = AppDomain.CurrentDomain
+                                            .GetAssemblies()
+                                            .SelectMany(asm => asm.GetTypes())
+                                            .Where(t => t.Name.Contains(scene.name + "Manager"));
+
+                foreach (Type t in allTypes)
                 {
-                    foreach (Type t in a.GetTypes())
+                    if (t.Name.Contains(scene.name + "Manager"))
                     {
-                        if (t.Name.Equals(scene.name + "Manager"))
-                        {
-                            sceneManagerType = t;
-                            break;
-                        }
+                        sceneManagerType = t;
+                        break;
                     }
                 }
 
                 // if scene doesnt have a maanger then 
 
 
-
                 if (sceneManagerType == null)
                 {
-                    Debug.LogError("Couldn't find the right scene maanger for the scene : " + scene.name);
+                    //Debug.LogError("Couldn't find the right scene maanger for the scene : " + scene.name);
                     continue;
                 }
 
