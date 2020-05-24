@@ -94,6 +94,9 @@ namespace Assets.Scripts.Core.UnityPool
                 if (instance == null)
                     continue;
 
+                if (!filter(instance))
+                    continue;
+
                 PooledObjects[type].Remove(inst);
 
                 instance.gameObject.SetActive(true);
