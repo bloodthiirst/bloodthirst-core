@@ -1,15 +1,19 @@
-﻿using System;
+﻿using Bloodthirst.Core.Clonable;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
     public class ParallelLayer
     {
-
+        [SerializeField]
         private List<ICommandBase> waitableCommmands = default;
 
+        [SerializeField]
         private List<ICommandBase> interruptableCommmands = default;
 
+        [SerializeField]
         private List<ICommandBase> nonSyncedCached = default;
 
         private CommandBatchList nonSyncedCommandBatch = default;
