@@ -46,7 +46,6 @@ namespace Bloodthirst.System.CommandSystem
                     ICommandBase waitable = current.WaitableCommmands[i];
 
                     waitable.OnEnd();
-
                 }
 
                 current.WaitableCommmands.Clear();
@@ -66,9 +65,18 @@ namespace Bloodthirst.System.CommandSystem
 
                 ParallelLayer next = current.GenerateNext();
 
+                // if yes then put it on top
+
                 if (next != null)
                 {
-                    commandList.Insert(0, next);
+                    commandList[0] = next;
+                }
+
+                // else remove the top layer since its done
+
+                else
+                {
+                    commandList.RemoveAt(0);
                 }
             }
 
@@ -119,9 +127,18 @@ namespace Bloodthirst.System.CommandSystem
         {
             for (int i = 0; i < commandList.Count; i++)
             {
+                // interruptable
+
                 for (int j = 0; j < commandList[i].InterruptableCommmands.Count; j++)
                 {
                     commandList[i].InterruptableCommmands[j].Interrupt();
+                }
+
+                // waitable
+
+                for (int j = 0; j < commandList[i].WaitableCommmands.Count; j++)
+                {
+                    commandList[i].WaitableCommmands[j].Interrupt();
                 }
             }
         }
