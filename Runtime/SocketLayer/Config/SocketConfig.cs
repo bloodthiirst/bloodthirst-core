@@ -6,7 +6,7 @@ using UnityEngine;
 public class SocketConfig : SingletonScriptableObject<SocketConfig>
 {
     [SerializeField]
-    private int packetSize;
+    private int packetSize = default;
 
     [HideInInspector]
     /// <summary>
@@ -15,7 +15,7 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
     public int PacketSize => packetSize;
 
     [SerializeField]
-    private int serverPort;
+    private int serverPort = default;
 
     [HideInInspector]
     /// <summary>
@@ -25,7 +25,7 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
 
     [BoxGroup("IP")]
     [SerializeField]
-    private string serverAddress;
+    private string serverAddress = default;
 
     [HideInInspector]
     /// <summary>

@@ -34,7 +34,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
 
         [SerializeField]
-        private float pingTimer;
+        private float pingTimer = 0;
 
         private float currentTimer;
 

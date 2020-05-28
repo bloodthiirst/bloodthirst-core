@@ -14,6 +14,9 @@ namespace Bloodthirst.System.CommandSystem
         event Action OnCommandStart;
 
         event Action OnCommandEnd;
+
+        void OnCommandStartNotify();
+
         void OnStart();
         void OnTick(float delta);
         void OnEnd();

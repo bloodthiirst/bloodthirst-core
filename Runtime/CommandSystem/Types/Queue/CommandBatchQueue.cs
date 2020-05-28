@@ -35,6 +35,7 @@ namespace Bloodthirst.System.CommandSystem
             {
                 commandList.Peek().GetExcutingCommand().OnStart();
                 commandList.Peek().GetExcutingCommand().IsStarted = true;
+                commandList.Peek().OnCommandStartNotify();
             }
 
             // execute the commands on tick

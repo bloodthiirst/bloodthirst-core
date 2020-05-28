@@ -47,7 +47,9 @@ namespace Bloodthirst.System.CommandSystem
         public bool Remove { get => remove; set => remove = value; }
 
         public abstract void OnStart();
+        
         public abstract void OnTick(float delta);
+        
         public abstract void OnEnd();
 
         public virtual void OnInterrupt() { }
@@ -58,6 +60,10 @@ namespace Bloodthirst.System.CommandSystem
             IsDone = false;
             CommandState = COMMAND_STATE.EXECUTING;
             FallbackCommands = new List<ICommandBase>();
+        }
+        public void OnCommandStartNotify()
+        {
+            OnCommandStart?.Invoke();
         }
 
         public ICommandBase AddFallback(ICommandBase fallback)

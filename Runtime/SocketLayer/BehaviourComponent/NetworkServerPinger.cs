@@ -45,7 +45,7 @@ public class NetworkServerPinger : MonoBehaviour
     private PingPongTCPPacketServerProcessor pingPongTCPParser;
 
     [SerializeField]
-    private float pingTimer;
+    private float pingTimer = default;
 
     private float currentTimer;
 

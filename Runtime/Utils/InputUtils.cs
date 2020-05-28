@@ -23,16 +23,16 @@ public class InputUtils : UnitySingleton<InputUtils>, ISingletonPass
     [SerializeField]
     [Tooltip("maximum interval time between presses to be considered multiple click (in seconds)")]
     [Range(0, 1)]
-    private float pressInterval;
+    private float pressInterval = default;
 
     [Header("Debug / Test section")]
 
     [SerializeField]
-    private bool isDebugTestEnabled;
+    private bool isDebugTestEnabled = default;
 
     [SerializeField]
     [Range(1, 5)]
-    private int testCount;
+    private int testCount = default;
 
     public void DoSingletonPass()
     {

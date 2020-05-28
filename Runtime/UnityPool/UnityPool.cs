@@ -20,11 +20,11 @@ namespace Assets.Scripts.Core.UnityPool
     {
         [SerializeField]
         [Required]
-        private UnityPoolContainer unityPoolContainer;
+        private UnityPoolContainer unityPoolContainer = default;
 
         [SerializeField]
         [Required]
-        private Transform poolParent;
+        private Transform poolParent = default;
 
         private Dictionary<Type, List<MonoBehaviour>> pooledObjects;
 

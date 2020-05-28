@@ -15,7 +15,7 @@ namespace Bloodthirst.System.CommandSystem
             base.Awake();
             commandBatches = new List<ICommandBatch>();
         }
-        public static ICommandBatch AppendBatch<T>(object owner) where T : ICommandBatch, new()
+        public static T AppendBatch<T>(object owner) where T : ICommandBatch, new()
         {
             T batch = new T();
             batch.Owner = owner;

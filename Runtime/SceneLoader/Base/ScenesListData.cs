@@ -24,7 +24,7 @@ namespace Bloodthirst.Core.SceneManager
         private Dictionary<int, string> scenesDictionary;
 
         [SerializeField]
-        private string InitSceneName;
+        private string InitSceneName = default;
   
         public Dictionary<int, string> ScenesDictionary
         {

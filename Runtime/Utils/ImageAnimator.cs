@@ -13,23 +13,23 @@ using UnityEngine.UI;
 public class ImageAnimator : MonoBehaviour
 {
     [SerializeField]
-    private Sprite spriteSheet;
+    private Sprite spriteSheet = null;
 
     [SerializeField]
-    private ImageAnimatorController imageAnimatorController;
+    private ImageAnimatorController imageAnimatorController = null;
 
     [SerializeField]
-    private Image image;
+    private Image image = null;
 
     [SerializeField]
     [Range(0.1f, 10)]
-    private float animationDuration;
+    private float animationDuration = default;
 
     [SerializeField]
     private float currentTimer;
 
     [SerializeField]
-    private bool isLoopMode;
+    private bool isLoopMode = default;
 
     [ReadOnly]
     [SerializeField]
@@ -46,7 +46,7 @@ public class ImageAnimator : MonoBehaviour
     private Sprite[] animationFrames;
 
     [SerializeField]
-    private UnityEvent OnAnimationEnd;
+    private UnityEvent OnAnimationEnd = default;
 
 #if UNITY_EDITOR
     private void OnValidate()

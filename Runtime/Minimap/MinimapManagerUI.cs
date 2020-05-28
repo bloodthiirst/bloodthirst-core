@@ -13,21 +13,21 @@ public class MinimapManagerUI : UnitySingleton<MinimapManagerUI>, IPointerClickH
     private Transform target;
 
     [SerializeField]
-    private Camera minimapCamera;
+    private Camera minimapCamera = default;
 
     [SerializeField]
-    private RectTransform minimapRectTransform;
+    private RectTransform minimapRectTransform = null;
 
     [SerializeField]
-    private RawImage minimapRender;
+    private RawImage minimapRender = default;
 
     private RenderTexture mapTex;
 
     [SerializeField]
-    private bool rotateWithTarget;
+    private bool rotateWithTarget = true;
 
     [SerializeField]
-    private float rotationOffset;
+    private float rotationOffset = 0;
 
     private RaycastHit[] raycastHits = new RaycastHit[20];
 
@@ -40,7 +40,7 @@ public class MinimapManagerUI : UnitySingleton<MinimapManagerUI>, IPointerClickH
         mapTex.Create();
     }
 
-    private void Awake()
+    protected override void Awake()
     {
         IniTexture();
 

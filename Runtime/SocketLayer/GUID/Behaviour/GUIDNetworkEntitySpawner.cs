@@ -13,21 +13,21 @@ namespace Assets.SocketLayer.BehaviourComponent
         private static bool IsClient => SocketClient<Guid>.IsClient;
 
         [SerializeField]
-        private GUIDNetworkPlayerEntity playerPrefab;
+        private GUIDNetworkPlayerEntity playerPrefab = default;
 
         protected override NetworkPlayerEntityBase<Guid> PlayerPrefab => playerPrefab;
 
         [SerializeField]
-        private GUIDNetworkClientPlayerPacketProcessor clientPlayersProcessor;
+        private GUIDNetworkClientPlayerPacketProcessor clientPlayersProcessor = default;
 
         [SerializeField]
-        private GUIDNetworkServerPlayerPacketProcessor serverPlayersProcessor;
+        private GUIDNetworkServerPlayerPacketProcessor serverPlayersProcessor = default;
 
         [SerializeField]
-        private GUIDNetworkServerEntity networkServer;
+        private GUIDNetworkServerEntity networkServer = default;
 
         [SerializeField]
-        private GUIDNetworkClientEntity networkClient;
+        private GUIDNetworkClientEntity networkClient = default;
 
 
         public void Remove(Guid identifer)

@@ -27,15 +27,15 @@ namespace Assets.Scripts.BISDSystem
         public ref STATE RefState => ref instance.RefState;
 
         [SerializeField]
-        private LOAD_METHOD loadMethod;
+        private LOAD_METHOD loadMethod = default;
 
         [SerializeField]
         [ShowIf("loadMethod", LOAD_METHOD.FROM_DATA)]
-        private DATA loadData;
+        private DATA loadData = default;
 
         [SerializeField]
         [ShowIf("loadMethod", LOAD_METHOD.FROM_INSTANCE)]
-        private INSTANCE instance;
+        private INSTANCE instance = default;
 
         public void SetInstance(INSTANCE instance)
         {

@@ -26,14 +26,14 @@ namespace Bloodthirst.Systems.CameraSystem {
         public ICameraController ActiveCamera { get; private set; }
 
         [SerializeField]
-        private Camera sceneCamera;
+        private Camera sceneCamera = default;
         public Camera SceneCamera => sceneCamera;
 
         [SerializeField]
-        private float transitionDuration;
+        private float transitionDuration = default;
 
         [SerializeField]
-        private ICameraController initCamera;
+        private ICameraController initCamera = default;
 
         [SerializeField]
         public Ease easeMode;

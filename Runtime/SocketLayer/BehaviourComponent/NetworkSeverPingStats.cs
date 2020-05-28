@@ -19,7 +19,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         public ManagedSocketServer<Guid> SocketServer { get; set; }
 
         [SerializeField]
-        private NetworkServerPinger networkPing;
+        private NetworkServerPinger networkPing = default;
 
         [SerializeField]
         private GUIDNetworkServerGlobalPacketProcessor packetProcessor;
