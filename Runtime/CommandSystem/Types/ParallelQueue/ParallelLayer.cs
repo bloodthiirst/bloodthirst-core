@@ -5,49 +5,76 @@ namespace Bloodthirst.System.CommandSystem
 {
     public class ParallelLayer
     {
-        private List<ICommandBase> commandBasesPerLayer = default;
 
         private List<ICommandBase> waitableCommmands = default;
 
         private List<ICommandBase> interruptableCommmands = default;
+
+        private List<ICommandBase> nonSyncedCached = default;
+
+        private CommandBatchList nonSyncedCommandBatch = default;
+
         public List<ICommandBase> WaitableCommmands => waitableCommmands;
 
         public List<ICommandBase> InterruptableCommmands => interruptableCommmands;
 
-        public List<ICommandBase> CommandBasesPerLayer => commandBasesPerLayer;
+
+        private bool isStarted;
+
+        public bool IsStarted => isStarted;
 
         public bool IsDone => IsDoneInternal();
 
+        public void Start()
+        {
+            nonSyncedCommandBatch = CommandManager.AppendBatch<CommandBatchList>(this);
+
+            for(int i = 0; i < nonSyncedCached.Count; i++)
+            {
+                nonSyncedCommandBatch.Append(nonSyncedCached[i]);
+            }
+
+            isStarted = true;
+        }
+
         public ParallelLayer()
         {
-            commandBasesPerLayer = new List<ICommandBase>();
             waitableCommmands = new List<ICommandBase>();
+            interruptableCommmands = new List<ICommandBase>();
+            nonSyncedCached = new List<ICommandBase>();
+            isStarted = false;
         }
 
         private bool IsDoneInternal()
         {
             for(int i = 0; i < waitableCommmands.Count; i++)
             {
-                if (!waitableCommmands[i].IsDone)
+                if (!waitableCommmands[i].GetExcutingCommand().IsDone)
                     return false;
             }
 
             return true;
         }
 
-        public void Append(ICommandBase commandBase, bool waitForEnd , bool forceEndOnDone)
+        public ParallelLayer AppendWaitable(ICommandBase commandBase)
         {
-            commandBasesPerLayer.Add(commandBase);
+            waitableCommmands.Add(commandBase);
 
-            if (waitForEnd)
-            {
-                waitableCommmands.Add(commandBase);
-            }
+            return this;
+        }
 
-            if(forceEndOnDone)
-            {
-                interruptableCommmands.Add(commandBase);
-            }
+        public ParallelLayer AppendInterruptable(ICommandBase commandBase)
+        {
+
+            interruptableCommmands.Add(commandBase);
+
+            return this;
+        }
+
+        public ParallelLayer AppendNonSync(ICommandBase commandBase)
+        {
+            nonSyncedCached.Add(commandBase);
+            return this;
         }
 
         public virtual ParallelLayer GenerateNext()

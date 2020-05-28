@@ -124,6 +124,7 @@ namespace Bloodthirst.System.CommandSystem
         public void Interrupt()
         {
             OnInterrupt();
+            OnEnd();
             IsDone = true;
             CommandState = COMMAND_STATE.SUCCESS;
 

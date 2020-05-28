@@ -13,10 +13,21 @@ namespace Bloodthirst.System.CommandSystem
         [SerializeField]
         private object owner;
         public object Owner { get => owner; set => owner = value; }
+
         public CommandBatchParallelQueue()
         {
             CommandsList = new List<ParallelLayer>();
         }
+
+        public ParallelLayer AppendLayer()
+        {
+            ParallelLayer layer = new ParallelLayer();
+
+            commandList.Add(layer);
+
+            return layer;
+        }
+
         public void Tick(float delta)
         {
             if (commandList.Count == 0)
@@ -24,22 +35,40 @@ namespace Bloodthirst.System.CommandSystem
 
             ParallelLayer current = commandList[0];
 
-            // if command is done , forcebly end the other interruptable commands
+            // if all waitable commands are done , forcebly end the other interruptable commands
 
             if (current.IsDone)
             {
-                for(int i = 0; i < current.InterruptableCommmands.Count; i++)
+                // clear waitables
+
+                for (int i = 0; i < current.WaitableCommmands.Count; i++)
                 {
-                    current.InterruptableCommmands[i].Interrupt();
+                    ICommandBase waitable = current.WaitableCommmands[i];
+
+                    waitable.OnEnd();
+
                 }
 
-                commandList.RemoveAt(0);
+                current.WaitableCommmands.Clear();
+
+                // clear interruptables
+
+                for (int i = 0; i < current.InterruptableCommmands.Count; i++)
+                {
+                    ICommandBase interruptable = current.InterruptableCommmands[i];
+
+                    interruptable.Interrupt();
+                }
+
+                current.InterruptableCommmands.Clear();
+
+                // see if there is a generated layer
 
                 ParallelLayer next = current.GenerateNext();
 
-                if (next == null)
+                if (next != null)
                 {
-                    commandList.Insert(0 ,next);
+                    commandList.Insert(0, next);
                 }
             }
 
@@ -50,25 +79,45 @@ namespace Bloodthirst.System.CommandSystem
 
             // if command is not started , execute the command start
 
-            for (int i = 0; i < current.CommandBasesPerLayer.Count; i++)
+            if (!current.IsStarted)
             {
+                current.Start();
 
-                if (!current.CommandBasesPerLayer[i].IsStarted)
+                for (int i = 0; i < current.WaitableCommmands.Count; i++)
                 {
-                    current.CommandBasesPerLayer[i].GetExcutingCommand().OnStart();
-                    current.CommandBasesPerLayer[i].GetExcutingCommand().IsStarted = true;
-                    current.CommandBasesPerLayer[i].OnCommandStartNotify();
+                    current.WaitableCommmands[i].GetExcutingCommand().OnStart();
+                    current.WaitableCommmands[i].GetExcutingCommand().IsStarted = true;
+                    current.WaitableCommmands[i].OnCommandStartNotify();
+
                 }
 
-                // execute the commands on tick
+                for (int i = 0; i < current.InterruptableCommmands.Count; i++)
+                {
+                    current.InterruptableCommmands[i].GetExcutingCommand().OnStart();
+                    current.InterruptableCommmands[i].GetExcutingCommand().IsStarted = true;
+                    current.InterruptableCommmands[i].OnCommandStartNotify();
+                }
+            }
 
-                current.CommandBasesPerLayer[i].GetExcutingCommand().OnTick(delta);
+            // execute the commands on tick
+
+            for (int i = 0; i < current.InterruptableCommmands.Count; i++)
+            {
+                current.InterruptableCommmands[i].GetExcutingCommand().OnTick(delta);
+            }
+
+            for (int i = 0; i < current.WaitableCommmands.Count; i++)
+            {
+                if (!current.WaitableCommmands[i].IsDone)
+                {
+                    current.WaitableCommmands[i].GetExcutingCommand().OnTick(delta);
+                }
             }
         }
 
         public void Interrupt()
         {
-            for(int i = 0; i < commandList.Count; i++)
+            for (int i = 0; i < commandList.Count; i++)
             {
                 for (int j = 0; j < commandList[i].InterruptableCommmands.Count; j++)
                 {

@@ -48,11 +48,11 @@ public class SceneCreatorEditor : EditorWindow
                 IEnumerable<Type> allTypes = AppDomain.CurrentDomain
                                             .GetAssemblies()
                                             .SelectMany(asm => asm.GetTypes())
-                                            .Where(t => t.Name.Contains(scene.name + "Manager"));
+                                            .Where(t => t.Name.Contains(scene.name + "SceneManager"));
 
                 foreach (Type t in allTypes)
                 {
-                    if (t.Name.Contains(scene.name + "Manager"))
+                    if (t.Name.Contains(scene.name + "SceneManager"))
                     {
                         sceneManagerType = t;
                         break;
