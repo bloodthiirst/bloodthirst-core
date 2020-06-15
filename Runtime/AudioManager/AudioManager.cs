@@ -44,10 +44,28 @@ namespace Bloodthirst.Core.Audio
             }
         }
 
+        private List<AudioSource> standaloneAudioSources;
+
+        private List<AudioSource> StandaloneAudioSources
+        {
+            get
+            {
+                if (standaloneAudioSources == null)
+                {
+                    standaloneAudioSources = new List<AudioSource>();
+                }
+
+                return standaloneAudioSources;
+            }
+        }
+
+
         private AudioSource currentAudio;
 
         protected override void Awake()
         {
+            Clear();
+
             if (isPreload)
                 Preload();
         }
@@ -55,9 +73,20 @@ namespace Bloodthirst.Core.Audio
         [Button]
         private void Clear()
         {
+            // clear standalone
+
+            for (int i = StandaloneAudioSources.Count - 1; i >= 0; i--)
+            {
+#if UNITY_EDITOR
+                DestroyImmediate(StandaloneAudioSources[i]);
+#else
+                Destroy(StandaloneAudioSources[i]);
+#endif
+            }
+
             // clear busy
 
-            for(int i = BusyAudioSources.Count - 1; i >= 0; i--)
+            for (int i = BusyAudioSources.Count - 1; i >= 0; i--)
             {
 #if UNITY_EDITOR
                 DestroyImmediate(BusyAudioSources[i]);
@@ -82,10 +111,18 @@ namespace Bloodthirst.Core.Audio
         {
             for(int i = 0; i < preloadValue; i++)
             {
-                AudioSource source = gameObject.AddComponent<AudioSource>();
+                AudioSource audioSource = gameObject.AddComponent<AudioSource>();
 
-                FreeAudioSources.Enqueue(source);
+                ResetAudioSource(audioSource);
+
+                FreeAudioSources.Enqueue(audioSource);
             }
+        }
+
+        private void ResetAudioSource(AudioSource audioSource)
+        {
+            audioSource.playOnAwake = false;
+            audioSource.clip = null;
         }
 
         private void Update()
@@ -110,6 +147,27 @@ namespace Bloodthirst.Core.Audio
             }
         }
 
+        public AudioSource GetStandaloneAudioSource()
+        {
+            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+            
+            StandaloneAudioSources.Add(audioSource);
+
+            ResetAudioSource(audioSource);
+
+            return audioSource;
+        }
+
+        public void RemoveStandaloneAudioSource(AudioSource audioSource)
+        {
+            // if item was found and removed
+
+            if (StandaloneAudioSources.Remove(audioSource))
+            {
+                FreeAudioSources.Enqueue(audioSource);
+            }
+        }
+
         private AudioSource GetFreeAudioSource()
         {
             if (FreeAudioSources.Count == 0)
@@ -129,6 +187,8 @@ namespace Bloodthirst.Core.Audio
                 return null;
 
             AudioSource audioSource = GetFreeAudioSource();
+
+            ResetAudioSource(audioSource);
 
             audioSource.clip = audioClip;
 
