@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
@@ -17,6 +16,11 @@ namespace Bloodthirst.System.CommandSystem
         public CommandBatchParallelQueue()
         {
             CommandsList = new List<ParallelLayer>();
+        }
+
+        public void AddLayer(ParallelLayer parallelLayer)
+        {
+            commandList.Add(parallelLayer);
         }
 
         public ParallelLayer AppendLayer()

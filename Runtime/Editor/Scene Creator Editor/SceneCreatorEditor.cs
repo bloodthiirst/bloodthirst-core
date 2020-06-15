@@ -37,7 +37,6 @@ public class SceneCreatorEditor : EditorWindow
 
             // if scene does not have a manager
 
-
             if (!hasManager)
             {
 
@@ -48,6 +47,7 @@ public class SceneCreatorEditor : EditorWindow
                 IEnumerable<Type> allTypes = AppDomain.CurrentDomain
                                             .GetAssemblies()
                                             .SelectMany(asm => asm.GetTypes())
+                                            .Where(t => typeof(MonoBehaviour).IsAssignableFrom(t))
                                             .Where(t => t.Name.Contains(scene.name + "SceneManager"));
 
                 foreach (Type t in allTypes)
