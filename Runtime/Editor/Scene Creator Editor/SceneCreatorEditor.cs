@@ -5,12 +5,12 @@ using System.IO;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using System;
-using System.Reflection;
 using UnityEditor.Callbacks;
 using System.Linq;
 using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.PersistantAsset;
 using System.Collections.Generic;
+using Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTracker;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -21,6 +21,11 @@ public class SceneCreatorEditor : EditorWindow
     [DidReloadScripts(SingletonScriptableObjectInit.SCENE_CREATOR)]
     public static void OnReloadScripts()
     {
+        if (EditorOpenTracker.IsFirstTime())
+        {
+            return;
+        }
+
         bool isNewSceneAdded = false;
 
         for (int i = 0; i < EditorSceneManager.sceneCount; i++)

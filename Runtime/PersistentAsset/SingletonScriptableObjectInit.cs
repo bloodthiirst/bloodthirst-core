@@ -25,6 +25,10 @@ namespace Bloodthirst.Core.PersistantAsset
 
         public const int SCENE_CREATOR = 3;
 
+        public const int BISD_OBSERVABLE_GENERATOR = 4;
+
+        public const int EDITOR_OPEN_TRACKER = 5;
+
         #endregion
 
         [DidReloadScripts(SINGLETONS_CREATION_CHECK)]

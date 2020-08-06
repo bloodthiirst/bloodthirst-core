@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {
+    [BISDTag("[MODELNAME]" , ClassType.DATA)]
     [CreateAssetMenu(menuName ="[MODELNAME]/Data")]
     public class [MODELNAME]Data : EntityData
     {

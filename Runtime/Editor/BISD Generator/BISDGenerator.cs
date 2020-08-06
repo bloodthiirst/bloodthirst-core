@@ -1,8 +1,6 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using System;
 using System.IO;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
@@ -10,13 +8,13 @@ using UnityEngine.SceneManagement;
 public class BISDGenerator : EditorWindow
 {
 
-    private const string BEHAVIOUR_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Template.Behaviour.cs.txt";
+    private const string BEHAVIOUR_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISD Generator/Template.Behaviour.cs.txt";
 
-    private const string INSTANCE_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Template.Instance.cs.txt";
+    private const string INSTANCE_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISD Generator/Template.Instance.cs.txt";
 
-    private const string STATE_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Template.State.cs.txt";
+    private const string STATE_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISD Generator/Template.State.cs.txt";
 
-    private const string DATA_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Template.Data.cs.txt";
+    private const string DATA_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISD Generator/Template.Data.cs.txt";
 
     private const string REPLACE_KEYWORD = "[MODELNAME]";
 
@@ -60,13 +58,13 @@ public class BISDGenerator : EditorWindow
         VisualElement root = rootVisualElement;
 
         // Import UXML
-        var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISDGenerator.uxml");
+        var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISD Generator/BISDGenerator.uxml");
         VisualElement labelFromUXML = visualTree.CloneTree();
         root.Add(labelFromUXML);
 
         // A stylesheet can be added to a VisualElement.
         // The style will be applied to the VisualElement and all of its children.
-        var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISDGenerator.uss");
+        var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISD Generator/BISDGenerator.uss");
 
         SetupElements();
     }

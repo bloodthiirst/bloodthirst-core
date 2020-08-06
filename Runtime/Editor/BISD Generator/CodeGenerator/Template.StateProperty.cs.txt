@@ -1,0 +1,16 @@
+﻿		public event Action<[INSTANCE_TYPE]> On[FIELD_NICE_NAME]Changed;
+
+		public [FIELD_TYPE] [FIELD_NICE_NAME]
+		{
+			get  => state.[FIELD];
+			set
+			{
+				state.[FIELD] = value;
+				On[FIELD_NICE_NAME]Changed?.Invoke(this);
+			}
+		}
+
+		public void Trigger[FIELD_NICE_NAME]Changed()
+		{
+			On[FIELD_NICE_NAME]Changed?.Invoke(this);
+		}

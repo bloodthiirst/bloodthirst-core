@@ -1,3 +1,13 @@
-﻿{
-	"name": "com.bloodthirst.bloodthirst-core"
+{
+    "name": "com.bloodthirst.bloodthirst-core",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

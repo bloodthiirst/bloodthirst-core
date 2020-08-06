@@ -31,6 +31,26 @@ namespace Assets.Scripts.Utils
                 res.z = z.Value;
             
             return res;
-        }   
+        }
+
+        /// <summary>
+        /// Returns the angle of the vector in degrees
+        /// </summary>
+        /// <param name="vec"></param>
+        /// <returns></returns>
+        public static float ToAngleDeg(this Vector2 vec)
+        {
+            return Mathf.Atan2(vec.y, vec.x) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Returns the angle of the vector in radians
+        /// </summary>
+        /// <param name="vec"></param>
+        /// <returns></returns>
+        public static float ToAngleRad(this Vector2 vec)
+        {
+            return Mathf.Atan2(vec.y, vec.x);
+        }
     }
 }

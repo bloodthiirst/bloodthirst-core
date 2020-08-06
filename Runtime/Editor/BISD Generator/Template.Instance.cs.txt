@@ -8,9 +8,14 @@ using UnityEngine;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {
+	[BISDTag("[MODELNAME]" , ClassType.INSTANCE)]
     [Serializable]
     public class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State>
     {
+
+		//OBSERVABLES_START
+		//OBSERVABLES_END
+
 		public [MODELNAME]Instance() {
 			
 		}

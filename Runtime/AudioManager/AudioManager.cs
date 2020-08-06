@@ -127,11 +127,8 @@ namespace Bloodthirst.Core.Audio
 
         private void Update()
         {
-            int i = BusyAudioSources.Count;
+            for (int i = BusyAudioSources.Count - 1; i >= 0; i--) {
 
-
-            while (i != 0)
-            {
                 currentAudio = BusyAudioSources[i];
 
                 // if the audio stopped
@@ -142,8 +139,6 @@ namespace Bloodthirst.Core.Audio
 
                     FreeAudioSources.Enqueue(currentAudio);
                 }
-
-                i--;
             }
         }
 

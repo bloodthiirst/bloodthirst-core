@@ -82,12 +82,14 @@ namespace Assets.Scripts.Core.UnityPool
         {
             Type type = typeof(T);
 
-            if (!PooledObjects.ContainsKey(type))
+            List<MonoBehaviour> res = new List<MonoBehaviour>();
+
+            if (!PooledObjects.TryGetValue(type , out res))
                 return null;
 
             T instance = null;
 
-            foreach (MonoBehaviour inst in PooledObjects[type])
+            foreach (MonoBehaviour inst in res)
             {
                 instance = inst.GetComponent<T>();
 
@@ -97,9 +99,11 @@ namespace Assets.Scripts.Core.UnityPool
                 if (!filter(instance))
                     continue;
 
-                PooledObjects[type].Remove(inst);
+                res.Remove(inst);
 
                 instance.gameObject.SetActive(true);
+
+                instance.gameObject.transform.SetParent(null);
 
                 return instance;
 
@@ -117,15 +121,18 @@ namespace Assets.Scripts.Core.UnityPool
         {
             Type type = typeof(T);
 
-            if (!PooledObjects.ContainsKey(type))
+            List<MonoBehaviour> res = null;
+
+            if (!PooledObjects.TryGetValue(type , out res))
                 return null;
 
-            T instance = PooledObjects[type][0].GetComponent<T>();
-            PooledObjects[type].Remove(instance);
+            T instance = res[0].GetComponent<T>();
 
-            instance.gameObject.transform.SetParent(null);
+            res.Remove(instance);
 
             instance.gameObject.SetActive(true);
+
+            instance.gameObject.transform.SetParent(null);
 
             return instance;
         }
@@ -139,13 +146,20 @@ namespace Assets.Scripts.Core.UnityPool
         {
             Type type = typeof(T);
 
-            PooledObjects.AddKeyValue(type);
-
-            PooledObjects[type].Add(t);
+            var res = new List<MonoBehaviour>();
 
             t.gameObject.transform.SetParent(poolParent);
 
             t.gameObject.SetActive(false);
+
+            if (!PooledObjects.TryGetValue(type , out res))
+            {
+                PooledObjects.Add(type, new List<MonoBehaviour>() { t });
+                return;
+            }
+
+            res.Add(t);
+
         }
 
 
@@ -160,7 +174,7 @@ namespace Assets.Scripts.Core.UnityPool
         public BEHAVIOUR Load<DATA, STATE, INSTANCE, BEHAVIOUR>(STATE state)
             where DATA : EntityData
             where INSTANCE : EntityInstance<DATA, STATE>, new()
-            where STATE : IEntityState<DATA> , new()
+            where STATE : class , IEntityState<DATA> , new()
             where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
 
 
@@ -168,7 +182,7 @@ namespace Assets.Scripts.Core.UnityPool
             BEHAVIOUR behaviour = Instance.Get<BEHAVIOUR>();
 
             INSTANCE instance = new INSTANCE();
-            instance.SetState(state);
+            instance.State = state;
 
             behaviour.SetInstance(instance);
 

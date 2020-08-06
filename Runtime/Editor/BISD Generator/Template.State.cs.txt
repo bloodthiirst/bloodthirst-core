@@ -4,8 +4,9 @@ using System;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {
+    [BISDTag("[MODELNAME]" , ClassType.STATE)]
     [Serializable]
-    public struct [MODELNAME]State : IEntityState<[MODELNAME]Data>
+    public class [MODELNAME]State : IEntityState<[MODELNAME]Data>
     {
         public [MODELNAME]Data data;
         public [MODELNAME]Data Data { get => data; set => data = value; }

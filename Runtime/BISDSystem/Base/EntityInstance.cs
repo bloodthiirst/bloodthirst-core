@@ -7,7 +7,7 @@ namespace Assets.Scripts.BISDSystem
     [Serializable]
     public abstract class EntityInstance<DATA , STATE> 
         where DATA : EntityData 
-        where STATE : IEntityState<DATA>
+        where STATE : class , IEntityState<DATA>
     {
 
         /// <summary>
@@ -24,17 +24,24 @@ namespace Assets.Scripts.BISDSystem
         /// State field
         /// </summary>
         [SerializeField]
-        private STATE state;
+        protected STATE state;
 
         /// <summary>
-        /// State accessor readonly
+        /// State accessor
         /// </summary>
-        public STATE State { get => state; }
+        public STATE State {
+            get
+            {
+                return state;
+            }
+            set 
+            {
+                state = value;
+                OnStateChanged(state);
+                OnStateChangedEvent?.Invoke(state);
+            }
+        }
 
-        /// <summary>
-        /// State accessor read-write
-        /// </summary>
-        public ref STATE RefState { get => ref state; }
 
         public IInstanceProvider InstanceProvider { get; set; }
 
@@ -43,25 +50,18 @@ namespace Assets.Scripts.BISDSystem
 
         }
 
+        public void NotifyStateChange()
+        {
+            OnStateChangedEvent?.Invoke(State);
+        }
         public EntityInstance( STATE state)
         {
-            SetState(state);
-        }
-
-        public void SetState(STATE state)
-        {
-            this.state = state;
-            OnStateChanged(this.state);
+            State = state;
         }
 
         protected virtual void OnStateChanged(STATE state)
         {
 
-        }
-
-        public void NotifyStateChange()
-        {
-            OnStateChangedEvent?.Invoke(State);
         }
     }
 }

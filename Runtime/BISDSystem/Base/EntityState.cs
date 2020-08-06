@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.BISDSystem
 {
-    public struct EntityState<T> : IEntityState<T> where T : EntityData
+    public class EntityState<T> : IEntityState<T> where T : EntityData
     {
 
         [SerializeField]
@@ -40,16 +40,5 @@ namespace Assets.Scripts.BISDSystem
             }
         }
 
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-        public override bool Equals(object obj)
-        {
-            if (!(obj is EntityState<T>))
-                return false;
-
-            return ((EntityState<T>)obj).Id == Id;
-        }
     }
 }

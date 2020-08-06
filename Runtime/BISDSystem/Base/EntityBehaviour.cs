@@ -14,7 +14,7 @@ namespace Assets.Scripts.BISDSystem
 
     public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInitializeInstance , IRegisterInstance , IInitializeProvider
         where DATA : EntityData
-        where STATE : IEntityState<DATA> , new()
+        where STATE : class , IEntityState<DATA> , new()
         where INSTANCE : EntityInstance<DATA,STATE> , new()
     {
 
@@ -24,14 +24,14 @@ namespace Assets.Scripts.BISDSystem
 
         public STATE State => instance.State;
 
-        public ref STATE RefState => ref instance.RefState;
-
         [SerializeField]
         private LOAD_METHOD loadMethod = default;
 
         [SerializeField]
         [ShowIf("loadMethod", LOAD_METHOD.FROM_DATA)]
         private DATA loadData = default;
+
+        public DATA TagData => loadData;
 
         [SerializeField]
         [ShowIf("loadMethod", LOAD_METHOD.FROM_INSTANCE)]
@@ -40,7 +40,10 @@ namespace Assets.Scripts.BISDSystem
         public void SetInstance(INSTANCE instance)
         {
             this.instance = instance;
+
             OnSetInstance(this.instance);
+
+            instance.NotifyStateChange();
         }
 
         /// <summary>
@@ -56,7 +59,7 @@ namespace Assets.Scripts.BISDSystem
                         st.Data = loadData;
 
                         INSTANCE ins = new INSTANCE();
-                        ins.SetState(st);
+                        ins.State = st;
 
                         SetInstance(ins);
                         break;
@@ -91,9 +94,10 @@ namespace Assets.Scripts.BISDSystem
         {
             BEHAVIOUR behaviour = UnityPool.Instance.Get<BEHAVIOUR>();
 
-            behaviour.Instance.SetState(state);
+            behaviour.Instance.State = state;
 
             behaviour.SetInstance(behaviour.Instance);
+
 
             return behaviour;
         }
