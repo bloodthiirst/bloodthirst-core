@@ -6,9 +6,8 @@ using System.Linq;
 using Bloodthirst.Core.Utils;
 using UnityEngine;
 using Assets.Scripts.Core.Utils;
-using Assets.Scripts.BISDSystem;
-using Assets.Scripts.BISDSystem.Base;
 using Assets.Scripts.Core.GamePassInitiator;
+using Bloodthirst.Core.BISDSystem;
 
 namespace Assets.Scripts.Core.UnityPool
 {
@@ -184,7 +183,7 @@ namespace Assets.Scripts.Core.UnityPool
             INSTANCE instance = new INSTANCE();
             instance.State = state;
 
-            behaviour.SetInstance(instance);
+            behaviour.Instance = instance;
 
             return behaviour;
         }

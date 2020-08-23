@@ -1,5 +1,6 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,8 @@ namespace Bloodthirst.Core.GameEvent
 
         public static void Invoke(TArgs parameter)
         {
+            Debug.Log($"GameEvent Invoked :  {typeof(T).GetNiceName()}");
+
             if (subsribers == null)
                 return;
 

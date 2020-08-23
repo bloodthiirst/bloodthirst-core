@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.BISDSystem
+﻿namespace Bloodthirst.Core.BISDSystem
 {
     public interface IInstanceProvider
     {

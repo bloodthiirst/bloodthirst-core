@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.Scripts.Game
+namespace Bloodthirst.Core.BISD.CodeGeneration
 {
 
     public enum ClassType

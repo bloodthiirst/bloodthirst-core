@@ -1,6 +1,6 @@
 ﻿using Bloodthirst.Core.GameEvent;
 
-namespace Packages.BloodthirstCore.Runtime.BISDSystem.Base
+namespace Bloodthirst.Core.BISDSystem
 {
     public class OnInstanceAdded<INSTANCE> : GameEvent<OnInstanceAdded<INSTANCE>, INSTANCE>
     {

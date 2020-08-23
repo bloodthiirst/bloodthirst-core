@@ -1,5 +1,7 @@
-﻿		public event Action<[INSTANCE_TYPE]> On[FIELD_NICE_NAME]Changed;
+﻿		[Observable]
+		public event Action<[INSTANCE_TYPE]> On[FIELD_NICE_NAME]Changed;
 
+		[Observable]
 		public [FIELD_TYPE] [FIELD_NICE_NAME]
 		{
 			get  => state.[FIELD];
@@ -10,6 +12,7 @@
 			}
 		}
 
+		[Observable]
 		public void Trigger[FIELD_NICE_NAME]Changed()
 		{
 			On[FIELD_NICE_NAME]Changed?.Invoke(this);

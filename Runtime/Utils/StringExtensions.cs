@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Text;
-using System.Threading.Tasks;
-using UnityEditor.ProjectWindowCallback;
-using UnityEngine.UI;
 
-namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Utils
+namespace Bloodthirst.Core.Utils
 {
     public static class StringExtensions
     {

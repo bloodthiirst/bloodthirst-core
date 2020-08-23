@@ -1,5 +1,5 @@
-﻿using Assets.Scripts.BISDSystem.Base;
-using Assets.Scripts.Game;
+﻿using Bloodthirst.Core.BISD.CodeGeneration;
+using Bloodthirst.Core.BISDSystem;
 using System;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model

@@ -1,10 +1,8 @@
-﻿using Assets.Scripts.BISDSystem.Base;
-using Assets.Scripts.Core.UnityPool;
-using Packages.BloodthirstCore.Runtime.BISDSystem.Base;
+﻿using Assets.Scripts.Core.UnityPool;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Assets.Scripts.BISDSystem
+namespace Bloodthirst.Core.BISDSystem
 {
     public enum LOAD_METHOD
     {
@@ -18,7 +16,7 @@ namespace Assets.Scripts.BISDSystem
         where INSTANCE : EntityInstance<DATA,STATE> , new()
     {
 
-        public INSTANCE Instance => instance;
+        public abstract INSTANCE Instance { get; set; }
 
         public DATA Data => instance.State.Data;
 
@@ -35,16 +33,7 @@ namespace Assets.Scripts.BISDSystem
 
         [SerializeField]
         [ShowIf("loadMethod", LOAD_METHOD.FROM_INSTANCE)]
-        private INSTANCE instance = default;
-
-        public void SetInstance(INSTANCE instance)
-        {
-            this.instance = instance;
-
-            OnSetInstance(this.instance);
-
-            instance.NotifyStateChange();
-        }
+        protected INSTANCE instance = default;
 
         /// <summary>
         /// Inject the instance either by using the exterior data or by using the serialized instance
@@ -61,12 +50,12 @@ namespace Assets.Scripts.BISDSystem
                         INSTANCE ins = new INSTANCE();
                         ins.State = st;
 
-                        SetInstance(ins);
+                        Instance = ins;
                         break;
                     }
                 case LOAD_METHOD.FROM_INSTANCE:
                     {
-                        SetInstance(Instance);
+                        Instance = Instance;
                         break;
                     }
 
@@ -96,7 +85,7 @@ namespace Assets.Scripts.BISDSystem
 
             behaviour.Instance.State = state;
 
-            behaviour.SetInstance(behaviour.Instance);
+            behaviour.Instance = behaviour.Instance;
 
 
             return behaviour;

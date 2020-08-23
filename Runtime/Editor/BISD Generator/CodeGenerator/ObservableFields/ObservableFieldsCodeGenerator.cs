@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.Game;
-using Packages.com.bloodthirst.bloodthirst_core.Runtime.Utils;
+﻿using Bloodthirst.Core.Utils;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -9,9 +8,9 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using static Packages.com.bloodthirst.bloodthirst_core.Runtime.Utils.StringExtensions;
+using static Bloodthirst.Core.Utils.StringExtensions;
 
-namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generator.CodeGenerator
+namespace Bloodthirst.Core.BISD.CodeGeneration
 {
     public class ObservableFieldsCodeGenerator : ICodeGenerator
     {
@@ -22,46 +21,64 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generato
 
         public bool ShouldInject(Container<Type> TypeList, Container<TextAsset> TextList)
         {
-            /*
             bool mustRegenerate = false;
 
-            // fields
-            FieldInfo[] fields = TypeList.State
-                .GetFields(BindingFlags.Public | BindingFlags.Instance)
-                .Where(f => !f.Name.Equals("data"))
-                .Where(f => !f.Name.Equals("id"))
-                .ToArray();
-
-            //observers
-            FieldInfo[] observers = TypeList.Instance
-                .GetFields(BindingFlags.Public | BindingFlags.Instance)
-                .Where(f => f.FieldType.GetInterfaces().Contains(typeof(IObservable)))
-                .ToArray();
+            // fields of state
+            FieldInfo[] fields = GetObseravableFields(TypeList);
+            // instance vars
+            PropertyInfo[] props = GetObservableProps(TypeList);
+            EventInfo[] events = GetObservableEvents(TypeList);
+            MethodInfo[] methods = GetObservableMethods(TypeList);
 
             // check if we need to regenerate the code
 
-            if (fields.Length != observers.Length)
+            if (fields.Length != props.Length)
             {
-                mustRegenerate = true;
+                return true;
+            }
+
+            if (fields.Length != events.Length)
+            {
+                return true;
+            }
+
+            if (fields.Length != methods.Length)
+            {
+                return true;
             }
 
             else
             {
                 foreach (FieldInfo field in fields)
                 {
-                    string observerName = FieldToObserverName(field);
+                    string propertyName = FieldFormatedName(field);
+
+                    string eventName = $"On{propertyName}Changed";
+                    string triggerName = $"Trigger{propertyName}Changed";
 
                     // search for observer with valid name
-                    FieldInfo obs = observers.FirstOrDefault(o => o.Name.Equals(observerName));
+                    // property check
+                    PropertyInfo property = props.FirstOrDefault(o => o.Name.Equals(propertyName));
 
-                    if (obs == null)
+                    if (property == null)
                     {
                         mustRegenerate = true;
                         break;
                     }
 
-                    // check if it has the same type
-                    if (obs.FieldType != field.FieldType)
+                    // property check
+                    EventInfo eventProp = events.FirstOrDefault(o => o.Name.Equals(eventName));
+
+                    if (eventProp == null)
+                    {
+                        mustRegenerate = true;
+                        break;
+                    }
+
+                    // property check
+                    MethodInfo method = methods.FirstOrDefault(o => o.Name.Equals(triggerName));
+
+                    if (method == null)
                     {
                         mustRegenerate = true;
                         break;
@@ -70,20 +87,39 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generato
             }
 
             // if dont have to regenerate , go to next type
-
+            
             return mustRegenerate;
-            */
-            return true;
+        }
+
+        private static MethodInfo[] GetObservableMethods(Container<Type> TypeList)
+        {
+            //observers
+            return TypeList.Instance
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
+                .ToArray();
+        }
+        private static PropertyInfo[] GetObservableProps(Container<Type> TypeList)
+        {
+            //observers
+            return TypeList.Instance
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
+                .ToArray();
+        }
+
+        private static EventInfo[] GetObservableEvents(Container<Type> TypeList)
+        {
+            //observers
+            return TypeList.Instance
+                .GetEvents(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
+                .ToArray();
         }
 
         public void InjectGeneratedCode(Container<Type> TypeList, Container<TextAsset> TextList)
         {
-            // fields
-            FieldInfo[] fields = TypeList.State
-                .GetFields(BindingFlags.Public | BindingFlags.Instance)
-                .Where(f => !f.Name.Equals("data"))
-                .Where(f => !f.Name.Equals("id"))
-                .ToArray();
+            FieldInfo[] fields = GetObseravableFields(TypeList);
 
             // do the generation
 
@@ -141,7 +177,7 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generato
                         templateText = templateText.Replace("[FIELD_TYPE]", field.FieldType.GetNiceName());
 
                         templateText = templateText.Replace("[FIELD]", field.Name);
-                        
+
                         replacementText.Append(templateText)
                         .Append(Environment.NewLine)
                         .Append(Environment.NewLine);
@@ -169,6 +205,20 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generato
 
             // set dirty
             EditorUtility.SetDirty(TextList.Instance);
+
+            //
+            Debug.Log($"Type regenerated [{ TypeList.ModelName }]");
+        }
+
+        private static FieldInfo[] GetObseravableFields(Container<Type> TypeList)
+        {
+            // fields
+            return TypeList.State
+                .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => !f.Name.Equals("data"))
+                .Where(f => !f.Name.Equals("id"))
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
+                .ToArray();
         }
 
         private static string FieldFormatedName(FieldInfo field)

@@ -1,5 +1,4 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
-using Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generator.CodeGenerator;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generator
+namespace Bloodthirst.Core.BISD.CodeGeneration
 {
     public class BISDGeneratorOnReloadScripts
     {
@@ -27,7 +26,6 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generato
             List<ICodeGenerator> codeGenerators = new List<ICodeGenerator>()
             {
                 new ObservableFieldsCodeGenerator()
-                //new ObservableSetupCodeGenerator()
             };
 
             // get models info
@@ -211,6 +209,9 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generato
 
                     tupleText.Data = text;
                 }
+
+                tupleType.ModelName = model;
+                tupleText.ModelName = model;
 
             }
         }

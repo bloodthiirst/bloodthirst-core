@@ -1,10 +1,7 @@
-﻿using Assets.Scripts.BISDSystem;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using System;
+using Bloodthirst.Core.BISD.CodeGeneration;
+using Bloodthirst.Core.BISDSystem;
+using Sirenix.OdinInspector;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {
@@ -12,16 +9,26 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
     [Serializable]
     public class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State>
     {
-
 		//OBSERVABLES_START
 		//OBSERVABLES_END
 
-		public [MODELNAME]Instance() {
-			
+		public Action<[MODELNAME]Instance> OnInstanceRemoved;
+
+		public [MODELNAME]Instance() 
+		{
+
 		}
 
-		public [MODELNAME]Instance([MODELNAME]State state) {
-			RefState = state;	
+		public [MODELNAME]Instance([MODELNAME]State state) : base()
+		{
+			State = state;	
+		}
+
+		[Button]
+		public void Remove()
+		{
+			InstanceRegister<[MODELNAME]Instance>.Unregister(this);
+			OnInstanceRemoved?.Invoke(this);
 		}
     }
 }

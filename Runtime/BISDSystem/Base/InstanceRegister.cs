@@ -1,13 +1,6 @@
-﻿using Assets.Scripts.BISDSystem;
-using Bloodthirst.Core.GameEvent;
-using Packages.BloodthirstCore.Runtime.BISDSystem.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.BISDSystem.Base
+namespace Bloodthirst.Core.BISDSystem
 {
     public class InstanceRegister<INSTANCE>
     {

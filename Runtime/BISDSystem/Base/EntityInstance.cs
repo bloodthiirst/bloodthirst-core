@@ -1,15 +1,13 @@
-﻿using Assets.Scripts.BISDSystem.Base;
-using System;
+﻿using System;
 using UnityEngine;
 
-namespace Assets.Scripts.BISDSystem
+namespace Bloodthirst.Core.BISDSystem
 {
     [Serializable]
     public abstract class EntityInstance<DATA , STATE> 
         where DATA : EntityData 
         where STATE : class , IEntityState<DATA>
     {
-
         /// <summary>
         /// Event to listen to state changes
         /// </summary>

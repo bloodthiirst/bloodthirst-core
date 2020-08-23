@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.BISD_Generator.CodeGenerator
+namespace Bloodthirst.Core.BISD.CodeGeneration
 {
     public interface ICodeGenerator
     {

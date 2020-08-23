@@ -38,6 +38,11 @@ namespace Bloodthirst.Core.Utils
             }
         }
 
+        public static bool Has<T>(this IEnumerable<T> list , Predicate<T> filter)
+        {
+            return list.FirstOrDefault(t => filter(t)) != null;
+        }
+
         /// <summary>
         /// Copy the dictionary's content to another dictionary
         /// doesn't clear the 'to' dictionary

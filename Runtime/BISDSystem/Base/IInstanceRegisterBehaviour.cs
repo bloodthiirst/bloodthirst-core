@@ -1,6 +1,4 @@
-﻿using Packages.BloodthirstCore.Runtime.BISDSystem.Base;
-
-namespace Assets.Scripts.BISDSystem
+﻿namespace Bloodthirst.Core.BISDSystem
 {
     public interface IInstanceRegisterBehaviour
     {
