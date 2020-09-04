@@ -25,7 +25,7 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
 		}
 
 		[Button]
-		public void Remove()
+		public override void Remove()
 		{
 			InstanceRegister<[MODELNAME]Instance>.Unregister(this);
 			OnInstanceRemoved?.Invoke(this);

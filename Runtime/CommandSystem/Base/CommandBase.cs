@@ -41,16 +41,11 @@ namespace Bloodthirst.System.CommandSystem
         private bool isStarted;
         public bool IsStarted { get => isStarted; set => isStarted = value; }
 
-        [SerializeField]
-        [ShowIf(nameof(detailedInfo), Value = true)]
-        private bool remove;
-        public bool Remove { get => remove; set => remove = value; }
+        public virtual void OnStart() { }
+        
+        public virtual void OnTick(float delta) { }
 
-        public abstract void OnStart();
-        
-        public abstract void OnTick(float delta);
-        
-        public abstract void OnEnd();
+        public virtual void OnEnd() { }
 
         public virtual void OnInterrupt() { }
 
@@ -130,11 +125,6 @@ namespace Bloodthirst.System.CommandSystem
 
             OnCommandEnd?.Invoke();
             OnSpecificCommandEnd?.Invoke(this);
-        }
-       
-        public void Toggle()
-        {
-
         }
     }
 }

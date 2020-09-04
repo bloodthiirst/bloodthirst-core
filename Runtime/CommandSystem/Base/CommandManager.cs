@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Core.UnitySingleton;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
@@ -10,14 +11,20 @@ namespace Bloodthirst.System.CommandSystem
         [ShowInInspector]
         private List<ICommandBatch> commandBatches;
 
+        [SerializeField]
+        private bool isActive = true;
+
+        public bool IsActive { get => isActive; set => isActive = value; }
+
         protected override void Awake()
         {
             base.Awake();
             commandBatches = new List<ICommandBatch>();
         }
-        public static T AppendBatch<T>(object owner) where T : ICommandBatch, new()
+        public static T AppendBatch<T>(object owner , bool removeWhenDone = false) where T : ICommandBatch, new()
         {
             T batch = new T();
+            batch.RemoveWhenDone = removeWhenDone;
             batch.Owner = owner;
 
             Instance.commandBatches.Add(batch);
@@ -35,9 +42,17 @@ namespace Bloodthirst.System.CommandSystem
 
         private void Update()
         {
-            for(int i = 0; i < commandBatches.Count; i++)
+            if (!isActive)
+                return;
+
+            for(int i = commandBatches.Count - 1; i > -1 ; i--)
             {
                 commandBatches[i].Tick(Time.deltaTime);
+
+                if(commandBatches[i].BatchState == BATCH_STATE.DONE && commandBatches[i].RemoveWhenDone)
+                {
+                    commandBatches.RemoveAt(i);
+                }
             }
         }
 

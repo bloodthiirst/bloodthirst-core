@@ -5,10 +5,10 @@ namespace Bloodthirst.System.CommandSystem
 {
     public interface ICommandBase
     {
+
         COMMAND_STATE CommandState { get; set; }
         bool IsStarted { get; set; }
         bool IsDone { get; set; }
-        bool Remove { get; set; }
         List<ICommandBase> FallbackCommands { get; set; }
 
         event Action OnCommandStart;

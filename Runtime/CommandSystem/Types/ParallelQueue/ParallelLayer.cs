@@ -18,8 +18,14 @@ namespace Bloodthirst.System.CommandSystem
 
         private CommandBatchList nonSyncedCommandBatch = default;
 
+        /// <summary>
+        /// The essential layer that defines if the layer is done
+        /// </summary>
         public List<ICommandBase> WaitableCommmands => waitableCommmands;
 
+        /// <summary>
+        /// Commands that can be interrupted when the layer is done
+        /// </summary>
         public List<ICommandBase> InterruptableCommmands => interruptableCommmands;
 
 
@@ -60,6 +66,11 @@ namespace Bloodthirst.System.CommandSystem
             return true;
         }
 
+        /// <summary>
+        /// Add waitable command that defines the lifespan of the layer
+        /// </summary>
+        /// <param name="commandBase"></param>
+        /// <returns></returns>
         public ParallelLayer AppendWaitable(ICommandBase commandBase)
         {
             waitableCommmands.Add(commandBase);
@@ -67,6 +78,11 @@ namespace Bloodthirst.System.CommandSystem
             return this;
         }
 
+        /// <summary>
+        /// Add interruptable command that get interrupted as soon as the layer (waitable commands) is done
+        /// </summary>
+        /// <param name="commandBase"></param>
+        /// <returns></returns>
         public ParallelLayer AppendInterruptable(ICommandBase commandBase)
         {
 
@@ -75,6 +91,11 @@ namespace Bloodthirst.System.CommandSystem
             return this;
         }
 
+        /// <summary>
+        /// Add a command that will start with the layer and end on its own terms
+        /// </summary>
+        /// <param name="commandBase"></param>
+        /// <returns></returns>
         public ParallelLayer AppendNonSync(ICommandBase commandBase)
         {
             nonSyncedCached.Add(commandBase);

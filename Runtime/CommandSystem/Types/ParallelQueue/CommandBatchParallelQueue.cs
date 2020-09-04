@@ -6,38 +6,49 @@ namespace Bloodthirst.System.CommandSystem
     public class CommandBatchParallelQueue : ICommandBatch
     {
         [SerializeField]
-        private List<ParallelLayer> commandList;
-        public List<ParallelLayer> CommandsList { get => commandList; set => commandList = value; }
+        private List<ParallelLayer> layersList;
+        public List<ParallelLayer> LayersList { get => layersList; set => layersList = value; }
 
         [SerializeField]
         private object owner;
         public object Owner { get => owner; set => owner = value; }
 
+        [SerializeField]
+        private bool removeWhenDone;
+        public bool RemoveWhenDone { get => removeWhenDone; set => removeWhenDone = value; }
+
+        [SerializeField]
+        private BATCH_STATE batchState;
+        public BATCH_STATE BatchState { get => batchState; set => batchState = value; }
+
         public CommandBatchParallelQueue()
         {
-            CommandsList = new List<ParallelLayer>();
+            LayersList = new List<ParallelLayer>();
+            BatchState = BATCH_STATE.EXECUTING;
         }
 
         public void AddLayer(ParallelLayer parallelLayer)
         {
-            commandList.Add(parallelLayer);
+            layersList.Add(parallelLayer);
         }
 
         public ParallelLayer AppendLayer()
         {
             ParallelLayer layer = new ParallelLayer();
 
-            commandList.Add(layer);
+            layersList.Add(layer);
 
             return layer;
         }
 
         public void Tick(float delta)
         {
-            if (commandList.Count == 0)
+            if (layersList.Count == 0) {
+                BatchState = BATCH_STATE.DONE;
                 return;
+            }
 
-            ParallelLayer current = commandList[0];
+            ParallelLayer current = layersList[0];
 
             // if all waitable commands are done , forcebly end the other interruptable commands
 
@@ -73,21 +84,25 @@ namespace Bloodthirst.System.CommandSystem
 
                 if (next != null)
                 {
-                    commandList[0] = next;
+                    layersList[0] = next;
                 }
 
                 // else remove the top layer since its done
 
                 else
                 {
-                    commandList.RemoveAt(0);
+                    layersList.RemoveAt(0);
                 }
             }
 
-            if (commandList.Count == 0)
+            // 
+            if (layersList.Count == 0)
+            {
+                BatchState = BATCH_STATE.DONE;
                 return;
+            }
 
-            current = commandList[0];
+            current = layersList[0];
 
             // if command is not started , execute the command start
 
@@ -129,22 +144,30 @@ namespace Bloodthirst.System.CommandSystem
 
         public void Interrupt()
         {
-            for (int i = 0; i < commandList.Count; i++)
+            for (int i = 0; i < layersList.Count; i++)
             {
                 // interruptable
 
-                for (int j = 0; j < commandList[i].InterruptableCommmands.Count; j++)
+                for (int j = 0; j < layersList[i].InterruptableCommmands.Count; j++)
                 {
-                    commandList[i].InterruptableCommmands[j].Interrupt();
+                    if (layersList[i].WaitableCommmands[j].CommandState == COMMAND_STATE.EXECUTING)
+                    {
+                        layersList[i].InterruptableCommmands[j].Interrupt();
+                    }
                 }
 
                 // waitable
 
-                for (int j = 0; j < commandList[i].WaitableCommmands.Count; j++)
+                for (int j = 0; j < layersList[i].WaitableCommmands.Count; j++)
                 {
-                    commandList[i].WaitableCommmands[j].Interrupt();
+                    if (layersList[i].WaitableCommmands[j].CommandState == COMMAND_STATE.EXECUTING)
+                    {
+                        layersList[i].WaitableCommmands[j].Interrupt();
+                    }
                 }
             }
+
+            BatchState = BATCH_STATE.DONE;
         }
     }
 }

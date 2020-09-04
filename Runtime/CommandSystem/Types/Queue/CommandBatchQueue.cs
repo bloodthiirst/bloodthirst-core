@@ -10,25 +10,42 @@ namespace Bloodthirst.System.CommandSystem
         public Queue<ICommandBase> CommandsList { get => commandList; set => commandList = value; }
 
         [SerializeField]
+        private bool removeWhenDone;
+        public bool RemoveWhenDone { get => removeWhenDone; set => removeWhenDone = value; }
+
+        [SerializeField]
+        private BATCH_STATE batchState;
+        public BATCH_STATE BatchState { get => batchState; set => batchState = value; }
+
+        [SerializeField]
         private object owner;
         public object Owner { get => owner; set => owner = value; }
+
         public CommandBatchQueue()
         {
             CommandsList = new Queue<ICommandBase>();
+            BatchState = BATCH_STATE.EXECUTING;
         }
         public void Tick(float delta)
         {
             if (commandList.Count == 0)
+            {
+                BatchState = BATCH_STATE.DONE;
                 return;
-
-            // if command is done , delete it and do increment index
+            }
+            // if command is done , dequeue and execute on end
             if (commandList.Peek().GetExcutingCommand().IsDone)
             {
                 commandList.Dequeue().OnEnd();
             }
 
             if (commandList.Count == 0)
+            {
+                BatchState = BATCH_STATE.DONE;
                 return;
+            }
+
+            BatchState = BATCH_STATE.EXECUTING;
 
             // if command is not started , execute the command start
             if (!commandList.Peek().IsStarted)
@@ -52,8 +69,13 @@ namespace Bloodthirst.System.CommandSystem
         {
             foreach(ICommandBase command in commandList)
             {
-                command.Interrupt();
+                if (command.CommandState == COMMAND_STATE.EXECUTING)
+                {
+                    command.Interrupt();
+                }
             }
+
+            BatchState = BATCH_STATE.DONE;
         }
     }
 }

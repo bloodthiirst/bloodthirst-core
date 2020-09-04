@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Bloodthirst.Core.BISDSystem
 {
     [Serializable]
-    public abstract class EntityInstance<DATA , STATE> 
+    public abstract class EntityInstance<DATA, STATE> : IRemovable
         where DATA : EntityData 
         where STATE : class , IEntityState<DATA>
     {
@@ -61,5 +61,7 @@ namespace Bloodthirst.Core.BISDSystem
         {
 
         }
+
+        public abstract void Remove();
     }
 }

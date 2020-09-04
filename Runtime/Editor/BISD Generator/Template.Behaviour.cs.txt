@@ -36,13 +36,12 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
 
         public override void OnSetInstance([MODELNAME]Instance instance)
         {           
-            Debug.Log("Instance has been set");
+
         }
 
         private void OnRemove([MODELNAME]Instance ins)
         {
             // TODO : do the actual behaviour , like invoking Destroy or sending back to the pool
-            UnityPool.Instance.Return(this);
             instance.OnInstanceRemoved -= OnRemove;
             instance = null;
         }

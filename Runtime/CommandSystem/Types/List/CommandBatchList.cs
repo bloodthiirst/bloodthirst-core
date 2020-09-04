@@ -13,11 +13,21 @@ namespace Bloodthirst.System.CommandSystem
         private object owner;
         public object Owner { get => owner; set => owner = value; }
 
+
+        [SerializeField]
+        private bool removeWhenDone;
+        public bool RemoveWhenDone { get => removeWhenDone; set => removeWhenDone = value; }
+
+        [SerializeField]
+        private BATCH_STATE batchState;
+        public BATCH_STATE BatchState { get => batchState; set => batchState = value; }
+
         List<ICommandBase> removeCache = new List<ICommandBase>();
 
         public CommandBatchList()
         {
             CommandsList = new List<ICommandBase>();
+            BatchState = BATCH_STATE.EXECUTING;
         }
         public void Tick(float delta)
         {
@@ -60,6 +70,9 @@ namespace Bloodthirst.System.CommandSystem
                 // execute the commands on tick
                 CommandsList[i].GetExcutingCommand().OnTick(delta);
             }
+
+            // state depends on commands pending
+            BatchState = CommandsList.Count == 0 ? BATCH_STATE.DONE : BATCH_STATE.EXECUTING;
         }
 
         public ICommandBatch Append(ICommandBase command)
@@ -72,8 +85,13 @@ namespace Bloodthirst.System.CommandSystem
         {
             for (int i = 0; i < commandList.Count; i++)
             {
-                commandList[i].Interrupt();
+                if (commandList[i].CommandState == COMMAND_STATE.EXECUTING)
+                {
+                    commandList[i].Interrupt();
+                }
             }
+
+            BatchState = BATCH_STATE.DONE;
         }
     }
 }

@@ -10,7 +10,9 @@ namespace Bloodthirst.Core.BISDSystem
         FROM_INSTANCE
     }
 
-    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInitializeInstance , IRegisterInstance , IInitializeProvider
+    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInitializeInstance , IRegisterInstance , IInitializeProvider,
+        IBehaviour<INSTANCE>,
+        IRemovableBehaviour
         where DATA : EntityData
         where STATE : class , IEntityState<DATA> , new()
         where INSTANCE : EntityInstance<DATA,STATE> , new()
@@ -30,6 +32,8 @@ namespace Bloodthirst.Core.BISDSystem
         private DATA loadData = default;
 
         public DATA TagData => loadData;
+
+        public IRemovable Removable => Instance;
 
         [SerializeField]
         [ShowIf("loadMethod", LOAD_METHOD.FROM_INSTANCE)]
