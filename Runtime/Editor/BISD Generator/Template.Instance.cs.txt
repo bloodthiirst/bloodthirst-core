@@ -7,12 +7,10 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
 {
 	[BISDTag("[MODELNAME]" , ClassType.INSTANCE)]
     [Serializable]
-    public class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State>
+    public class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State,[MODELNAME]Instance>
     {
 		//OBSERVABLES_START
 		//OBSERVABLES_END
-
-		public Action<[MODELNAME]Instance> OnInstanceRemoved;
 
 		public [MODELNAME]Instance() 
 		{
@@ -22,13 +20,6 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
 		public [MODELNAME]Instance([MODELNAME]State state) : base()
 		{
 			State = state;	
-		}
-
-		[Button]
-		public override void Remove()
-		{
-			InstanceRegister<[MODELNAME]Instance>.Unregister(this);
-			OnInstanceRemoved?.Invoke(this);
 		}
     }
 }

@@ -15,10 +15,34 @@ namespace Bloodthirst.Core.BISDSystem
         IRemovableBehaviour
         where DATA : EntityData
         where STATE : class , IEntityState<DATA> , new()
-        where INSTANCE : EntityInstance<DATA,STATE> , new()
+        where INSTANCE : EntityInstance<DATA,STATE,INSTANCE> , new()
     {
 
-        public abstract INSTANCE Instance { get; set; }
+        public INSTANCE Instance
+        {
+            get
+            {
+                return instance;
+            }
+            set
+            {
+                if (instance != null)
+                {
+                    InstanceRegister<INSTANCE>.Unregister(instance);
+                    instance.OnInstanceRemoved -= OnRemove;
+                }
+
+                instance = value;
+
+                InstanceRegister<INSTANCE>.Register(instance);
+                instance.OnInstanceRemoved -= OnRemove;
+                instance.OnInstanceRemoved += OnRemove;
+
+                OnSetInstance(instance);
+
+                instance.NotifyStateChanged();
+            }
+        }
 
         public DATA Data => instance.State.Data;
 
@@ -66,6 +90,22 @@ namespace Bloodthirst.Core.BISDSystem
                 default:
                     break;
             }
+        }
+
+        public virtual void OnRemove(INSTANCE ins)
+        {
+            // TODO : do the actual behaviour , like invoking Destroy or sending back to the pool
+            instance.OnInstanceRemoved -= OnRemove;
+            instance = null;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (Instance == null)
+                return;
+
+            instance.OnInstanceRemoved -= OnRemove;
+            instance = null;
         }
 
         public void RegisterInstance(IInstanceRegister instanceRegister)

@@ -8,7 +8,7 @@
 			set
 			{
 				state.[FIELD] = value;
-				On[FIELD_NICE_NAME]Changed?.Invoke(this);
+				Trigger[FIELD_NICE_NAME]Changed();
 			}
 		}
 
@@ -16,4 +16,5 @@
 		public void Trigger[FIELD_NICE_NAME]Changed()
 		{
 			On[FIELD_NICE_NAME]Changed?.Invoke(this);
+			NotifyStateChanged();
 		}

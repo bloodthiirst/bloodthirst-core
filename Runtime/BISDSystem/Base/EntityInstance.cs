@@ -1,13 +1,20 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
     [Serializable]
-    public abstract class EntityInstance<DATA, STATE> : IRemovable
+    public abstract class EntityInstance<DATA, STATE , INSTANCE> : IRemovable
         where DATA : EntityData 
         where STATE : class , IEntityState<DATA>
+        where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>
     {
+        /// <summary>
+        /// Event to listen to instance remove
+        /// </summary>
+        public Action<INSTANCE> OnInstanceRemoved;
+
         /// <summary>
         /// Event to listen to state changes
         /// </summary>
@@ -48,7 +55,14 @@ namespace Bloodthirst.Core.BISDSystem
 
         }
 
-        public void NotifyStateChange()
+        [Button]
+        public virtual void Remove()
+        {
+            InstanceRegister <INSTANCE>.Unregister((INSTANCE) this);
+            OnInstanceRemoved?.Invoke((INSTANCE) this);
+        }
+
+        public void NotifyStateChanged()
         {
             OnStateChangedEvent?.Invoke(State);
         }
@@ -61,7 +75,5 @@ namespace Bloodthirst.Core.BISDSystem
         {
 
         }
-
-        public abstract void Remove();
     }
 }

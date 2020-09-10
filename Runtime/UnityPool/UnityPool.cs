@@ -172,7 +172,7 @@ namespace Assets.Scripts.Core.UnityPool
         /// <returns>Loaded bhaviour form pool</returns>
         public BEHAVIOUR Load<DATA, STATE, INSTANCE, BEHAVIOUR>(STATE state)
             where DATA : EntityData
-            where INSTANCE : EntityInstance<DATA, STATE>, new()
+            where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new()
             where STATE : class , IEntityState<DATA> , new()
             where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
 
