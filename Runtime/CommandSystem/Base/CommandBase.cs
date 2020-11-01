@@ -21,23 +21,31 @@ namespace Bloodthirst.System.CommandSystem
         public event Action<ICommandBase> OnSpecificCommandEnd;
 
         [SerializeField]
+#if UNITY_EDITOR
         [ShowIf( nameof(detailedInfo) , Value = true )]
+#endif
         private COMMAND_STATE commandState;
         public COMMAND_STATE CommandState { get => commandState; set => commandState = value; }
 
         [SerializeField]
+#if UNITY_EDITOR
         [ShowIf(nameof(detailedInfo), Value = true)]
+#endif
         private List<ICommandBase> fallbackCommands;
 
         public List<ICommandBase> FallbackCommands { get => fallbackCommands; set => fallbackCommands = value; }
 
         [SerializeField]
+#if UNITY_EDITOR
         [ShowIf(nameof(detailedInfo), Value = true)]
+#endif
         private bool isDone;
         public bool IsDone { get => isDone; set => isDone = value; }
 
         [SerializeField]
+#if UNITY_EDITOR
         [ShowIf(nameof(detailedInfo), Value = true)]
+#endif
         private bool isStarted;
         public bool IsStarted { get => isStarted; set => isStarted = value; }
 

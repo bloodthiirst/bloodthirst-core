@@ -35,6 +35,8 @@ namespace Bloodthirst.Core.SceneManager
             else
                 sceneGameObjects.Clear();
 
+            Debug.Log(Scene.name + Scene.buildIndex);
+
             Scene.GetRootGameObjects(sceneGameObjects);
         }
 
@@ -52,6 +54,11 @@ namespace Bloodthirst.Core.SceneManager
         private void Start()
         {
             // register the manager to the list of managers
+            if(SceneLoadingManager.Instance == null)
+            {
+                Debug.LogError("SceneLoadingManager is null");
+            }
+
             SceneLoadingManager.Instance.SceneInstanceManagers.Add(this);
 
             QuerySceneGameObjects();

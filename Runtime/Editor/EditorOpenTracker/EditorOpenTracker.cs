@@ -1,7 +1,6 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using System.IO;
 using UnityEditor;
-using UnityEditor.Callbacks;
 
 namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTracker
 {
@@ -22,7 +21,7 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTra
             return false;
         }
 
-        [DidReloadScripts(SingletonScriptableObjectInit.EDITOR_OPEN_TRACKER)]
+        [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.EDITOR_OPEN_TRACKER)]
         public static void ReloadUpdater()
         {
             EditorApplication.quitting -= OnEditorQuiting;

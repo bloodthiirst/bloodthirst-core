@@ -46,6 +46,7 @@ namespace Bloodthirst.Core.SceneManager
         }
 
         [ShowInInspector]
+        [SerializeField]
         private List<ISceneInstanceManager> sceneInstanceManagers;
 
         [SerializeField]
@@ -56,11 +57,6 @@ namespace Bloodthirst.Core.SceneManager
 
         [SerializeField]
         private bool loadInStart;
-
-        protected override void Awake()
-        {
-            base.Awake();
-        }
 
         private IEnumerator Start()
         {

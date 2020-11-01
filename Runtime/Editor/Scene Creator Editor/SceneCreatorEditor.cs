@@ -2,15 +2,13 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.IO;
-using UnityEditor.SceneManagement;
-using UnityEngine.SceneManagement;
 using System;
-using UnityEditor.Callbacks;
 using System.Linq;
 using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.PersistantAsset;
 using System.Collections.Generic;
 using Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTracker;
+using UnityEngine.SceneManagement;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -18,7 +16,7 @@ public class SceneCreatorEditor : EditorWindow
 
     private const string REPLACE_KEYWORD = "[SCENENAME]";
 
-    [DidReloadScripts(SingletonScriptableObjectInit.SCENE_CREATOR)]
+    [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.SCENE_CREATOR)]
     public static void OnReloadScripts()
     {
         if (EditorOpenTracker.IsFirstTime())
@@ -28,9 +26,9 @@ public class SceneCreatorEditor : EditorWindow
 
         bool isNewSceneAdded = false;
 
-        for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+        for (int i = 0; i < UnityEditor.SceneManagement.EditorSceneManager.sceneCount; i++)
         {
-            Scene scene = EditorSceneManager.GetSceneAt(i);
+            Scene scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i);
 
             /*
             if (scene.buildIndex == -1)
@@ -77,13 +75,13 @@ public class SceneCreatorEditor : EditorWindow
 
                 GameObject sceneManager = new GameObject("Scene Manager");
 
-                EditorSceneManager.MoveGameObjectToScene(sceneManager, scene);
+                UnityEditor.SceneManagement.EditorSceneManager.MoveGameObjectToScene(sceneManager, scene);
 
                 // add the scene manager component
 
                 sceneManager.AddComponent(sceneManagerType);
 
-                EditorSceneManager.SaveScene(scene);
+                UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
 
                 isNewSceneAdded = true;
             }
@@ -220,10 +218,10 @@ public class SceneCreatorEditor : EditorWindow
 
         // create scene asset
 
-        Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+        Scene scene = UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.EmptyScene, UnityEditor.SceneManagement.NewSceneMode.Additive);
         scene.name = sceneName + "Scene";
 
-        EditorSceneManager.SaveScene(scene, relativePath + "Scene.unity");
+        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, relativePath + "Scene.unity");
 
         AssetDatabase.ImportAsset(finalPath + "SceneManager.cs");
 

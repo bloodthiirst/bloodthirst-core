@@ -1,10 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
-using System;
 using UnityEngine.SceneManagement;
-using UnityEditor.SceneManagement;
 using System.Linq;
 
 public class SceneLoadHelper : EditorWindow
@@ -110,12 +107,12 @@ public class SceneLoadHelper : EditorWindow
     {
         for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
         {
-            if (EditorSceneManager.GetSceneByBuildIndex(i).isLoaded)
+            if (UnityEditor.SceneManagement.EditorSceneManager.GetSceneByBuildIndex(i).isLoaded)
             {
                 continue;
             }
 
-            EditorSceneManager.OpenScene(SceneUtility.GetScenePathByBuildIndex(i), OpenSceneMode.Additive);
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(SceneUtility.GetScenePathByBuildIndex(i), UnityEditor.SceneManagement.OpenSceneMode.Additive);
         }
     }
 
@@ -145,18 +142,18 @@ public class SceneLoadHelper : EditorWindow
     {
         int buildIndex = SceneUtility.GetBuildIndexByScenePath(scenePath);
 
-        if (!EditorSceneManager.GetSceneByBuildIndex(buildIndex).isLoaded)
-            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+        if (!UnityEditor.SceneManagement.EditorSceneManager.GetSceneByBuildIndex(buildIndex).isLoaded)
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
 
 
-        int scenesCount = EditorSceneManager.sceneCount;
+        int scenesCount = UnityEditor.SceneManagement.EditorSceneManager.sceneCount;
 
         for (int i = scenesCount - 1; i >= 0; i--)
         {
-            if (EditorSceneManager.GetSceneAt(i).buildIndex == buildIndex)
+            if (UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i).buildIndex == buildIndex)
                 continue;
 
-            EditorSceneManager.CloseScene(EditorSceneManager.GetSceneAt(i), true);
+            UnityEditor.SceneManagement.EditorSceneManager.CloseScene(UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i), true);
         }
 
 

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
-using UnityEditor.Callbacks;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISD.CodeGeneration
@@ -19,7 +18,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             "BISDGeneratorOnReloadScripts"
         };
 
-        [DidReloadScripts(SingletonScriptableObjectInit.BISD_OBSERVABLE_GENERATOR)]
+        [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.BISD_OBSERVABLE_GENERATOR)]
         public static void OnReloadScripts()
         {
             // code generators

@@ -20,7 +20,6 @@ namespace Bloodthirst.Core.SceneManager
     public class ScenesListData : SingletonScriptableObject<ScenesListData>
     {
         [OdinSerialize]
-        [ReadOnly]
         private Dictionary<int, string> scenesDictionary;
 
         [SerializeField]
@@ -57,6 +56,7 @@ namespace Bloodthirst.Core.SceneManager
         [DidReloadScripts(SingletonScriptableObjectInit.TRACK_ASSEMBLY_RELOAD)]
         public static void ReloadUpdater()
         {
+
             AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
             AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
 
