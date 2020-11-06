@@ -20,20 +20,20 @@ namespace Bloodthirst.Core.SceneManager
     public class ScenesListData : SingletonScriptableObject<ScenesListData>
     {
         [SerializeField]
-        private List<string> scenesDictionary;
+        private List<string> scenesList;
 
         [SerializeField]
         private string InitSceneName = default;
   
-        public List<string> ScenesDictionary
+        public List<string> ScenesList
         {
             get
             {
-                if (scenesDictionary == null)
+                if (scenesList == null)
                 {
-                    scenesDictionary = new List<string>();
+                    scenesList = new List<string>();
                 }
-                return scenesDictionary;
+                return scenesList;
             }
         }
 
@@ -86,9 +86,9 @@ namespace Bloodthirst.Core.SceneManager
         {
             List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
 
-            for(int i = 0; i < scenesDictionary.Count; i++)
+            for(int i = 0; i < scenesList.Count; i++)
             {
-                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenesDictionary[i], true) );
+                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenesList[i], true) );
             }
 
             // apply the change to the scenes list in build settings
@@ -99,7 +99,7 @@ namespace Bloodthirst.Core.SceneManager
         public void LoadAllScenesAvailable()
         {
 
-            ScenesDictionary.Clear();
+            ScenesList.Clear();
 
             List<EditorBuildSettingsScene> editorBuildSettingsScenes = GetAllSceneInTheProject();
 
@@ -115,7 +115,7 @@ namespace Bloodthirst.Core.SceneManager
 
                 int buildIndex = SceneUtility.GetBuildIndexByScenePath(EditorBuildSettings.scenes[i].path);
 
-                ScenesDictionary.Add(sceneName);
+                ScenesList.Add(sceneName);
                 SetupSceneInstanceManager(i);
             }
         }

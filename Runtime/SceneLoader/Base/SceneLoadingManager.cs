@@ -95,7 +95,7 @@ namespace Bloodthirst.Core.SceneManager
             else
                 asyncOperations.Clear();
 
-            for(int i = 0; i< ScenesListData.Instance.ScenesDictionary.Count; i++ ) {
+            for(int i = 0; i< ScenesListData.Instance.ScenesList.Count; i++ ) {
 
                 if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(i).isLoaded)
                     asyncOperations.Add(UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(i, LoadSceneMode.Additive));
