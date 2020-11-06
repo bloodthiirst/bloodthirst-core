@@ -95,10 +95,10 @@ namespace Bloodthirst.Core.SceneManager
             else
                 asyncOperations.Clear();
 
-            foreach (int sceneIndex in ScenesListData.Instance.ScenesDictionary.Keys.ToList() ) {
+            for(int i = 0; i< ScenesListData.Instance.ScenesDictionary.Count; i++ ) {
 
-                if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex).isLoaded)
-                    asyncOperations.Add(UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive));
+                if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(i).isLoaded)
+                    asyncOperations.Add(UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(i, LoadSceneMode.Additive));
             }
         }
     }

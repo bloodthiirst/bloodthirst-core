@@ -19,19 +19,19 @@ namespace Bloodthirst.Core.SceneManager
 {
     public class ScenesListData : SingletonScriptableObject<ScenesListData>
     {
-        [OdinSerialize]
-        private Dictionary<int, string> scenesDictionary;
+        [SerializeField]
+        private List<string> scenesDictionary;
 
         [SerializeField]
         private string InitSceneName = default;
   
-        public Dictionary<int, string> ScenesDictionary
+        public List<string> ScenesDictionary
         {
             get
             {
                 if (scenesDictionary == null)
                 {
-                    scenesDictionary = new Dictionary<int, string>();
+                    scenesDictionary = new List<string>();
                 }
                 return scenesDictionary;
             }
@@ -81,6 +81,19 @@ namespace Bloodthirst.Core.SceneManager
             return false;
         }
 
+        [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
+        public void ApplyToBuildSettings()
+        {
+            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
+
+            for(int i = 0; i < scenesDictionary.Count; i++)
+            {
+                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenesDictionary[i], true) );
+            }
+
+            // apply the change to the scenes list in build settings
+            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
+        }
 
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
         public void LoadAllScenesAvailable()
@@ -88,6 +101,27 @@ namespace Bloodthirst.Core.SceneManager
 
             ScenesDictionary.Clear();
 
+            List<EditorBuildSettingsScene> editorBuildSettingsScenes = GetAllSceneInTheProject();
+
+            editorBuildSettingsScenes = editorBuildSettingsScenes.OrderBy(s => !s.path.Split('/').Last().Equals(InitSceneName + ".unity")).ToList();
+
+            // apply the change to the scenes list in build settings
+            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
+
+            // save the scenes info in dictionary
+            for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
+            {
+                string sceneName = EditorBuildSettings.scenes[i].path;
+
+                int buildIndex = SceneUtility.GetBuildIndexByScenePath(EditorBuildSettings.scenes[i].path);
+
+                ScenesDictionary.Add(sceneName);
+                SetupSceneInstanceManager(i);
+            }
+        }
+
+        private List<EditorBuildSettingsScene> GetAllSceneInTheProject()
+        {
             // load scene assets
             string[] scenesGUIDs = AssetDatabase.FindAssets("t:Scene");
 
@@ -120,35 +154,7 @@ namespace Bloodthirst.Core.SceneManager
                 }
             }
 
-            editorBuildSettingsScenes = editorBuildSettingsScenes.OrderBy(s => !s.path.Split('/').Last().Equals(InitSceneName + ".unity")).ToList();
-
-            // apply the change to the scenes list in build settings
-            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
-
-
-
-            // save the scenes info in dictionary
-            for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
-            {
-                string sceneName = EditorBuildSettings.scenes[i].path;
-                sceneName = sceneName.Remove(sceneName.Length - 6).Split('/').Last();
-
-                int buildIndex = SceneUtility.GetBuildIndexByScenePath(EditorBuildSettings.scenes[i].path);
-
-                ScenesDictionary.Add(buildIndex , sceneName);
-                SetupSceneInstanceManager(i);
-            }
-
-            Dictionary<int, string> tmp = new Dictionary<int, string>();
-
-            IOrderedEnumerable<KeyValuePair<int, string>> ordered = ScenesDictionary.OrderBy(kv => kv.Key);
-
-            foreach (KeyValuePair<int, string> kv in ordered)
-            {
-                tmp.Add(kv.Key, kv.Value);
-            }
-
-            scenesDictionary = new Dictionary<int, string>(tmp);
+            return editorBuildSettingsScenes;
         }
 
 #if UNITY_EDITOR
