@@ -1,10 +1,11 @@
 ﻿using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Bloodthirst.Core.UI
 {
-    public abstract class UIWindow : MonoBehaviour , IUIWindow
+    public abstract class UIWindow : MonoBehaviour, IUIWindow, IPointerDownHandler
     {
         public IStackedWindowManager Manager => GetManager();
         public abstract bool HideInStack { get; }
@@ -81,6 +82,12 @@ namespace Bloodthirst.Core.UI
         void IUIWindow.Close()
         {
             Close();
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (IsHidden)
+                TriggerShow();
         }
     }
 }
