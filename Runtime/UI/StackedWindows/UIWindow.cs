@@ -25,7 +25,6 @@ namespace Bloodthirst.Core.UI
         protected abstract void Open();
         protected abstract void Close();
 
-        [Button]
         public void TriggerHide()
         {
             if (HideInStack)
@@ -36,7 +35,6 @@ namespace Bloodthirst.Core.UI
             }
         }
 
-        [Button]
         public void TriggerShow()
         {
             if (HideInStack)

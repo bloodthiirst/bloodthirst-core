@@ -49,13 +49,14 @@ namespace Bloodthirst.Core.UI
         private void Refresh()
         {
             // sort every thing except the last window
-            for(int i = 0; i < uiWindows.Count - 1; i++)
+            for (int i = 0; i < uiWindows.Count - 1; i++)
             {
                 IUIWindow window = uiWindows[i];
 
                 window.ParentTransform.SetParent(container);
                 window.ParentTransform.SetSiblingIndex(i);
 
+                window.IsHidden = true;
                 window.Hide();
             }
 
@@ -66,10 +67,9 @@ namespace Bloodthirst.Core.UI
                 last.ParentTransform.SetParent(container);
                 last.ParentTransform.SetSiblingIndex(uiWindows.Count - 1);
 
-                if (last.IsHidden)
-                {
-                    last.Show();
-                }
+                last.IsHidden = false;
+                last.Show();
+
             }
         }
 
