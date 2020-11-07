@@ -7,7 +7,8 @@ namespace Bloodthirst.Core.UI
     public abstract class UIWindow : MonoBehaviour , IUIWindow
     {
         public IStackedWindowManager Manager => GetManager();
-
+        public abstract bool HideInStack { get; }
+        public abstract bool IsHidden { get; set; }
         public bool IsOpen { get; set; }
 
         [SerializeField]
@@ -25,8 +26,38 @@ namespace Bloodthirst.Core.UI
         protected abstract void Close();
 
         [Button]
+        public void TriggerHide()
+        {
+            if (HideInStack)
+            {
+                IsHidden = true;
+                ((IUIWindow)this).Manager.Add(this);
+                Hide();
+            }
+        }
+
+        [Button]
+        public void TriggerShow()
+        {
+            if (HideInStack)
+            {
+                IsHidden = false;
+                ((IUIWindow)this).Manager.Add(this);
+                Show();
+            }
+        }
+
+        public abstract void Show();
+        public abstract void Hide();
+
+        [Button]
         public void TriggerOpen()
         {
+            if (IsOpen)
+            {
+                TriggerShow();
+                return;
+            }
             IsOpen = true;
             ((IUIWindow)this).Manager.Add(this);
             Open();
@@ -36,6 +67,8 @@ namespace Bloodthirst.Core.UI
         [Button]
         public void TriggerClose()
         {
+            if (!IsOpen)
+                return;
             IsOpen = false;
             Close();
             ((IUIWindow)this).Manager.Remove(this);

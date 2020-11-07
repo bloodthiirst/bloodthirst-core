@@ -8,6 +8,8 @@ namespace Bloodthirst.Core.UI
         IStackedWindowManager Manager { get; }
         RectTransform ParentTransform { get; }
         bool IsOpen { get; set; }
+        bool IsHidden { get; set; }
+        bool HideInStack { get; }
 
         event Action<UIWindow> OnOpen;
 
@@ -15,8 +17,11 @@ namespace Bloodthirst.Core.UI
         bool RequestClose();
         void Open();
         void Close();
-
+        void Show();
+        void Hide();
         void TriggerOpen();
         void TriggerClose();
+        void TriggerHide();
+        void TriggerShow();
     }
 }

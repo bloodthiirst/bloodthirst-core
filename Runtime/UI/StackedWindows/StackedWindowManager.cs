@@ -23,12 +23,20 @@ namespace Bloodthirst.Core.UI
 
         void IStackedWindowManager.Add<T1>(T1 t)
         {
+            // if doesn't exist add to the front
             if (!uiWindows.Contains(t))
             {
                 uiWindows.Add(t);
             }
+
+            // else remove and add to the front
+            else
+            {
+                uiWindows.Remove(t);
+                uiWindows.Add(t);
+            }
+
             t.ParentTransform.SetParent(container);
-            t.ParentTransform.SetAsLastSibling();
             Refresh();
         }
 
@@ -40,7 +48,29 @@ namespace Bloodthirst.Core.UI
 
         private void Refresh()
         {
-            // TODO : fix the sort order
+            // sort every thing except the last window
+            for(int i = 0; i < uiWindows.Count - 1; i++)
+            {
+                IUIWindow window = uiWindows[i];
+
+                window.ParentTransform.SetParent(container);
+                window.ParentTransform.SetSiblingIndex(i);
+
+                window.Hide();
+            }
+
+            // setup the last window
+            if (uiWindows.Count > 0)
+            {
+                IUIWindow last = uiWindows[uiWindows.Count - 1];
+                last.ParentTransform.SetParent(container);
+                last.ParentTransform.SetSiblingIndex(uiWindows.Count - 1);
+
+                if (last.IsHidden)
+                {
+                    last.Show();
+                }
+            }
         }
 
 
@@ -53,8 +83,9 @@ namespace Bloodthirst.Core.UI
             if (UiWindows.Last().RequestClose())
             {
                 IUIWindow window = UiWindows.Last();
-                UiWindows.RemoveAt(UiWindows.Count - 1);
                 window.TriggerClose();
+
+                Refresh();
             }
         }
     }
