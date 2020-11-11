@@ -1,27 +1,31 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Bloodthirst.Core.UI
 {
     public interface IUIWindow
     {
-        IStackedWindowManager Manager { get; }
+        IWindowLayer Manager { get; }
         RectTransform ParentTransform { get; }
         bool IsOpen { get; set; }
-        bool IsHidden { get; set; }
-        bool HideInStack { get; }
+        bool RequestOpen { get; set; }
+        bool RequestFocus { get; set; }
+        bool RequestUnfocus { get; set; }
+        bool RequestClose { get; set; }
+        bool IsFocused { get; set; }
 
-        event Action<UIWindow> OnOpen;
-
-        event Action<UIWindow> OnClose;
-        bool RequestClose();
-        void Open();
-        void Close();
-        void Show();
-        void Hide();
+        event Action<IUIWindow> OnOpen;
+        event Action<IUIWindow> OnFocus;
+        event Action<IUIWindow> OnUnfocus;
+        event Action<IUIWindow> OnClose;
+        IEnumerator Open();
+        IEnumerator Close();
+        IEnumerator Focus();
+        IEnumerator Unfocus();
         void TriggerOpen();
         void TriggerClose();
-        void TriggerHide();
-        void TriggerShow();
+        void TriggerUnfocus();
+        void TriggerFocus();
     }
 }

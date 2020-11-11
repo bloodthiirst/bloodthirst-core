@@ -8,7 +8,7 @@ namespace Bloodthirst.Core.UI
     public class UIWindowHandle : MonoBehaviour , IPointerDownHandler  , IPointerUpHandler
     {
         [SerializeField]
-        private RectTransform uiWindowTransform;
+        private RectTransform uiWindowTransform = null;
 
         private bool canMove;
 

@@ -1,93 +1,108 @@
-﻿using Sirenix.OdinInspector;
+﻿using Assets.Scripts.Core.GamePassInitiator;
+using Sirenix.OdinInspector;
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Bloodthirst.Core.UI
 {
-    public abstract class UIWindow : MonoBehaviour, IUIWindow, IPointerDownHandler
+    public abstract class UIWindow : MonoBehaviour, IUIWindow, IPointerDownHandler, IAwakePass
     {
-        public IStackedWindowManager Manager => GetManager();
-        public abstract bool HideInStack { get; }
-        public abstract bool IsHidden { get; set; }
-        public bool IsOpen { get; set; }
-
         [SerializeField]
         protected RectTransform parentTransform;
-
+        public IWindowLayer Manager => GetManager();
         public RectTransform ParentTransform => parentTransform;
 
-        public event Action<UIWindow> OnOpen;
+        [ShowInInspector]
+        public abstract bool IsFocused { get; set; }
+        [ShowInInspector]
+        public bool IsOpen { get; set; }
 
-        public event Action<UIWindow> OnClose;
+        public virtual bool RequestOpen { get; set; }
+        public virtual bool RequestFocus { get; set; }
+        public virtual bool RequestUnfocus { get; set; }
+        public virtual bool RequestClose { get; set; }
 
-        public abstract IStackedWindowManager GetManager();
-        public abstract bool RequestClose();
-        protected abstract void Open();
-        protected abstract void Close();
+        public event Action<IUIWindow> OnClose;
 
-        public void TriggerHide()
+        public event Action<IUIWindow> OnFocus;
+
+        public event Action<IUIWindow> OnUnfocus;
+
+        public event Action<IUIWindow> OnOpen;
+
+        public abstract IWindowLayer GetManager();
+        public abstract IEnumerator Open();
+        public abstract IEnumerator Close();
+        public abstract IEnumerator Focus();
+        public abstract IEnumerator Unfocus();
+
+        public void DoAwakePass()
         {
-            if (HideInStack)
-            {
-                IsHidden = true;
-                ((IUIWindow)this).Manager.Add(this);
-                Hide();
-            }
+            IsOpen = false;
+            IsFocused = false;
+            Manager.Add(this);
+            StartCoroutine(Close());
         }
 
-        public void TriggerShow()
+        public void OnDestroy()
         {
-            if (HideInStack)
-            {
-                IsHidden = false;
-                ((IUIWindow)this).Manager.Add(this);
-                Show();
-            }
+            IsOpen = false;
+            IsFocused = false;
+            Manager.Remove(this);
         }
 
-        public abstract void Show();
-        public abstract void Hide();
+        public void TriggerUnfocus()
+        {
+            RequestUnfocus = true;
+            Manager.Refresh();
+        }
 
-        [Button]
+        public void TriggerFocus()
+        {
+            RequestFocus = true;
+            Manager.Refresh();
+        }
+
+
         public void TriggerOpen()
         {
-            if (IsOpen)
+            if (!IsOpen)
             {
-                TriggerShow();
-                return;
+                RequestOpen = true;
             }
-            IsOpen = true;
-            ((IUIWindow)this).Manager.Add(this);
-            Open();
-            OnOpen?.Invoke(this);
+            else
+            {
+                RequestFocus = true;
+                OnFocus?.Invoke(this);
+            }
+            Manager.Refresh();
+        }
+        public void TriggerClose()
+        {
+            RequestClose = true;
+            Manager.Refresh();
+        }
+
+#if UNITY_EDITOR
+        [Button]
+        private void TriggerOpenEditor()
+        {
+            TriggerOpen();
         }
 
         [Button]
-        public void TriggerClose()
+        private void TriggerCloseEditor()
         {
-            if (!IsOpen)
-                return;
-            IsOpen = false;
-            Close();
-            ((IUIWindow)this).Manager.Remove(this);
-            OnClose?.Invoke(this);
+            TriggerClose();
         }
-
-        void IUIWindow.Open()
-        {
-            Open();
-        }
-
-        void IUIWindow.Close()
-        {
-            Close();
-        }
+#endif
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (IsHidden)
-                TriggerShow();
+            RequestFocus = true;
+            OnFocus?.Invoke(this);
         }
     }
 }
