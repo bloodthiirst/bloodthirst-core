@@ -1,20 +1,16 @@
 ﻿using Assets.Models;
+using Assets.SocketLayer.Client.Base;
 using Assets.SocketLayer.PacketParser;
 using Assets.SocketLayer.PacketParser.Base;
-using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public class NetworkClientPingStats : MonoBehaviour, ISocketClient<Guid>
+    public class NetworkClientPingStats : MonoBehaviour, ISocketClient< GUIDSocketClient, Guid>
     {
         [SerializeField]
         private GUIDNetworkClientGlobalPacketProcessor packetProcessor;
@@ -22,7 +18,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         private PingStatsPacketClientProcessor PingRequest { get; set; }
 
         [ShowInInspector]
-        public SocketClient<Guid> SocketClient { get; set; }
+        public GUIDSocketClient SocketClient { get; set; }
 
         [ShowInInspector]
         [ReadOnly]
@@ -34,7 +30,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
 
         [SerializeField]
-        private float pingTimer = 0;
+        private float pingTimer;
 
         private float currentTimer;
 
@@ -49,7 +45,10 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         private void Update()
         {
-            if (!SocketClient<Guid>.IsClient)
+            if (SocketClient == null)
+                return;
+
+            if (!SocketClient.IsClient)
                 return;
 
             currentTimer += Time.deltaTime;
@@ -61,7 +60,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
             currentTimer = 0;
 
-            byte[] pingReqPacket = PacketBuilder.BuildPacket(SocketIdentifier<Guid>.Get, default , SocketClient.IdentitySerializer, BaseNetworkSerializer<PingStatsRequest>.Instance);
+            byte[] pingReqPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, default , SocketClient.IdentitySerializer, BaseNetworkSerializer<PingStatsRequest>.Instance);
 
             SocketClient.SendTCP(pingReqPacket);
         }

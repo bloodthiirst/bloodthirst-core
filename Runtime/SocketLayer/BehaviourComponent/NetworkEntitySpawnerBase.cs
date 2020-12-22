@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿using Bloodthirst.Socket;
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,9 +26,9 @@ namespace Assets.SocketLayer.BehaviourComponent
                 prefabPreview = PlayerPrefab.gameObject;
         }
 
-        protected ISocketClient<TIdentity> SocketClient;
+        protected SocketClient<TIdentity> SocketClient;
 
-        protected ISocketServer<TIdentity> SocketServer;
+        protected ManagedSocketServer<TIdentity> SocketServer;
 
 
     }

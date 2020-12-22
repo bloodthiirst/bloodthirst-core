@@ -1,6 +1,4 @@
-﻿using Assets.Scripts.NetworkCommand;
-using Assets.SocketLayer.Serialization.Data;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using System;
@@ -10,16 +8,16 @@ using UnityEngine;
 
 namespace Bloodthirst.Socket
 {
-    public abstract class SocketClient<TIdentifier>  where TIdentifier : IComparable<TIdentifier>
+    public abstract class SocketClient<TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {
         [BoxGroup]
         [ShowInInspector]
         public static TIdentifier CurrentNetworkID;
 
         [ShowInInspector]
-        public static bool IsClient => isClient;
+        public bool IsClient => isClient;
 
-        private static bool isClient = false;
+        private bool isClient = false;
 
         public int PortTCP;
 
@@ -142,55 +140,6 @@ namespace Bloodthirst.Socket
             // trigger on connect event
 
             OnConnect?.Invoke();
-        }
-
-        /// <summary>
-        /// Send the data using a specific serializer
-        /// </summary>
-        /// <typeparam name="TData"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="from"></param>
-        /// <param name="protocol"></param>
-        /// <param name="serializer"></param>
-        public void Send<TData>(TData data, TIdentifier from, PROTOCOL protocol , INetworkSerializer<TData> serializer)
-        {
-            byte[] package = NetworkUtils.GetCompressedData(data, from, serializer , IdentitySerializer);
-
-            switch (protocol)
-            {
-                case PROTOCOL.TCP:
-                    Stream.Write(package, 0, package.Length);
-                    break;
-                case PROTOCOL.UDP:
-                    UdpClient.Send(package , package.Length, UDPServerEndpoint);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Send data using the BaseNEtworkSerializer
-        /// </summary>
-        /// <typeparam name="TData"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="from"></param>
-        /// <param name="protocol"></param>
-        public void Send<TData>(TData data , TIdentifier from , PROTOCOL protocol)
-        {
-            byte[] package = NetworkUtils.GetCompressedData(data , from , IdentitySerializer );
-
-            switch (protocol)
-            {
-                case PROTOCOL.TCP:
-                    Stream.Write(package, 0, package.Length);
-                    break;
-                case PROTOCOL.UDP:
-                    UdpClient.Send(package, package.Length, UDPServerEndpoint);
-                    break;
-                default:
-                    break;
-            }
         }
 
         public void SendUDP(byte[] packet)

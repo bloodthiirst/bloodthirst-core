@@ -42,7 +42,7 @@ namespace Assets.Scripts.SocketLayer.Commands
 
             // send the game info to the new player
 
-            byte[] packet = PacketBuilder.BuildPacket(SocketIdentifier<Guid>.Get, connectionInfo, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<GUIDConnectionInfo>.Instance);
+            byte[] packet = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, connectionInfo, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<GUIDConnectionInfo>.Instance);
 
             playerSocket.SendTCP(packet);
 

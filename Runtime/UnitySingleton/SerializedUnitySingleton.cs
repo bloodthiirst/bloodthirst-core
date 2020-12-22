@@ -1,10 +1,11 @@
-﻿using Sirenix.OdinInspector;
+﻿using Assets.Scripts.Core.GamePassInitiator;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.UnitySingleton {
-    public class SerializedUnitySingleton<T> : SerializedMonoBehaviour where T : SerializedUnitySingleton<T> {
+    public class SerializedUnitySingleton<T> : SerializedMonoBehaviour, ISingletonPass where T : SerializedUnitySingleton<T>{
 
         protected static T instance;
 
@@ -18,19 +19,19 @@ namespace Bloodthirst.Core.UnitySingleton {
             }
         }
 
+        public void DoSingletonPass()
+        {
+            if (instance == null)
+            {
+                instance = GetComponent<T>();
+            }
+        }
+
         protected virtual void Awake() {
             if (instance == null)
             {
-                instance = (T)this;
+                instance = GetComponent<T>();
                 return;
-            }
-            else if (instance == (T)this ){
-                return;
-            }
-            else
-            {
-                Debug.Log("duplicate singleton found : " + gameObject.name + " and " + instance.name);
-                Destroy(gameObject);
             }
         }
     }

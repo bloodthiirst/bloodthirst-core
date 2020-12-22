@@ -1,4 +1,5 @@
 ﻿using Assets.Models;
+using Assets.SocketLayer.Client.Base;
 using Assets.SocketLayer.PacketParser;
 using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket;
@@ -11,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
 {
-    public abstract class GUIDNetworkBehaviourBase : NetworkBehaviourBase<Guid>, ISocketClient<Guid>, ISocketServer<Guid>
+    public abstract class GUIDNetworkBehaviourBase : NetworkBehaviourBase<Guid>, ISocketClient< GUIDSocketClient , Guid>, ISocketServer<Guid>
     {
         public ManagedSocketServer<Guid> SocketServer { get; set; }
-        public SocketClient<Guid> SocketClient { get; set; }
+        public GUIDSocketClient SocketClient { get; set; }
 
         private IPlayerSpawnSuccess[] spawnSuccess;
 

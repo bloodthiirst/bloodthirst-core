@@ -15,7 +15,7 @@ namespace Assets.Scripts.Core.GameInitPass
     {
         [ShowInInspector]
         [ReadOnly]
-        HashSet<IScenePass> scenePasses;
+        HashSet<IPostSceneLoadedPass> postSceneLoadedPasses;
 
         [ShowInInspector]
         [ReadOnly]
@@ -23,7 +23,7 @@ namespace Assets.Scripts.Core.GameInitPass
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<ILoadPass> loadPasses;
+        HashSet<ICrossSceneLoadingPass> crossSceneLoadingPasses;
 
         [ShowInInspector]
         [ReadOnly]
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Core.GameInitPass
         [ReadOnly]
         HashSet<IPostEnablePass> postEnablePasses;
 
-        public void GlobalGameAwake()
+        public void OnScenesLoaded()
         {
             QueryAllPasses();
 
@@ -54,7 +54,7 @@ namespace Assets.Scripts.Core.GameInitPass
 
         private void ExecutePasses()
         {
-            foreach (IScenePass pass in scenePasses)
+            foreach (IPostSceneLoadedPass pass in postSceneLoadedPasses)
             {
                 pass.DoScenePass();
             }
@@ -63,7 +63,7 @@ namespace Assets.Scripts.Core.GameInitPass
             {
                 pass.DoSingletonPass();
             }
-            foreach (ILoadPass pass in loadPasses)
+            foreach (ICrossSceneLoadingPass pass in crossSceneLoadingPasses)
             {
                 pass.DoLoadPass();
             }
@@ -95,9 +95,9 @@ namespace Assets.Scripts.Core.GameInitPass
 
         private void QueryAllPasses()
         {
-            QueryScenes(ref scenePasses);
+            QueryScenes(ref postSceneLoadedPasses);
             QueryScenes(ref singletonPasses);
-            QueryScenes(ref loadPasses);
+            QueryScenes(ref crossSceneLoadingPasses);
             QueryScenes(ref injectPasses);
             QueryScenes(ref awakePasses);
             QueryScenes(ref staticPasses);

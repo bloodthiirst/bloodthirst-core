@@ -1,5 +1,6 @@
 ﻿using Assets.SocketLayer.Identifier;
 using Assets.SocketLayer.Serialization.Data;
+using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
 using System;
 using System.Net;
@@ -19,9 +20,14 @@ namespace Bloodthirst.Socket
 
         public override INetworkSerializer<Guid> IdentifierSerializer => identifierProcessor;
 
-        public override Guid GenerateIdentifer()
+        public override Guid GenerateClientIdentifier()
         {
-            return Guid.NewGuid();
+            return GUIDIdentifier.GenerateClientIdentifier();
+        }
+
+        public override Guid GenerateServerIdentifier()
+        {
+            return GUIDIdentifier.GenerateServerIdentifier();
         }
     }
 }

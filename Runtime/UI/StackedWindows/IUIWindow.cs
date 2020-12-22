@@ -14,7 +14,8 @@ namespace Bloodthirst.Core.UI
         bool RequestUnfocus { get; set; }
         bool RequestClose { get; set; }
         bool IsFocused { get; set; }
-
+        void BeforeOpen();
+        void BeforeClose();
         event Action<IUIWindow> OnOpen;
         event Action<IUIWindow> OnFocus;
         event Action<IUIWindow> OnUnfocus;

@@ -12,7 +12,7 @@ namespace Bloodthirst.Core.UI
 
         private RectTransform container;
 
-        public UIListCreator(IList<INSTANCE> instances, IList<UI> cachedUIs, UI prefab, RectTransform container)
+        public UIListCreator(IList<UI> cachedUIs, UI prefab, RectTransform container)
         {
             this.cachedUIs = cachedUIs;
             this.prefab = prefab;

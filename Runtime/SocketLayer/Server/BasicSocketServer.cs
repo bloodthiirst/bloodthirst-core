@@ -6,9 +6,9 @@ namespace Bloodthirst.Socket
 {
     public class BasicSocketServer
     {
-        private static bool isServer = false;
+        private bool isServer = false;
 
-        public static bool IsServer => isServer;
+        public bool IsServer => isServer;
 
         private IPAddress ip;
 
@@ -25,6 +25,8 @@ namespace Bloodthirst.Socket
         public event Action<ConnectedClientSocket> OnClientConnected;
 
         public event Action<IPEndPoint,byte[]> OnUnreliableData;
+
+
 
 
         public BasicSocketServer(IPAddress ip , int port)

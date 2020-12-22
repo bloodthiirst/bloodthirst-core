@@ -13,12 +13,12 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
     public abstract class NetworkBehaviourBase<TIdentifier> : MonoBehaviour where TIdentifier : IComparable<TIdentifier>
     {
         [ShowInInspector]
-        protected static bool IsServer => BasicSocketServer.IsServer;
+        protected static bool IsServer => SocketConfig.Instance.IsServer;
 
         [ShowInInspector]
-        protected static bool IsClient => SocketClient<Guid>.IsClient;
+        protected static bool IsClient => SocketConfig.Instance.IsClient;
 
-        protected static bool HasPlayer => !SocketClient<TIdentifier>.CurrentNetworkID.Equals(SocketIdentifier<TIdentifier>.Get);
+        protected static bool HasPlayer => !SocketClient<TIdentifier>.CurrentNetworkID.Equals(GUIDIdentifier.DefaultClientID);
 
         private NetworkPlayerEntityBase<TIdentifier> networkEntity;
 

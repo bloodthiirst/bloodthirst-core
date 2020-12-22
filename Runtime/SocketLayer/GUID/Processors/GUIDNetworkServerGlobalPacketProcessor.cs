@@ -50,7 +50,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         {
             // if is not global packet leave
 
-            if (!from.Equals(SocketIdentifier<Guid>.Get))
+            if (!from.Equals(GUIDIdentifier.DefaultClientID))
                 return false;
 
             // if type doesnt have a processor

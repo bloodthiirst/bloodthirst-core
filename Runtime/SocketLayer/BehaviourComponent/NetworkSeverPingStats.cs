@@ -6,10 +6,6 @@ using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
@@ -19,7 +15,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         public ManagedSocketServer<Guid> SocketServer { get; set; }
 
         [SerializeField]
-        private NetworkServerPinger networkPing = default;
+        private NetworkServerPinger networkPing;
 
         [SerializeField]
         private GUIDNetworkServerGlobalPacketProcessor packetProcessor;
@@ -53,7 +49,7 @@ namespace Assets.SocketLayer.BehaviourComponent
                 PingUDP = (int)pingInfo.UDP
             };
 
-            byte[] packet = PacketBuilder.BuildPacket(SocketIdentifier<Guid>.Get, stats, SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingStats>.Instance);
+            byte[] packet = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, stats, SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingStats>.Instance);
 
             socket.SendTCP(packet);
         }

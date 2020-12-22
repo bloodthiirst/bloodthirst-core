@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public interface ISocketClientInjector<T> where T : IComparable<T>
+    public interface ISocketClientInjector<TClient ,TIdentifer>
+        where TClient : SocketClient<TIdentifer>
+        where TIdentifer : IComparable<TIdentifer>
     {
-        SocketClient<T> SocketClient { get; }
+        TClient SocketClient { get; }
 
-        void InjectSocketClient(IEnumerable<ISocketClient<T>> socketClients);
+        void InjectSocketClient(IEnumerable<ISocketClient<TClient , TIdentifer>> socketClients);
     }
 }

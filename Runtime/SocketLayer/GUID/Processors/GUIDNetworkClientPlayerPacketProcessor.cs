@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public class GUIDNetworkClientPlayerPacketProcessor : MonoBehaviour , IPacketClientProcessor<Guid>
+    public class GUIDNetworkClientPlayerPacketProcessor : MonoBehaviour, IPacketClientProcessor<Guid>
     {
 
         private Dictionary<Guid, NetworkPlayerEntityBase<Guid>> playersActiveMap;
@@ -34,7 +34,7 @@ namespace Assets.SocketLayer.BehaviourComponent
             return player;
         }
 
-        public void AddNetworkEntityClient(Guid identifier , NetworkPlayerEntityBase<Guid> prefab)
+        public void AddNetworkEntityClient(Guid identifier, NetworkPlayerEntityBase<Guid> prefab)
         {
             playersActiveMap.Add(identifier, prefab);
         }
@@ -43,14 +43,19 @@ namespace Assets.SocketLayer.BehaviourComponent
         {
             // if is not player packet leave
 
-            if (from.Equals(SocketIdentifier<Guid>.Get))
+            if (from.Equals(GUIDIdentifier.DefaultClientID))
+                return false;
+
+            // if is from server
+
+            if (GUIDIdentifier.IsServer(from))
                 return false;
 
             // if player doesnt exist leave
 
             NetworkPlayerEntityBase<Guid> player;
 
-            if (!playersActiveMap.TryGetValue(from , out player))
+            if (!playersActiveMap.TryGetValue(from, out player))
                 return false;
 
             // execute the processor

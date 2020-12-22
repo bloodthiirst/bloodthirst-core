@@ -6,37 +6,23 @@ using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public abstract class NetworkServerPacketInterceptorBase<TIdentifier> : MonoBehaviour where TIdentifier : IComparable<TIdentifier>
+    public abstract class NetworkServerPacketInterceptorBase<TIdentifier> : MonoBehaviour, ISocketServer<TIdentifier>, IOnSocketServerConnected<ManagedSocketServer<TIdentifier>, TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {
-        [ShowInInspector]
-        private ISocketServerInjector<TIdentifier> networkServer;
+        public ManagedSocketServer<TIdentifier> SocketServer { get; set; }
 
-        private void OnValidate()
+        public void OnSocketServerConnected(ManagedSocketServer<TIdentifier> socketClient)
         {
-            networkServer = GetComponent<ISocketServerInjector<TIdentifier>>();
+            SocketServer.OnAnonymousMessage -= OnAnonymousMessage;
+            SocketServer.OnAnonymousMessage += OnAnonymousMessage;
+
+            SocketServer.OnManagedClientMessage -= OnManagedClientMessage;
+            SocketServer.OnManagedClientMessage += OnManagedClientMessage;
+
+            SocketServer.OnServerMessage -= OnServerClientMessge;
+            SocketServer.OnServerMessage += OnServerClientMessge;
         }
 
-        private void Start()
-        {
-            if (networkServer == null)
-            {
-                networkServer = GetComponent<ISocketServerInjector<TIdentifier>>();
-            }
-        }
-
-        public void OnServerStarted()
-        {
-            OnServerStarted(networkServer.SocketServer);
-        }
-
-        private void OnServerStarted(ManagedSocketServer<TIdentifier> socketServer)
-        {
-            socketServer.OnAnonymousMessage -= OnAnonymousMessage;
-            socketServer.OnAnonymousMessage += OnAnonymousMessage;
-
-            socketServer.OnManagedClientMessage -= OnManagedClientMessage;
-            socketServer.OnManagedClientMessage += OnManagedClientMessage;
-        }
+        protected abstract void OnServerClientMessge(ConnectedClientSocket connectedClient, byte[] data, PROTOCOL protocol);
 
         protected abstract void OnAnonymousMessage(ConnectedClientSocket connectedClient, byte[] data, PROTOCOL protocol);
 
@@ -44,14 +30,17 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         private void OnDestroy()
         {
-            if (networkServer.SocketServer == null)
+            if (SocketServer == null)
                 return;
 
-            networkServer.SocketServer.OnAnonymousMessage -= OnAnonymousMessage;
+            SocketServer.OnAnonymousMessage -= OnAnonymousMessage;
 
-            networkServer.SocketServer.OnManagedClientMessage -= OnManagedClientMessage;
+            SocketServer.OnManagedClientMessage -= OnManagedClientMessage;
 
-            networkServer.SocketServer.OnServerStarted -= OnServerStarted;
+            SocketServer.OnServerMessage -= OnServerClientMessge;
+
         }
+
+
     }
 }

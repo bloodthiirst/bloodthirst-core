@@ -45,7 +45,7 @@ public class NetworkServerPinger : MonoBehaviour
     private PingPongTCPPacketServerProcessor pingPongTCPParser;
 
     [SerializeField]
-    private float pingTimer = default;
+    private float pingTimer;
 
     private float currentTimer;
 
@@ -134,7 +134,7 @@ public class NetworkServerPinger : MonoBehaviour
 
             PingPongUDP pingUDP = new PingPongUDP() { SentAtServerTime = networkTimer.TimeElapsed };
 
-            byte[] pingUDPPacket = PacketBuilder.BuildPacket(SocketIdentifier<Guid>.Get, pingUDP, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingPongUDP>.Instance);
+            byte[] pingUDPPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, pingUDP, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingPongUDP>.Instance);
 
             client.SendUDP(pingUDPPacket);
 
@@ -142,7 +142,7 @@ public class NetworkServerPinger : MonoBehaviour
 
             PingPongTCP pingTCP = new PingPongTCP() { SentAtServerTime = networkTimer.TimeElapsed };
 
-            byte[] pingTCPPacket = PacketBuilder.BuildPacket(SocketIdentifier<Guid>.Get, pingTCP, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingPongTCP>.Instance);
+            byte[] pingTCPPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, pingTCP, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingPongTCP>.Instance);
 
             client.SendTCP(pingTCPPacket);
         }

@@ -11,9 +11,9 @@ namespace Assets.SocketLayer.BehaviourComponent
 {
     public abstract class NetworkPlayerEntityBase<TIdentifier> : MonoBehaviour where TIdentifier : IComparable<TIdentifier>
     {
-        private static bool IsServer => BasicSocketServer.IsServer;
+        private static bool IsServer => SocketConfig.Instance.IsServer;
 
-        private static bool IsClient => SocketClient<Guid>.IsClient;
+        private static bool IsClient => SocketConfig.Instance.IsClient;
 
         [ShowInInspector]
         [ReadOnly]

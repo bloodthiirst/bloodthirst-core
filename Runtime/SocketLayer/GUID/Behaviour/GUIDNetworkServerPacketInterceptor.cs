@@ -67,5 +67,27 @@ namespace Assets.SocketLayer.BehaviourComponent
                 packetProcessors[i].ProcessPacket(type, connectedClient, identifier, data);
             }
         }
+
+        protected override void OnServerClientMessge(ConnectedClientSocket connectedClient, byte[] packet, PROTOCOL protocol)
+        {
+            Debug.Log("server client msg");
+
+            Guid identifier;
+
+            uint type;
+
+            byte[] data;
+
+            if (!PacketBuilder.UnpackPacket(packet, out type, out identifier, out data, identitySerializer))
+            {
+                Debug.Log("Parsing failed");
+                return;
+            }
+
+            for (int i = 0; i < packetProcessors.Count; i++)
+            {
+                packetProcessors[i].ProcessPacket(type, connectedClient, identifier, data);
+            }
+        }
     }
 }

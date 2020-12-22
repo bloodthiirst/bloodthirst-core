@@ -104,5 +104,8 @@ namespace Bloodthirst.Core.UI
             RequestFocus = true;
             OnFocus?.Invoke(this);
         }
+
+        public abstract void BeforeOpen();
+        public abstract void BeforeClose();
     }
 }

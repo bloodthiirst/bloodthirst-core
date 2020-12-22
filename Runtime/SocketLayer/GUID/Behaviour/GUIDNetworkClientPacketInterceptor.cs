@@ -1,4 +1,5 @@
-﻿using Assets.SocketLayer.Identifier;
+﻿using Assets.SocketLayer.Client.Base;
+using Assets.SocketLayer.Identifier;
 using Assets.SocketLayer.PacketParser.Base;
 using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public class GUIDNetworkClientPacketInterceptor : NetworkClientPacketInterceptorBase<Guid>
+    public class GUIDNetworkClientPacketInterceptor : NetworkClientPacketInterceptorBase<GUIDSocketClient, Guid>
     {
         private INetworkSerializer<Guid> identitySerializer;
 
@@ -25,6 +26,7 @@ namespace Assets.SocketLayer.BehaviourComponent
             GetComponentsInChildren(packetProcessors);
         }
 
+        
         protected override void OnMessage(SocketClient<Guid> socketClient, byte[] packet, PROTOCOL protocol)
         {
             Debug.Log("client received message");

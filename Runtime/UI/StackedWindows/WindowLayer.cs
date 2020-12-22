@@ -136,6 +136,9 @@ namespace Bloodthirst.Core.UI
                 IUIWindow window = uiWindows[i];
                 if (window.RequestClose)
                 {
+                    window.BeforeClose();
+                    StartCoroutine(window.Close());
+
                     window.IsOpen = false;
                     window.IsFocused = false;
 
@@ -143,12 +146,10 @@ namespace Bloodthirst.Core.UI
                     window.RequestFocus = false;
                     window.RequestOpen = false;
                     window.RequestUnfocus = false;
-
-                    StartCoroutine(window.Close());
                 }
             }
 
-            var openWindows = new List<IUIWindow>();
+            List<IUIWindow> openWindows = new List<IUIWindow>();
 
             // sort every thing except the last window
             for (int i = 0; i < uiWindows.Count; i++)
@@ -176,6 +177,7 @@ namespace Bloodthirst.Core.UI
 
                 if (win.RequestOpen)
                 {
+                    win.BeforeOpen();
                     StartCoroutine(GameObjectUtils.CombineCoroutine( win.Open() , win.Unfocus()));
                 }
                 else
@@ -198,6 +200,7 @@ namespace Bloodthirst.Core.UI
 
             if (last.RequestOpen)
             {
+                last.BeforeOpen();
                 StartCoroutine(last.Open());
             }
             else
@@ -223,19 +226,6 @@ namespace Bloodthirst.Core.UI
             {
                 Refresh();
             }
-        }
-
-        public void PutOnTop(IUIWindow window)
-        {
-            if (uiWindows.Last() == window)
-                return;
-
-            if (!uiWindows.Contains(window))
-                return;
-
-            uiWindows.Remove(window);
-            uiWindows.Add(window);
-            Refresh();
         }
     }
 

@@ -2,17 +2,19 @@
 
 namespace Bloodthirst.Socket.Core
 {
-    public class SocketIdentifier<TIdentifier> where TIdentifier : IComparable<TIdentifier>
+    public abstract class SocketIdentifier<TType, TIdentifier> 
+        where TType : SocketIdentifier<TType, TIdentifier> , new() 
+        where TIdentifier : IComparable<TIdentifier>
     {
-        private static SocketIdentifier<TIdentifier> instance;
+        private static TType instance;
 
-        private static SocketIdentifier<TIdentifier> Instance
+        private static TType Instance
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
-                    instance = new SocketIdentifier<TIdentifier>();
+                    instance = new TType();
                 }
 
                 return instance;
@@ -20,22 +22,84 @@ namespace Bloodthirst.Socket.Core
         }
 
         /// <summary>
-        /// Return the default value used to represent identity id
+        /// Return the default value used to represent cient identity id
         /// </summary>
         /// <returns></returns>
-        public static TIdentifier Get {
-      
+        public static TIdentifier DefaultClientID
+        {
             get
             {
-                return Instance.DefaultIdentifier();
+                return Instance.DefaultClientIdentifier();
             }
         }
 
         /// <summary>
-        /// generate the identity id
+        /// Return the default value used to represent server identity id
         /// </summary>
         /// <returns></returns>
-        protected virtual TIdentifier DefaultIdentifier()
+        public static TIdentifier DefaultServerID
+        {
+            get
+            {
+                return Instance.DefaultServerIdentifier();
+            }
+        }
+
+        public static bool IsServer(TIdentifier identifier)
+        {
+            return Instance.IsServerIdentifier(identifier);
+        }
+
+        public static bool IsClient(TIdentifier identifier)
+        {
+            return Instance.IsClientIdentifier(identifier);
+        }
+
+        public virtual bool IsClientIdentifier(TIdentifier identifier)
+        {
+            return false;
+        }
+
+        public virtual bool IsServerIdentifier(TIdentifier identifier)
+        {
+            return false;
+        }
+
+        public static TIdentifier GenerateClientIdentifier()
+        {
+            return Instance.GetClientIdentifier();
+        }
+
+        public static TIdentifier GenerateServerIdentifier()
+        {
+            return Instance.GetServerIdentifier();
+        }
+
+
+        /// <summary>
+        /// generate the client identity id
+        /// </summary>
+        /// <returns></returns>
+        public virtual TIdentifier DefaultClientIdentifier()
+        {
+            return default;
+        }
+
+        public virtual TIdentifier GetClientIdentifier()
+        {
+            return default;
+        }
+
+        public virtual TIdentifier GetServerIdentifier()
+        {
+            return default;
+        }
+
+        /// <summary>
+        /// generate the server identity id
+        /// </summary>
+        /// <returns></returns>
+        public virtual TIdentifier DefaultServerIdentifier()
         {
             return default;
         }

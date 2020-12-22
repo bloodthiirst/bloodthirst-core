@@ -1,6 +1,6 @@
 ﻿using Assets.Scripts.SocketLayer.BehaviourComponent;
 using Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity;
-using Bloodthirst.Socket;
+using Bloodthirst.Core.SceneManager;
 using System;
 using UnityEngine;
 
@@ -8,27 +8,28 @@ namespace Assets.SocketLayer.BehaviourComponent
 {
     public class GUIDNetworkEntitySpawner : NetworkEntitySpawnerBase<Guid>
     {
-        private static bool IsServer => BasicSocketServer.IsServer;
+        private static bool IsServer => SocketConfig.Instance.IsServer;
 
-        private static bool IsClient => SocketClient<Guid>.IsClient;
+        private static bool IsClient => SocketConfig.Instance.IsClient;
 
         [SerializeField]
-        private GUIDNetworkPlayerEntity playerPrefab = default;
+        private GUIDNetworkPlayerEntity playerPrefab;
 
         protected override NetworkPlayerEntityBase<Guid> PlayerPrefab => playerPrefab;
 
         [SerializeField]
-        private GUIDNetworkClientPlayerPacketProcessor clientPlayersProcessor = default;
+        private GUIDNetworkClientPlayerPacketProcessor clientPlayersProcessor;
 
         [SerializeField]
-        private GUIDNetworkServerPlayerPacketProcessor serverPlayersProcessor = default;
+        private GUIDNetworkServerPlayerPacketProcessor serverPlayersProcessor;
 
         [SerializeField]
-        private GUIDNetworkServerEntity networkServer = default;
+        private GUIDNetworkServerEntity networkServer;
 
         [SerializeField]
-        private GUIDNetworkClientEntity networkClient = default;
+        private GUIDNetworkClientEntity networkClient;
 
+        private ISceneInstanceManager sceneInstanceManager;
 
         public void Remove(Guid identifer)
         {
@@ -61,6 +62,10 @@ namespace Assets.SocketLayer.BehaviourComponent
         {
             NetworkPlayerEntityBase<Guid> networkEntity = Instantiate(playerPrefab);
 
+            // move to gameplay scene
+
+            sceneInstanceManager.MoveToScene(networkEntity.gameObject);
+
             // rename
 
             networkEntity.NetworkID = identifier;
@@ -73,10 +78,17 @@ namespace Assets.SocketLayer.BehaviourComponent
 
                 // inject socket client
 
-                ISocketClient<Guid>[] socketClients = networkEntity.GetComponentsInChildren<ISocketClient<Guid>>();
+                // make a unique client injection point for all socketclients 
+                // ex : ClientInjecor.Inject(networkEntity);
+
+                NetworkInjectionProvider.InjectSockets(networkEntity.gameObject);
+
+                /*
+                ISocketClient<GUIDSocketClient , Guid>[] socketClients = networkEntity.GetComponentsInChildren<ISocketClient<GUIDSocketClient ,Guid>>();
 
                 networkClient.InjectSocketClient(socketClients);
-
+                */
+   
                 // init client side
 
                 IPlayerSpawnClient[] onSpawnClient = networkEntity.GetComponentsInChildren<IPlayerSpawnClient>();

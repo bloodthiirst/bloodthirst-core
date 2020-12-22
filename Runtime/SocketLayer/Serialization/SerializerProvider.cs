@@ -58,6 +58,8 @@ namespace Bloodthirst.Socket.Serializer
 
             foreach(var query in types)
             {
+                Debug.Log("Type to serialize : " + query.ValueType.Name + " , Serializer class : " + query.SerializerType.Name);
+
                 object typeSerializer = Activator.CreateInstance(query.SerializerType);
 
                 TypeToSerializer.Add(query.ValueType, typeSerializer);

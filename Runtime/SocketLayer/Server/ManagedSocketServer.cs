@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.NetworkCommand;
+﻿using Assets.Models;
+using Assets.Scripts.NetworkCommand;
 using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using UnityEngine;
 
 namespace Bloodthirst.Socket
@@ -16,8 +18,12 @@ namespace Bloodthirst.Socket
 
         public BasicSocketServer BasicSocketServer => basicSocketServer;
 
-        private ConnexionManager<TIdentifier> connexionManager;
-        public ConnexionManager<TIdentifier> ConnexionManager => connexionManager;
+        private ClientConnexionManager<TIdentifier> clientConnexionManager;
+        public ClientConnexionManager<TIdentifier> ClientConnexionManager => clientConnexionManager;
+
+        private ServerConnexionManager<TIdentifier> serverConnexionManager;
+
+        public ServerConnexionManager<TIdentifier> ServerConnexionManager => serverConnexionManager;
 
         private List<ConnectedClientSocket> anonymousClients;
 
@@ -25,7 +31,7 @@ namespace Bloodthirst.Socket
 
         public int AnonymousClientsCount => AnonymousClients == null ? 0 : AnonymousClients.Count;
 
-        public int ManagedClientsCount => ConnexionManager.ClientConnexions.Count;
+        public int ManagedClientsCount => ClientConnexionManager.ClientConnexions.Count;
 
         public event Action<ManagedSocketServer<TIdentifier>> OnServerStarted;
 
@@ -33,6 +39,11 @@ namespace Bloodthirst.Socket
         /// On anonymous client connected
         /// </summary>
         public event Action<ConnectedClientSocket> OnAnonymousClientConnected;
+
+        /// <summary>
+        /// On anonymous client connected
+        /// </summary>
+        public event Action<ConnectedClientSocket> OnServerClientConnected;
 
         /// <summary>
         /// On managed client connection
@@ -43,6 +54,11 @@ namespace Bloodthirst.Socket
         /// On message received from anonymous client
         /// </summary>
         public event Action<ConnectedClientSocket, byte[] , PROTOCOL> OnAnonymousMessage;
+
+        /// <summary>
+        /// On message received from server client
+        /// </summary>
+        public event Action<ConnectedClientSocket, byte[], PROTOCOL> OnServerMessage;
 
         /// <summary>
         /// On message received from a managed client
@@ -56,11 +72,9 @@ namespace Bloodthirst.Socket
         public event Action<TIdentifier , ConnectedClientSocket> OnClientDisconnected;
 
         /// <summary>
-        /// geenrate an Identitfier
+        /// Event triggered when a client gets disconnected , this event works for both anonymous and maanged clients 
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        public abstract TIdentifier GenerateIdentifer();
+        public event Action<ConnectedClientSocket> OnServerClientDisconnected;
 
         public abstract INetworkSerializer<TIdentifier> IdentifierSerializer { get; }
 
@@ -70,23 +84,29 @@ namespace Bloodthirst.Socket
         /// <returns></returns>
         public List<TIdentifier> GetManagedClients()
         {
-            return ConnexionManager.ClientConnexions.Keys.ToList();
+            return ClientConnexionManager.ClientConnexions.Keys.ToList();
         }
+
 
         public ManagedSocketServer(IPAddress IP, int Port)
         {
             basicSocketServer = new BasicSocketServer(IP, Port);
 
-            connexionManager = new ConnexionManager<TIdentifier>();
+            clientConnexionManager = new ClientConnexionManager<TIdentifier>();
+
+            serverConnexionManager = new ServerConnexionManager<TIdentifier>();
 
             anonymousClients = new List<ConnectedClientSocket>();
+
         }
 
         public ManagedSocketServer(IPAddress IP, int Port, IEqualityComparer<TIdentifier> equalityComparer)
         {
             basicSocketServer = new BasicSocketServer(IP, Port);
 
-            connexionManager = new ConnexionManager<TIdentifier>(equalityComparer);
+            clientConnexionManager = new ClientConnexionManager<TIdentifier>(equalityComparer);
+
+            serverConnexionManager = new ServerConnexionManager<TIdentifier>();
 
             anonymousClients = new List<ConnectedClientSocket>();
         }
@@ -102,6 +122,8 @@ namespace Bloodthirst.Socket
 
             basicSocketServer.Start();
 
+            SocketConfig.Instance.IsServer = true;
+
             OnServerStarted?.Invoke(this);
         }
 
@@ -115,6 +137,74 @@ namespace Bloodthirst.Socket
             OnManagedClientMessage = null;
             OnClientDisconnected = null;
 
+            SocketConfig.Instance.IsServer = true;
+
+        }
+
+        public abstract TIdentifier GenerateClientIdentifier();
+
+        public abstract TIdentifier GenerateServerIdentifier();
+
+        public bool SetAsServerClient(ServerNetworkIDRequest request , ConnectedClientSocket connectedClient)
+        {
+            // if the hash of the server is not registed in the server types dictionary
+            // then exit
+
+            if(!serverConnexionManager.ContainsHash(request.ServerTypeHash))
+            {
+                return false;
+            }
+
+            // if client is not found in the anonymous list we exist
+
+            if (!anonymousClients.Contains(connectedClient))
+            {
+                return false;
+            }
+
+            // else
+
+            // add the client to the managed list
+
+            serverConnexionManager.Add(request.ServerTypeHash, connectedClient);
+
+            // remove the client form the anonymous list
+
+            anonymousClients.Remove(connectedClient);
+
+            // we unsubscribe from the anoymous message receiver 
+
+            connectedClient.OnTCPMessage -= OnAnonymousMessageTCPTriggered;
+
+            // and we start using the message receiver with the identifier
+
+            connectedClient.OnTCPMessage += (client, msg) => OnServerMessage?.Invoke(connectedClient, msg, PROTOCOL.TCP);
+
+            // we setup the udp messaging event
+
+            // we unsubscribe from the anoymous message receiver 
+
+            connectedClient.OnUDPMessage -= OnAnonymousMessageUDPTriggered;
+
+            // and we start using the message receiver with the identifier
+
+            connectedClient.OnUDPMessage += (client, msg) => OnServerMessage?.Invoke(connectedClient, msg, PROTOCOL.UDP);
+
+            // same thing with the on disconnect event
+
+            connectedClient.OnDisconnect -= OnAnonymousClientDisconnectedTriggered;
+
+            connectedClient.OnDisconnect += (client) =>
+            {
+                OnServerClientDisconnected?.Invoke(connectedClient);
+                serverConnexionManager.Remove(request.ServerTypeHash);
+            };
+
+            // trigger event
+
+            OnServerClientConnected?.Invoke(connectedClient);
+
+            return true;
         }
 
         public bool SetAsManagedClient(ConnectedClientSocket connectedClient, out TIdentifier identifier)
@@ -131,10 +221,11 @@ namespace Bloodthirst.Socket
             // else
             // generate an identitfier
 
-            TIdentifier id = GenerateIdentifer();
+            TIdentifier id = GenerateClientIdentifier();
+
             // add the client to the managed list
 
-            connexionManager.Add(id, connectedClient);
+            clientConnexionManager.Add(id, connectedClient);
 
             // remove the client form the anonymous list
 
@@ -165,7 +256,7 @@ namespace Bloodthirst.Socket
             connectedClient.OnDisconnect += (client) =>
             {
                 OnClientDisconnected?.Invoke(id , connectedClient);
-                ConnexionManager.Remove(id);
+                ClientConnexionManager.Remove(id);
             };
 
             // trigger event
@@ -201,7 +292,7 @@ namespace Bloodthirst.Socket
 
         public void BroadcastTCP(byte[] data , Predicate<TIdentifier> filter)
         {
-            foreach (var kv in ConnexionManager.ClientConnexions)
+            foreach (var kv in ClientConnexionManager.ClientConnexions)
             {
                 if (!filter(kv.Key))
                     continue;
@@ -212,7 +303,7 @@ namespace Bloodthirst.Socket
 
         public void BroadcastTCP(byte[] data)
         {
-            foreach (ConnectedClientSocket socket in ConnexionManager.ClientConnexions.Values)
+            foreach (ConnectedClientSocket socket in ClientConnexionManager.ClientConnexions.Values)
             {
                 socket.SendTCP(data);
             }
@@ -220,7 +311,7 @@ namespace Bloodthirst.Socket
 
         public void BroadcastUDP(byte[] data , Predicate<TIdentifier> filter)
         {
-            foreach(var kv in ConnexionManager.ClientConnexions)
+            foreach(var kv in ClientConnexionManager.ClientConnexions)
             {
                 if (!filter(kv.Key))
                     continue;
@@ -231,7 +322,7 @@ namespace Bloodthirst.Socket
 
         public void BroadcastUDP(byte[] data)
         {
-            foreach (ConnectedClientSocket socket in ConnexionManager.ClientConnexions.Values)
+            foreach (ConnectedClientSocket socket in ClientConnexionManager.ClientConnexions.Values)
             {
                 socket.SendUDP(data);
             }
@@ -246,7 +337,7 @@ namespace Bloodthirst.Socket
         {
             // check if message is from managed client
 
-            foreach (ConnectedClientSocket managed in connexionManager.ClientConnexions.Values)
+            foreach (ConnectedClientSocket managed in clientConnexionManager.ClientConnexions.Values)
             {
                 if (managed.UDPClientIP.Address.Equals(sender.Address) && managed.UDPClientIP.Port == sender.Port)
                 {

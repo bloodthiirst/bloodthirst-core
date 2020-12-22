@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Core.GamePassInitiator;
+using Bloodthirst.Core.UnitySingleton;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
@@ -6,19 +7,8 @@ using System.Linq;
 using UnityEngine;
 
 namespace Bloodthirst.Systems.CameraSystem {
-    public class CameraManager : MonoBehaviour , IEnablePass , ISingletonPass {
+    public class CameraManager : UnitySingleton<CameraManager> , IEnablePass {
 
-        private static CameraManager _instance;
-
-        public static CameraManager Instance {
-            get {
-                if (_instance == null) {
-                    _instance = FindObjectOfType<CameraManager>();
-                }
-                return _instance;
-            }
-        }
-        
         [ShowInInspector]
         HashSet<ICameraController> AllCameras = new HashSet<ICameraController>();
 
@@ -52,7 +42,7 @@ namespace Bloodthirst.Systems.CameraSystem {
             Instance?.AllCameras.Remove(camera);
         }
 
-        private void Init() {
+        private void DisableAllCameras() {
             foreach (ICameraController camera in AllCameras) {
                 camera.isEnabled = false;
             }
@@ -181,18 +171,13 @@ namespace Bloodthirst.Systems.CameraSystem {
 
         public void DoEnablePass()
         {
-            Init();
+            DisableAllCameras();
 
             isManagerActive = true;
 
             PickInitialCamera();
 
             
-        }
-
-        public void DoSingletonPass()
-        {
-            _instance = this;
         }
     }
 }

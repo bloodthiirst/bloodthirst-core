@@ -11,9 +11,9 @@ using UnityEngine;
 
 namespace Assets.Scripts.SocketLayer.BehaviourComponent
 {
-    public class GUIDNetworkClientEntity : NetworkClientEntityBase<Guid>
+    public class GUIDNetworkClientEntity : NetworkClientEntityBase<GUIDSocketClient, Guid>
     {
-        protected override SocketClient<Guid> CreateClient()
+        protected override GUIDSocketClient CreateClient()
         {
             IPAddress serverAddress = null;
 
@@ -24,7 +24,7 @@ namespace Assets.Scripts.SocketLayer.BehaviourComponent
             }
 
 
-            return new GUIDSocketClient(serverAddress, ServerPort);
+            return new GUIDSocketClient(serverAddress, SocketConfig.Instance.WorldServerPort);
         }
     }
 }

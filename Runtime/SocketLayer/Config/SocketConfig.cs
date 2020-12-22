@@ -6,7 +6,42 @@ using UnityEngine;
 public class SocketConfig : SingletonScriptableObject<SocketConfig>
 {
     [SerializeField]
-    private int packetSize = default;
+    private bool isClient;
+
+    [SerializeField]
+    private bool isServer;
+
+    /// <summary>
+    /// Is the game running as server ?
+    /// </summary>
+    public bool IsServer
+    {
+        get
+        {
+            return isServer;
+        }
+
+        set
+        {
+            isServer = value;
+        }
+    }
+
+    /// <summary>
+    /// is the game running as client ?
+    /// </summary>
+    public bool IsClient {
+        get { 
+            return isClient; 
+        }
+
+        set { 
+            isClient = value; 
+        }
+    }
+
+    [SerializeField]
+    private int packetSize;
 
     [HideInInspector]
     /// <summary>
@@ -15,17 +50,26 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
     public int PacketSize => packetSize;
 
     [SerializeField]
-    private int serverPort = default;
+    private int worldServerPort;
 
     [HideInInspector]
     /// <summary>
-    /// Socket server port
+    /// Socket world server port
     /// </summary>
-    public int ServerPort => serverPort;
+    public int WorldServerPort => worldServerPort;
+
+    [SerializeField]
+    private int ghostServerPort;
+
+    [HideInInspector]
+    /// <summary>
+    /// Socket ghost server port
+    /// </summary>
+    public int GhostServerPort => ghostServerPort;
 
     [BoxGroup("IP")]
     [SerializeField]
-    private string serverAddress = default;
+    private string serverAddress;
 
     [HideInInspector]
     /// <summary>

@@ -29,7 +29,7 @@ namespace Assets.Scripts.SocketLayer.Commands
 
         public override void OnStart()
         {
-            if (BasicSocketServer.IsServer)
+            if (SocketConfig.Instance.IsServer)
             {
                 serverInitializables = networkPlayerEntity.gameObject.GetComponents<IPlayerSpawnServer>();
                 
@@ -39,7 +39,7 @@ namespace Assets.Scripts.SocketLayer.Commands
                 }
             }
 
-            if (SocketClient<Guid>.IsClient)
+            if (SocketConfig.Instance.IsClient)
             {
                 clientInitializables = networkPlayerEntity.gameObject.GetComponents<IPlayerSpawnClient>();
 
@@ -55,7 +55,7 @@ namespace Assets.Scripts.SocketLayer.Commands
         {
             // client
 
-            if (SocketClient<Guid>.IsClient)
+            if (SocketConfig.Instance.IsClient)
             {
                 foreach (IPlayerSpawnClient init in clientInitializables)
                 {
@@ -66,7 +66,7 @@ namespace Assets.Scripts.SocketLayer.Commands
 
             // server
 
-            if (BasicSocketServer.IsServer)
+            if (SocketConfig.Instance.IsServer)
             {
                 foreach (IPlayerSpawnServer init in serverInitializables)
                 {

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public interface ISocketClient<T> where T : IComparable<T>
+    public interface ISocketClient<TClient, TIdentifier> where TClient : SocketClient<TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {
-        SocketClient<T> SocketClient { get; set; }
+        TClient SocketClient { get; set; }
     }
 }

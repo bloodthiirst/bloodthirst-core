@@ -6,11 +6,16 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 
-public class GUIDNetworkServerEntity : NetworkServerEntityBase<Guid>
+public class GUIDNetworkServerEntity : NetworkServerEntityBase<GUIDManagedSocketServer ,Guid>
 {
-    protected override ManagedSocketServer<Guid> CreateServer()
+    protected override GUIDManagedSocketServer CreateServer()
     {
-        return new GUIDManagedSocketServer( IPAddress.Parse(SocketConfig.Instance.ServerAddress) , SocketConfig.Instance.ServerPort);
+        GUIDManagedSocketServer server = new GUIDManagedSocketServer(IPAddress.Parse(SocketConfig.Instance.ServerAddress), SocketConfig.Instance.WorldServerPort);
+
+        server.ServerConnexionManager.InjectServerTypes(QueryServerTypes());
+
+        return server;
+
     }
 
     protected override void OnAnonymousConnected(ConnectedClientSocket anon)

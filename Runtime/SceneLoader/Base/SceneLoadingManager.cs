@@ -16,7 +16,7 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public class SceneLoadingManager : SerializedUnitySingleton<SceneLoadingManager>
+    public class SceneLoadingManager : UnitySingleton<SceneLoadingManager>
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport
 #endif
@@ -46,7 +46,6 @@ namespace Bloodthirst.Core.SceneManager
         }
 
         [ShowInInspector]
-        [SerializeField]
         private List<ISceneInstanceManager> sceneInstanceManagers;
 
         [SerializeField]

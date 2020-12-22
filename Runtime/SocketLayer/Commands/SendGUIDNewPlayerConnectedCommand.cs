@@ -33,10 +33,10 @@ namespace Assets.Scripts.SocketLayer.Commands
                 NetworkID = playerId
             };
 
-            byte[] newPlayerPacket = PacketBuilder.BuildPacket(SocketIdentifier<Guid>.Get, newPlayer, identifier, BaseNetworkSerializer<GUIDNewPlayerConnected>.Instance);
+            byte[] newPlayerPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, newPlayer, identifier, BaseNetworkSerializer<GUIDNewPlayerConnected>.Instance);
 
 
-            foreach (KeyValuePair<Guid, ConnectedClientSocket> kv in NetworkServerEntityBase<Guid>.Instance.SocketServer.ConnexionManager.ClientConnexions)
+            foreach (KeyValuePair<Guid, ConnectedClientSocket> kv in GUIDNetworkServerEntity.Instance.SocketServer.ClientConnexionManager.ClientConnexions)
             {
                 if (kv.Key.Equals(playerId))
                     continue;

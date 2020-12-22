@@ -45,7 +45,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         {
             // if is not player packet leave
 
-            if (from.Equals(SocketIdentifier<Guid>.Get))
+            if (from.Equals(GUIDIdentifier.DefaultClientID))
                 return false;
 
             // if player doesnt exist leave
