@@ -310,95 +310,75 @@ namespace Assets
 
             Debug.Log($"top row cnt : {topRow.Count} , bottom row cnt : {bottomRow.Count} , corner { cornerIsUp.Count}");
 
-            int topCornerIndex = 0;
-            int bottomCornerIndex = 0;
+            int topIndex = 0;
+            int bottomIndex = 0;
 
-            int cornersDone = 0;
+            // top uv
+            float topRowLength = 0;
 
+            for (int i = 1; i < topRow.Count; i++)
+            {
+                topRowLength += Vector2.Distance(topRow[i], topRow[i - 1]);
+            }
+
+            List<float> uvTopRatios = new List<float>();
+            uvTopRatios.Add(0);
+            float currentTopUv = 0;
+            for (int i = 1; i < topRow.Count; i++)
+            {
+                currentTopUv += Vector2.Distance(topRow[i], topRow[i - 1]);
+                uvTopRatios.Add(currentTopUv / topRowLength);
+            }
+
+
+            // bottom uv
+            float bottomRowLength = 0;
+
+            for (int i = 1; i < bottomRow.Count; i++)
+            {
+                bottomRowLength += Vector2.Distance(bottomRow[i], bottomRow[i - 1]);
+            }
+
+            List<float> uvBottomRatios = new List<float>();
+            uvBottomRatios.Add(0);
+            float currentBottomUv = 0;
+            for (int i = 1; i < bottomRow.Count; i++)
+            {
+                currentBottomUv += Vector2.Distance(bottomRow[i], bottomRow[i - 1]);
+                uvBottomRatios.Add(currentBottomUv / bottomRowLength);
+            }
+
+
+            // TODO : calculate uv based on length ratio both BOTH top row AND bottom row
 
             // create the triangles
-            for (int i = 0; i < (spline.SegmentCount * SPLINE_DEFINITION * 2) - 1; i ++)
+            while (bottomIndex < bottomRow.Count -1 )
             {
-                // add the quad
-                /*
-                 *  p 1 ---------- p2
-                 *  |              |
-                 *  |              |
-                 *  p3-------------p4
-                 * 
-                 */
-                int p1index = i + topCornerIndex;
-                int p2index = i + 1 + topCornerIndex;
-                int p3index = i + bottomCornerIndex;
-                int p4index = i  + 1 + bottomCornerIndex;
 
-                UIVertex p1 = new UIVertex() { position = topRow[i] };
+                Vector2 uv0top = new Vector2( uvTopRatios[topIndex] , 1f);
+                UIVertex p1 = new UIVertex() { position = topRow[topIndex] , uv0 = uv0top };
 
-                UIVertex p2 = new UIVertex() { position = topRow[i + 1] };
+                topIndex++;
+                uv0top = new Vector2(uvTopRatios[topIndex], 1f);
+                UIVertex p2 = new UIVertex() { position = topRow[topIndex], uv0 = uv0top };
 
-                UIVertex p3 = new UIVertex() { position = bottomRow[i] };
+                Vector2 uv0bottom = new Vector2(uvBottomRatios[bottomIndex] , 0f);
+                UIVertex p3 = new UIVertex() { position = bottomRow[bottomIndex] , uv0 = uv0bottom };
 
-                UIVertex p4 = new UIVertex() { position = bottomRow[i + 1] };
-                
+                bottomIndex++;
+                uv0bottom = new Vector2(uvBottomRatios[bottomIndex], 0f);
+                UIVertex p4 = new UIVertex() { position = bottomRow[bottomIndex], uv0 = uv0bottom };
+
                 //vbo.AddUIVertexQuad(quad);
 
                 tris.Add(p1);
                 tris.Add(p2);
                 tris.Add(p3);
 
-                
+
                 tris.Add(p4);
                 tris.Add(p3);
                 tris.Add(p2);
-
-
-
-                if (cornerSmoothing == 1)
-                    continue;
-
-                // add the corner
-                // if last segment then no corner
-                if (cornersDone >= cornerIsUp.Count)
-                    continue;
-
-                
-                if (!cornerIsUp[cornersDone])
-                {
-                    UIVertex last = p4;
-                    for (int j = 1; j < cornerSmoothing; j++)
-                    {
-                        UIVertex extra = new UIVertex() { position = bottomRow[p4index + j] };
-                        tris.Add(p2);
-                        tris.Add(extra);
-                        tris.Add(last);
-
-
-                        last = extra;
-                    }
-
-                    bottomCornerIndex += cornerSmoothing;
-                }
-
-                // add the corner
-                else
-                {
-                    UIVertex last = p2;
-                    for (int j = 0; j < cornerSmoothing; j++)
-                    {
-                        UIVertex extra = new UIVertex() { position = topRow[p2index + j] };
-                        tris.Add(p4);
-                        tris.Add(extra);
-                        tris.Add(last);
-
-
-                        last = extra;
-                    }
-
-                    topCornerIndex += cornerSmoothing;
-                }
-
-
-                cornersDone++;
             }
 
 
