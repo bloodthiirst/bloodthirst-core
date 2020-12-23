@@ -33,10 +33,17 @@ namespace Bloodthirst.System.CommandSystem
                 BatchState = BATCH_STATE.DONE;
                 return;
             }
-            // if command is done , dequeue and execute on end
-            if (commandList.Peek().GetExcutingCommand().IsDone)
+            ICommandBase current = commandList.Peek().GetExcutingCommand();
+            // if command is done , dequeue
+            if (current.IsDone)
             {
-                commandList.Dequeue().OnEnd();
+                // if the command is failed then the entire queue is failed
+                if (current.CommandState == COMMAND_STATE.FAILED)
+                {
+                    Interrupt();
+                    return;
+                }
+                commandList.Dequeue();
             }
 
             if (commandList.Count == 0)
@@ -47,16 +54,17 @@ namespace Bloodthirst.System.CommandSystem
 
             BatchState = BATCH_STATE.EXECUTING;
 
+            // Note : we recall the GetExecutingCommand since there's a chance the previous once was dequeued
+            current = commandList.Peek().GetExcutingCommand();
+
             // if command is not started , execute the command start
-            if (!commandList.Peek().IsStarted)
+            if (!current.IsStarted)
             {
-                commandList.Peek().GetExcutingCommand().OnStart();
-                commandList.Peek().GetExcutingCommand().IsStarted = true;
-                commandList.Peek().OnCommandStartNotify();
+                current.Start();
             }
 
             // execute the commands on tick
-            CommandsList.Peek().GetExcutingCommand().OnTick(delta);
+            current.OnTick(delta);
         }
 
         public ICommandBatch Append(ICommandBase command)
@@ -67,14 +75,12 @@ namespace Bloodthirst.System.CommandSystem
 
         public void Interrupt()
         {
-            foreach(ICommandBase command in commandList)
+            foreach (ICommandBase command in commandList)
             {
-                if (command.CommandState == COMMAND_STATE.EXECUTING)
-                {
-                    command.Interrupt();
-                }
+                // Note : the interrupt of ICommandBase is expected to handle it's internal commands if it has any
+                // example : interrupting sub commands
+                command.GetExcutingCommand().Interrupt();
             }
-
             BatchState = BATCH_STATE.DONE;
         }
     }

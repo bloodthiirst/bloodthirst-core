@@ -8,6 +8,7 @@ namespace Bloodthirst.System.CommandSystem
 {
     public class CommandManager : UnitySingleton<CommandManager>
     {
+
         [ShowInInspector]
         private List<ICommandBatch> commandBatches;
 

@@ -6,11 +6,18 @@ namespace Bloodthirst.System.CommandSystem
     {
         private Queue<ICommandBase> cached;
         private CommandBatchQueue queue;
+        private bool isInterrupted;
         public QueueCommandBase() : base()
         {
             cached = new Queue<ICommandBase>();
         }
 
+        /// <summary>
+        /// Add commands externally to execute in the CommandQueue
+        /// , note : these commands are executed BEFORE the QueueCommands
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public T AddToQueue(ICommandBase command)
         {
             cached.Enqueue(command);
@@ -37,11 +44,20 @@ namespace Bloodthirst.System.CommandSystem
             cached = null;
         }
 
+        /// <summary>
+        /// Add commands internally to execute in the CommandQueue
+        /// , note : these commands are executed AFTER the cached commands
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         protected virtual IEnumerable<ICommandBase> QueueCommands()
         {
             yield return null;
         }
 
+        /// <summary>
+        /// Are the children commands done ?
+        /// </summary>
         public bool CommandsAreDone
         {
             get
@@ -52,15 +68,28 @@ namespace Bloodthirst.System.CommandSystem
 
         public override void OnTick(float delta)
         {
+            // the lifetime of the queue command depends on its children commands
             if(CommandsAreDone)
             {
                 Success();
             }
         }
 
+        public override void OnInterrupt()
+        {
+            // interrup the child queue commands first
+            queue.Interrupt();
+            isInterrupted = true;
+            // continue the interruption
+            base.OnInterrupt();
+        }
+
         public override void OnEnd()
         {
-            queue.Interrupt();
+            if (!isInterrupted)
+            {
+                queue.Interrupt();
+            }
             CommandManager.RemoveBatch(queue);
         }
 

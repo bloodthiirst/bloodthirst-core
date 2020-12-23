@@ -34,8 +34,7 @@ namespace Assets.Scripts.SocketLayer.Commands
         {
             if (currentFrame == frames)
             {
-                CommandState = COMMAND_STATE.SUCCESS;
-                IsDone = true;
+                Success();
                 return;
             }
 

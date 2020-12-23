@@ -44,8 +44,7 @@ namespace Assets.Scripts.SocketLayer.Commands
                 kv.Value.SendTCP(newPlayerPacket);
             }
 
-            CommandState = COMMAND_STATE.SUCCESS;
-            IsDone = true;
+            Success();
         }
 
         public override void OnEnd()

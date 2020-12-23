@@ -112,17 +112,13 @@ namespace Bloodthirst.System.CommandSystem
 
                 for (int i = 0; i < current.WaitableCommmands.Count; i++)
                 {
-                    current.WaitableCommmands[i].GetExcutingCommand().OnStart();
-                    current.WaitableCommmands[i].GetExcutingCommand().IsStarted = true;
-                    current.WaitableCommmands[i].OnCommandStartNotify();
+                    current.WaitableCommmands[i].GetExcutingCommand().Start();
 
                 }
 
                 for (int i = 0; i < current.InterruptableCommmands.Count; i++)
                 {
-                    current.InterruptableCommmands[i].GetExcutingCommand().OnStart();
-                    current.InterruptableCommmands[i].GetExcutingCommand().IsStarted = true;
-                    current.InterruptableCommmands[i].OnCommandStartNotify();
+                    current.InterruptableCommmands[i].GetExcutingCommand().Start();
                 }
             }
 

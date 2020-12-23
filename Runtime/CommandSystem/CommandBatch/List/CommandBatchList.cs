@@ -13,7 +13,6 @@ namespace Bloodthirst.System.CommandSystem
         private object owner;
         public object Owner { get => owner; set => owner = value; }
 
-
         [SerializeField]
         private bool removeWhenDone;
         public bool RemoveWhenDone { get => removeWhenDone; set => removeWhenDone = value; }
@@ -51,7 +50,6 @@ namespace Bloodthirst.System.CommandSystem
 
             for (int i = 0; i < removeCache.Count; i++)
             {
-                removeCache[i].OnEnd();
                 CommandsList.Remove(removeCache[i]);
             }
 
@@ -60,11 +58,9 @@ namespace Bloodthirst.System.CommandSystem
             for (int i = 0; i < CommandsList.Count; i++)
             {
                 // if command is not started , execute the command start
-                if (!CommandsList[i].IsStarted)
+                if (!CommandsList[i].GetExcutingCommand().IsStarted)
                 {
-                    CommandsList[i].GetExcutingCommand().OnStart();
-                    CommandsList[i].GetExcutingCommand().IsStarted = true;
-                    CommandsList[i].GetExcutingCommand().OnCommandStartNotify();
+                    CommandsList[i].GetExcutingCommand().Start();
                 }
 
                 // execute the commands on tick
@@ -85,10 +81,7 @@ namespace Bloodthirst.System.CommandSystem
         {
             for (int i = 0; i < commandList.Count; i++)
             {
-                if (commandList[i].CommandState == COMMAND_STATE.EXECUTING)
-                {
-                    commandList[i].Interrupt();
-                }
+                commandList[i].Interrupt();
             }
 
             BatchState = BATCH_STATE.DONE;

@@ -7,22 +7,22 @@ namespace Bloodthirst.System.CommandSystem
 {
     public enum COMMAND_STATE
     {
-        EXECUTING, SUCCESS, FAILED
+        WATING, EXECUTING, SUCCESS, FAILED, INTERRUPTED
     }
     public abstract class CommandBase<T> : ICommandBase where T : CommandBase<T>
     {
 #if UNITY_EDITOR
         public bool detailedInfo;
 #endif
-        public event Action OnCommandStart;
+        public event Action<ICommandBase> OnCommandStart;
 
-        public event Action OnCommandEnd;
+        public event Action<ICommandBase> OnCommandEnd;
 
-        public event Action<ICommandBase> OnSpecificCommandEnd;
+        public event Action<T> OnSpecificCommandEnd;
 
         [SerializeField]
 #if UNITY_EDITOR
-        [ShowIf( nameof(detailedInfo) , Value = true )]
+        [ShowIf(nameof(detailedInfo), Value = true)]
 #endif
         private COMMAND_STATE commandState;
         public COMMAND_STATE CommandState { get => commandState; set => commandState = value; }
@@ -31,51 +31,74 @@ namespace Bloodthirst.System.CommandSystem
 #if UNITY_EDITOR
         [ShowIf(nameof(detailedInfo), Value = true)]
 #endif
-        private List<ICommandBase> fallbackCommands;
+        private ICommandBase fallbackCommand;
 
-        public List<ICommandBase> FallbackCommands { get => fallbackCommands; set => fallbackCommands = value; }
+        public ICommandBase FallbackCommand { get => fallbackCommand; set => fallbackCommand = value; }
 
         [SerializeField]
 #if UNITY_EDITOR
         [ShowIf(nameof(detailedInfo), Value = true)]
 #endif
         private bool isDone;
-        public bool IsDone { get => isDone; set => isDone = value; }
+        public bool IsDone { get => isDone; }
 
         [SerializeField]
 #if UNITY_EDITOR
         [ShowIf(nameof(detailedInfo), Value = true)]
 #endif
         private bool isStarted;
-        public bool IsStarted { get => isStarted; set => isStarted = value; }
+        public bool IsStarted => isStarted;
 
+        /// <summary>
+        /// Executed on command start , defined in command and used by ICommandBatch
+        /// </summary>
         public virtual void OnStart() { }
-        
+
+        /// <summary>
+        /// Executed on every frame of the commands lifetime , defined in command and used by ICommandBatch
+        /// </summary>
         public virtual void OnTick(float delta) { }
 
-        public virtual void OnEnd() { }
+        /// <summary>
+        /// Executed when the command ends with the status of success , defined in command and triggered automatically
+        /// </summary>
+        public virtual void OnSuccess() { }
 
+        /// <summary>
+        /// Executed when the command ends with the status of failed , defined in command and triggered automatically
+        /// </summary>
+        public virtual void OnFailed() { }
+
+        /// <summary>
+        /// Executed when the command ends with the status of interrupted , defined in command and triggered automatically
+        /// </summary>
         public virtual void OnInterrupt() { }
+
+        /// <summary>
+        /// Executed when the command ends regardless of the status , defined in command and triggered automatically
+        /// </summary>
+        public virtual void OnEnd() { }
 
         public CommandBase()
         {
-            IsStarted = false;
-            IsDone = false;
-            CommandState = COMMAND_STATE.EXECUTING;
-            FallbackCommands = new List<ICommandBase>();
-        }
-        public void OnCommandStartNotify()
-        {
-            OnCommandStart?.Invoke();
+            isStarted = false;
+            isDone = false;
+            CommandState = COMMAND_STATE.WATING;
+            FallbackCommand = null;
         }
 
-        public ICommandBase AddFallback(ICommandBase fallback)
+        public ICommandBase SetFallbackCommand(ICommandBase fallback)
         {
-            FallbackCommands.Add(fallback);
+            FallbackCommand = fallback;
             return this;
         }
         public ICommandBase GetExcutingCommand()
         {
+            // waiting
+            if(CommandState == COMMAND_STATE.WATING)
+            {
+                return this;
+            }
             // executing 
             if (CommandState == COMMAND_STATE.EXECUTING)
             {
@@ -90,49 +113,99 @@ namespace Bloodthirst.System.CommandSystem
 
             // failed
 
-            if (FallbackCommands.Count == 0)
+            if (FallbackCommand == null)
                 return this;
 
-            return FallbackCommands[0].GetExcutingCommand();
+            // propagate to the fallback command
+            return FallbackCommand.GetExcutingCommand();
 
         }
+
+        /// <summary>
+        /// Starts the command , called by ICommandBatch instances
+        /// </summary>
+        public void Start()
+        {
+            CommandState = COMMAND_STATE.EXECUTING;
+            isStarted = true;
+            OnStart();
+            OnCommandStart?.Invoke(this);
+        }
+
+        /// <summary>
+        /// Ends the command , called by automatically (interal)
+        /// </summary>
+        private void End()
+        {
+            isDone = true;
+            OnEnd();
+            OnCommandEnd?.Invoke(this);
+            OnSpecificCommandEnd?.Invoke((T)this);
+        }
+
+        #region method to use from within the command to control its lifetime
+
+        /// <summary>
+        /// Ends the command with status of SUCCESS
+        /// </summary>
         public void Success()
         {
-            IsDone = true;
             CommandState = COMMAND_STATE.SUCCESS;
-
-            OnCommandEnd?.Invoke();
-            OnSpecificCommandEnd?.Invoke(this);
+            OnSuccess();
+            End();
         }
 
-        public void Failed()
+        /// <summary>
+        /// Ends the command with status of FAILED
+        /// </summary>
+        public void Fail()
         {
-            IsDone = true;
             CommandState = COMMAND_STATE.FAILED;
-
-            OnCommandEnd?.Invoke();
-            OnSpecificCommandEnd?.Invoke(this);
+            OnFailed();
+            End();
         }
 
-        public void Reset()
-        {
-            IsDone = false;
-            IsStarted = false;
-            CommandState = COMMAND_STATE.EXECUTING;
-
-            OnCommandEnd?.Invoke();
-            OnSpecificCommandEnd?.Invoke(this);
-        }
-
+        /// <summary>
+        /// Ends the command with status of INTERRUPTED
+        /// </summary>
         public void Interrupt()
         {
-            OnInterrupt();
-            OnEnd();
-            IsDone = true;
-            CommandState = COMMAND_STATE.SUCCESS;
+            // if is done
+            // then there's nothing to interrupt
+            if(isDone)
+            {
+                return;
+            }
+            // if not started
+            // then just set it to done 
+            // no need to trigger other events
+            if (!IsStarted)
+            {
+                isDone = true;
+                return;
+            }
 
-            OnCommandEnd?.Invoke();
-            OnSpecificCommandEnd?.Invoke(this);
+            OnInterrupt();
+
+            CommandState = COMMAND_STATE.INTERRUPTED;
+
+            End();
         }
+
+        /// <summary>
+        /// Ends the command with NO status and reset it to start over
+        /// </summary>
+        public void Reset()
+        {
+            // end first to trigger the events if some other command need them
+            End();
+
+            // reset the parameters
+            isDone = false;
+            isStarted = false;
+            CommandState = COMMAND_STATE.EXECUTING;
+        }
+        #endregion
+
     }
 }

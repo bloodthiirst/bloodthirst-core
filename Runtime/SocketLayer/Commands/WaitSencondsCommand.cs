@@ -36,7 +36,7 @@ namespace Assets.Scripts.SocketLayer.Commands
             if (currentTimer >= time)
             {
                 CommandState = COMMAND_STATE.SUCCESS;
-                IsDone = true;
+                Success();
                 return;
             }
             Debug.Log("current timer value : " + currentTimer);

@@ -188,7 +188,6 @@ namespace Bloodthirst.Core.Audio
             audioSource.clip = audioClip;
 
             audioSource.Play();
-
             BusyAudioSources.Add(audioSource);
 
             return audioSource;

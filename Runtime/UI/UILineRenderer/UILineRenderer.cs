@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Utils;
 using Bloodthirst.Utils;
 using Packages.com.bloodthirst.bloodthirst_core.Runtime.UI.UILineRenderer;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,34 +12,112 @@ namespace Assets
     [RequireComponent(typeof(CanvasRenderer))]
     public class UILineRenderer : MaskableGraphic
     {
+        public enum UV_SMOOTHING
+        {
+            NONE,
+            INVERT,
+            LERP
+        }
+
+        /// <summary>
+        /// Number of sub-parts (segements) in between each point
+        /// </summary>
         [SerializeField]
-        private int SPLINE_DEFINITION = 10;
+        [Range(3, 100)]
+        private int detailPerSegment = 10;
+
+        /// <summary>
+        /// Thickness of the line
+        /// </summary>
         public float LineThikness = 2;
+
+        /// <summary>
+        /// Use margins ?
+        /// </summary>
         public bool UseMargins;
 
-        [SerializeField]
-        private bool useSpline;
 
+        /// <summary>
+        /// Handle length of the spline controls
+        /// </summary>
         [SerializeField]
         private float handlesLength;
 
+        /// <summary>
+        /// Normalize the spline handles ?
+        /// </summary>
         [SerializeField]
         private bool normalizeHandles;
 
+        /// <summary>
+        /// Invert the spline handles ?
+        /// </summary>
         [SerializeField]
         private bool invertHandles;
 
+        /// <summary>
+        /// Margin used to give space between the line and the edge of the RectTransform
+        /// </summary>
         public Vector2 Margin;
-        public Vector2[] Points;
+
+        /// <summary>
+        /// Method used for UV smoothing
+        /// </summary>
+        public UV_SMOOTHING UVSmoothing;
+
+        [ShowIf(nameof(UVSmoothing), Value = UV_SMOOTHING.LERP)]
+        [Range(0f, 1f)]
+        public float uvSmoothLerp;
+
+        [SerializeField]
+        /// <summary>
+        /// The initial points that define the line (non smoothed)
+        /// </summary>
+        private Vector2[] points;
+        
+        public Vector2[] Points
+        {
+            get => points;
+            set
+            {
+                if(CheckPointsChanged(value))
+                {
+                    points = value;
+                }
+            }
+        }
 
         [Range(1, 10)]
+
+        /// <summary>
+        /// detail of defining the corners
+        /// </summary>
         public int cornerSmoothing;
+        
+        /// <summary>
+        /// Check if array of points is equal to the current array of points
+        /// </summary>
+        /// <param name="newPoints"></param>
+        /// <returns></returns>
+        bool CheckPointsChanged(Vector2[] newPoints)
+        {
+            if (newPoints.Length != points.Length)
+                return true;
+
+            for(int i = 0; i < newPoints.Length; i++)
+            {
+                if (newPoints[i] != points[i])
+                    return true;
+            }
+
+            return false;
+        }
         protected override void OnPopulateMesh(VertexHelper vbo)
         {
             List<LineQuad> finaleVerts = new List<LineQuad>();
 
-            if (Points == null || Points.Length < 2)
-                Points = new[] { new Vector2(0, 0), new Vector2(1, 1) };
+            if (points == null || points.Length < 2)
+                points = new[] { new Vector2(0, 0), new Vector2(1, 1) };
 
             var sizeX = rectTransform.rect.width;
             var sizeY = rectTransform.rect.height;
@@ -62,41 +141,34 @@ namespace Assets
             Spline<Node2D> spline = new Spline<Node2D>();
             List<Vector2> InterpolatedPoints = new List<Vector2>();
 
-            if (useSpline)
+
+            List<Node2D> nodes = points.Select(v => new Node2D() { point = v }).ToList();
+
+
+            spline.NormalizeHandles = normalizeHandles;
+            spline.HandleLength = handlesLength;
+            spline.InvertHandlesLengths = invertHandles;
+
+            spline.Initialize(nodes, null, null, true);
+
+            totalLength = spline.GetTotalLength();
+
+
+            for (int i = 0; i < spline.SegmentCount; i++)
             {
-                List<Node2D> nodes = Points.Select(v => new Node2D() { point = v }).ToList();
-
-                
-                spline.NormalizeHandles = normalizeHandles;
-                spline.HandleLength = handlesLength;
-                spline.InvertHandlesLengths = invertHandles;
-
-                spline.Initialize(nodes, null, null, true);
-
-                totalLength = spline.GetTotalLength();
-
-                material.SetFloat("_LineLength", totalLength);
-
-                for (int i = 0; i < spline.SegmentCount; i++)
+                for (int j = 0; j < detailPerSegment; j++)
                 {
-                    for (int j = 0; j < SPLINE_DEFINITION; j++)
-                    {
-                        float t = j / (float)(SPLINE_DEFINITION);
-                        Vector2 v2 = spline[i].GetPoint(t);
-                        InterpolatedPoints.Add(v2);
-                    }
-
-                    InterpolatedPoints.Add(spline[i].GetPoint(1f));
+                    float t = j / (float)(detailPerSegment);
+                    Vector2 v2 = spline[i].GetPoint(t);
+                    InterpolatedPoints.Add(v2);
                 }
-            }
-            else
-            {
-                InterpolatedPoints = Points.ToList();
+
+                InterpolatedPoints.Add(spline[i].GetPoint(1f));
             }
 
             float prevLength = 0;
             float currentLength = 0;
-
+            float totalLengthAfterSegements = 0;
             for (int i = 1; i < InterpolatedPoints.Count; i++)
             {
                 Vector2 prev = InterpolatedPoints[i - 1];
@@ -106,12 +178,12 @@ namespace Assets
                     continue;
 
 
-                currentLength += (cur - prev).magnitude;
-
                 prev = new Vector2(prev.x * sizeX + offsetX, prev.y * sizeY + offsetY);
                 cur = new Vector2(cur.x * sizeX + offsetX, cur.y * sizeY + offsetY);
 
                 float angle = Mathf.Atan2(cur.y - prev.y, cur.x - prev.x) * 180f / Mathf.PI;
+                
+                currentLength += (cur - prev).magnitude;
 
                 var prevBottom = prev + new Vector2(0, -LineThikness / 2);
                 var prevUp = prev + new Vector2(0, +LineThikness / 2);
@@ -144,6 +216,9 @@ namespace Assets
                 prevLength = currentLength;
             }
 
+            material.SetFloat("_LineLength", currentLength);
+
+
             ///// sow the middle parts 
             // 0 : prev bottom
             // 1 : prev up
@@ -169,8 +244,6 @@ namespace Assets
                 Vector2 middleOfLineThrough = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
 
                 float angle = Vector2.SignedAngle(middleOfLineThrough - trueMiddle, currQuad.LeftUpPos - trueMiddle);
-
-                Debug.Log($"angle {angle}");
 
                 if (angle > 0)
                 {
@@ -216,11 +289,11 @@ namespace Assets
 
                     topRow.Add(prevQuad.LeftUpPos);
                     topRow.Add(prevQuad.RightUpPos);
-                    
+
                     bottomRow.Add(prevQuad.LeftDownPos);
                     bottomRow.Add(prevQuad.RightDownPos);
 
-                    
+
                     for (int j = 1; j < cornerSmoothing; j++)
                     {
 
@@ -231,7 +304,7 @@ namespace Assets
                         // add interpolation
                         bottomRow.Add(l);
                     }
-                    
+
                 }
 
                 else
@@ -282,7 +355,7 @@ namespace Assets
                     bottomRow.Add(prevQuad.LeftDownPos);
                     bottomRow.Add(prevQuad.RightDownPos);
 
-                    
+
                     for (int j = 1; j < cornerSmoothing; j++)
                     {
 
@@ -293,22 +366,20 @@ namespace Assets
                         // add interpolation
                         topRow.Add(l);
                     }
-                    
+
 
                 }
 
             }
-            
+
             topRow.Add(currQuad.LeftUpPos);
             topRow.Add(currQuad.RightUpPos);
 
             bottomRow.Add(currQuad.LeftDownPos);
             bottomRow.Add(currQuad.RightDownPos);
-            
+
             // TODO : massage the UVs down
             // group all verts that belong to topline and bottomline together
-
-            Debug.Log($"top row cnt : {topRow.Count} , bottom row cnt : {bottomRow.Count} , corner { cornerIsUp.Count}");
 
             int topIndex = 0;
             int bottomIndex = 0;
@@ -349,25 +420,60 @@ namespace Assets
             }
 
 
-            // TODO : calculate uv based on length ratio both BOTH top row AND bottom row
-
             // create the triangles
-            while (bottomIndex < bottomRow.Count -1 )
+            while (bottomIndex < bottomRow.Count - 1)
             {
 
-                Vector2 uv0top = new Vector2( uvTopRatios[topIndex] , 1f);
-                UIVertex p1 = new UIVertex() { position = topRow[topIndex] , uv0 = uv0top };
+                Vector2 uv0top = new Vector2(uvTopRatios[topIndex], 1f);
+                UIVertex p1 = new UIVertex() { position = topRow[topIndex], uv0 = uv0top };
 
                 topIndex++;
                 uv0top = new Vector2(uvTopRatios[topIndex], 1f);
                 UIVertex p2 = new UIVertex() { position = topRow[topIndex], uv0 = uv0top };
 
-                Vector2 uv0bottom = new Vector2(uvBottomRatios[bottomIndex] , 0f);
-                UIVertex p3 = new UIVertex() { position = bottomRow[bottomIndex] , uv0 = uv0bottom };
+                Vector2 uv0bottom = new Vector2(uvBottomRatios[bottomIndex], 0f);
+                UIVertex p3 = new UIVertex() { position = bottomRow[bottomIndex], uv0 = uv0bottom };
 
                 bottomIndex++;
                 uv0bottom = new Vector2(uvBottomRatios[bottomIndex], 0f);
                 UIVertex p4 = new UIVertex() { position = bottomRow[bottomIndex], uv0 = uv0bottom };
+
+                // TODO : multiple ways to calculate uv
+
+                switch (UVSmoothing)
+                {
+                    case UV_SMOOTHING.NONE:
+                        break;
+                    case UV_SMOOTHING.INVERT:
+                        {
+                            // swap
+                            float tmp = p1.uv0.x;
+                            p1.uv0.x = p3.uv0.x;
+                            p3.uv0.x = tmp;
+
+                            tmp = p2.uv0.x;
+                            p2.uv0.x = p4.uv0.x;
+                            p4.uv0.x = tmp;
+                        }
+                        break;
+                    case UV_SMOOTHING.LERP:
+                        {
+                            // swap
+                            var tmp = Mathf.Lerp(p1.uv0.x, p3.uv0.x, uvSmoothLerp);
+                            var inv = Mathf.Lerp(p1.uv0.x, p3.uv0.x, 1 - uvSmoothLerp);
+                            p1.uv0.x = tmp;
+                            p3.uv0.x = inv;
+
+                            tmp = Mathf.Lerp(p2.uv0.x, p4.uv0.x, uvSmoothLerp);
+                            inv = Mathf.Lerp(p2.uv0.x, p4.uv0.x, 1 - uvSmoothLerp);
+                            p2.uv0.x = tmp;
+                            p4.uv0.x = inv;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
 
                 //vbo.AddUIVertexQuad(quad);
 
@@ -384,25 +490,9 @@ namespace Assets
 
             vbo.AddUIVertexTriangleStream(tris);
 
-            /*
-            // send the vertices to the mesh
-            for (int i = 0; i < finaleVerts.Count; i++)
-            {
-                UIVertex[] quad = new UIVertex[4];
-
-                LineQuad lineQuad = finaleVerts[i];
-
-                quad[0] = new UIVertex() { position = lineQuad.LeftDownPos, color = color, uv0 = lineQuad.LeftDownUV };
-                quad[1] = new UIVertex() { position = lineQuad.LeftUpPos, color = color, uv0 = lineQuad.LeftUpUV };
-                quad[2] = new UIVertex() { position = lineQuad.RightUpPos, color = color, uv0 = lineQuad.RightUpUV };
-                quad[3] = new UIVertex() { position = lineQuad.RightDownPos, color = color, uv0 = lineQuad.RightDownUV };
-
-                vbo.AddUIVertexQuad(quad);
-            }
-            */
         }
 
-        public Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
+        private Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
         {
             Vector3 dir = point - pivot; // get point direction relative to pivot
             dir = Quaternion.Euler(angles) * dir; // rotate it
