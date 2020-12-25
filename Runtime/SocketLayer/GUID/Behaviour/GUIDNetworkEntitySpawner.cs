@@ -64,7 +64,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
             // move to gameplay scene
 
-            sceneInstanceManager.MoveToScene(networkEntity.gameObject);
+            sceneInstanceManager.AddToScene(networkEntity.gameObject);
 
             // rename
 

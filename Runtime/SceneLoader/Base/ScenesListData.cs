@@ -18,10 +18,13 @@ namespace Bloodthirst.Core.SceneManager
     public class ScenesListData : SingletonScriptableObject<ScenesListData>
     {
         [SerializeField]
+        [ReadOnly]
         private List<string> scenesList;
 
         [SerializeField]
-        private string InitSceneName = default;
+        [ValueDropdown(nameof(scenesList) , FlattenTreeView = true)]
+        [InfoBox("The scene to be loaded first , should be the scene that contains the SceneLoadingManager")]
+        private string initSceneName = default;
   
         public List<string> ScenesList
         {
@@ -101,7 +104,7 @@ namespace Bloodthirst.Core.SceneManager
 
             List<EditorBuildSettingsScene> editorBuildSettingsScenes = GetAllSceneInTheProject();
 
-            editorBuildSettingsScenes = editorBuildSettingsScenes.OrderBy(s => !s.path.Split('/').Last().Equals(InitSceneName + ".unity")).ToList();
+            editorBuildSettingsScenes = editorBuildSettingsScenes.OrderBy(s => !s.path.Equals(initSceneName)).ToList();
 
             // apply the change to the scenes list in build settings
             EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
