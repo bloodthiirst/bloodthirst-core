@@ -26,7 +26,7 @@ namespace Bloodthirst.System.CommandSystem
 
         public override void OnStart()
         {
-            list = CommandManager.AppendBatch<CommandBatchList>(this);
+            list = CommandManager.AppendBatch<CommandBatchList>(this , true);
 
             // add the commands from AddToQueue
             while (cached.Count != 0)
@@ -87,11 +87,10 @@ namespace Bloodthirst.System.CommandSystem
 
         public override void OnEnd()
         {
-            if (!isInterrupted)
+            if (!isInterrupted && list.BatchState != BATCH_STATE.DONE)
             {
                 list.Interrupt();
             }
-            CommandManager.RemoveBatch(list);
         }
 
     }

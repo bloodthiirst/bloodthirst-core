@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
+using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -39,8 +40,7 @@ namespace Bloodthirst.Socket.Serializer
 
         static SerializerProvider()
         {
-            var types = Assembly.GetExecutingAssembly()
-                .GetTypes()
+            var types = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
                 .Where(t => !( t.IsGenericType && t.GetGenericTypeDefinition() == typeof(BaseNetworkSerializer<>) ))
                 .Select(t =>

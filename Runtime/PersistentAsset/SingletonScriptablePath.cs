@@ -10,7 +10,7 @@ namespace Bloodthirst.Core.PersistantAsset
     /// 
     /// <para>Custom attribute to define the path of the singleton asset</para>
     /// 
-    /// <para> NOTE : "Asset" is automatically added to the path so start directly with the folder name</para>
+    /// <para> NOTE : "Asset/Resources" is automatically added to the path so start directly with the folder name</para>
     /// 
     /// <para>Example : if the path is "Singleton" then the asset will be at "Asset/Resources/Singleton/[TYPENAME].asset"</para>
     /// 

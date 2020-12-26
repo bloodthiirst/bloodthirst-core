@@ -1,29 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using Bloodthirst.Core.AdvancedPool;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Bloodthirst.Core.UI
 {
-    public class UIListCreator<UI, INSTANCE> where UI : MonoBehaviour , IUIElement<INSTANCE>
+    /// <summary>
+    /// A helper class used to help make UI collections and link them easily
+    /// </summary>
+    /// <typeparam name="UI"></typeparam>
+    /// <typeparam name="INSTANCE"></typeparam>
+    public class UIListCreator<UI, INSTANCE> where UI : MonoBehaviour, IUIElement<INSTANCE>
     {
         private IList<UI> cachedUIs;
-
-        private UI prefab;
-
+        private Pool<UI> pool;
         private RectTransform container;
-
-        public UIListCreator(IList<UI> cachedUIs, UI prefab, RectTransform container)
+        public IList<UI> UIs => cachedUIs; 
+        
+        public UIListCreator(Pool<UI> pool, RectTransform container, IList<UI> cachedUIs = null)
         {
-            this.cachedUIs = cachedUIs;
-            this.prefab = prefab;
+            // if not list is supplied , create one on the fly
+            this.cachedUIs = cachedUIs == null ? new List<UI>() : cachedUIs;
+
+            this.pool = pool;
             this.container = container;
         }
 
         public void RefreshUI(IList<INSTANCE> instances)
         {
-            int connectionCount = instances.Count;
+            int instCount = instances.Count;
 
-            if (connectionCount == 0)
+            if (instCount == 0)
             {
                 container.gameObject.SetActive(false);
                 return;
@@ -34,7 +41,7 @@ namespace Bloodthirst.Core.UI
 
             // difference between total instances and UIs available
 
-            int uiDiff = connectionCount - cachedUIs.Count;
+            int uiDiff = instCount - cachedUIs.Count;
 
             // instantiate extra uis if needed
 
@@ -43,23 +50,26 @@ namespace Bloodthirst.Core.UI
                 // spawn the ui
                 for (int i = 0; i < uiDiff; i++)
                 {
-                    UI ui = Object.Instantiate(prefab, container);
+                    UI ui = pool.Get();
                     cachedUIs.Add(ui);
                 }
             }
 
             // setup ui
 
-            for (int i = 0; i < connectionCount; i++)
+            for (int i = 0; i < instCount; i++)
             {
-                INSTANCE connectedBuilding = instances[i];
+                INSTANCE inst = instances[i];
                 cachedUIs[i].gameObject.SetActive(true);
-                cachedUIs[i].SetupUI(connectedBuilding);
+
+                // clean up first in case its needed to clear dependencies that were linked previously
+                cachedUIs[i].CleanupUI();
+                cachedUIs[i].SetupUI(inst);
             }
 
             // disable ununsed uis
 
-            for (int i = connectionCount; i < cachedUIs.Count; i++)
+            for (int i = instCount; i < cachedUIs.Count; i++)
             {
                 cachedUIs[i].CleanupUI();
                 cachedUIs[i].gameObject.SetActive(false);

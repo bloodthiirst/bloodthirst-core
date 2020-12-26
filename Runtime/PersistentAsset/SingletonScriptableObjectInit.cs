@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloodthirst.Core.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -37,9 +38,7 @@ namespace Bloodthirst.Core.PersistantAsset
 
             // get singleton types
 
-            List<Type> validTypes = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany( asm => asm.GetTypes())
+            List<Type> validTypes = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsGenericType)
                 .Where(t => t.GetInterfaces().Contains(typeof(ISingletonScriptableObject)))
@@ -51,7 +50,7 @@ namespace Bloodthirst.Core.PersistantAsset
 
             foreach (Type type in validTypes)
             {
-                PropertyInfo pathProp = type.GetProperty("AssetPath", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+                PropertyInfo pathProp = type.GetProperty( "AssetPath", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 
                 string typePath = (string)pathProp.GetValue(null);
 
@@ -128,7 +127,7 @@ namespace Bloodthirst.Core.PersistantAsset
 
                         string folderPath = "Assets/Resources/" + relativeFolderPath;
 
-                        CreateFoldersFromPath(folderPath);
+                        EditorUtils.CreateFoldersFromPath(folderPath);
 
                         AssetDatabase.CreateAsset(so, assetPath);
 
@@ -149,7 +148,7 @@ namespace Bloodthirst.Core.PersistantAsset
 
                     string folderPath = "Assets/Resources/" + relativeFolderPath;
 
-                    CreateFoldersFromPath(folderPath);
+                    EditorUtils.CreateFoldersFromPath(folderPath);
 
                     AssetDatabase.CreateAsset(so, assetPath);
 
@@ -168,30 +167,15 @@ namespace Bloodthirst.Core.PersistantAsset
 
         }
 
-        static void CreateFoldersFromPath(string folderPath)
-        {
-            string[] folders = folderPath.Split('/');
-
-            for (int i = 0; i < folders.Length; i++)
-            {
-                string folderToCheck = string.Join("/", folders.Take(i + 1));
-                string parentFolder = string.Join("/", folders.Take(i));
-
-                if (!AssetDatabase.IsValidFolder(folderToCheck))
-                {
-                    AssetDatabase.CreateFolder(parentFolder, folders[i]);
-                }
-            }
-        }
-
-
-        static IEnumerable<ISingletonScriptableObject> GetSingletons()
+        /// <summary>
+        /// Return a list of all the instances of type <see cref="ISingletonScriptableObject"/>
+        /// </summary>
+        /// <returns></returns>
+        private static IEnumerable<ISingletonScriptableObject> GetSingletons()
         {
             // get singleton types
 
-            List<Type> validTypes = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(asm => asm.GetTypes())
+            List<Type> validTypes = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsGenericType)
                 .Where(t => t.GetInterfaces().Contains(typeof(ISingletonScriptableObject)))
@@ -199,8 +183,9 @@ namespace Bloodthirst.Core.PersistantAsset
 
             // check
 
-            foreach (Type type in validTypes)
+            for (int i = 0; i < validTypes.Count; i++)
             {
+                Type type = validTypes[i];
 
                 // all instances available with the same type
 

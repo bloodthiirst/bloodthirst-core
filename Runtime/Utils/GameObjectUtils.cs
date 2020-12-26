@@ -5,6 +5,11 @@ namespace Assets.Scripts.Core.Utils
 {
     public static class GameObjectUtils
     {
+        /// <summary>
+        /// Combines a list of coroutines into one with the same order in the params
+        /// </summary>
+        /// <param name="enumerators"></param>
+        /// <returns></returns>
         public static IEnumerator CombineCoroutine( params IEnumerator[] enumerators )
         {
             foreach(IEnumerator c in enumerators)
@@ -31,12 +36,12 @@ namespace Assets.Scripts.Core.Utils
             }
         }
 
-        public static C CreateIfNull<C>(this C collection) where C : new()
+        public static T CreateIfNull<T>(this T instance) where T : new()
         {
-            if (collection == null)
-                collection = new C();
+            if (instance == null)
+                instance = new T();
 
-            return collection;
+            return instance;
         }
 
         public static C CreateOrClear<C> (this C collection) where C : IList , new()

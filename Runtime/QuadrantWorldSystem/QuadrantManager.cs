@@ -11,25 +11,59 @@ namespace Bloodthirst.System.Quadrant
     /// A quadrant system manager that hepls group the game entities by grouping them into cubes in world space
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class QuadrantManager<TEntity> where TEntity : MonoBehaviour
+    public class QuadrantManager<TEntity> where TEntity : IQuadrantEntity
     {
+        private Vector3 cubeSize;
         /// <summary>
         /// The size of the cube that will be used to divide the world
         /// </summary>
-        public readonly float CubeSize;
+        public Vector3 CubeSize
+        {
+            get => cubeSize;
+            set
+            {
+                if (cubeSize != value)
+                {
+                    cubeSize = value;
+                    Reset();
+                }
+            }
+        }
 
         /// <summary>
         /// Container for all the entities that need to be grouped by cube
         /// </summary>
         private Dictionary<ValueTuple<int, int, int>, List<TEntity>> quadrantCollection;
 
-        public QuadrantManager(float CubeSize)
-        {
-            this.CubeSize = CubeSize;
+        public IReadOnlyDictionary<ValueTuple<int, int, int>, List<TEntity>> QuadrantColllection => quadrantCollection;
 
+        public QuadrantManager()
+        {
             quadrantCollection = new Dictionary<(int, int, int), List<TEntity>>();
         }
 
+
+        public void Clear()
+        {
+            quadrantCollection.Clear();
+        }
+
+        private void Reset()
+        {
+            // cache previous entities
+            List<TEntity> list = new List<TEntity>();
+            foreach(KeyValuePair<(int, int, int), List<TEntity>> kv in quadrantCollection)
+            {
+                list.AddRange(kv.Value);
+            }
+
+            quadrantCollection.Clear();
+
+            foreach(TEntity e in list)
+            {
+                Add(e);
+            }
+        }
 
         /// <summary>
         /// Get the list of entities at a specific cube in the world
@@ -42,12 +76,17 @@ namespace Bloodthirst.System.Quadrant
         {
             get
             {
-                if (!quadrantCollection.ContainsKey((x, y, z)))
-                {
-                    quadrantCollection.Add((x, y, z), new List<TEntity>());
-                }
+                TryAddQuadrantCube(x, y, z);
 
                 return quadrantCollection[(x, y, z)];
+            }
+        }
+
+        public void TryAddQuadrantCube(int x, int y, int z)
+        {
+            if (!quadrantCollection.ContainsKey((x, y, z)))
+            {
+                quadrantCollection.Add((x, y, z), new List<TEntity>());
             }
         }
 
@@ -58,9 +97,11 @@ namespace Bloodthirst.System.Quadrant
         /// <returns></returns>
         public (int,int,int) Add(TEntity entity)
         {
-            Vector3 pos = entity.transform.position;
+            Vector3 pos = entity.Postion;
 
             (int, int, int) id = PositionToId(pos);
+
+            entity.QuandrantId = id;
 
             this[id.Item1, id.Item2, id.Item3].Add(entity);
 
@@ -74,9 +115,9 @@ namespace Bloodthirst.System.Quadrant
         /// <returns></returns>
         private (int,int,int) PositionToId(Vector3 pos)
         {
-            int x = Mathf.FloorToInt(pos.x / CubeSize);
-            int y = Mathf.FloorToInt(pos.y / CubeSize);
-            int z = Mathf.FloorToInt(pos.z / CubeSize);
+            int x = Mathf.FloorToInt(pos.x / CubeSize.x);
+            int y = Mathf.FloorToInt(pos.y / CubeSize.y);
+            int z = Mathf.FloorToInt(pos.z / CubeSize.y);
 
             return (x, y, z);
         }
@@ -99,12 +140,14 @@ namespace Bloodthirst.System.Quadrant
         /// <returns></returns>
         public (int,int,int) Update((int, int, int) id, TEntity entity)
         {
-            (int, int, int) newId = PositionToId(entity.transform.position);
+            (int, int, int) newId = PositionToId(entity.Postion);
 
             if(id == newId)
             {
                 return id;
             }
+
+            entity.QuandrantId = newId;
 
             Remove(id, entity);
 

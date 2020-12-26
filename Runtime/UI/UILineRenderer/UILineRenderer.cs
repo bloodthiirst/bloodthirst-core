@@ -168,7 +168,7 @@ namespace Assets
 
             float prevLength = 0;
             float currentLength = 0;
-            float totalLengthAfterSegements = 0;
+
             for (int i = 1; i < InterpolatedPoints.Count; i++)
             {
                 Vector2 prev = InterpolatedPoints[i - 1];
@@ -204,12 +204,7 @@ namespace Assets
                     RightDownPos = currentBottom,
                     RightUpPos = currentUp,
                     LeftDownPos = prevBottom,
-                    LeftUpPos = prevUp,
-
-                    LeftDownUV = new Vector2(prevLength / totalLength, 0),
-                    LeftUpUV = new Vector2(prevLength / totalLength, 1),
-                    RightDownUV = new Vector2(currentLength / totalLength, 0),
-                    RightUpUV = new Vector2(currentLength / totalLength, 1)
+                    LeftUpPos = prevUp
                 };
 
                 finaleVerts.Add(quad);

@@ -17,11 +17,32 @@ namespace Bloodthirst.System.CommandSystem
 
         public bool IsActive { get => isActive; set => isActive = value; }
 
+        private CommandBatchList globalCommandBatch;
+
         protected override void Awake()
         {
             base.Awake();
             commandBatches = new List<ICommandBatch>();
+            globalCommandBatch = AppendBatch<CommandBatchList>(this);
+
         }
+
+        /// <summary>
+        /// Run the command and run it globally
+        /// </summary>
+        /// <param name="command"></param>
+        public static void Run(ICommandBase command)
+        {
+            Instance.globalCommandBatch.Append(command);
+        }
+
+        /// <summary>
+        /// Append a batch
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="owner"></param>
+        /// <param name="removeWhenDone"></param>
+        /// <returns></returns>
         public static T AppendBatch<T>(object owner , bool removeWhenDone = false) where T : ICommandBatch, new()
         {
             T batch = new T();
@@ -31,14 +52,6 @@ namespace Bloodthirst.System.CommandSystem
             Instance.commandBatches.Add(batch);
 
             return batch;
-        }
-
-        public static void RemoveBatch<T>(T batch) where T : ICommandBatch
-        {
-            if (batch == null)
-                return;
-
-            Instance.commandBatches.Remove(batch);
         }
 
         private void Update()
