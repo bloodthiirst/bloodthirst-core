@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Assets.Scripts.Utils;
+using Bloodthirst.Core.Utils;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Bloodthirst.System.Quadrant
@@ -71,10 +74,57 @@ namespace Bloodthirst.System.Quadrant
             if (quadrantManager == null)
                 return;
 
+            GUIStyle labelStyle = new GUIStyle();
+            labelStyle.fontSize = 12;
+            labelStyle.fontStyle = FontStyle.Bold;
+            labelStyle.alignment = TextAnchor.MiddleCenter;
+            labelStyle.fixedWidth = 30;
+            labelStyle.normal.textColor = Color.white;
 
+            Vector3 halfSize = quadrantManager.CubeSize * 0.5f;
+
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+
+            // fill
             foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
             {
+                Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
 
+                center.x *= quadrantManager.CubeSize.x;
+                center.y *= quadrantManager.CubeSize.y;
+                center.z *= quadrantManager.CubeSize.z;
+
+                center += halfSize;
+               
+                Handles.color = gizmosFillColor;
+                //Gizmos.DrawCube(center, quadrantManager.CubeSize);
+                EditorUtils.HandlesDrawCube(center , quadrantManager.CubeSize);
+
+            }
+
+            // outline
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Less;
+            foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
+            {
+                Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+
+                center.x *= quadrantManager.CubeSize.x;
+                center.y *= quadrantManager.CubeSize.y;
+                center.z *= quadrantManager.CubeSize.z;
+
+                center += halfSize;
+
+                Handles.color = gizmosOutlineColor;
+                EditorUtils.HandlesDrawCubeOutline(center, quadrantManager.CubeSize);
+
+            }
+
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
+
+            // label for count
+            foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
+            {
                 Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
 
                 center.x *= quadrantManager.CubeSize.x;
@@ -84,13 +134,26 @@ namespace Bloodthirst.System.Quadrant
                 center += quadrantManager.CubeSize * 0.5f;
 
 
-                Gizmos.color = gizmosOutlineColor;
-                Gizmos.DrawWireCube(center, quadrantManager.CubeSize);
-
-                Gizmos.color = gizmosFillColor;
-                Gizmos.DrawCube(center, quadrantManager.CubeSize);
-
+                Handles.Label(center, $"Entities : { q.Value.Count }", labelStyle);
             }
+
+            labelStyle.contentOffset = new Vector2(0, 15);
+
+            // label for id
+            foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
+            {
+                Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+
+                center.x *= quadrantManager.CubeSize.x;
+                center.y *= quadrantManager.CubeSize.y;
+                center.z *= quadrantManager.CubeSize.z;
+
+                center += quadrantManager.CubeSize * 0.5f;
+
+
+                Handles.Label(center, $"(id : { q.Key.Item1 } , {q.Key.Item2} , {q.Key.Item3})", labelStyle);
+            }
+
         }
     }
 }

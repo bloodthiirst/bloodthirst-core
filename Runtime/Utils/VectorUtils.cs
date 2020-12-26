@@ -54,6 +54,21 @@ namespace Assets.Scripts.Utils
         }
 
         /// <summary>
+        /// Get a mask version of the vector
+        /// </summary>
+        /// <param name="original"></param>
+        /// <returns></returns>
+        public static Vector3 MulVector(this Vector3 original , float x = 1 , float y = 1 , float z = 1)
+        {
+            Vector3 res = original;
+            res.x *= x;
+            res.y *= y;
+            res.z *= z;
+
+            return res;
+        }
+
+        /// <summary>
         /// return if 2 line intersect with the intersection point
         /// </summary>
         /// <param name="p1"></param>
