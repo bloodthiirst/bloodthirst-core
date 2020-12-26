@@ -13,6 +13,10 @@ namespace Bloodthirst.System.Quadrant
     /// <typeparam name="TEntity"></typeparam>
     public class QuadrantManager<TEntity> where TEntity : IQuadrantEntity
     {
+        public event Action<TEntity> OnEntityAdded;
+
+        public event Action<(int,int,int) , TEntity> OnEntityRemoved;
+
         private Vector3 cubeSize;
         /// <summary>
         /// The size of the cube that will be used to divide the world
@@ -105,6 +109,8 @@ namespace Bloodthirst.System.Quadrant
 
             this[id.Item1, id.Item2, id.Item3].Add(entity);
 
+            OnEntityAdded?.Invoke(entity);
+
             return id;
         }
 
@@ -130,6 +136,10 @@ namespace Bloodthirst.System.Quadrant
         public void Remove((int,int,int) id , TEntity entity)
         {
             this[id.Item1, id.Item2, id.Item3].Remove(entity);
+
+            entity.QuandrantId = null;
+
+            OnEntityRemoved?.Invoke(id , entity);
         }
 
         /// <summary>
@@ -150,6 +160,7 @@ namespace Bloodthirst.System.Quadrant
             entity.QuandrantId = newId;
 
             Remove(id, entity);
+
 
             return Add(entity);
         }

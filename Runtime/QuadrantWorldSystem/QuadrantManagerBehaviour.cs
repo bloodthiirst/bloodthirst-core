@@ -74,6 +74,7 @@ namespace Bloodthirst.System.Quadrant
             if (quadrantManager == null)
                 return;
 
+
             GUIStyle labelStyle = new GUIStyle();
             labelStyle.fontSize = 12;
             labelStyle.fontStyle = FontStyle.Bold;
@@ -82,6 +83,9 @@ namespace Bloodthirst.System.Quadrant
             labelStyle.normal.textColor = Color.white;
 
             Vector3 halfSize = quadrantManager.CubeSize * 0.5f;
+
+
+
 
 
             Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
@@ -122,6 +126,8 @@ namespace Bloodthirst.System.Quadrant
 
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
 
+            labelStyle.contentOffset = new Vector2(0, -7.5f);
+
             // label for count
             foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
             {
@@ -137,7 +143,7 @@ namespace Bloodthirst.System.Quadrant
                 Handles.Label(center, $"Entities : { q.Value.Count }", labelStyle);
             }
 
-            labelStyle.contentOffset = new Vector2(0, 15);
+            labelStyle.contentOffset = new Vector2(0, 7.5f);
 
             // label for id
             foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)

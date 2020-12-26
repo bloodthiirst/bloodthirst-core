@@ -8,8 +8,8 @@ namespace Bloodthirst.System.Quadrant
         public event Action<IQuadrantEntity> OnQuadrantIdChanged;
 
         [SerializeField]
-        private (int, int, int) quandrantId;
-        (int, int, int) IQuadrantEntity.QuandrantId 
+        private (int, int, int)? quandrantId;
+        (int, int, int)? IQuadrantEntity.QuandrantId 
         { 
             get => quandrantId;
             set
@@ -21,8 +21,6 @@ namespace Bloodthirst.System.Quadrant
                 }
             }
         }
-        Vector3 Postion { get; }
-
         Vector3 IQuadrantEntity.Postion => transform.position;
 
     }
