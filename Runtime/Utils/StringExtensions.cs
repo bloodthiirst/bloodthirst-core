@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Bloodthirst.Core.Utils
@@ -45,6 +46,13 @@ namespace Bloodthirst.Core.Utils
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Given a source text , a start string and an end string , return the start index and end index
+        /// </summary>
+        /// <param name="txt"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         public static List<Tuple<SECTION_EDGE, int, int>> StringReplaceSection(this string txt , string start , string end)
         {
             // data mean :
@@ -68,6 +76,9 @@ namespace Bloodthirst.Core.Utils
             {
                 sectionEdges.Add(new Tuple<SECTION_EDGE, int, int>(SECTION_EDGE.END, str, str + end.Length));
             }
+
+            // order by index in the original text
+            sectionEdges = sectionEdges.OrderBy(t => t.Item2).ToList();
 
             return sectionEdges;
         }

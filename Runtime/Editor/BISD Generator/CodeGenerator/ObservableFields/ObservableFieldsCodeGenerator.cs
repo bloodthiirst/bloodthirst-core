@@ -27,6 +27,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             FieldInfo[] fields = GetObseravableFields(TypeList);
             // instance vars
             PropertyInfo[] props = GetObservableProps(TypeList);
+
             EventInfo[] events = GetObservableEvents(TypeList);
             MethodInfo[] methods = GetObservableMethods(TypeList);
 

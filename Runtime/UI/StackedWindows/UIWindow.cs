@@ -56,13 +56,13 @@ namespace Bloodthirst.Core.UI
         public void TriggerUnfocus()
         {
             RequestUnfocus = true;
-            Manager.Refresh();
+            OnUnfocus?.Invoke(this);
         }
 
         public void TriggerFocus()
         {
             RequestFocus = true;
-            Manager.Refresh();
+            OnFocus?.Invoke(this);
         }
 
 
@@ -71,18 +71,18 @@ namespace Bloodthirst.Core.UI
             if (!IsOpen)
             {
                 RequestOpen = true;
+                OnOpen?.Invoke(this);
             }
             else
             {
                 RequestFocus = true;
                 OnFocus?.Invoke(this);
             }
-            Manager.Refresh();
         }
         public void TriggerClose()
         {
             RequestClose = true;
-            Manager.Refresh();
+            OnClose?.Invoke(this);
         }
 
 #if UNITY_EDITOR

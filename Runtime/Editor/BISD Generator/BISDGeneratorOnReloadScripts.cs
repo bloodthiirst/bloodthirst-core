@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
+using Bloodthirst.Core.Utils;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,11 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 {
     public class BISDGeneratorOnReloadScripts
     {
+        private const string STATE_FILE_ENDING = "State";
+        private const string INSTANCE_FILE_ENDING = "Instance";
+        private const string BEHAVIOUR_FILE_ENDING = "Behaviour";
+        private const string DATA_FILE_ENDING = "Data";
+
         private static readonly string[] filterFiles =
         {
             "BISDTag",
@@ -56,25 +62,18 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
-        private static string FieldToObserverName(FieldInfo field)
-        {
-            StringBuilder sb = new StringBuilder(field.GetNiceName());
-            sb.Append("Prop");
-            sb[0] = Char.ToUpper(sb[0]);
-            return sb.ToString();
-        }
-
 
         /// <summary>
-        /// Extracts info about the classes of that follow the BISD pattern
+        /// Extracts info about the classes that follow the BISD pattern
         /// </summary>
         /// <param name="TypeList"></param>
         /// <param name="TextList"></param>
         private static void ExtractBISDInfo(ref Dictionary<string, Container<Type>> TypeList, ref Dictionary<string, Container<TextAsset>> TextList)
         {
-            // get 
-            var allTypes = AppDomain.CurrentDomain.GetAssemblies().Select(asm => asm.GetTypes()).SelectMany(t => t).ToList();
+            IReadOnlyList<Type> allTypes = TypeUtils.AllTypes;
 
+            // find all the scripts that contain the BISDTag
+            // which means the scripts that need to be treated
             List<TextAsset> textAssets = FindTextAssets()
                 .Where(t => !filterFiles.Contains(t.name))
                 .Where(t => !t.name.EndsWith(".cs"))
@@ -102,7 +101,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
                 // start comparing
 
-                if (text.name.EndsWith("Behaviour"))
+                if (text.name.EndsWith(BEHAVIOUR_FILE_ENDING))
                 {
                     model = text.name.Remove(text.name.Length - 9);
 
@@ -128,7 +127,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     tupleText.Behaviour = text;
                 }
 
-                if (text.name.EndsWith("Instance"))
+                if (text.name.EndsWith(INSTANCE_FILE_ENDING))
                 {
                     model = text.name.Remove(text.name.Length - 8);
 
@@ -155,7 +154,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     tupleText.Instance = text;
                 }
 
-                if (text.name.EndsWith("State"))
+                if (text.name.EndsWith(STATE_FILE_ENDING))
                 {
                     model = text.name.Remove(text.name.Length - 5);
 
@@ -182,7 +181,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     tupleText.State = text;
 
                 }
-                if (text.name.EndsWith("Data"))
+                if (text.name.EndsWith(DATA_FILE_ENDING))
                 {
                     model = text.name.Remove(text.name.Length - 4);
 
@@ -215,7 +214,10 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             }
         }
 
-
+        /// <summary>
+        /// Get all the text assets in the project , this includes scripts
+        /// </summary>
+        /// <returns></returns>
         public static List<TextAsset> FindTextAssets()
         {
             List<TextAsset> assets = new List<TextAsset>();

@@ -1,5 +1,7 @@
 ﻿using Assets.Scripts.Utils;
 using Bloodthirst.Core.Utils;
+using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -24,21 +26,32 @@ namespace Bloodthirst.System.Quadrant
         [HideInInspector]
         private Vector3Int cachedTestQuadrant;
 
-        private QuadrantManager<QuadrantEntityBehaviour> quadrantManager;
+        private QuadrantManager quadrantManager;
+
+        public QuadrantManager QuadrantManager => quadrantManager;
+
+        [BoxGroup("Editor Settings")]
+        [SerializeField]
+        private bool showAll;
+
+        [BoxGroup("Editor Settings")]
+        [HideIf(nameof(showAll))]
+        [SerializeField]
+        private float viewDistance;
+
+
 
         private void Awake()
         {
-            quadrantManager = new QuadrantManager<QuadrantEntityBehaviour>();
+            quadrantManager = new QuadrantManager();
         }
 
         private void OnValidate()
         {
             if (quadrantManager == null)
             {
-                quadrantManager = new QuadrantManager<QuadrantEntityBehaviour>();
+                quadrantManager = new QuadrantManager();
             }
-
-            
 
             if (cachedTestQuadrant == testQuadrant && quadrantManager.CubeSize == cubeSize)
                 return;
@@ -46,6 +59,13 @@ namespace Bloodthirst.System.Quadrant
             quadrantManager.CubeSize = cubeSize;
             cachedTestQuadrant = testQuadrant;
 
+            Initialize();
+
+        }
+
+        [Button]
+        private void Initialize()
+        {
             quadrantManager.Clear();
 
             for (int x = 0; x < testQuadrant.x; x++)
@@ -58,14 +78,10 @@ namespace Bloodthirst.System.Quadrant
                     }
                 }
             }
-
         }
 
         private void Update()
         {
-            if (quadrantManager.CubeSize == cubeSize)
-                return;
-
             quadrantManager.CubeSize = cubeSize;
         }
 
@@ -84,14 +100,10 @@ namespace Bloodthirst.System.Quadrant
 
             Vector3 halfSize = quadrantManager.CubeSize * 0.5f;
 
-
-
-
-
             Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
 
             // fill
-            foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
+            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
             {
                 Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
 
@@ -109,7 +121,7 @@ namespace Bloodthirst.System.Quadrant
 
             // outline
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Less;
-            foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
+            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
             {
                 Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
 
@@ -128,10 +140,18 @@ namespace Bloodthirst.System.Quadrant
 
             labelStyle.contentOffset = new Vector2(0, -7.5f);
 
+            Vector3 camPos = SceneView.currentDrawingSceneView.camera.transform.position;
+
+
             // label for count
-            foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
+            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
             {
                 Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+
+                float distance = Vector3.Distance(camPos, center);
+
+                if(!showAll && distance > viewDistance)
+                    continue;
 
                 center.x *= quadrantManager.CubeSize.x;
                 center.y *= quadrantManager.CubeSize.y;
@@ -146,9 +166,14 @@ namespace Bloodthirst.System.Quadrant
             labelStyle.contentOffset = new Vector2(0, 7.5f);
 
             // label for id
-            foreach (KeyValuePair<(int, int, int), List<QuadrantEntityBehaviour>> q in quadrantManager.QuadrantColllection)
+            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
             {
                 Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+
+                float distance = Vector3.Distance(camPos, center);
+
+                if (!showAll && distance > viewDistance)
+                    continue;
 
                 center.x *= quadrantManager.CubeSize.x;
                 center.y *= quadrantManager.CubeSize.y;
