@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
@@ -30,6 +31,8 @@ namespace Bloodthirst.Core.BISDSystem
         /// <param name="i"></param>
         public static void Register(INSTANCE i)
         {
+            Debug.Log($"Instance of { typeof(INSTANCE) } has been registered");
+
             if(Instances.Add(i))
             {
                 OnInstanceAdded<INSTANCE>.Invoke(i);
@@ -41,6 +44,8 @@ namespace Bloodthirst.Core.BISDSystem
         /// </summary>
         public static void Unregister(INSTANCE i)
         {
+            Debug.Log($"Instance of { typeof(INSTANCE) } has been unregistered");
+
             if (Instances.Remove(i))
             {
                 OnInstanceRemoved<INSTANCE>.Invoke(i);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloodthirst.Core.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,11 +12,11 @@ namespace Bloodthirst.System.Quadrant
     /// A quadrant system manager that hepls group the game entities by grouping them into cubes in world space
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class QuadrantManager
+    public class QuadrantManager<T> where T : IQuadrantEntity<T>
     {
-        public event Action<IQuadrantEntity> OnEntityAdded;
+        public event Action<T> OnEntityAdded;
 
-        public event Action<(int,int,int) , IQuadrantEntity> OnEntityRemoved;
+        public event Action<List<int>, T> OnEntityRemoved;
 
         private Vector3 cubeSize;
         /// <summary>
@@ -37,44 +38,42 @@ namespace Bloodthirst.System.Quadrant
         /// <summary>
         /// Container for all the entities that need to be grouped by cube
         /// </summary>
-        private Dictionary<ValueTuple<int, int, int>, HashSet<IQuadrantEntity>> quadrantCollection;
+        private QuadTree<int, T> quadTree;
 
-        public IReadOnlyDictionary<ValueTuple<int, int, int>, HashSet<IQuadrantEntity>> QuadrantColllection => quadrantCollection;
+        public QuadTree<int, T> QuadTree => quadTree;
 
         public QuadrantManager()
         {
-            quadrantCollection = new Dictionary<(int, int, int), HashSet<IQuadrantEntity>>();
+            quadTree = new QuadTree<int, T>();
         }
-
 
         public void Clear()
         {
-            foreach(KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> kv in quadrantCollection)
-            {
-                foreach(IQuadrantEntity e in kv.Value.ToList())
-                {
-                    Remove(e.QuandrantId, e);
-                }
-            }
-
-            quadrantCollection.Clear();
+            quadTree.Clear();
 
         }
 
         private void OnCubeResized()
         {
             // cache previous entities
-            List<IQuadrantEntity> list = new List<IQuadrantEntity>();
-            foreach(KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> kv in quadrantCollection)
+            List<QuadLeaf<int,T>> list = new List<QuadLeaf<int, T>>();
+
+            foreach(QuadLeaf<int, T> l in quadTree.RootLeafs)
             {
-                list.AddRange(kv.Value);
+                list.AddRange(l.GetAllRecursively());
             }
 
-            quadrantCollection.Clear();
+            quadTree.Clear();
 
-            foreach(IQuadrantEntity e in list)
+            List<T> elements = list.SelectMany(l => l.Elements).ToList();
+
+            foreach (QuadLeaf<int, T> l in list)
             {
-                Add(e);
+                foreach(T e in l.Elements)
+                {
+                    e.QuandrantId = null;
+                    Add(e);
+                }
             }
         }
 
@@ -85,21 +84,11 @@ namespace Bloodthirst.System.Quadrant
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public HashSet<IQuadrantEntity> this[int x, int y, int z]
+        private QuadLeaf<int, T> this[List<int> id]
         {
             get
             {
-                TryAddQuadrantCube(x, y, z);
-
-                return quadrantCollection[(x, y, z)];
-            }
-        }
-
-        public void TryAddQuadrantCube(int x, int y, int z)
-        {
-            if (!quadrantCollection.ContainsKey((x, y, z)))
-            {
-                quadrantCollection.Add((x, y, z), new HashSet<IQuadrantEntity>());
+                return quadTree.Traverse(id);
             }
         }
 
@@ -108,15 +97,17 @@ namespace Bloodthirst.System.Quadrant
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public (int,int,int) Add(IQuadrantEntity entity)
+        public List<int> Add(T entity)
         {
             Vector3 pos = entity.Postion;
 
-            (int, int, int) id = PositionToId(pos);
+            List<int> id = PositionToId(pos);
 
             entity.QuandrantId = id;
 
-            this[id.Item1, id.Item2, id.Item3].Add(entity);
+            QuadLeaf<int, T> leaf = this[id];
+
+            leaf.Elements.Add(entity);
 
             OnEntityAdded?.Invoke(entity);
 
@@ -126,9 +117,9 @@ namespace Bloodthirst.System.Quadrant
             return id;
         }
 
-        private void OnPositionChanged(IQuadrantEntity entity)
+        private void OnPositionChanged(T entity)
         {
-            (int, int, int) newId = Update(entity);
+            List<int> newId = Update(entity);
             entity.QuandrantId = newId;
         }
 
@@ -137,13 +128,20 @@ namespace Bloodthirst.System.Quadrant
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        private (int,int,int) PositionToId(Vector3 pos)
+        private List<int> PositionToId(Vector3 pos)
         {
+            List<int> lst = new List<int>();
+
             int x = Mathf.FloorToInt(pos.x / CubeSize.x);
             int y = Mathf.FloorToInt(pos.y / CubeSize.y);
-            int z = Mathf.FloorToInt(pos.z / CubeSize.y);
+            int z = Mathf.FloorToInt(pos.z / CubeSize.z);
 
-            return (x, y, z);
+            lst.Add(x);
+            lst.Add(y);
+            lst.Add(z);
+
+
+            return lst;
         }
 
         /// <summary>
@@ -151,17 +149,18 @@ namespace Bloodthirst.System.Quadrant
         /// </summary>
         /// <param name="id"></param>
         /// <param name="entity"></param>
-        public void Remove((int,int,int)? id , IQuadrantEntity entity)
+        public void Remove(List<int> id , T entity)
         {
-            if (id.HasValue)
+            if (id != null)
             {
-                this[id.Value.Item1, id.Value.Item2, id.Value.Item3].Remove(entity);
+                QuadLeaf<int, T> leaf = this[id];
+                leaf.Elements.Remove(entity);
             }
             entity.QuandrantId = null;
 
             entity.OnPositionChanged -= OnPositionChanged;
 
-            OnEntityRemoved?.Invoke(id.Value , entity);
+            OnEntityRemoved?.Invoke(id, entity);
         }
 
         /// <summary>
@@ -170,22 +169,22 @@ namespace Bloodthirst.System.Quadrant
         /// <param name="id"></param>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public (int,int,int) Update(IQuadrantEntity entity)
+        public List<int> Update(T entity)
         {
-            (int, int, int) newId = PositionToId(entity.Postion);
+            List<int> newId = PositionToId(entity.Postion);
 
-            if(entity.QuandrantId == newId)
+            if(entity.QuandrantId.IsSame(newId))
             {
                 return newId;
             }
 
-            (int, int, int)? oldId = entity.QuandrantId;
+            List<int> oldId = entity.QuandrantId;
 
             entity.QuandrantId = newId;
 
-            if (oldId.HasValue && oldId.Value != newId)
+            if (oldId != null && !oldId.IsSame(newId))
             {
-                Remove(oldId.Value, entity);
+                Remove(oldId, entity);
             }
 
             return Add(entity);

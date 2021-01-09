@@ -10,13 +10,16 @@ namespace Bloodthirst.Core.BISDSystem
         FROM_INSTANCE
     }
 
-    public abstract class EntityBehaviour<DATA, STATE,INSTANCE> : MonoBehaviour , IInitializeInstance , IRegisterInstance , IInitializeProvider,
-        IBehaviour<INSTANCE>,
-        IRemovableBehaviour
+    public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour, IInitializeInstance, IRegisterInstance, IInitializeProvider, IInitializeIdentifier,
+        IBehaviour<INSTANCE>
         where DATA : EntityData
-        where STATE : class , IEntityState<DATA> , new()
-        where INSTANCE : EntityInstance<DATA,STATE,INSTANCE> , new()
+        where STATE : class, IEntityState<DATA>, new()
+        where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new()
     {
+        [SerializeField]
+        private EntityIdentifier entityIdentifier;
+
+        protected EntityIdentifier EntityIdentifier { get => entityIdentifier; set => entityIdentifier = value; }
 
         public INSTANCE Instance
         {
@@ -29,14 +32,14 @@ namespace Bloodthirst.Core.BISDSystem
                 if (instance != null)
                 {
                     InstanceRegister<INSTANCE>.Unregister(instance);
-                    instance.OnInstanceRemoved -= OnRemove;
+                    instance.BeforeEntityRemoved -= OnRemove;
                 }
 
                 instance = value;
 
                 InstanceRegister<INSTANCE>.Register(instance);
-                instance.OnInstanceRemoved -= OnRemove;
-                instance.OnInstanceRemoved += OnRemove;
+                instance.BeforeEntityRemoved -= OnRemove;
+                instance.BeforeEntityRemoved += OnRemove;
 
                 OnSetInstance(instance);
 
@@ -57,16 +60,22 @@ namespace Bloodthirst.Core.BISDSystem
 
         public DATA TagData => loadData;
 
-        public IRemovable Removable => Instance;
-
         [SerializeField]
         [ShowIf("loadMethod", LOAD_METHOD.FROM_INSTANCE)]
         protected INSTANCE instance = default;
 
+        private void OnValidate()
+        {
+            if(entityIdentifier == null)
+            {
+                entityIdentifier = GetComponent<EntityIdentifier>();
+            }
+        }
+
         /// <summary>
         /// Inject the instance either by using the exterior data or by using the serialized instance
         /// </summary>
-        public virtual void InitializeInstance()
+        public virtual void InitializeInstance(EntityIdentifier entityIdentifier)
         {
             switch (loadMethod)
             {
@@ -95,7 +104,7 @@ namespace Bloodthirst.Core.BISDSystem
         public virtual void OnRemove(INSTANCE ins)
         {
             // TODO : do the actual behaviour , like invoking Destroy or sending back to the pool
-            instance.OnInstanceRemoved -= OnRemove;
+            instance.BeforeEntityRemoved -= OnRemove;
             instance = null;
         }
 
@@ -104,7 +113,7 @@ namespace Bloodthirst.Core.BISDSystem
             if (Instance == null)
                 return;
 
-            instance.OnInstanceRemoved -= OnRemove;
+            instance.BeforeEntityRemoved -= OnRemove;
             instance = null;
         }
 
@@ -138,6 +147,13 @@ namespace Bloodthirst.Core.BISDSystem
         public void InitializeProvider(IInstanceProvider instanceProvider)
         {
             Instance.InstanceProvider = instanceProvider;
+        }
+
+        public void InitializeIdentifier(EntityIdentifier entityIdentifier)
+        {
+            EntityIdentifier = entityIdentifier;
+
+            Instance.EntityIdentifier = entityIdentifier;
         }
     }
 }

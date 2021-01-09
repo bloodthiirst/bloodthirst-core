@@ -10,6 +10,25 @@ namespace Bloodthirst.Core.Utils
     public static class CollectionsUtils
     {
 
+        public static bool IsSame<T>(this IList<T> a , IList<T> b ) where T : IEquatable<T>
+        {
+            if (a == b)
+                return true;
+
+            if (a == null || b == null)
+                return false;
+
+            if (a.Count != b.Count)
+                return false;
+
+            for(int i = 0; i < a.Count; i++)
+            {
+                if (!a[i].Equals(b[i]))
+                    return false;
+            }
+
+            return true;
+        }
         public static string ReplaceInterval(this string value , int startIndex , int endIndex , char replacementChar)
         {
             char[] chatArray = value.ToCharArray();

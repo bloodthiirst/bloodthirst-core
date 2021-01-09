@@ -33,7 +33,6 @@ namespace Bloodthirst.Core.GameEvent
                 return;
 
             subsribers?.Invoke(parameter);
-
         }
 
         public override void OnGameQuit()

@@ -2,6 +2,6 @@
 {
     public interface IInitializeInstance
     {
-        void InitializeInstance();
+        void InitializeInstance(EntityIdentifier entityIdentifier);
     }
 }

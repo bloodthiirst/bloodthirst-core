@@ -69,6 +69,22 @@ namespace Assets.Scripts.Utils
         }
 
         /// <summary>
+        /// Get a mask version of the vector
+        /// </summary>
+        /// <param name="original"></param>
+        /// <returns></returns>
+        public static Color MulColor(this Color original, float r = 1, float g = 1, float b = 1 , float a = 1)
+        {
+            Color res = original;
+            res.r *= r;
+            res.g *= g;
+            res.b *= b;
+            res.a *= a;
+
+            return res;
+        }
+
+        /// <summary>
         /// return if 2 line intersect with the intersection point
         /// </summary>
         /// <param name="p1"></param>

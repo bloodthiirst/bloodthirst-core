@@ -5,15 +5,40 @@ using UnityEngine;
 namespace Bloodthirst.Core.BISDSystem
 {
     [Serializable]
-    public abstract class EntityInstance<DATA, STATE , INSTANCE> : IRemovable
-        where DATA : EntityData 
-        where STATE : class , IEntityState<DATA>
+    public abstract class EntityInstance<DATA, STATE, INSTANCE>
+        where DATA : EntityData
+        where STATE : class, IEntityState<DATA>
         where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>
     {
+        private EntityIdentifier entityIdentifier;
+
+        public EntityIdentifier EntityIdentifier
+        {
+            get => entityIdentifier;
+            set
+            {
+                // unsubscribe old events
+                if(entityIdentifier != null)
+                {
+                    entityIdentifier.OnEntitySpawned -= OnEntitySpawned;
+                    entityIdentifier.OnEntityRemoved -= OnEntityRemoved;
+                }
+
+                entityIdentifier = value;
+
+                entityIdentifier.OnEntitySpawned -= OnEntitySpawned;
+                entityIdentifier.OnEntitySpawned += OnEntitySpawned;
+
+                entityIdentifier.OnEntityRemoved -= OnEntityRemoved;
+                entityIdentifier.OnEntityRemoved += OnEntityRemoved;
+
+            }
+        }
+
         /// <summary>
         /// Event to listen to instance remove
         /// </summary>
-        public Action<INSTANCE> OnInstanceRemoved;
+        public Action<INSTANCE> BeforeEntityRemoved;
 
         /// <summary>
         /// Event to listen to state changes
@@ -34,12 +59,13 @@ namespace Bloodthirst.Core.BISDSystem
         /// <summary>
         /// State accessor
         /// </summary>
-        public STATE State {
+        public STATE State
+        {
             get
             {
                 return state;
             }
-            set 
+            set
             {
                 state = value;
                 OnStateChanged(state);
@@ -55,18 +81,22 @@ namespace Bloodthirst.Core.BISDSystem
 
         }
 
-        [Button]
-        public virtual void Remove()
+        private void OnEntitySpawned(EntityIdentifier entityIdentifier)
         {
-            InstanceRegister <INSTANCE>.Unregister((INSTANCE) this);
-            OnInstanceRemoved?.Invoke((INSTANCE) this);
+
+        }
+
+        private void OnEntityRemoved(EntityIdentifier entityIdentifier)
+        {
+            InstanceRegister<INSTANCE>.Unregister((INSTANCE)this);
+            BeforeEntityRemoved?.Invoke((INSTANCE)this);
         }
 
         public void NotifyStateChanged()
         {
             OnStateChangedEvent?.Invoke(State);
         }
-        public EntityInstance( STATE state)
+        public EntityInstance(STATE state)
         {
             State = state;
         }

@@ -15,6 +15,10 @@ namespace Assets.Scripts
 
             entity = InjectDependencies(entity);
 
+            EntityIdentifier id = entity.GetComponent<EntityIdentifier>();
+            
+            id.TriggerSpawned();
+
             return entity;
         }
 
@@ -26,23 +30,36 @@ namespace Assets.Scripts
 
             entity = InjectDependencies(entity);
 
+            EntityIdentifier id = entity.GetComponent<EntityIdentifier>();
+
+            id.TriggerSpawned();
+
             return entity;
         }
 
         public T InjectDependencies<T>(T entity) where T : MonoBehaviour
         {
-            // init instancee
 
-            foreach (IInitializeInstance init in entity.GetComponentsInChildren<IInitializeInstance>())
-            {
-                init.InitializeInstance();
-            }
-
-            // get instance register and provider
+            // get instance register and provider and identifier
 
             IInstanceRegister instanceRegister = entity.GetComponentInChildren<IInstanceRegisterBehaviour>().InstanceRegister;
 
             IInstanceProvider instanceProvider = entity.GetComponentInChildren<IInstanceProviderBehaviour>().InstanceProvider;
+
+            EntityIdentifier entityIdentifier = entity.GetComponentInChildren<EntityIdentifier>();
+
+            // init instancee
+
+            foreach (IInitializeInstance init in entity.GetComponentsInChildren<IInitializeInstance>())
+            {
+                init.InitializeInstance(entityIdentifier);
+            }
+
+            // initialize identifier
+            foreach(IInitializeIdentifier init in entity.GetComponentsInChildren< IInitializeIdentifier>())
+            {
+                init.InitializeIdentifier(entityIdentifier);
+            }
 
             // initialize provider
 
@@ -70,11 +87,10 @@ namespace Assets.Scripts
 
         public void RemoveEntity<T>(T player) where T : MonoBehaviour
         {
-            foreach(IRemovableBehaviour removable in player.GetComponentsInChildren<IRemovableBehaviour>(true) )
-            {
-                removable.Removable.Remove();
-            }
+            EntityIdentifier identifier = player.GetComponentInChildren<EntityIdentifier>();
 
+            identifier.TriggerRemoved();
+            
             UnityPool.Instance.Return(player);
         }
     }

@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.System.Quadrant
 {
-    public interface IQuadrantEntity
+    public interface IQuadrantEntity<T> where T :IQuadrantEntity<T>
     {
-        event Action<IQuadrantEntity> OnPositionChanged;
-        event Action<IQuadrantEntity> OnQuadrantIdChanged;
-        (int,int,int)? QuandrantId { get; set; }
+        event Action<T> OnPositionChanged;
+        event Action<T> OnQuadrantIdChanged;
+        List<int> QuandrantId { get; set; }
         Vector3 Postion { get; }
     }
 }

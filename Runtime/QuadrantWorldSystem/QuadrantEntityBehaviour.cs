@@ -1,14 +1,16 @@
-﻿using Sirenix.OdinInspector;
+﻿using Bloodthirst.Core.Utils;
+using Sirenix.OdinInspector;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.System.Quadrant
 {
-    public class QuadrantEntityBehaviour : MonoBehaviour , IQuadrantEntity
+    public class QuadrantEntityBehaviour : MonoBehaviour, IQuadrantEntity<QuadrantEntityBehaviour>
     {
-        public event Action<IQuadrantEntity> OnQuadrantIdChanged;
+        public event Action<QuadrantEntityBehaviour> OnQuadrantIdChanged;
 
-        public event Action<IQuadrantEntity> OnPositionChanged;
+        public event Action<QuadrantEntityBehaviour> OnPositionChanged;
 
         [SerializeField]
         private QuadrantManagerBehaviour manager;
@@ -21,7 +23,7 @@ namespace Bloodthirst.System.Quadrant
         [Button]
         private void Add()
         {
-            ((IQuadrantEntity)this).QuandrantId = null;
+            ((IQuadrantEntity<QuadrantEntityBehaviour>)this).QuandrantId = null;
             manager?.QuadrantManager.Add(this);
         }
 
@@ -31,34 +33,41 @@ namespace Bloodthirst.System.Quadrant
             if (manager == null)
                 return;
 
-            manager.QuadrantManager.Remove(((IQuadrantEntity)this).QuandrantId, this);
+            manager.QuadrantManager.Remove(((IQuadrantEntity<QuadrantEntityBehaviour>)this).QuandrantId, this);
         }
-
-
-
 
         private void OnDrawGizmos()
         {
-            if(((IQuadrantEntity)this).QuandrantId == null)
+            if (((IQuadrantEntity<QuadrantEntityBehaviour>)this).QuandrantId == null)
             {
                 return;
             }
 
-            if(transform.hasChanged)
+            CheckPositionChanged();
+        }
+
+        private void CheckPositionChanged()
+        {
+            if (transform.hasChanged)
             {
 
                 Position = transform.position;
             }
         }
 
+        private void Update()
+        {
+            CheckPositionChanged();
+        }
+
         [SerializeField]
-        private (int, int, int)? quandrantId;
-        (int, int, int)? IQuadrantEntity.QuandrantId 
-        { 
+        private List<int> quandrantId;
+        List<int> IQuadrantEntity<QuadrantEntityBehaviour>.QuandrantId
+        {
             get => quandrantId;
             set
             {
-                if(quandrantId != value)
+                if (!quandrantId.IsSame(value))
                 {
                     quandrantId = value;
                     OnQuadrantIdChanged?.Invoke(this);
@@ -72,15 +81,14 @@ namespace Bloodthirst.System.Quadrant
             get => position;
             set
             {
-                if(position != value)
+                if (position != value)
                 {
                     position = value;
                     OnPositionChanged?.Invoke(this);
                 }
             }
         }
-        
-        Vector3 IQuadrantEntity.Postion => Position;
 
+        Vector3 IQuadrantEntity<QuadrantEntityBehaviour>.Postion => Position;
     }
 }

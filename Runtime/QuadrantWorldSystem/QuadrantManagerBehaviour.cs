@@ -3,6 +3,7 @@ using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -26,9 +27,9 @@ namespace Bloodthirst.System.Quadrant
         [HideInInspector]
         private Vector3Int cachedTestQuadrant;
 
-        private QuadrantManager quadrantManager;
+        private QuadrantManager<QuadrantEntityBehaviour> quadrantManager;
 
-        public QuadrantManager QuadrantManager => quadrantManager;
+        public QuadrantManager<QuadrantEntityBehaviour> QuadrantManager => quadrantManager;
 
         [BoxGroup("Editor Settings")]
         [SerializeField]
@@ -40,17 +41,23 @@ namespace Bloodthirst.System.Quadrant
         private float viewDistance;
 
 
+        [BoxGroup("Editor Settings")]
+        [SerializeField]
+        [Range(0,1)]
+        private float visibility;
 
         private void Awake()
         {
-            quadrantManager = new QuadrantManager();
+            quadrantManager = new QuadrantManager<QuadrantEntityBehaviour>();
+
+            PreloadLeafs();
         }
 
         private void OnValidate()
         {
             if (quadrantManager == null)
             {
-                quadrantManager = new QuadrantManager();
+                quadrantManager = new QuadrantManager<QuadrantEntityBehaviour>();
             }
 
             if (cachedTestQuadrant == testQuadrant && quadrantManager.CubeSize == cubeSize)
@@ -59,7 +66,7 @@ namespace Bloodthirst.System.Quadrant
             quadrantManager.CubeSize = cubeSize;
             cachedTestQuadrant = testQuadrant;
 
-            Initialize();
+            PreloadLeafs();
 
         }
 
@@ -67,14 +74,18 @@ namespace Bloodthirst.System.Quadrant
         private void Initialize()
         {
             quadrantManager.Clear();
+            PreloadLeafs();
+        }
 
+        private void PreloadLeafs()
+        {
             for (int x = 0; x < testQuadrant.x; x++)
             {
                 for (int y = 0; y < testQuadrant.y; y++)
                 {
                     for (int z = 0; z < testQuadrant.z; z++)
                     {
-                        quadrantManager.TryAddQuadrantCube(x, y, z);
+                        quadrantManager.QuadTree.Traverse( new List<int>() { x, y, z });
                     }
                 }
             }
@@ -96,16 +107,23 @@ namespace Bloodthirst.System.Quadrant
             labelStyle.fontStyle = FontStyle.Bold;
             labelStyle.alignment = TextAnchor.MiddleCenter;
             labelStyle.fixedWidth = 30;
-            labelStyle.normal.textColor = Color.white;
+            labelStyle.normal.textColor = Color.white.MulColor(a: visibility);
 
             Vector3 halfSize = quadrantManager.CubeSize * 0.5f;
 
-            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
 
+            HashSet<QuadLeaf<int, QuadrantEntityBehaviour>> allLeafts = quadrantManager.QuadTree.GetFinalLeafs();
+            List<QuadLeaf<int, QuadrantEntityBehaviour>> nonEmptyLeafs = allLeafts.Where(l => l.Elements.Count != 0).ToList();
             // fill
-            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
+            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
             {
-                Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+                List<int> keys = q.GetKeySequence();
+
+                if (keys.Count != 3)
+                    continue;
+
+                Vector3 center = new Vector3(keys[0], keys[1], keys[2]);
 
                 center.x *= quadrantManager.CubeSize.x;
                 center.y *= quadrantManager.CubeSize.y;
@@ -113,7 +131,8 @@ namespace Bloodthirst.System.Quadrant
 
                 center += halfSize;
                
-                Handles.color = gizmosFillColor;
+                Handles.color = gizmosFillColor.MulColor(a : visibility);
+
                 //Gizmos.DrawCube(center, quadrantManager.CubeSize);
                 EditorUtils.HandlesDrawCube(center , quadrantManager.CubeSize);
 
@@ -121,9 +140,15 @@ namespace Bloodthirst.System.Quadrant
 
             // outline
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Less;
-            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
+            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
             {
-                Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+                List<int> keys = q.GetKeySequence();
+
+                if (keys.Count != 3)
+                    continue;
+
+                Vector3 center = new Vector3(keys[0], keys[1], keys[2]);
+
 
                 center.x *= quadrantManager.CubeSize.x;
                 center.y *= quadrantManager.CubeSize.y;
@@ -131,7 +156,7 @@ namespace Bloodthirst.System.Quadrant
 
                 center += halfSize;
 
-                Handles.color = gizmosOutlineColor;
+                Handles.color = gizmosOutlineColor.MulColor(a: visibility);
                 EditorUtils.HandlesDrawCubeOutline(center, quadrantManager.CubeSize);
 
             }
@@ -144,9 +169,15 @@ namespace Bloodthirst.System.Quadrant
 
 
             // label for count
-            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
+            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
             {
-                Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+                List<int> keys = q.GetKeySequence();
+
+                if (keys.Count != 3)
+                    continue;
+
+                Vector3 center = new Vector3(keys[0], keys[1], keys[2]);
+
 
                 float distance = Vector3.Distance(camPos, center);
 
@@ -159,16 +190,20 @@ namespace Bloodthirst.System.Quadrant
 
                 center += quadrantManager.CubeSize * 0.5f;
 
-
-                Handles.Label(center, $"Entities : { q.Value.Count }", labelStyle);
+                Handles.Label(center, $"Entities : { q.Elements.Count }", labelStyle);
             }
 
             labelStyle.contentOffset = new Vector2(0, 7.5f);
 
             // label for id
-            foreach (KeyValuePair<(int, int, int), HashSet<IQuadrantEntity>> q in quadrantManager.QuadrantColllection)
+            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
             {
-                Vector3 center = new Vector3(q.Key.Item1, q.Key.Item2, q.Key.Item3);
+                List<int> keys = q.GetKeySequence();
+
+                if (keys.Count != 3)
+                    continue;
+
+                Vector3 center = new Vector3(keys[0], keys[1], keys[2]);
 
                 float distance = Vector3.Distance(camPos, center);
 
@@ -181,8 +216,7 @@ namespace Bloodthirst.System.Quadrant
 
                 center += quadrantManager.CubeSize * 0.5f;
 
-
-                Handles.Label(center, $"(id : { q.Key.Item1 } , {q.Key.Item2} , {q.Key.Item3})", labelStyle);
+                Handles.Label(center, $"(id : { q.PreviousKeys[0] } , {q.PreviousKeys[1]} , {q.Key})", labelStyle);
             }
 
         }
