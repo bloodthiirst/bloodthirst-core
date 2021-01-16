@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
-    public class CommandManager : UnitySingleton<CommandManager>
+    public class CommandManager
     {
 
         [ShowInInspector]
@@ -19,22 +19,12 @@ namespace Bloodthirst.System.CommandSystem
 
         private CommandBatchList globalCommandBatch;
 
-        protected override void Awake()
+        public CommandManager()
         {
-            base.Awake();
             commandBatches = new List<ICommandBatch>();
             globalCommandBatch = AppendBatch<CommandBatchList>(this);
-
         }
 
-        /// <summary>
-        /// Run the command and run it globally
-        /// </summary>
-        /// <param name="command"></param>
-        public static void Run(ICommandBase command)
-        {
-            Instance.globalCommandBatch.Append(command, false);
-        }
 
         /// <summary>
         /// Append a batch
@@ -43,22 +33,19 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="owner"></param>
         /// <param name="removeWhenDone"></param>
         /// <returns></returns>
-        public static T AppendBatch<T>(object owner, bool removeWhenDone = false) where T : ICommandBatch, new()
+        public T AppendBatch<T>(object owner, bool removeWhenDone = false) where T : ICommandBatch, new()
         {
             T batch = new T();
             batch.RemoveWhenDone = removeWhenDone;
             batch.Owner = owner;
 
-            Instance.commandBatches.Add(batch);
+            commandBatches.Add(batch);
 
             return batch;
         }
 
-        private void Update()
+        public void Tick(float deltaTime)
         {
-            if (!isActive)
-                return;
-
             for (int i = commandBatches.Count - 1; i > -1; i--)
             {
                 commandBatches[i].Tick(Time.deltaTime);

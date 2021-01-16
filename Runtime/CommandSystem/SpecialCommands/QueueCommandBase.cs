@@ -31,7 +31,7 @@ namespace Bloodthirst.System.CommandSystem
 
         public override void OnStart()
         {
-            queue = CommandManager.AppendBatch<CommandBatchQueue>(this, true);
+            queue = CommandManagerBehaviour.AppendBatch<CommandBatchQueue>(this, true);
 
             // add the commands from AddToQueue
             while (cached.Count != 0)

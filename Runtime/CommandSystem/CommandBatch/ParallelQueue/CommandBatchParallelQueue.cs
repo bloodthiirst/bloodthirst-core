@@ -40,9 +40,9 @@ namespace Bloodthirst.System.CommandSystem
         {
             LayersList = new List<ParallelLayer>();
 
-            waitables = CommandManager.AppendBatch<CommandBatchList>(this);
-            interrptables = CommandManager.AppendBatch<CommandBatchList>(this);
-            nonSync = CommandManager.AppendBatch<CommandBatchList>(this);
+            waitables = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this);
+            interrptables = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this);
+            nonSync = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this);
 
             BatchState = BATCH_STATE.EXECUTING;
 
