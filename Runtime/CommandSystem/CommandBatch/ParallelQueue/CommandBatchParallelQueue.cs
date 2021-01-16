@@ -1,10 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
+    /// <summary>
+    /// TODO : rework using the already implemented queues
+    /// </summary>
     public class CommandBatchParallelQueue : ICommandBatch
     {
+        public event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
+        public event Action<ICommandBatch, ICommandBase> OnCommandAdded;
+
         [SerializeField]
         private List<ParallelLayer> layersList;
         public List<ParallelLayer> LayersList { get => layersList; set => layersList = value; }
@@ -21,10 +28,24 @@ namespace Bloodthirst.System.CommandSystem
         private BATCH_STATE batchState;
         public BATCH_STATE BatchState { get => batchState; set => batchState = value; }
 
+        private CommandBatchList waitables;
+
+        private CommandBatchList interrptables;
+
+        private CommandBatchList nonSync;
+
+        private bool isStarted;
+
         public CommandBatchParallelQueue()
         {
             LayersList = new List<ParallelLayer>();
+
+            waitables = CommandManager.AppendBatch<CommandBatchList>(this);
+            interrptables = CommandManager.AppendBatch<CommandBatchList>(this);
+            nonSync = CommandManager.AppendBatch<CommandBatchList>(this);
+
             BatchState = BATCH_STATE.EXECUTING;
+
         }
 
         public void AddLayer(ParallelLayer parallelLayer)
@@ -43,127 +64,115 @@ namespace Bloodthirst.System.CommandSystem
 
         public void Tick(float delta)
         {
-            if (layersList.Count == 0) {
-                BatchState = BATCH_STATE.DONE;
+            if (isStarted)
+            {
+                return;
+            }
+
+            IncrementLayer();
+            isStarted = true;
+        }
+
+        private void IncrementLayer()
+        {
+
+            if (layersList.Count == 0)
+            {
                 return;
             }
 
             ParallelLayer current = layersList[0];
 
-            // if all waitable commands are done , forcebly end the other interruptable commands
-
-            if (current.IsDone)
+            foreach (CommandSettings w in current.WaitableCommmands)
             {
-                // clear waitables
+                waitables.Append(w);
 
-                for (int i = 0; i < current.WaitableCommmands.Count; i++)
+                w.Command.OnCommandEnd -= OnWaitableEnded;
+                w.Command.OnCommandEnd += OnWaitableEnded;
+
+                OnCommandAdded?.Invoke(this, w.Command);
+            }
+
+            foreach (CommandSettings i in current.InterruptableCommmands)
+            {
+                interrptables.Append(i);
+                OnCommandAdded?.Invoke(this, i.Command);
+            }
+
+            foreach (CommandSettings n in current.NonSyncedCommands)
+            {
+                nonSync.Append(n);
+                OnCommandAdded?.Invoke(this, n.Command);
+            }
+        }
+
+        /// <summary>
+        /// After every waitable check if we need to apply the parallel logic
+        /// </summary>
+        /// <param name="cmd"></param>
+        private void OnWaitableEnded(ICommandBase cmd)
+        {
+            cmd.OnCommandEnd -= OnWaitableEnded;
+
+            ParallelLayer current = layersList[0];
+
+            // if one of the commands is not done (success or interruption or failed) then we exit
+            for (int i = current.WaitableCommmands.Count - 1; i > -1 ; i--)
+            {
+                CommandSettings commandBase = current.WaitableCommmands[i];
+
+                if (commandBase.Command.GetExcutingCommand().IsDone)
                 {
-                    ICommandBase waitable = current.WaitableCommmands[i];
-
-                    waitable.OnEnd();
+                    OnCommandRemoved?.Invoke(this, commandBase.Command);
                 }
-
-                current.WaitableCommmands.Clear();
-
-                // clear interruptables
-
-                for (int i = 0; i < current.InterruptableCommmands.Count; i++)
-                {
-                    ICommandBase interruptable = current.InterruptableCommmands[i];
-
-                    interruptable.Interrupt();
-                }
-
-                current.InterruptableCommmands.Clear();
-
-                // see if there is a generated layer
-
-                ParallelLayer next = current.GenerateNext();
-
-                // if yes then put it on top
-
-                if (next != null)
-                {
-                    layersList[0] = next;
-                }
-
-                // else remove the top layer since its done
-
                 else
                 {
-                    layersList.RemoveAt(0);
+                    return;
                 }
             }
 
-            // 
-            if (layersList.Count == 0)
-            {
-                BatchState = BATCH_STATE.DONE;
-                return;
-            }
+            // interrupt interruptables
+            interrptables.Interrupt();
 
-            current = layersList[0];
+            // remove layer
+            layersList.RemoveAt(0);
 
-            // if command is not started , execute the command start
-
-            if (!current.IsStarted)
-            {
-                current.Start();
-
-                for (int i = 0; i < current.WaitableCommmands.Count; i++)
-                {
-                    current.WaitableCommmands[i].GetExcutingCommand().Start();
-
-                }
-
-                for (int i = 0; i < current.InterruptableCommmands.Count; i++)
-                {
-                    current.InterruptableCommmands[i].GetExcutingCommand().Start();
-                }
-            }
-
-            // execute the commands on tick
-
-            for (int i = 0; i < current.InterruptableCommmands.Count; i++)
-            {
-                current.InterruptableCommmands[i].GetExcutingCommand().OnTick(delta);
-            }
-
-            for (int i = 0; i < current.WaitableCommmands.Count; i++)
-            {
-                if (!current.WaitableCommmands[i].IsDone)
-                {
-                    current.WaitableCommmands[i].GetExcutingCommand().OnTick(delta);
-                }
-            }
+            IncrementLayer();
         }
 
         public void Interrupt()
         {
+            BatchState = BATCH_STATE.INTERRUPTED;
+
             for (int i = 0; i < layersList.Count; i++)
             {
                 // interruptable
 
                 for (int j = 0; j < layersList[i].InterruptableCommmands.Count; j++)
                 {
-                    if (layersList[i].WaitableCommmands[j].CommandState == COMMAND_STATE.EXECUTING)
-                    {
-                        layersList[i].InterruptableCommmands[j].Interrupt();
-                    }
+                    CommandSettings commandBase = layersList[i].InterruptableCommmands[j];
+                    commandBase.Command.GetExcutingCommand().Interrupt();
+
+                    OnCommandRemoved?.Invoke(this, commandBase.Command);
                 }
 
                 // waitable
 
                 for (int j = 0; j < layersList[i].WaitableCommmands.Count; j++)
                 {
-                    if (layersList[i].WaitableCommmands[j].CommandState == COMMAND_STATE.EXECUTING)
-                    {
-                        layersList[i].WaitableCommmands[j].Interrupt();
-                    }
+                    CommandSettings commandBase = layersList[i].WaitableCommmands[j];
+                    commandBase.Command.GetExcutingCommand().Interrupt();
+
+                    OnCommandRemoved?.Invoke(this, commandBase.Command);
                 }
             }
 
-            BatchState = BATCH_STATE.DONE;
+            layersList.Clear();
+        }
+
+        public bool ShouldRemove()
+        {
+            return removeWhenDone && layersList.Count == 0;
         }
     }
 }

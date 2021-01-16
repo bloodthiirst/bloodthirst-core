@@ -33,7 +33,7 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="command"></param>
         public static void Run(ICommandBase command)
         {
-            Instance.globalCommandBatch.Append(command);
+            Instance.globalCommandBatch.Append(command, false);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="owner"></param>
         /// <param name="removeWhenDone"></param>
         /// <returns></returns>
-        public static T AppendBatch<T>(object owner , bool removeWhenDone = false) where T : ICommandBatch, new()
+        public static T AppendBatch<T>(object owner, bool removeWhenDone = false) where T : ICommandBatch, new()
         {
             T batch = new T();
             batch.RemoveWhenDone = removeWhenDone;
@@ -59,13 +59,23 @@ namespace Bloodthirst.System.CommandSystem
             if (!isActive)
                 return;
 
-            for(int i = commandBatches.Count - 1; i > -1 ; i--)
+            for (int i = commandBatches.Count - 1; i > -1; i--)
             {
                 commandBatches[i].Tick(Time.deltaTime);
 
-                if(commandBatches[i].BatchState == BATCH_STATE.DONE && commandBatches[i].RemoveWhenDone)
+                if (commandBatches[i].ShouldRemove())
                 {
-                    commandBatches.RemoveAt(i);
+                    if (commandBatches[i].BatchState == BATCH_STATE.INTERRUPTED)
+                    {
+                        commandBatches.RemoveAt(i);
+                    }
+                    else
+                    {
+                        commandBatches.RemoveAt(i);
+                        commandBatches[i].Interrupt();
+                        commandBatches[i].BatchState = BATCH_STATE.DONE;
+                    }
+
                 }
             }
         }

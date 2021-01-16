@@ -29,7 +29,8 @@ namespace Assets.SocketLayer.BehaviourComponent
         [SerializeField]
         private GUIDNetworkClientEntity networkClient;
 
-        private ISceneInstanceManager sceneInstanceManager;
+        [SerializeField]
+        private SceneManagerProviderBehaviourBase sceneManagerProvider;
 
         public void Remove(Guid identifer)
         {
@@ -64,7 +65,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
             // move to gameplay scene
 
-            sceneInstanceManager.AddToScene(networkEntity.gameObject);
+            sceneManagerProvider.GetSceneManager().AddToScene(networkEntity.gameObject);
 
             // rename
 

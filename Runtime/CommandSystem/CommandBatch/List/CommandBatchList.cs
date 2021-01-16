@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
     public class CommandBatchList : ICommandBatch
     {
+        public event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
+        public event Action<ICommandBatch, ICommandBase> OnCommandAdded;
+
         [SerializeField]
-        private List<ICommandBase> commandList;
-        public List<ICommandBase> CommandsList { get => commandList; set => commandList = value; }
+        private List<CommandSettings> commandList;
+        public List<CommandSettings> CommandsList { get => commandList; set => commandList = value; }
 
         [SerializeField]
         private object owner;
@@ -21,70 +25,75 @@ namespace Bloodthirst.System.CommandSystem
         private BATCH_STATE batchState;
         public BATCH_STATE BatchState { get => batchState; set => batchState = value; }
 
-        List<ICommandBase> removeCache = new List<ICommandBase>();
-
         public CommandBatchList()
         {
-            CommandsList = new List<ICommandBase>();
+            CommandsList = new List<CommandSettings>();
             BatchState = BATCH_STATE.EXECUTING;
         }
         public void Tick(float delta)
         {
-            // clear the remove cache
-
-            removeCache.Clear();
 
             // register the removable commands
 
-            for (int i = 0; i < CommandsList.Count; i++)
+            for (int i = CommandsList.Count - 1; i > -1; i--)
             {
-                if (CommandsList[i].GetExcutingCommand().IsDone)
-                {
-                    removeCache.Add(CommandsList[i]);
+                CommandSettings cmd = CommandsList[i];
 
+                if (cmd.Command.GetExcutingCommand().IsDone)
+                {
                     CommandsList.RemoveAt(i);
+                    OnCommandRemoved?.Invoke(this, cmd.Command);
+
+                    if(cmd.Command.CommandState == COMMAND_STATE.FAILED && cmd.InterruptBatchOnFail)
+                    {
+                        Interrupt();
+                        return;
+                    }
+
+                    continue;
                 }
-            }
 
-            // remove the ended commands
-
-            for (int i = 0; i < removeCache.Count; i++)
-            {
-                CommandsList.Remove(removeCache[i]);
-            }
-
-            // execute the commands alive and execute tick and start
-
-            for (int i = 0; i < CommandsList.Count; i++)
-            {
                 // if command is not started , execute the command start
-                if (!CommandsList[i].GetExcutingCommand().IsStarted)
+                if (!cmd.Command.GetExcutingCommand().IsStarted)
                 {
-                    CommandsList[i].GetExcutingCommand().Start();
+                    cmd.Command.GetExcutingCommand().Start();
                 }
 
                 // execute the commands on tick
-                CommandsList[i].GetExcutingCommand().OnTick(delta);
+                cmd.Command.GetExcutingCommand().OnTick(delta);
             }
 
-            // state depends on commands pending
-            BatchState = CommandsList.Count == 0 ? BATCH_STATE.DONE : BATCH_STATE.EXECUTING;
         }
 
-        public ICommandBatch Append(ICommandBase command)
+        public ICommandBatch Append(ICommandBase command , bool shouldInterrupt)
         {
-            CommandsList.Add(command);
+            CommandSettings cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = shouldInterrupt };
+            return Append(cmd);
+        }
+
+        internal ICommandBatch Append(CommandSettings commandSettings)
+        {
+            CommandsList.Add(commandSettings);
+            OnCommandAdded?.Invoke(this, commandSettings.Command);
             return this;
         }
 
         public void Interrupt()
         {
-            for (int i = 0; i < commandList.Count; i++)
-            {
-                commandList[i].Interrupt();
-            }
+            BatchState = BATCH_STATE.INTERRUPTED;
 
-            BatchState = BATCH_STATE.DONE;
+            for (int i = commandList.Count - 1; i > -1; i--)
+            {
+                CommandSettings cmd = commandList[i];
+                cmd.Command.GetExcutingCommand().Interrupt();
+                commandList.RemoveAt(i);
+                OnCommandRemoved?.Invoke(this, cmd.Command);
+            }
+        }
+
+        public bool ShouldRemove()
+        {
+            return removeWhenDone && commandList.Count == 0;
         }
     }
 }

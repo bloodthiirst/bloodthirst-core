@@ -1,13 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
     public class CommandBatchQueue : ICommandBatch
     {
+
+        public event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
+        public event Action<ICommandBatch, ICommandBase> OnCommandAdded;
+
         [SerializeField]
-        private Queue<ICommandBase> commandList;
-        public Queue<ICommandBase> CommandsList { get => commandList; set => commandList = value; }
+        private Queue<CommandSettings> commandQueue;
+        public Queue<CommandSettings> CommandsQueue { get => commandQueue; set => commandQueue = value; }
 
         [SerializeField]
         private bool removeWhenDone;
@@ -19,34 +24,40 @@ namespace Bloodthirst.System.CommandSystem
 
         [SerializeField]
         private object owner;
+
         public object Owner { get => owner; set => owner = value; }
 
         public CommandBatchQueue()
         {
-            CommandsList = new Queue<ICommandBase>();
+            CommandsQueue = new Queue<CommandSettings>();
             BatchState = BATCH_STATE.EXECUTING;
         }
         public void Tick(float delta)
         {
-            if (commandList.Count == 0)
+            if (commandQueue.Count == 0)
             {
-                BatchState = BATCH_STATE.DONE;
                 return;
             }
-            ICommandBase current = commandList.Peek().GetExcutingCommand();
+
+            CommandSettings cmd = commandQueue.Peek();
+
             // if command is done , dequeue
-            if (current.IsDone)
+            if (cmd.Command.IsDone)
             {
-                // if the command is failed then the entire queue is failed
-                if (current.CommandState == COMMAND_STATE.FAILED)
+                // if the command is FAILED and InterruptOnFail == true
+                // then the entire queue is failed
+                // else we just dequeue and continue
+                if (cmd.Command.CommandState == COMMAND_STATE.FAILED && cmd.InterruptBatchOnFail)
                 {
                     Interrupt();
                     return;
                 }
-                commandList.Dequeue();
+                // if SUCCESS or INTERRUPTED
+                commandQueue.Dequeue();
+                OnCommandRemoved?.Invoke(this, cmd.Command);
             }
 
-            if (commandList.Count == 0)
+            if (commandQueue.Count == 0)
             {
                 BatchState = BATCH_STATE.DONE;
                 return;
@@ -55,33 +66,51 @@ namespace Bloodthirst.System.CommandSystem
             BatchState = BATCH_STATE.EXECUTING;
 
             // Note : we recall the GetExecutingCommand since there's a chance the previous once was dequeued
-            current = commandList.Peek().GetExcutingCommand();
+            cmd = commandQueue.Peek();
 
             // if command is not started , execute the command start
-            if (!current.IsStarted)
+            if (!cmd.Command.IsStarted)
             {
-                current.Start();
+                cmd.Command.Start();
             }
 
             // execute the commands on tick
-            current.OnTick(delta);
+            cmd.Command.OnTick(delta);
         }
 
-        public ICommandBatch Append(ICommandBase command)
+        public CommandBatchQueue Append(ICommandBase command, bool interruptBatchOnFail = false)
         {
-            CommandsList.Enqueue(command);
+            return Append(new CommandSettings() { Command = command, InterruptBatchOnFail = interruptBatchOnFail });
+
+        }
+
+        internal CommandBatchQueue Append(CommandSettings commandSettings)
+        {
+            CommandsQueue.Enqueue(commandSettings);
+            OnCommandAdded?.Invoke(this, commandSettings.Command);
             return this;
         }
 
         public void Interrupt()
         {
-            foreach (ICommandBase command in commandList)
+            BatchState = BATCH_STATE.INTERRUPTED;
+
+            while (commandQueue.Count != 0)
             {
+                CommandSettings command = commandQueue.Dequeue();
                 // Note : the interrupt of ICommandBase is expected to handle it's internal commands if it has any
                 // example : interrupting sub commands
-                command.GetExcutingCommand().Interrupt();
+                command.Command.GetExcutingCommand().Interrupt();
+
+                OnCommandRemoved?.Invoke(this, command.Command);
             }
-            BatchState = BATCH_STATE.DONE;
+
+            
+        }
+
+        public bool ShouldRemove()
+        {
+            return removeWhenDone && commandQueue.Count == 0;
         }
     }
 }

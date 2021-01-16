@@ -8,62 +8,33 @@ namespace Bloodthirst.System.CommandSystem
     public class ParallelLayer
     {
         [SerializeField]
-        private List<ICommandBase> waitableCommmands = default;
+        private List<CommandSettings> waitableCommmands = default;
 
         [SerializeField]
-        private List<ICommandBase> interruptableCommmands = default;
+        private List<CommandSettings> interruptableCommmands = default;
 
         [SerializeField]
-        private List<ICommandBase> nonSyncedCached = default;
-
-        private CommandBatchList nonSyncedCommandBatch = default;
+        private List<CommandSettings> nonSyncedCommands = default;
 
         /// <summary>
         /// The essential layer that defines if the layer is done
         /// </summary>
-        public List<ICommandBase> WaitableCommmands => waitableCommmands;
+        public List<CommandSettings> WaitableCommmands => waitableCommmands;
 
         /// <summary>
         /// Commands that can be interrupted when the layer is done
         /// </summary>
-        public List<ICommandBase> InterruptableCommmands => interruptableCommmands;
+        public List<CommandSettings> InterruptableCommmands => interruptableCommmands;
 
-
-        private bool isStarted;
-
-        public bool IsStarted => isStarted;
-
-        public bool IsDone => IsDoneInternal();
-
-        public void Start()
-        {
-            nonSyncedCommandBatch = CommandManager.AppendBatch<CommandBatchList>(this);
-
-            for(int i = 0; i < nonSyncedCached.Count; i++)
-            {
-                nonSyncedCommandBatch.Append(nonSyncedCached[i]);
-            }
-
-            isStarted = true;
-        }
-
+        /// <summary>
+        /// Commands that will run until they are done regardless
+        /// </summary>
+        public List<CommandSettings> NonSyncedCommands => nonSyncedCommands;
         public ParallelLayer()
         {
-            waitableCommmands = new List<ICommandBase>();
-            interruptableCommmands = new List<ICommandBase>();
-            nonSyncedCached = new List<ICommandBase>();
-            isStarted = false;
-        }
-
-        private bool IsDoneInternal()
-        {
-            for(int i = 0; i < waitableCommmands.Count; i++)
-            {
-                if (!waitableCommmands[i].GetExcutingCommand().IsDone)
-                    return false;
-            }
-
-            return true;
+            waitableCommmands = new List<CommandSettings>();
+            interruptableCommmands = new List<CommandSettings>();
+            nonSyncedCommands = new List<CommandSettings>();
         }
 
         /// <summary>
@@ -71,9 +42,9 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="commandBase"></param>
         /// <returns></returns>
-        public ParallelLayer AppendWaitable(ICommandBase commandBase)
+        public ParallelLayer AppendWaitable(ICommandBase commandBase , bool interruptOnFail = false)
         {
-            waitableCommmands.Add(commandBase);
+            waitableCommmands.Add( new CommandSettings() { Command = commandBase, InterruptBatchOnFail = interruptOnFail });
 
             return this;
         }
@@ -83,10 +54,9 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="commandBase"></param>
         /// <returns></returns>
-        public ParallelLayer AppendInterruptable(ICommandBase commandBase)
+        public ParallelLayer AppendInterruptable(ICommandBase commandBase, bool interruptOnFail = false)
         {
-
-            interruptableCommmands.Add(commandBase);
+            interruptableCommmands.Add(new CommandSettings() { Command = commandBase, InterruptBatchOnFail = interruptOnFail });
 
             return this;
         }
@@ -98,7 +68,7 @@ namespace Bloodthirst.System.CommandSystem
         /// <returns></returns>
         public ParallelLayer AppendNonSync(ICommandBase commandBase)
         {
-            nonSyncedCached.Add(commandBase);
+            nonSyncedCommands.Add(new CommandSettings() { Command = commandBase, InterruptBatchOnFail = false });
             return this;
         }
 

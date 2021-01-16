@@ -2,14 +2,19 @@
 
 namespace Bloodthirst.System.CommandSystem
 {
+    /// <summary>
+    /// <para>Executes the subcommands sequentially using a queue order</para>
+    /// <para>This doesn't account for the case when the sub-commands fail , whenever a subcommand fails it just gets dequeued a we got onto the next command</para>
+    /// <para>For interruptable queue Look at <see cref="QueueInterruptableCommandBase{T}"/></para>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class QueueCommandBase<T> : CommandBase<T> where T : QueueCommandBase<T>
     {
-        private Queue<ICommandBase> cached;
+        private Queue<CommandSettings> cached;
         private CommandBatchQueue queue;
-        private bool isInterrupted;
         public QueueCommandBase() : base()
         {
-            cached = new Queue<ICommandBase>();
+            cached = new Queue<CommandSettings>();
         }
 
         /// <summary>
@@ -18,15 +23,15 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T AddToQueue(ICommandBase command)
+        public T AddToQueue(ICommandBase command, bool interruptOnFail = false)
         {
-            cached.Enqueue(command);
-            return (T) this;
+            cached.Enqueue(new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail });
+            return (T)this;
         }
 
         public override void OnStart()
         {
-            queue = CommandManager.AppendBatch<CommandBatchQueue>(this , true);
+            queue = CommandManager.AppendBatch<CommandBatchQueue>(this, true);
 
             // add the commands from AddToQueue
             while (cached.Count != 0)
@@ -35,13 +40,34 @@ namespace Bloodthirst.System.CommandSystem
             }
 
             // add the queue commands from QueueCommands
-            foreach (ICommandBase cmd in QueueCommands())
+            foreach (CommandSettings cmd in QueueCommands())
             {
-                if (cmd != null)
+                if (cmd.Command != null)
                     queue.Append(cmd);
             }
 
             cached = null;
+
+            queue.OnCommandRemoved -= Queue_OnCommandRemoved;
+            queue.OnCommandRemoved += Queue_OnCommandRemoved;
+        }
+
+        private void Queue_OnCommandRemoved(ICommandBatch arg1, ICommandBase arg2)
+        {
+            // the lifetime of the queue command depends on its children commands
+            if (CommandsAreDone)
+            {
+                queue.OnCommandRemoved -= Queue_OnCommandRemoved;
+
+                if (queue.BatchState == BATCH_STATE.INTERRUPTED)
+                {
+                    Interrupt();
+                }
+                else
+                {
+                    Success();
+                }
+            }
         }
 
         /// <summary>
@@ -50,9 +76,9 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<ICommandBase> QueueCommands()
+        protected virtual IEnumerable<CommandSettings> QueueCommands()
         {
-            yield return null;
+            yield break;
         }
 
         /// <summary>
@@ -62,33 +88,28 @@ namespace Bloodthirst.System.CommandSystem
         {
             get
             {
-                return queue.CommandsList.Count == 0;
+                return queue.CommandsQueue.Count == 0;
             }
         }
 
-        public override void OnTick(float delta)
-        {
-            // the lifetime of the queue command depends on its children commands
-            if(CommandsAreDone)
-            {
-                Success();
-            }
-        }
 
         public override void OnInterrupt()
         {
-            // interrup the child queue commands first
-            queue.Interrupt();
-            isInterrupted = true;
-            // continue the interruption
-            base.OnInterrupt();
+            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
+            if (queue.BatchState == BATCH_STATE.EXECUTING)
+            {
+                queue.Interrupt();
+                queue.OnCommandRemoved -= Queue_OnCommandRemoved;
+
+            }
         }
 
         public override void OnEnd()
         {
-            if (!isInterrupted && queue.BatchState != BATCH_STATE.DONE)
+            if (queue.BatchState == BATCH_STATE.EXECUTING)
             {
                 queue.Interrupt();
+                queue.OnCommandRemoved -= Queue_OnCommandRemoved;
             }
         }
 

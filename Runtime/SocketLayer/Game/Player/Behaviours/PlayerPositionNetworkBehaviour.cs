@@ -54,7 +54,7 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
 
             cachedPosition = transform.position;
 
-            byte[] Packet = PacketBuilder.BuildPacket(NetworkID, cachedPosition, identifier, BaseNetworkSerializer<Vector3>.Instance);
+            byte[] Packet = PacketBuilder.BuildPacket(NetworkID, cachedPosition, identifier, Vector3NetworkSerializer.Instance);
 
             if (IsServer && !IsClient)
             {
@@ -102,7 +102,7 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
 
         public void BroadcastPositionToClientsUDP()
         {
-            byte[] positionPacket = PacketBuilder.BuildPacket(NetworkID, transform.position, SocketServer.IdentifierSerializer, BaseNetworkSerializer<Vector3>.Instance);
+            byte[] positionPacket = PacketBuilder.BuildPacket(NetworkID, transform.position, SocketServer.IdentifierSerializer, Vector3NetworkSerializer.Instance);
 
             if (IsServer && IsClient)
                 SocketServer.BroadcastUDP(positionPacket, id => !id.Equals( SocketClient<Guid>.CurrentNetworkID ));

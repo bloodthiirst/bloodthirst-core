@@ -18,7 +18,7 @@ namespace Bloodthirst.System.CommandSystem
 
         public event Action<ICommandBase> OnCommandEnd;
 
-        public event Action<T> OnSpecificCommandEnd;
+        public event Action<T> OnCommandEndSpecific;
 
         [SerializeField]
 #if UNITY_EDITOR
@@ -95,30 +95,26 @@ namespace Bloodthirst.System.CommandSystem
         public ICommandBase GetExcutingCommand()
         {
             // waiting
-            if(CommandState == COMMAND_STATE.WATING)
+            switch (CommandState)
             {
-                return this;
+                case COMMAND_STATE.WATING:
+                    return this;
+                case COMMAND_STATE.EXECUTING:
+                    return this;
+                case COMMAND_STATE.SUCCESS:
+                    return this;
+                case COMMAND_STATE.INTERRUPTED:
+                    return this;
+                /// in this case default is COMMAND_STATE.FAILED
+                default:
+                    {
+                        if (FallbackCommand == null)
+                            return this;
+
+                        // propagate to the fallback command
+                        return FallbackCommand.GetExcutingCommand();
+                    }
             }
-            // executing 
-            if (CommandState == COMMAND_STATE.EXECUTING)
-            {
-                return this;
-            }
-
-            // success
-            if (CommandState == COMMAND_STATE.SUCCESS)
-            {
-                return this;
-            }
-
-            // failed
-
-            if (FallbackCommand == null)
-                return this;
-
-            // propagate to the fallback command
-            return FallbackCommand.GetExcutingCommand();
-
         }
 
         /// <summary>
@@ -140,7 +136,7 @@ namespace Bloodthirst.System.CommandSystem
             isDone = true;
             OnEnd();
             OnCommandEnd?.Invoke(this);
-            OnSpecificCommandEnd?.Invoke((T)this);
+            OnCommandEndSpecific?.Invoke((T)this);
         }
 
         #region method to use from within the command to control its lifetime
@@ -172,7 +168,7 @@ namespace Bloodthirst.System.CommandSystem
         {
             // if is done
             // then there's nothing to interrupt
-            if(isDone)
+            if (isDone)
             {
                 return;
             }

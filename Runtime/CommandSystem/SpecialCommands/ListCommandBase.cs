@@ -4,12 +4,12 @@ namespace Bloodthirst.System.CommandSystem
 {
     public abstract class ListCommandBase<T> : CommandBase<T> where T : ListCommandBase<T>
     {
-        private List<ICommandBase> cached;
+        private List<CommandSettings> cached;
         private CommandBatchList list;
         private bool isInterrupted;
         public ListCommandBase() : base()
         {
-            cached = new List<ICommandBase>();
+            cached = new List<CommandSettings>();
         }
 
         /// <summary>
@@ -18,9 +18,15 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T AddToList(ICommandBase command)
+        public T AddToList(ICommandBase command , bool interruptOnFail)
         {
-            cached.Add(command);
+            var cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail };
+            return AddToList(cmd);
+        }
+
+        internal T AddToList(CommandSettings commandSettings)
+        {
+            cached.Add(commandSettings);
             return (T) this;
         }
 
@@ -36,13 +42,34 @@ namespace Bloodthirst.System.CommandSystem
             }
 
             // add the queue commands from QueueCommands
-            foreach (ICommandBase cmd in ListCommands())
+            foreach (CommandSettings cmd in ListCommands())
             {
-                if (cmd != null)
+                if (cmd.Command != null)
                     list.Append(cmd);
             }
 
+            list.OnCommandRemoved += List_OnCommandRemoved;
+            list.OnCommandRemoved += List_OnCommandRemoved;
+
             cached = null;
+        }
+
+        private void List_OnCommandRemoved(ICommandBatch arg1, ICommandBase arg2)
+        {
+            // the lifetime of the queue command depends on its children commands
+            if (CommandsAreDone)
+            {
+                list.OnCommandRemoved -= List_OnCommandRemoved;
+
+                if (list.BatchState == BATCH_STATE.INTERRUPTED)
+                {
+                    Interrupt();
+                }
+                else
+                {
+                    Success();
+                }
+            }
         }
 
         /// <summary>
@@ -51,9 +78,9 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<ICommandBase> ListCommands()
+        protected virtual IEnumerable<CommandSettings> ListCommands()
         {
-            yield return null;
+            yield break;
         }
 
         /// <summary>
@@ -67,29 +94,24 @@ namespace Bloodthirst.System.CommandSystem
             }
         }
 
-        public override void OnTick(float delta)
-        {
-            // the lifetime of the queue command depends on its children commands
-            if(CommandsAreDone)
-            {
-                Success();
-            }
-        }
-
         public override void OnInterrupt()
         {
-            // interrup the child queue commands first
-            list.Interrupt();
-            isInterrupted = true;
-            // continue the interruption
-            base.OnInterrupt();
+            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
+            if (list.BatchState == BATCH_STATE.EXECUTING)
+            {
+                list.Interrupt();
+                list.OnCommandRemoved -= List_OnCommandRemoved;
+
+            }
         }
 
         public override void OnEnd()
         {
-            if (!isInterrupted && list.BatchState != BATCH_STATE.DONE)
+            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
+            if (list.BatchState == BATCH_STATE.EXECUTING)
             {
                 list.Interrupt();
+                list.OnCommandRemoved -= List_OnCommandRemoved;
             }
         }
 
