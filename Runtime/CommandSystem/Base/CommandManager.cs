@@ -12,17 +12,9 @@ namespace Bloodthirst.System.CommandSystem
         [ShowInInspector]
         private List<ICommandBatch> commandBatches;
 
-        [SerializeField]
-        private bool isActive = true;
-
-        public bool IsActive { get => isActive; set => isActive = value; }
-
-        private CommandBatchList globalCommandBatch;
-
         public CommandManager()
         {
             commandBatches = new List<ICommandBatch>();
-            globalCommandBatch = AppendBatch<CommandBatchList>(this);
         }
 
 
@@ -48,8 +40,7 @@ namespace Bloodthirst.System.CommandSystem
         {
             for (int i = commandBatches.Count - 1; i > -1; i--)
             {
-                commandBatches[i].Tick(Time.deltaTime);
-
+                // remove if necessary
                 if (commandBatches[i].ShouldRemove())
                 {
                     if (commandBatches[i].BatchState == BATCH_STATE.INTERRUPTED)
@@ -58,12 +49,17 @@ namespace Bloodthirst.System.CommandSystem
                     }
                     else
                     {
-                        commandBatches.RemoveAt(i);
                         commandBatches[i].Interrupt();
                         commandBatches[i].BatchState = BATCH_STATE.DONE;
+                        commandBatches.RemoveAt(i);
                     }
 
+
+                    continue;
+
                 }
+                // else tick
+                commandBatches[i].Tick(deltaTime);
             }
         }
 

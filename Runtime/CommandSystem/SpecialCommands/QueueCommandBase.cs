@@ -12,8 +12,13 @@ namespace Bloodthirst.System.CommandSystem
     {
         private Queue<CommandSettings> cached;
         private CommandBatchQueue queue;
-        public QueueCommandBase() : base()
+        private readonly CommandManager commandManager;
+        private readonly bool failIfQueueInterrupted;
+
+        public QueueCommandBase( CommandManager commandManager = null, bool failIfQueueInterrupted = false) : base()
         {
+            this.commandManager = commandManager;
+            this.failIfQueueInterrupted = failIfQueueInterrupted;
             cached = new Queue<CommandSettings>();
         }
 
@@ -23,15 +28,22 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T AddToQueue(ICommandBase command, bool interruptOnFail = false)
+        public T AddToQueue(ICommandBase command, bool interruptOnChildFail = false)
         {
-            cached.Enqueue(new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail });
+            cached.Enqueue(new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnChildFail });
             return (T)this;
         }
 
         public override void OnStart()
         {
-            queue = CommandManagerBehaviour.AppendBatch<CommandBatchQueue>(this, true);
+            if (commandManager == null)
+            {
+                queue = CommandManagerBehaviour.AppendBatch<CommandBatchQueue>(this, true);
+            }
+            else
+            {
+                queue = commandManager.AppendBatch<CommandBatchQueue>(this, true);
+            }
 
             // add the commands from AddToQueue
             while (cached.Count != 0)
@@ -48,20 +60,28 @@ namespace Bloodthirst.System.CommandSystem
 
             cached = null;
 
-            queue.OnCommandRemoved -= Queue_OnCommandRemoved;
-            queue.OnCommandRemoved += Queue_OnCommandRemoved;
+            queue.OnBatchEnded -= Queue_OnBatchEnded;
+            queue.OnBatchEnded += Queue_OnBatchEnded;
         }
 
-        private void Queue_OnCommandRemoved(ICommandBatch arg1, ICommandBase arg2)
+        private void Queue_OnBatchEnded(ICommandBatch arg1)
         {
             // the lifetime of the queue command depends on its children commands
             if (CommandsAreDone)
             {
-                queue.OnCommandRemoved -= Queue_OnCommandRemoved;
+                queue.OnBatchEnded -= Queue_OnBatchEnded;
 
                 if (queue.BatchState == BATCH_STATE.INTERRUPTED)
                 {
-                    Interrupt();
+                    if (failIfQueueInterrupted)
+                    {
+                        Fail();
+                    }
+                    else
+                    {
+                        Interrupt();
+                    }
+                    return;
                 }
                 else
                 {
@@ -92,24 +112,36 @@ namespace Bloodthirst.System.CommandSystem
             }
         }
 
-
-        public override void OnInterrupt()
+        public override void OnFailed()
         {
+            queue.OnBatchEnded -= Queue_OnBatchEnded;
+
             // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
             if (queue.BatchState == BATCH_STATE.EXECUTING)
             {
                 queue.Interrupt();
-                queue.OnCommandRemoved -= Queue_OnCommandRemoved;
+            }
+        }
 
+        public override void OnInterrupt()
+        {
+            queue.OnBatchEnded -= Queue_OnBatchEnded;
+
+            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
+            if (queue.BatchState == BATCH_STATE.EXECUTING)
+            {
+                queue.Interrupt();
             }
         }
 
         public override void OnEnd()
         {
+            queue.OnBatchEnded -= Queue_OnBatchEnded;
+
             if (queue.BatchState == BATCH_STATE.EXECUTING)
             {
                 queue.Interrupt();
-                queue.OnCommandRemoved -= Queue_OnCommandRemoved;
+                queue.OnBatchEnded -= Queue_OnBatchEnded;
             }
         }
 

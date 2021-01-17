@@ -6,7 +6,7 @@ namespace Bloodthirst.System.CommandSystem
 {
     public class CommandBatchQueue : ICommandBatch
     {
-
+        public event Action<ICommandBatch> OnBatchEnded;
         public event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
         public event Action<ICommandBatch, ICommandBase> OnCommandAdded;
 
@@ -20,7 +20,13 @@ namespace Bloodthirst.System.CommandSystem
 
         [SerializeField]
         private BATCH_STATE batchState;
-        public BATCH_STATE BatchState { get => batchState; set => batchState = value; }
+        public BATCH_STATE BatchState { 
+            get => batchState;
+            set
+            {
+                batchState = value;
+            }
+        }
 
         [SerializeField]
         private object owner;
@@ -59,11 +65,8 @@ namespace Bloodthirst.System.CommandSystem
 
             if (commandQueue.Count == 0)
             {
-                BatchState = BATCH_STATE.DONE;
                 return;
             }
-
-            BatchState = BATCH_STATE.EXECUTING;
 
             // Note : we recall the GetExecutingCommand since there's a chance the previous once was dequeued
             cmd = commandQueue.Peek();
@@ -81,7 +84,6 @@ namespace Bloodthirst.System.CommandSystem
         public CommandBatchQueue Append(ICommandBase command, bool interruptBatchOnFail = false)
         {
             return Append(new CommandSettings() { Command = command, InterruptBatchOnFail = interruptBatchOnFail });
-
         }
 
         internal CommandBatchQueue Append(CommandSettings commandSettings)
@@ -105,7 +107,7 @@ namespace Bloodthirst.System.CommandSystem
                 OnCommandRemoved?.Invoke(this, command.Command);
             }
 
-            
+            OnBatchEnded?.Invoke(this);
         }
 
         public bool ShouldRemove()
