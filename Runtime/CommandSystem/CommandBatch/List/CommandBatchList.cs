@@ -6,6 +6,7 @@ namespace Bloodthirst.System.CommandSystem
 {
     public class CommandBatchList : ICommandBatch
     {
+        public event Action<ICommandBatch> OnBatchEnded;
         public event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
         public event Action<ICommandBatch, ICommandBase> OnCommandAdded;
 
@@ -65,13 +66,13 @@ namespace Bloodthirst.System.CommandSystem
 
         }
 
-        public ICommandBatch Append(ICommandBase command , bool shouldInterrupt)
+        public CommandBatchList Append(ICommandBase command , bool shouldInterrupt = false)
         {
             CommandSettings cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = shouldInterrupt };
             return Append(cmd);
         }
 
-        internal ICommandBatch Append(CommandSettings commandSettings)
+        internal CommandBatchList Append(CommandSettings commandSettings)
         {
             CommandsList.Add(commandSettings);
             OnCommandAdded?.Invoke(this, commandSettings.Command);
@@ -89,6 +90,8 @@ namespace Bloodthirst.System.CommandSystem
                 commandList.RemoveAt(i);
                 OnCommandRemoved?.Invoke(this, cmd.Command);
             }
+
+            OnBatchEnded?.Invoke(this);
         }
 
         public bool ShouldRemove()

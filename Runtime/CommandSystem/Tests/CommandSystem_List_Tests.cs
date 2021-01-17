@@ -11,11 +11,11 @@ public class CommandSystem_List_Tests
     // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
     // `yield return null;` to skip a frame.
     [UnityTest]
-    public IEnumerator Test_Sub_Command_Fail_Should_Interrupt_Main_CommandBatchQueue()
+    public IEnumerator Test_Sub_Command_Fail_Should_Interrupt_Main_CommandBatchList()
     {
         CommandManager commandManager = new CommandManager();
 
-        CommandBatchQueue queue = commandManager.AppendBatch<CommandBatchQueue>(this);
+        CommandBatchList queue = commandManager.AppendBatch<CommandBatchList>(this);
 
         queue
             .Append(new TimedCommandBase(1, "1"))
@@ -36,26 +36,26 @@ public class CommandSystem_List_Tests
     // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
     // `yield return null;` to skip a frame.
     [UnityTest]
-    public IEnumerator Test_Sub_QueueCommand_Fail_Should_Interrupt_Main_CommandBatchQueue()
+    public IEnumerator Test_Sub_QueueCommand_Fail_Should_Interrupt_Main_CommandBatchList()
     {
         CommandManager commandManager = new CommandManager();
 
         CommandBatchQueue queue = commandManager.AppendBatch<CommandBatchQueue>(this);
 
-        TestQueueCommand testQueueCommand = new TestQueueCommand( commandManager , true);
-        
-        testQueueCommand
-            .AddToQueue(new TimedCommandBase(1, "1"))
-            .AddToQueue(new TimedCommandBase(1, "2"))
-            .AddToQueue(new TimedCommandBase(1, "3"))
-            .AddToQueue(new AlwaysFailCommandBase(), true)
-            .AddToQueue(new TimedCommandBase(1, "4"));
+        TestListCommand testListCommand = new TestListCommand(commandManager, true);
+
+        testListCommand
+            .AddToList(new TimedCommandBase(1, "1"))
+            .AddToList(new TimedCommandBase(1, "2"))
+            .AddToList(new TimedCommandBase(1, "3"))
+            .AddToList(new AlwaysFailCommandBase(), true)
+            .AddToList(new TimedCommandBase(1, "4"));
 
         queue
             .Append(new TimedCommandBase(1, "1"))
             .Append(new TimedCommandBase(1, "2"))
             .Append(new TimedCommandBase(1, "3"))
-            .Append(testQueueCommand, true)
+            .Append(testListCommand, true)
             .Append(new TimedCommandBase(1, "4"));
 
         while (queue.BatchState == BATCH_STATE.EXECUTING)

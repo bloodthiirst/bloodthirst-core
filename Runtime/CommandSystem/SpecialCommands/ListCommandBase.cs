@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Bloodthirst.System.CommandSystem
 {
@@ -6,9 +7,15 @@ namespace Bloodthirst.System.CommandSystem
     {
         private List<CommandSettings> cached;
         private CommandBatchList list;
-        private bool isInterrupted;
-        public ListCommandBase() : base()
+        private CommandManager commandManager;
+        private bool failIfQueueInterrupted;
+
+        public ListCommandBase(CommandManager commandManager = null, bool failIfQueueInterrupted = false) : base()
         {
+
+
+            this.commandManager = commandManager;
+            this.failIfQueueInterrupted = failIfQueueInterrupted;
             cached = new List<CommandSettings>();
         }
 
@@ -18,7 +25,7 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T AddToList(ICommandBase command , bool interruptOnFail)
+        public T AddToList(ICommandBase command , bool interruptOnFail = false)
         {
             var cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail };
             return AddToList(cmd);
@@ -32,7 +39,14 @@ namespace Bloodthirst.System.CommandSystem
 
         public override void OnStart()
         {
-            list = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this , true);
+            if (commandManager == null)
+            {
+                list = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this, true);
+            }
+            else
+            {
+                list = commandManager.AppendBatch<CommandBatchList>(this, true);
+            }
 
             // add the commands from AddToQueue
             while (cached.Count != 0)
@@ -48,22 +62,30 @@ namespace Bloodthirst.System.CommandSystem
                     list.Append(cmd);
             }
 
-            list.OnCommandRemoved += List_OnCommandRemoved;
-            list.OnCommandRemoved += List_OnCommandRemoved;
-
             cached = null;
+
+            list.OnBatchEnded -= List_OnBatchEnded;
+            list.OnBatchEnded += List_OnBatchEnded;
         }
 
-        private void List_OnCommandRemoved(ICommandBatch arg1, ICommandBase arg2)
+        private void List_OnBatchEnded(ICommandBatch obj)
         {
             // the lifetime of the queue command depends on its children commands
             if (CommandsAreDone)
             {
-                list.OnCommandRemoved -= List_OnCommandRemoved;
+                list.OnBatchEnded -= List_OnBatchEnded;
 
                 if (list.BatchState == BATCH_STATE.INTERRUPTED)
                 {
-                    Interrupt();
+                    if (failIfQueueInterrupted)
+                    {
+                        Fail();
+                    }
+                    else
+                    {
+                        Interrupt();
+                    }
+                    return;
                 }
                 else
                 {
@@ -71,6 +93,8 @@ namespace Bloodthirst.System.CommandSystem
                 }
             }
         }
+
+
 
         /// <summary>
         /// Add commands internally to execute in the CommandQueue
@@ -94,24 +118,13 @@ namespace Bloodthirst.System.CommandSystem
             }
         }
 
-        public override void OnInterrupt()
-        {
-            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
-            if (list.BatchState == BATCH_STATE.EXECUTING)
-            {
-                list.Interrupt();
-                list.OnCommandRemoved -= List_OnCommandRemoved;
-
-            }
-        }
-
         public override void OnEnd()
         {
-            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
+            list.OnBatchEnded -= List_OnBatchEnded;
+
             if (list.BatchState == BATCH_STATE.EXECUTING)
             {
                 list.Interrupt();
-                list.OnCommandRemoved -= List_OnCommandRemoved;
             }
         }
 

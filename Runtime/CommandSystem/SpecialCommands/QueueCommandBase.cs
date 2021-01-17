@@ -67,26 +67,28 @@ namespace Bloodthirst.System.CommandSystem
         private void Queue_OnBatchEnded(ICommandBatch arg1)
         {
             // the lifetime of the queue command depends on its children commands
-            if (CommandsAreDone)
+            if (!CommandsAreDone)
             {
-                queue.OnBatchEnded -= Queue_OnBatchEnded;
+                return;
+            }
 
-                if (queue.BatchState == BATCH_STATE.INTERRUPTED)
+            queue.OnBatchEnded -= Queue_OnBatchEnded;
+
+            if (queue.BatchState == BATCH_STATE.INTERRUPTED)
+            {
+                if (failIfQueueInterrupted)
                 {
-                    if (failIfQueueInterrupted)
-                    {
-                        Fail();
-                    }
-                    else
-                    {
-                        Interrupt();
-                    }
-                    return;
+                    Fail();
                 }
                 else
                 {
-                    Success();
+                    Interrupt();
                 }
+                return;
+            }
+            else
+            {
+                Success();
             }
         }
 
@@ -112,28 +114,6 @@ namespace Bloodthirst.System.CommandSystem
             }
         }
 
-        public override void OnFailed()
-        {
-            queue.OnBatchEnded -= Queue_OnBatchEnded;
-
-            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
-            if (queue.BatchState == BATCH_STATE.EXECUTING)
-            {
-                queue.Interrupt();
-            }
-        }
-
-        public override void OnInterrupt()
-        {
-            queue.OnBatchEnded -= Queue_OnBatchEnded;
-
-            // interrupt the child queue incase the interrupt was called by the Commands Interrupt method
-            if (queue.BatchState == BATCH_STATE.EXECUTING)
-            {
-                queue.Interrupt();
-            }
-        }
-
         public override void OnEnd()
         {
             queue.OnBatchEnded -= Queue_OnBatchEnded;
@@ -141,7 +121,6 @@ namespace Bloodthirst.System.CommandSystem
             if (queue.BatchState == BATCH_STATE.EXECUTING)
             {
                 queue.Interrupt();
-                queue.OnBatchEnded -= Queue_OnBatchEnded;
             }
         }
 
