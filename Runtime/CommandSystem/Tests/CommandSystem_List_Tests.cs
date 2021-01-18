@@ -42,7 +42,7 @@ public class CommandSystem_List_Tests
 
         CommandBatchQueue queue = commandManager.AppendBatch<CommandBatchQueue>(this);
 
-        TestListCommand testListCommand = new TestListCommand(commandManager, true);
+        BasicListCommand testListCommand = new BasicListCommand(commandManager, true);
 
         testListCommand
             .AddToList(new TimedCommandBase(1, "1"))

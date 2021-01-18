@@ -1,12 +1,20 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using System.IO;
 using UnityEditor;
+using UnityEngine;
 
 namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTracker
 {
+    [InitializeOnLoad]
     public class EditorOpenTracker
     {
-        private const string TRACKER_DATA = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/EditorOpenTracker/TrackerData";
+        private const string TRACKER_DATA = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/EditorOpenTracker/IgnoreAssets~/TrackerData";
+
+        static EditorOpenTracker()
+        {
+            EditorApplication.quitting -= OnEditorQuiting;
+            EditorApplication.quitting += OnEditorQuiting;
+        }
 
         public static bool IsFirstTime()
         {
@@ -14,24 +22,18 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTra
 
             if (!File.Exists(absolute))
             {
-                File.Create(absolute);
+                File.Create(TRACKER_DATA);
                 return true;
             }
 
             return false;
         }
 
-        [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.EDITOR_OPEN_TRACKER)]
-        public static void ReloadUpdater()
-        {
-            EditorApplication.quitting -= OnEditorQuiting;
-            EditorApplication.quitting += OnEditorQuiting;
-        }
-
         private static void OnEditorQuiting()
         {
             string absolute = Path.GetFullPath(TRACKER_DATA);
 
+            EditorApplication.quitting -= OnEditorQuiting;
             File.Delete(absolute);
         }
     }

@@ -24,8 +24,8 @@ namespace Bloodthirst.Core.ThreadProcessor
 
         public void Start()
         {
-            Thread th = new Thread(RunCommand);
-            th.Start();
+            Action<object> act = (state) => { RunCommand(); };
+            ThreadPool.QueueUserWorkItem(new WaitCallback(act));
         }
 
         private void RunCommand()

@@ -25,7 +25,7 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T AddToList(ICommandBase command , bool interruptOnFail = false)
+        public T AddToList(ICommandBase command, bool interruptOnFail = false)
         {
             var cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail };
             return AddToList(cmd);
@@ -34,7 +34,7 @@ namespace Bloodthirst.System.CommandSystem
         internal T AddToList(CommandSettings commandSettings)
         {
             cached.Add(commandSettings);
-            return (T) this;
+            return (T)this;
         }
 
         public override void OnStart()
@@ -71,26 +71,26 @@ namespace Bloodthirst.System.CommandSystem
         private void List_OnBatchEnded(ICommandBatch obj)
         {
             // the lifetime of the queue command depends on its children commands
-            if (CommandsAreDone)
-            {
-                list.OnBatchEnded -= List_OnBatchEnded;
+            if (list.CommandsList.Count != 0)
+                return;
 
-                if (list.BatchState == BATCH_STATE.INTERRUPTED)
+            list.OnBatchEnded -= List_OnBatchEnded;
+
+            if (list.BatchState == BATCH_STATE.INTERRUPTED)
+            {
+                if (failIfQueueInterrupted)
                 {
-                    if (failIfQueueInterrupted)
-                    {
-                        Fail();
-                    }
-                    else
-                    {
-                        Interrupt();
-                    }
-                    return;
+                    Fail();
                 }
                 else
                 {
-                    Success();
+                    Interrupt();
                 }
+                return;
+            }
+            else
+            {
+                Success();
             }
         }
 
@@ -105,17 +105,6 @@ namespace Bloodthirst.System.CommandSystem
         protected virtual IEnumerable<CommandSettings> ListCommands()
         {
             yield break;
-        }
-
-        /// <summary>
-        /// Are the children commands done ?
-        /// </summary>
-        public bool CommandsAreDone
-        {
-            get
-            {
-                return list.CommandsList.Count == 0;
-            }
         }
 
         public override void OnEnd()

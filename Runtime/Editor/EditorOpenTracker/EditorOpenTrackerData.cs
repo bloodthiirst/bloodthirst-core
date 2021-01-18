@@ -9,6 +9,5 @@ namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTra
 {
     public class EditorOpenTrackerData : ScriptableObject
     {
-
     }
 }
