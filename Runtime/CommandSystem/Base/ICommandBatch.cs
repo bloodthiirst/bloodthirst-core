@@ -8,6 +8,7 @@ namespace Bloodthirst.System.CommandSystem
     }
     public interface ICommandBatch
     {
+        event Action<ICommandBatch> OnBatchEnded;
         event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
         event Action<ICommandBatch, ICommandBase> OnCommandAdded;
         BATCH_STATE BatchState { get; set; }
@@ -16,5 +17,6 @@ namespace Bloodthirst.System.CommandSystem
         bool RemoveWhenDone { get; set; }
         void Interrupt();
         bool ShouldRemove();
+        void End();
     }
 }

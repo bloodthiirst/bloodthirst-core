@@ -83,12 +83,26 @@ namespace Bloodthirst.System.CommandSystem
         {
             BatchState = BATCH_STATE.INTERRUPTED;
 
+            InterruptSubcommands();
+        }
+
+        private void InterruptSubcommands()
+        {
             for (int i = commandList.Count - 1; i > -1; i--)
             {
                 CommandSettings cmd = commandList[i];
                 cmd.Command.GetExcutingCommand().Interrupt();
                 commandList.RemoveAt(i);
                 OnCommandRemoved?.Invoke(this, cmd.Command);
+            }
+        }
+
+        public void End()
+        {
+            if (BatchState != BATCH_STATE.INTERRUPTED)
+            {
+                InterruptSubcommands();
+                BatchState = BATCH_STATE.DONE;
             }
 
             OnBatchEnded?.Invoke(this);

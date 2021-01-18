@@ -36,7 +36,7 @@ public class CommandSystem_List_Tests
     // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
     // `yield return null;` to skip a frame.
     [UnityTest]
-    public IEnumerator Test_Sub_QueueCommand_Fail_Should_Interrupt_Main_CommandBatchList()
+    public IEnumerator Test_Sub_ListCommand_Fail_Should_Interrupt_Main_CommandBatchList()
     {
         CommandManager commandManager = new CommandManager();
 

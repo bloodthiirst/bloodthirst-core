@@ -43,18 +43,8 @@ namespace Bloodthirst.System.CommandSystem
                 // remove if necessary
                 if (commandBatches[i].ShouldRemove())
                 {
-                    if (commandBatches[i].BatchState == BATCH_STATE.INTERRUPTED)
-                    {
-                        commandBatches.RemoveAt(i);
-                    }
-                    else
-                    {
-                        commandBatches[i].Interrupt();
-                        commandBatches[i].BatchState = BATCH_STATE.DONE;
-                        commandBatches.RemoveAt(i);
-                    }
-
-
+                    commandBatches[i].End();
+                    commandBatches.RemoveAt(i);
                     continue;
 
                 }

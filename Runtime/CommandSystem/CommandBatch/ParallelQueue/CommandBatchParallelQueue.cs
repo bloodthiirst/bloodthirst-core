@@ -9,6 +9,7 @@ namespace Bloodthirst.System.CommandSystem
     /// </summary>
     public class CommandBatchParallelQueue : ICommandBatch
     {
+        public event Action<ICommandBatch> OnBatchEnded;
         public event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
         public event Action<ICommandBatch, ICommandBase> OnCommandAdded;
 
@@ -144,6 +145,12 @@ namespace Bloodthirst.System.CommandSystem
         {
             BatchState = BATCH_STATE.INTERRUPTED;
 
+            InterruptSubcommands();
+        }
+
+        private void InterruptSubcommands()
+        {
+
             for (int i = 0; i < layersList.Count; i++)
             {
                 // interruptable
@@ -168,6 +175,17 @@ namespace Bloodthirst.System.CommandSystem
             }
 
             layersList.Clear();
+        }
+
+        public void End()
+        {
+            if (BatchState != BATCH_STATE.INTERRUPTED)
+            {
+                InterruptSubcommands();
+                BatchState = BATCH_STATE.DONE;
+            }
+
+            OnBatchEnded?.Invoke(this);
         }
 
         public bool ShouldRemove()

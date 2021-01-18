@@ -97,6 +97,11 @@ namespace Bloodthirst.System.CommandSystem
         {
             BatchState = BATCH_STATE.INTERRUPTED;
 
+            InterruptSubcommands();
+        }
+
+        private void InterruptSubcommands()
+        {
             while (commandQueue.Count != 0)
             {
                 CommandSettings command = commandQueue.Dequeue();
@@ -105,6 +110,15 @@ namespace Bloodthirst.System.CommandSystem
                 command.Command.GetExcutingCommand().Interrupt();
 
                 OnCommandRemoved?.Invoke(this, command.Command);
+            }
+        }
+
+        public void End()
+        {
+            if(BatchState != BATCH_STATE.INTERRUPTED)
+            {
+                InterruptSubcommands();
+                BatchState = BATCH_STATE.DONE;
             }
 
             OnBatchEnded?.Invoke(this);
