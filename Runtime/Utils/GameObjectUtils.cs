@@ -10,11 +10,11 @@ namespace Assets.Scripts.Core.Utils
         /// </summary>
         /// <param name="enumerators"></param>
         /// <returns></returns>
-        public static IEnumerator CombineCoroutine( params IEnumerator[] enumerators )
+        public static IEnumerator CombineCoroutine(params IEnumerator[] enumerators)
         {
-            foreach(IEnumerator c in enumerators)
+            foreach (IEnumerator c in enumerators)
             {
-                while(c.MoveNext())
+                while (c.MoveNext())
                 {
                     yield return c.Current;
                 }
@@ -22,7 +22,7 @@ namespace Assets.Scripts.Core.Utils
         }
         public static void ClearTransform(this Transform t)
         {
-            for(int i = t.childCount - 1; i >= 0; i--)
+            for (int i = t.childCount - 1; i >= 0; i--)
             {
                 UnityEngine.Object.Destroy(t.GetChild(i).gameObject);
             }
@@ -44,7 +44,7 @@ namespace Assets.Scripts.Core.Utils
             return instance;
         }
 
-        public static C CreateOrClear<C> (this C collection) where C : IList , new()
+        public static C CreateOrClear<C>(this C collection) where C : IList, new()
         {
             if (collection == null)
                 collection = new C();

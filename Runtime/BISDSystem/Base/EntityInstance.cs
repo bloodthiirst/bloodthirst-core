@@ -1,5 +1,4 @@
-﻿using Sirenix.OdinInspector;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
@@ -18,7 +17,7 @@ namespace Bloodthirst.Core.BISDSystem
             set
             {
                 // unsubscribe old events
-                if(entityIdentifier != null)
+                if (entityIdentifier != null)
                 {
                     entityIdentifier.OnEntitySpawned -= OnEntitySpawned;
                     entityIdentifier.OnEntityRemoved -= OnEntityRemoved;

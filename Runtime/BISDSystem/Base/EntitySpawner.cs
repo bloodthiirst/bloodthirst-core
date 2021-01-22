@@ -16,7 +16,7 @@ namespace Assets.Scripts
             entity = InjectDependencies(entity);
 
             EntityIdentifier id = entity.GetComponent<EntityIdentifier>();
-            
+
             id.TriggerSpawned();
 
             return entity;
@@ -56,7 +56,7 @@ namespace Assets.Scripts
             }
 
             // initialize identifier
-            foreach(IInitializeIdentifier init in entity.GetComponentsInChildren< IInitializeIdentifier>())
+            foreach (IInitializeIdentifier init in entity.GetComponentsInChildren<IInitializeIdentifier>())
             {
                 init.InitializeIdentifier(entityIdentifier);
             }
@@ -90,7 +90,7 @@ namespace Assets.Scripts
             EntityIdentifier identifier = player.GetComponentInChildren<EntityIdentifier>();
 
             identifier.TriggerRemoved();
-            
+
             UnityPool.Instance.Return(player);
         }
     }

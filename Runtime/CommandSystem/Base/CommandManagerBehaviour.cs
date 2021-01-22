@@ -1,7 +1,5 @@
 ﻿using Bloodthirst.Core.UnitySingleton;
 using Sirenix.OdinInspector;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem

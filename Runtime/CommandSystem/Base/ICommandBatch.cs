@@ -4,7 +4,7 @@ namespace Bloodthirst.System.CommandSystem
 {
     public enum BATCH_STATE
     {
-        EXECUTING, DONE , INTERRUPTED
+        EXECUTING, DONE, INTERRUPTED
     }
     public interface ICommandBatch
     {

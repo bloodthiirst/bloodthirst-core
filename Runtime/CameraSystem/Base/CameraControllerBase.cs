@@ -2,19 +2,23 @@
 using Bloodthirst.Core.UnitySingleton;
 using UnityEngine;
 
-namespace Bloodthirst.Systems.CameraSystem {
-    public abstract class CameraControllerBase<T> : UnitySingleton<T> , ICameraController, IAwakePass where T : CameraControllerBase<T> {
+namespace Bloodthirst.Systems.CameraSystem
+{
+    public abstract class CameraControllerBase<T> : UnitySingleton<T>, ICameraController, IAwakePass where T : CameraControllerBase<T>
+    {
         public bool isEnabled { get; set; }
 
         public abstract void ApplyTransform(out Vector3 position, out Quaternion rotation);
 
 
-        private void OnEnable() {
+        private void OnEnable()
+        {
             CameraManager.RemoveCamera(this);
             CameraManager.RegisterCamera(this);
         }
 
-        private void OnDisable() {
+        private void OnDisable()
+        {
             CameraManager.RemoveCamera(this);
         }
 

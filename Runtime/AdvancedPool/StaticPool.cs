@@ -2,7 +2,7 @@
 
 namespace Bloodthirst.Core.AdvancedPool
 {
-    public class StaticPool<TObject> where TObject : class, IOnSpawn , IOnDespawn , new()
+    public class StaticPool<TObject> where TObject : class, IOnSpawn, IOnDespawn, new()
     {
         private static StaticPool<TObject> instance;
         private static StaticPool<TObject> Instance
@@ -27,9 +27,9 @@ namespace Bloodthirst.Core.AdvancedPool
 
         private void CheckPoolSize()
         {
-            if(poolQueue.Count == 0)
+            if (poolQueue.Count == 0)
             {
-                for(int i = 0; i < PoolSpawnSize; i++)
+                for (int i = 0; i < PoolSpawnSize; i++)
                 {
                     poolQueue.Enqueue(new TObject());
                 }

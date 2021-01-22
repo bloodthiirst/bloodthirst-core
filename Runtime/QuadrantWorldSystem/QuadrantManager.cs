@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Bloodthirst.System.Quadrant
@@ -56,9 +54,9 @@ namespace Bloodthirst.System.Quadrant
         private void OnCubeResized()
         {
             // cache previous entities
-            List<QuadLeaf<int,T>> list = new List<QuadLeaf<int, T>>();
+            List<QuadLeaf<int, T>> list = new List<QuadLeaf<int, T>>();
 
-            foreach(QuadLeaf<int, T> l in quadTree.RootLeafs)
+            foreach (QuadLeaf<int, T> l in quadTree.RootLeafs)
             {
                 list.AddRange(l.GetAllRecursively());
             }
@@ -69,7 +67,7 @@ namespace Bloodthirst.System.Quadrant
 
             foreach (QuadLeaf<int, T> l in list)
             {
-                foreach(T e in l.Elements)
+                foreach (T e in l.Elements)
                 {
                     e.QuandrantId = null;
                     Add(e);
@@ -149,7 +147,7 @@ namespace Bloodthirst.System.Quadrant
         /// </summary>
         /// <param name="id"></param>
         /// <param name="entity"></param>
-        public void Remove(List<int> id , T entity)
+        public void Remove(List<int> id, T entity)
         {
             if (id != null)
             {
@@ -173,7 +171,7 @@ namespace Bloodthirst.System.Quadrant
         {
             List<int> newId = PositionToId(entity.Postion);
 
-            if(entity.QuandrantId.IsSame(newId))
+            if (entity.QuandrantId.IsSame(newId))
             {
                 return newId;
             }

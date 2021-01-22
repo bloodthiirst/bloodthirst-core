@@ -1,10 +1,11 @@
 ﻿using Assets.Scripts.Utils;
 using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Bloodthirst.System.Quadrant
@@ -43,7 +44,7 @@ namespace Bloodthirst.System.Quadrant
 
         [BoxGroup("Editor Settings")]
         [SerializeField]
-        [Range(0,1)]
+        [Range(0, 1)]
         private float visibility;
 
         private void Awake()
@@ -85,7 +86,7 @@ namespace Bloodthirst.System.Quadrant
                 {
                     for (int z = 0; z < testQuadrant.z; z++)
                     {
-                        quadrantManager.QuadTree.Traverse( new List<int>() { x, y, z });
+                        quadrantManager.QuadTree.Traverse(new List<int>() { x, y, z });
                     }
                 }
             }
@@ -96,6 +97,7 @@ namespace Bloodthirst.System.Quadrant
             quadrantManager.CubeSize = cubeSize;
         }
 
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             if (quadrantManager == null)
@@ -130,11 +132,11 @@ namespace Bloodthirst.System.Quadrant
                 center.z *= quadrantManager.CubeSize.z;
 
                 center += halfSize;
-               
-                Handles.color = gizmosFillColor.MulColor(a : visibility);
+
+                Handles.color = gizmosFillColor.MulColor(a: visibility);
 
                 //Gizmos.DrawCube(center, quadrantManager.CubeSize);
-                EditorUtils.HandlesDrawCube(center , quadrantManager.CubeSize);
+                EditorUtils.HandlesDrawCube(center, quadrantManager.CubeSize);
 
             }
 
@@ -181,7 +183,7 @@ namespace Bloodthirst.System.Quadrant
 
                 float distance = Vector3.Distance(camPos, center);
 
-                if(!showAll && distance > viewDistance)
+                if (!showAll && distance > viewDistance)
                     continue;
 
                 center.x *= quadrantManager.CubeSize.x;
@@ -220,5 +222,6 @@ namespace Bloodthirst.System.Quadrant
             }
 
         }
+#endif
     }
 }

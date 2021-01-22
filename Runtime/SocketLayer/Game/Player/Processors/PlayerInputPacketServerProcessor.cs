@@ -1,9 +1,7 @@
-﻿using Assets.Models;
-using Assets.Scripts.SocketLayer.Models;
+﻿using Assets.Scripts.SocketLayer.Models;
 using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket.Serializer;
 using System;
-using UnityEngine;
 
 namespace Assets.SocketLayer.PacketParser
 {

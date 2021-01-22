@@ -1,10 +1,7 @@
 ﻿using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
-using UnityEngine;
 
 public class GUIDGhostNetworkServerEntity : NetworkServerEntityBase<GUIDGhostManagedSocketServer, Guid>
 {

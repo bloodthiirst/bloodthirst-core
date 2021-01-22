@@ -1,6 +1,4 @@
-﻿using Bloodthirst.Core.Clonable;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
@@ -42,9 +40,9 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="commandBase"></param>
         /// <returns></returns>
-        public ParallelLayer AppendWaitable(ICommandBase commandBase , bool interruptOnFail = false)
+        public ParallelLayer AppendWaitable(ICommandBase commandBase, bool interruptOnFail = false)
         {
-            waitableCommmands.Add( new CommandSettings() { Command = commandBase, InterruptBatchOnFail = interruptOnFail });
+            waitableCommmands.Add(new CommandSettings() { Command = commandBase, InterruptBatchOnFail = interruptOnFail });
 
             return this;
         }

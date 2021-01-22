@@ -2,15 +2,14 @@
 using Assets.Scripts.SocketLayer.Game.Chat.Processors;
 using Assets.Scripts.SocketLayer.Models;
 using Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity;
-using Assets.SocketLayer.PacketParser.Base;
+using Bloodthirst.Core.Utils;
 using Bloodthirst.Socket;
-using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace Assets.Scripts.SocketLayer.Components
@@ -20,8 +19,10 @@ namespace Assets.Scripts.SocketLayer.Components
         [SerializeField]
         private ChatBubbleBehaviour chatBubble;
 
+        [ShowInInspector]
         private ChatMessagePacketClientProcessor chatMessageClient;
 
+        [ShowInInspector]
         private ChatMessagePacketServerProcessor chatMessageServer;
 
         [ShowInInspector]
@@ -31,8 +32,7 @@ namespace Assets.Scripts.SocketLayer.Components
 
         private IEnumerable<IChatCommand> QueryChatCommandServices()
         {
-            List<Type> serviceTypes = Assembly.GetExecutingAssembly()
-            .GetTypes()
+            List<Type> serviceTypes = TypeUtils.AllTypes
             .Where(t => t.IsClass)
             .Where(t => !t.IsAbstract)
             .Where(t => t.GetInterfaces().Contains(typeof(IChatCommand)))
@@ -57,23 +57,16 @@ namespace Assets.Scripts.SocketLayer.Components
                 chatBubble = GetComponent<ChatBubbleBehaviour>();
             }
 
-            if (IsServer)
-            {
-                // server
-                chatMessageServer = NetworkEntity.GetServer<ChatMessagePacketServerProcessor, ChatMessage>();
 
-                chatMessageServer.OnPacketParsedUnityThread -= OnChatMessageServer;
-                chatMessageServer.OnPacketParsedUnityThread += OnChatMessageServer;
-            }
-            // client
+            chatMessageServer = NetworkEntity.GetServer<ChatMessagePacketServerProcessor, ChatMessage>();
 
-            if (IsClient)
-            {
-                chatMessageClient = NetworkEntity.GetClient<ChatMessagePacketClientProcessor, ChatMessage>();
+            chatMessageServer.OnPacketParsedUnityThread -= OnChatMessageServer;
+            chatMessageServer.OnPacketParsedUnityThread += OnChatMessageServer;
 
-                chatMessageClient.OnPacketParsedUnityThread -= OnChatMessageClient;
-                chatMessageClient.OnPacketParsedUnityThread += OnChatMessageClient;
-            }
+            chatMessageClient = NetworkEntity.GetClient<ChatMessagePacketClientProcessor, ChatMessage>();
+
+            chatMessageClient.OnPacketParsedUnityThread -= OnChatMessageClient;
+            chatMessageClient.OnPacketParsedUnityThread += OnChatMessageClient;
         }
 
         private void Start()
@@ -107,35 +100,19 @@ namespace Assets.Scripts.SocketLayer.Components
         {
             // if the player is server-side only
 
-            byte[] msgPacket = PacketBuilder.BuildPacket(NetworkID, msg, SocketServer.IdentifierSerializer, BaseNetworkSerializer<ChatMessage>.Instance);
+            byte[] msgPacket = PacketBuilder.BuildPacket(from, msg, SocketServer.IdentifierSerializer, BaseNetworkSerializer<ChatMessage>.Instance);
 
-            if (HasPlayer && IsClient)
+            ProcessChat(msg);
+
+            if (IsPlayer)
             {
-
-                // if the player is only player side then treat the message as if it was client side
-
-                ProcessChat(msg);
-
-                // send the message to all the client except the current one (since its sever AND client)       
-
-                if (IsPlayer)
-                {
-
-                    SocketServer.BroadcastTCP(msgPacket, (id) => !id.Equals(NetworkID));
-                }
-                else
-                {
-                    SocketServer.BroadcastTCP(msgPacket);
-                }
+                SocketServer.BroadcastTCP(msgPacket, (id) => !id.Equals(from));
             }
-
-            // else , then we are server only and no client
-            // so broadcast to everyone
-
             else
             {
                 SocketServer.BroadcastTCP(msgPacket);
             }
+
         }
 
         public void SendChatMessage(string from, string content)
@@ -148,22 +125,7 @@ namespace Assets.Scripts.SocketLayer.Components
 
             byte[] msgPacket = PacketBuilder.BuildPacket(NetworkID, chatMessage, SocketClient.IdentitySerializer, BaseNetworkSerializer<ChatMessage>.Instance);
 
-            if (IsServer)
-            {
-                // ProcessChat(chatMessage);
-
-                // send the message to all the client except the current one (since its sever AND client)       
-
-                SocketServer.BroadcastTCP(msgPacket);
-
-                // SocketServer.BroadcastTCP(msgPacket, (id) => !id.Equals(SocketClient<Guid>.CurrentNetworkID));
-                // SocketServer.BroadcastTCP(msgPacket, (id) => !id.Equals(SocketClient<Guid>.CurrentNetworkID));
-            }
-
-            else
-            {
-                SocketClient.SendTCP(msgPacket);
-            }
+            SocketClient.SendTCP(msgPacket);
         }
     }
 }

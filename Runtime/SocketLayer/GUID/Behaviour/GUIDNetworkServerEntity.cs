@@ -1,12 +1,9 @@
 ﻿using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
-using UnityEngine;
 
-public class GUIDNetworkServerEntity : NetworkServerEntityBase<GUIDManagedSocketServer ,Guid>
+public class GUIDNetworkServerEntity : NetworkServerEntityBase<GUIDManagedSocketServer, Guid>
 {
     protected override GUIDManagedSocketServer CreateServer()
     {

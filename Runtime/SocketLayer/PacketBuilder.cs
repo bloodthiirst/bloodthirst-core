@@ -1,17 +1,12 @@
 ﻿using Assets.Scripts;
-using Assets.Scripts.NetworkCommand;
 using Bloodthirst.Socket.Serializer;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Assets.SocketLayer.PacketParser.Base
+namespace Bloodthirst.Socket.Utils
 {
     public static class PacketBuilder
     {
-        public static byte[] BuildPacket<TIdentifier, TData>(TIdentifier identifier, TData data , INetworkSerializer<TIdentifier> IdSerializer , INetworkSerializer<TData> dataSerializer) where TIdentifier : IComparable<TIdentifier>
+        public static byte[] BuildPacket<TIdentifier, TData>(TIdentifier identifier, TData data, INetworkSerializer<TIdentifier> IdSerializer, INetworkSerializer<TData> dataSerializer) where TIdentifier : IComparable<TIdentifier>
         {
             // type
 
@@ -29,23 +24,27 @@ namespace Assets.SocketLayer.PacketParser.Base
 
             byte[] nonCompressed = NetworkUtils.Combine(type, from, content);
 
-            return NetworkUtils.Compress(nonCompressed);
+            //return NetworkUtils.Compress(nonCompressed);
+            return nonCompressed;
 
         }
 
-        public static bool UnpackPacket<TIdentifier>(byte[] packet , out uint type, out TIdentifier from, out byte[] data, INetworkSerializer<TIdentifier> IdSerializer)
+        public static bool UnpackPacket<TIdentifier>(byte[] packet, out uint type, out TIdentifier from, out byte[] data, INetworkSerializer<TIdentifier> IdSerializer)
         {
             // decompress the data
-            byte[] decompressed = NetworkUtils.Decompress(packet);
+            //byte[] decompressed = NetworkUtils.Decompress(packet);
 
             // get data type
-            type = BitConverter.ToUInt32(decompressed, 0);
+            type = BitConverter.ToUInt32(packet, 0);
 
             // get from identifier
-            from = IdSerializer.Deserialize(decompressed);
+            from = IdSerializer.Deserialize(packet.SubArray(4, 16));
+
+            // type int + from guid
+            int headerSize = 4 + 16;
 
             // get the actual data
-            data = decompressed.SubArray(IdSerializer.Length + 4, decompressed.Length - (IdSerializer.Length + 4));
+            data = packet.SubArray(headerSize, packet.Length - headerSize);
 
             return true;
         }

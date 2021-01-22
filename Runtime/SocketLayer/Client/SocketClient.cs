@@ -24,10 +24,10 @@ namespace Bloodthirst.Socket
         public int PortUDP;
 
         public event Action OnConnect;
-        
+
         public event Action<SocketClient<TIdentifier>> OnDisconnect;
 
-        public event Action<SocketClient<TIdentifier>, byte[] , PROTOCOL> OnMessage;
+        public event Action<SocketClient<TIdentifier>, byte[], PROTOCOL> OnMessage;
 
         private IPAddress serverAddress;
 
@@ -61,12 +61,12 @@ namespace Bloodthirst.Socket
             {
                 if (udpServerEndpoint == null)
                 {
-                    udpServerEndpoint = new IPEndPoint(serverAddress, serverPort + 1);
+                    udpServerEndpoint = new IPEndPoint(serverAddress, serverPort + 10);
                 }
                 return udpServerEndpoint;
             }
         }
-        
+
         #endregion
 
 
@@ -77,8 +77,6 @@ namespace Bloodthirst.Socket
         public TcpClient TcpClient { get; set; }
 
         public UdpClient UdpClient { get; set; }
-
-        private NetworkStream Stream => TcpClient.GetStream();
 
         public abstract INetworkSerializer<TIdentifier> IdentitySerializer { get; }
 
@@ -105,13 +103,13 @@ namespace Bloodthirst.Socket
 
             byte[] data = UdpClient.EndReceive(ar, ref ip);
 
-            OnMessage?.Invoke(this, data , PROTOCOL.UDP);
+            OnMessage?.Invoke(this, data, PROTOCOL.UDP);
 
             UdpClient.BeginReceive(OnRevieveUDP, null);
         }
 
         private void OnConnected(IAsyncResult ar)
-        {        
+        {
             isClient = true;
 
             // stop the connecting attempt since its done and get the connection
@@ -120,7 +118,7 @@ namespace Bloodthirst.Socket
 
             PortTCP = ((IPEndPoint)TcpClient.Client.LocalEndPoint).Port;
 
-            PortUDP = PortTCP + 1;
+            PortUDP = PortTCP + 10;
 
             Debug.Log("TCP CLient port : " + PortTCP);
             Debug.Log("UDP CLient port : " + PortUDP);
@@ -135,7 +133,7 @@ namespace Bloodthirst.Socket
 
             UdpClient.BeginReceive(OnRevieveUDP, null);
 
-            Stream.BeginRead(Buffer, 0, Buffer.Length, OnRead, null);
+            TcpClient.GetStream().BeginRead(Buffer, 0, Buffer.Length, OnRead, null);
 
             // trigger on connect event
 
@@ -149,7 +147,15 @@ namespace Bloodthirst.Socket
 
         public void SendTCP(byte[] packet)
         {
-            Stream.Write(packet, 0, packet.Length);
+            try
+            {
+                TcpClient.GetStream().Write(packet, 0, packet.Length);
+            }
+            catch (Exception ex)
+            {
+                Debug.Break();
+                Debug.LogError(ex.Message);
+            }
         }
 
 
@@ -157,7 +163,7 @@ namespace Bloodthirst.Socket
         {
             // stop reading attempt and get message size*
 
-            int Size = Stream.EndRead(ar);
+            int Size = TcpClient.GetStream().EndRead(ar);
 
             if (Size <= 0)
             {
@@ -165,7 +171,7 @@ namespace Bloodthirst.Socket
 
                 // Connection closed
 
-                OnDisconnect?.Invoke(this);
+                Disconnect();
 
                 return;
             }
@@ -174,11 +180,11 @@ namespace Bloodthirst.Socket
 
             Array.Copy(Buffer, trimmedData, Size);
 
-            OnMessage?.Invoke(this, trimmedData , PROTOCOL.TCP);
+            OnMessage?.Invoke(this, trimmedData, PROTOCOL.TCP);
 
             // restart reading attend for next message
 
-            Stream.BeginRead(Buffer, 0, Buffer.Length, OnRead, null);
+            TcpClient.GetStream().BeginRead(Buffer, 0, Buffer.Length, OnRead, null);
         }
 
         public void Disconnect()
@@ -189,10 +195,7 @@ namespace Bloodthirst.Socket
 
             TcpClient.Close();
             UdpClient.Close();
-        }
 
-        ~SocketClient()
-        {
             TcpClient.Dispose();
             UdpClient.Dispose();
         }

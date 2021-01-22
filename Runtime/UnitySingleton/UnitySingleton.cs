@@ -1,20 +1,22 @@
 ﻿using Sirenix.OdinInspector;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-namespace Bloodthirst.Core.UnitySingleton {
-    public class  UnitySingleton<T> : MonoBehaviour where T : UnitySingleton<T> {
+namespace Bloodthirst.Core.UnitySingleton
+{
+    public class UnitySingleton<T> : MonoBehaviour where T : UnitySingleton<T>
+    {
 
         [ShowInInspector]
         [ReadOnly]
         protected static T instance;
 
-        public static T Instance {
+        public static T Instance
+        {
 
             get
             {
-                if (instance == null) {
+                if (instance == null)
+                {
                     instance = FindObjectOfType<T>();
                 }
 
@@ -22,7 +24,8 @@ namespace Bloodthirst.Core.UnitySingleton {
             }
         }
 
-        protected virtual void Awake() {
+        protected virtual void Awake()
+        {
 
             if (instance == null)
             {

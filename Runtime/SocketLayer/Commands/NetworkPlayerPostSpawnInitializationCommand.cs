@@ -1,13 +1,6 @@
-﻿using Assets.SocketLayer.BehaviourComponent;
-using Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity;
-using Bloodthirst.Socket;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
 using Bloodthirst.System.CommandSystem;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.Scripts.SocketLayer.Commands
 {
@@ -16,38 +9,42 @@ namespace Assets.Scripts.SocketLayer.Commands
         /// <summary>
         /// Instance of the spawned player
         /// </summary>
-        private readonly GUIDNetworkEntitySpawner networkPlayerEntity;
+        private readonly GameObject networkPlayerEntity;
 
-        private IPlayerSpawnClient[] clientInitializables;
+        private IOnPlayerSpawnedClient[] clientInitializables;
 
-        private IPlayerSpawnServer[] serverInitializables;
+        private IOnPlayerSpawnedServer[] serverInitializables;
 
-        public NetworkPlayerPostSpawnInitializationCommand(GUIDNetworkEntitySpawner networkPlayerEntity)
+        public NetworkPlayerPostSpawnInitializationCommand(GameObject networkPlayerEntity)
         {
             this.networkPlayerEntity = networkPlayerEntity;
         }
 
         public override void OnStart()
         {
+            // execute on spawn for server if needed
+
             if (SocketConfig.Instance.IsServer)
             {
-                serverInitializables = networkPlayerEntity.gameObject.GetComponents<IPlayerSpawnServer>();
-                
-                foreach (IPlayerSpawnServer init in serverInitializables)
+                serverInitializables = networkPlayerEntity.gameObject.GetComponents<IOnPlayerSpawnedServer>();
+
+                foreach (IOnPlayerSpawnedServer init in serverInitializables)
                 {
-                    init.OnPlayerSpawnServer();
+                    init.OnPlayerSpawnedServer();
                 }
             }
 
+            // execute on spawn for client if needed
+
             if (SocketConfig.Instance.IsClient)
             {
-                clientInitializables = networkPlayerEntity.gameObject.GetComponents<IPlayerSpawnClient>();
+                clientInitializables = networkPlayerEntity.gameObject.GetComponents<IOnPlayerSpawnedClient>();
 
-                foreach (IPlayerSpawnClient init in clientInitializables)
+                foreach (IOnPlayerSpawnedClient init in clientInitializables)
                 {
-                    init.OnPlayerSpawnClient();
+                    init.OnPlayerSpawnedClient();
                 }
-            }        
+            }
         }
 
 
@@ -57,7 +54,7 @@ namespace Assets.Scripts.SocketLayer.Commands
 
             if (SocketConfig.Instance.IsClient)
             {
-                foreach (IPlayerSpawnClient init in clientInitializables)
+                foreach (IOnPlayerSpawnedClient init in clientInitializables)
                 {
                     if (!init.IsDoneClientSpawn)
                         return;
@@ -68,7 +65,7 @@ namespace Assets.Scripts.SocketLayer.Commands
 
             if (SocketConfig.Instance.IsServer)
             {
-                foreach (IPlayerSpawnServer init in serverInitializables)
+                foreach (IOnPlayerSpawnedServer init in serverInitializables)
                 {
                     if (!init.IsDoneServerSpawn)
                         return;
@@ -77,10 +74,5 @@ namespace Assets.Scripts.SocketLayer.Commands
 
             Success();
         }
-
-        public override void OnEnd()
-        {
-        }
-
     }
 }

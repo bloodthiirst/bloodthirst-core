@@ -90,7 +90,7 @@ namespace Bloodthirst.Core.SceneManager
 
             // add to the appropriate lists
             sceneGameObjects.Add(gameObject);
-            if(gameObject.activeSelf && !sceneVisible)
+            if (gameObject.activeSelf && !sceneVisible)
             {
                 gameObject.SetActive(false);
                 previouslyActiveGO.Add(gameObject);
@@ -103,7 +103,7 @@ namespace Bloodthirst.Core.SceneManager
                 sceneRenderers.Add(r);
 
                 // if scene isn't active then hide the uis as well
-                if(r.enabled && !sceneVisible)
+                if (r.enabled && !sceneVisible)
                 {
                     r.enabled = false;
                     previouslyActiveRenderers.Add(r);
@@ -204,7 +204,7 @@ namespace Bloodthirst.Core.SceneManager
         {
             if (isScenePlaying)
                 return;
-            
+
             isScenePlaying = true;
 
             Show();
@@ -247,7 +247,7 @@ namespace Bloodthirst.Core.SceneManager
 
             // trigger event
 
-            OnSceneVisibilityChanged?.Invoke((T) this);
+            OnSceneVisibilityChanged?.Invoke((T)this);
         }
 
         [Button]

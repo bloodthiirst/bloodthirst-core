@@ -1,14 +1,10 @@
-﻿using Assets.SocketLayer.Identifier;
-using Assets.SocketLayer.PacketParser.Base;
-using Assets.SocketLayer.Serialization.Data;
+﻿using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
@@ -43,9 +39,9 @@ namespace Assets.SocketLayer.BehaviourComponent
                 return;
             }
 
-            for(int i = 0; i < packetProcessors.Count; i++)
+            for (int i = 0; i < packetProcessors.Count; i++)
             {
-                packetProcessors[i].ProcessPacket(type, connectedClient , identifier, data);
+                packetProcessors[i].ProcessPacket(type, connectedClient, identifier, data);
             }
 
         }

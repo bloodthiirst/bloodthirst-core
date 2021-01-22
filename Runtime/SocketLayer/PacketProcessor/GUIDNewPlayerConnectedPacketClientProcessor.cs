@@ -2,7 +2,6 @@
 using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket.Serializer;
 using System;
-using UnityEngine;
 
 namespace Assets.SocketLayer.PacketParser
 {

@@ -118,7 +118,7 @@ namespace Bloodthirst.System.CommandSystem
             ParallelLayer current = layersList[0];
 
             // if one of the commands is not done (success or interruption or failed) then we exit
-            for (int i = current.WaitableCommmands.Count - 1; i > -1 ; i--)
+            for (int i = current.WaitableCommmands.Count - 1; i > -1; i--)
             {
                 CommandSettings commandBase = current.WaitableCommmands[i];
 

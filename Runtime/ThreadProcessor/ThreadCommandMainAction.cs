@@ -10,7 +10,7 @@ namespace Bloodthirst.Core.ThreadProcessor
         private Action OnDone { get; set; }
 
 
-        public ThreadCommandMainAction(Action Func, Action OnDone = null )
+        public ThreadCommandMainAction(Action Func, Action OnDone = null)
         {
             this.Func = Func;
             this.OnDone = OnDone;

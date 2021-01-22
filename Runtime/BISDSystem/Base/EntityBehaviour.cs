@@ -66,7 +66,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         private void OnValidate()
         {
-            if(entityIdentifier == null)
+            if (entityIdentifier == null)
             {
                 entityIdentifier = GetComponent<EntityIdentifier>();
             }

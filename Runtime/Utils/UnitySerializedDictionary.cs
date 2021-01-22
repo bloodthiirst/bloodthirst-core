@@ -25,7 +25,7 @@ namespace Assets.Scripts.Core.Utils
         {
             get { return this[index]; }
             set { this[index] = value; }
-        } 
+        }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {

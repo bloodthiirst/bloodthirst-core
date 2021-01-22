@@ -48,6 +48,9 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         public bool ProcessPacket(uint type, ConnectedClientSocket connectedClient, Guid from, byte[] data)
         {
+
+
+
             // if is not global packet leave
 
             if (!GUIDIdentifier.IsServer(from))

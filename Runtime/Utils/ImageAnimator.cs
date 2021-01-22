@@ -1,6 +1,4 @@
 ﻿using Sirenix.OdinInspector;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -9,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Image) , typeof(ImageAnimatorController))]
+[RequireComponent(typeof(Image), typeof(ImageAnimatorController))]
 public class ImageAnimator : MonoBehaviour
 {
     [SerializeField]
@@ -115,7 +113,7 @@ public class ImageAnimator : MonoBehaviour
 
         float timePerFrame = animationDuration / animationFrames.Length;
 
-        currentFrame =  Mathf.Min ( Mathf.FloorToInt(currentTimer / timePerFrame) , animationFrames.Length - 1);
+        currentFrame = Mathf.Min(Mathf.FloorToInt(currentTimer / timePerFrame), animationFrames.Length - 1);
 
         image.sprite = animationFrames[currentFrame];
     }

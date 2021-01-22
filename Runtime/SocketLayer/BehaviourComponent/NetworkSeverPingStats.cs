@@ -1,9 +1,9 @@
 ﻿using Assets.Models;
 using Assets.SocketLayer.PacketParser;
-using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
@@ -27,7 +27,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         {
             packetProcessor = GetComponent<GUIDNetworkServerGlobalPacketProcessor>();
 
-            PingStatsRequest = packetProcessor.GetOrCreate<PingStatsRequestPacketServerProcessor , PingStatsRequest>();
+            PingStatsRequest = packetProcessor.GetOrCreate<PingStatsRequestPacketServerProcessor, PingStatsRequest>();
 
             PingStatsRequest.OnPacketParsedThreaded += OnPingStatsRequest;
         }

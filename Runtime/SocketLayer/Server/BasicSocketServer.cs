@@ -24,25 +24,25 @@ namespace Bloodthirst.Socket
 
         public event Action<ConnectedClientSocket> OnClientConnected;
 
-        public event Action<IPEndPoint,byte[]> OnUnreliableData;
+        public event Action<IPEndPoint, byte[]> OnUnreliableData;
 
 
 
 
-        public BasicSocketServer(IPAddress ip , int port)
+        public BasicSocketServer(IPAddress ip, int port)
         {
             this.ip = ip;
             this.port = port;
 
             // tcp
 
-            IPEndPoint tcpEndpoint = new IPEndPoint(ip,port);
+            IPEndPoint tcpEndpoint = new IPEndPoint(ip, port);
 
             TcpListener = new TcpListener(tcpEndpoint);
-            
+
             // udp
 
-            IPEndPoint udpEndpoint = new IPEndPoint(ip, port + 1);
+            IPEndPoint udpEndpoint = new IPEndPoint(ip, port + 10);
 
             UdpServer = new UdpClient(udpEndpoint);
         }
@@ -62,7 +62,7 @@ namespace Bloodthirst.Socket
         {
             IPEndPoint ip = null;
 
-            byte[] data = UdpServer.EndReceive(ar ,ref ip);
+            byte[] data = UdpServer.EndReceive(ar, ref ip);
 
             OnUnreliableData?.Invoke(ip, data);
 
@@ -72,6 +72,11 @@ namespace Bloodthirst.Socket
 
         public void Stop()
         {
+            TcpListener.EndAcceptTcpClient(null);
+
+            IPEndPoint remote = null;
+            UdpServer.EndReceive(null, ref remote);
+
             TcpListener?.Stop();
 
             UdpServer?.Close();
@@ -83,10 +88,9 @@ namespace Bloodthirst.Socket
         {
             // end accept client attempt and get the client
             TcpClient tcpClient = TcpListener.EndAcceptTcpClient(ar);
-
             tcpClient.NoDelay = true;
 
-            ConnectedClientSocket connectedClient = new ConnectedClientSocket(tcpClient , UdpServer);
+            ConnectedClientSocket connectedClient = new ConnectedClientSocket(tcpClient, UdpServer);
 
             OnClientConnected?.Invoke(connectedClient);
 

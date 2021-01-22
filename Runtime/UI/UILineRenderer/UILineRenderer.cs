@@ -1,5 +1,4 @@
-﻿using Assets.Scripts.Utils;
-using Bloodthirst.Utils;
+﻿using Bloodthirst.Utils;
 using Packages.com.bloodthirst.bloodthirst_core.Runtime.UI.UILineRenderer;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
@@ -74,13 +73,13 @@ namespace Assets
         /// The initial points that define the line (non smoothed)
         /// </summary>
         private Vector2[] points;
-        
+
         public Vector2[] Points
         {
             get => points;
             set
             {
-                if(CheckPointsChanged(value))
+                if (CheckPointsChanged(value))
                 {
                     points = value;
                 }
@@ -93,7 +92,7 @@ namespace Assets
         /// detail of defining the corners
         /// </summary>
         public int cornerSmoothing;
-        
+
         /// <summary>
         /// Check if array of points is equal to the current array of points
         /// </summary>
@@ -104,7 +103,7 @@ namespace Assets
             if (newPoints.Length != points.Length)
                 return true;
 
-            for(int i = 0; i < newPoints.Length; i++)
+            for (int i = 0; i < newPoints.Length; i++)
             {
                 if (newPoints[i] != points[i])
                     return true;
@@ -182,7 +181,7 @@ namespace Assets
                 cur = new Vector2(cur.x * sizeX + offsetX, cur.y * sizeY + offsetY);
 
                 float angle = Mathf.Atan2(cur.y - prev.y, cur.x - prev.x) * 180f / Mathf.PI;
-                
+
                 currentLength += (cur - prev).magnitude;
 
                 var prevBottom = prev + new Vector2(0, -LineThikness / 2);

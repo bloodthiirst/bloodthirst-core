@@ -6,7 +6,7 @@ namespace Assets.Scripts.Chat.ChatCommand
     public abstract class ChatCommandBase<T> : IChatCommand
     {
         public ChatMessageNetworkBehaviour Player { get; set; }
-        
+
         protected abstract bool IsValid(ChatMessage command, out T CommandData);
 
         public bool Process(ChatMessage command)
@@ -16,11 +16,11 @@ namespace Assets.Scripts.Chat.ChatCommand
             if (!IsValid(command, out data))
                 return false;
 
-            ExecuteCommand(data , Player);
+            ExecuteCommand(data, Player);
             return true;
         }
 
-        public abstract void ExecuteCommand(T data , ChatMessageNetworkBehaviour Player );
+        public abstract void ExecuteCommand(T data, ChatMessageNetworkBehaviour Player);
 
         public bool ExecuteCommand(ChatMessage command)
         {

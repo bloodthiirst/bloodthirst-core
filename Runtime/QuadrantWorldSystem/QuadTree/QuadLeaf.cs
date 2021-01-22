@@ -68,7 +68,7 @@ namespace Bloodthirst.System.Quadrant
 
             foreach (QuadLeaf<TKey, TElement> l in SubLeafs)
             {
-                foreach(QuadLeaf<TKey, TElement> s in l.GetFinalLeafs())
+                foreach (QuadLeaf<TKey, TElement> s in l.GetFinalLeafs())
                 {
                     yield return s;
                 }

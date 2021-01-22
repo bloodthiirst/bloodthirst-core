@@ -3,10 +3,6 @@ using Assets.SocketLayer.PacketParser;
 using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket.Serializer;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets.Scripts.SocketLayer.Game.Chat.Processors
 {

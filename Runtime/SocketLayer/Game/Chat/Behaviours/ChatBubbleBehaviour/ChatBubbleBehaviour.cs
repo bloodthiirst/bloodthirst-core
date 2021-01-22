@@ -24,11 +24,11 @@ public class ChatBubbleBehaviour : MonoBehaviour
     private CanvasGroup canvasGroup;
 
     [SerializeField]
-    [Range(0,1)]
+    [Range(0, 1)]
     private float durationMultiplier;
 
     [SerializeField]
-    [Range(0,1)]
+    [Range(0, 1)]
     private float fadeDuration;
 
     [SerializeField]
@@ -74,7 +74,7 @@ public class ChatBubbleBehaviour : MonoBehaviour
             .AppendCallback(() => canvasGroup.alpha = 0)
             //.Append(canvasGroup.DOFade(1, fadeDuration))
             .AppendInterval(showDuration);
-            //.Append(canvasGroup.DOFade(0, fadeDuration));
+        //.Append(canvasGroup.DOFade(0, fadeDuration));
 
         seq.Play();
 

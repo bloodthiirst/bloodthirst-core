@@ -1,9 +1,8 @@
-﻿using Assets.Scripts.NetworkCommand;
-using Bloodthirst.Socket.Core;
-using Bloodthirst.Socket.Serializer;
+﻿using Sirenix.OdinInspector;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 
 namespace Bloodthirst.Socket
 {
@@ -15,17 +14,17 @@ namespace Bloodthirst.Socket
 
         public event Action<ConnectedClientSocket, byte[]> OnUDPMessage;
 
-        private UdpClient UdpServer { get; set; }
+        private UdpClient UDPServer { get; set; }
 
-        public TcpClient TcpClient  { get;set;}
+        public TcpClient TcpClient { get; set; }
 
+        [ShowInInspector]
         public IPEndPoint TCPClientIP { get; set; }
 
+        [ShowInInspector]
         public IPEndPoint UDPClientIP { get; set; }
 
         private byte[] Buffer = new byte[SocketConfig.Instance.PacketSize];
-
-        private NetworkStream StreamTCP => TcpClient.GetStream();
 
         public void TriggerOnUDPMessage(byte[] data)
         {
@@ -38,87 +37,50 @@ namespace Bloodthirst.Socket
 
             TcpClient = tcpClient;
 
-            UdpServer = udpServer;
+            UDPServer = udpServer;
 
             // init IPs
 
             TCPClientIP = (IPEndPoint)TcpClient.Client.RemoteEndPoint;
 
-            UDPClientIP = new IPEndPoint(TCPClientIP.Address, TCPClientIP.Port + 1);
+            UDPClientIP = new IPEndPoint(TCPClientIP.Address, TCPClientIP.Port + 10);
 
-            StreamTCP.BeginRead(Buffer, 0, Buffer.Length, OnReadDone, null);
+            TcpClient.GetStream().BeginRead(Buffer, 0, Buffer.Length, OnReadDone, null);
         }
 
         private void OnReadDone(IAsyncResult ar)
         {
-            int Size = StreamTCP.EndRead(ar);
-
-            if (Size <= 0)
+            try
             {
-                // connecion is closed
-                Close();
-                return;
+                int Size = TcpClient.GetStream().EndRead(ar);
+
+                if (Size <= 0)
+                {
+                    // connecion is closed
+                    Close();
+                    return;
+                }
+
+                byte[] trimmedData = new byte[Size];
+
+                Array.Copy(Buffer, trimmedData, Size);
+
+                OnTCPMessage?.Invoke(this, trimmedData);
+
+                TcpClient.GetStream().BeginRead(Buffer, 0, Buffer.Length, OnReadDone, null);
             }
-
-            byte[] trimmedData = new byte[Size];
-
-            Array.Copy(Buffer, trimmedData, Size);
-
-            OnTCPMessage?.Invoke(this, trimmedData);
-
-            StreamTCP.BeginRead(Buffer, 0, Buffer.Length, OnReadDone, null);
+            catch (Exception ex)
+            {
+                Debug.Break();
+                Debug.LogError(ex.Message);
+            }
         }
 
         public void Close()
         {
+            TcpClient.Dispose();
+            UDPServer.Dispose();
             OnDisconnect?.Invoke(this);
-        }
-
-        /// <summary>
-        /// Send to a update a specific player
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="t"></param>
-        /// <param name="from"></param>
-        public void Send<TData, TKey>(TData t, TKey from, INetworkSerializer<TKey> identitySerializer , PROTOCOL protocol)
-        {
-            byte[] msg = NetworkUtils.GetCompressedData(t, from, identitySerializer);
-
-            switch (protocol)
-            {
-                case PROTOCOL.TCP:
-                    SendTCP(msg);
-                    break;
-                case PROTOCOL.UDP:
-                    SendUDP(msg);
-                    break;
-                default:
-                    break;
-            }
-            
-        }
-
-        /// <summary>
-        /// Send to a update a specific player
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="t"></param>
-        /// <param name="from"></param>
-        public void Send<TData ,TKey>(TData t , TKey from , INetworkSerializer<TData> networkSerializer, INetworkSerializer<TKey> identitySerializer, PROTOCOL protocol)
-        {
-            byte[] msg = NetworkUtils.GetCompressedData(t , from , networkSerializer , identitySerializer);
-
-            switch (protocol)
-            {
-                case PROTOCOL.TCP:
-                    SendTCP(msg);
-                    break;
-                case PROTOCOL.UDP:
-                    SendUDP(msg);
-                    break;
-                default:
-                    break;
-            }
         }
 
         /// <summary>
@@ -127,7 +89,7 @@ namespace Bloodthirst.Socket
         /// <param name="data"></param>
         public void SendTCP(byte[] data)
         {
-            StreamTCP.Write(data, 0, data.Length );
+            TcpClient.GetStream().Write(data, 0, data.Length);
         }
 
 
@@ -137,13 +99,7 @@ namespace Bloodthirst.Socket
         /// <param name="data"></param>
         public void SendUDP(byte[] data)
         {
-            UdpServer.Send(data, data.Length, UDPClientIP);
-        }
-
-        ~ConnectedClientSocket()
-        {
-            TcpClient.Dispose();
-            UdpServer.Dispose();
+            UDPServer.Send(data, data.Length, UDPClientIP);
         }
     }
 }

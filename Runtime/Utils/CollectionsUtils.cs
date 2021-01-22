@@ -10,7 +10,7 @@ namespace Bloodthirst.Core.Utils
     public static class CollectionsUtils
     {
 
-        public static bool IsSame<T>(this IList<T> a , IList<T> b ) where T : IEquatable<T>
+        public static bool IsSame<T>(this IList<T> a, IList<T> b) where T : IEquatable<T>
         {
             if (a == b)
                 return true;
@@ -21,7 +21,7 @@ namespace Bloodthirst.Core.Utils
             if (a.Count != b.Count)
                 return false;
 
-            for(int i = 0; i < a.Count; i++)
+            for (int i = 0; i < a.Count; i++)
             {
                 if (!a[i].Equals(b[i]))
                     return false;
@@ -29,7 +29,7 @@ namespace Bloodthirst.Core.Utils
 
             return true;
         }
-        public static string ReplaceInterval(this string value , int startIndex , int endIndex , char replacementChar)
+        public static string ReplaceInterval(this string value, int startIndex, int endIndex, char replacementChar)
         {
             char[] chatArray = value.ToCharArray();
 
@@ -48,14 +48,15 @@ namespace Bloodthirst.Core.Utils
         /// <typeparam name="V">TValue</typeparam>
         /// <param name="dict">dictionaty</param>
         /// <param name="key">Key value</param>
-        public static void AddKeyValue<K,V>( this Dictionary<K,V> dict , K key) where V : new() {
+        public static void AddKeyValue<K, V>(this Dictionary<K, V> dict, K key) where V : new()
+        {
             if (!dict.ContainsKey(key))
             {
                 dict.Add(key, new V());
             }
         }
 
-        public static bool Has<T>(this IEnumerable<T> list , Predicate<T> filter)
+        public static bool Has<T>(this IEnumerable<T> list, Predicate<T> filter)
         {
             return list.FirstOrDefault(t => filter(t)) != null;
         }
@@ -68,9 +69,9 @@ namespace Bloodthirst.Core.Utils
         /// <typeparam name="V"></typeparam>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        public static void CopyDictionary<K,V>( this IDictionary<K,V> from, IDictionary<K, V> to )
+        public static void CopyDictionary<K, V>(this IDictionary<K, V> from, IDictionary<K, V> to)
         {
-            foreach(KeyValuePair<K, V> kv in from)
+            foreach (KeyValuePair<K, V> kv in from)
             {
                 to.Add(kv.Key, kv.Value);
             }

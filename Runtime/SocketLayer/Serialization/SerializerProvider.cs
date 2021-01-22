@@ -4,7 +4,6 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -29,7 +28,7 @@ namespace Bloodthirst.Socket.Serializer
         {
             get
             {
-                if(typeToSerializer == null)
+                if (typeToSerializer == null)
                 {
                     typeToSerializer = new Dictionary<Type, object>();
                 }
@@ -42,7 +41,7 @@ namespace Bloodthirst.Socket.Serializer
         {
             var types = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
-                .Where(t => !( t.IsGenericType && t.GetGenericTypeDefinition() == typeof(BaseNetworkSerializer<>) ))
+                .Where(t => !(t.IsGenericType && t.GetGenericTypeDefinition() == typeof(BaseNetworkSerializer<>)))
                 .Select(t =>
                 {
                     List<Type> serializeInterface = t.GetInterfaces()
@@ -56,7 +55,7 @@ namespace Bloodthirst.Socket.Serializer
                 .Where(t => t != null)
                 .ToList();
 
-            foreach(var query in types)
+            foreach (var query in types)
             {
                 Debug.Log("Type to serialize : " + query.ValueType.Name + " , Serializer class : " + query.SerializerType.Name);
 
@@ -75,14 +74,16 @@ namespace Bloodthirst.Socket.Serializer
         {
             Type t = typeof(T);
 
-            if (!TypeToSerializer.ContainsKey(t))
+            if (!TypeToSerializer.TryGetValue(t, out object ser))
             {
                 BaseNetworkSerializer<T> baseSerializer = new BaseNetworkSerializer<T>();
 
                 TypeToSerializer.Add(t, baseSerializer);
+
+                return baseSerializer;
             }
 
-            return (INetworkSerializer<T>)TypeToSerializer[t];
+            return (INetworkSerializer<T>)ser;
         }
 
     }

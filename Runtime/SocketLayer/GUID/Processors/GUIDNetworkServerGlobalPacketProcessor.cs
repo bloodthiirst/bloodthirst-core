@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts;
+using Assets.Scripts.SocketLayer.Models;
 using Assets.SocketLayer.PacketParser;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public class GUIDNetworkServerGlobalPacketProcessor : MonoBehaviour , IPacketServerProcessor<Guid>
+    public class GUIDNetworkServerGlobalPacketProcessor : MonoBehaviour, IPacketServerProcessor<Guid>
     {
 
         private Dictionary<uint, PacketServerProcessorBase<Guid>> packetProcessor;
@@ -31,7 +32,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         [ShowInInspector]
         public IReadOnlyDictionary<uint, PacketServerProcessorBase<Guid>> ReadbalePacketProcessor => packetProcessor;
 
-        public TProcessor GetOrCreate<TProcessor, TData>() where TProcessor : PacketServerProcessor<TData , Guid> , new()
+        public TProcessor GetOrCreate<TProcessor, TData>() where TProcessor : PacketServerProcessor<TData, Guid>, new()
         {
             uint id = HashUtils.StringToHash(typeof(TData).Name);
 
@@ -48,6 +49,12 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         public bool ProcessPacket(uint type, ConnectedClientSocket connectedClient, Guid from, byte[] data)
         {
+            if (type == HashUtils.StringToHash(typeof(ChatMessage).Name))
+            {
+
+            }
+
+
             // if is not global packet leave
 
             if (!from.Equals(GUIDIdentifier.DefaultClientID))
@@ -60,7 +67,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
             // execute the processor
 
-            PacketProcessor[type].Process(connectedClient , from, data);
+            PacketProcessor[type].Process(connectedClient, from, data);
 
             return true;
         }

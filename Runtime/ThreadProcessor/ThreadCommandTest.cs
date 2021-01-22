@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System.Threading;
+using UnityEngine;
 
 namespace Bloodthirst.Core.ThreadProcessor
 {

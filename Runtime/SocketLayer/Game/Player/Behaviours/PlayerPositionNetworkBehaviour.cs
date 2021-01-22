@@ -1,15 +1,18 @@
-﻿using Assets.SocketLayer.PacketParser;
-using Assets.SocketLayer.PacketParser.Base;
+﻿using Assets.Models;
+using Assets.SocketLayer.PacketParser;
 using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket;
+using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
 {
-    public class PlayerPositionNetworkBehaviour : GUIDNetworkBehaviourBase , IPlayerSpawnServer , IPlayerSpawnSuccess
+    public class PlayerPositionNetworkBehaviour : GUIDNetworkBehaviourBase, IOnPlayerSpawnedServer, IPlayerSpawnSuccess
     {
         public bool IsDoneServerSpawn { get; set; }
 
@@ -32,7 +35,7 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
             Vector3 difference = pos - transform.position;
 
             // if the difference is too high then snap it into place
-
+            /*
             if(difference.magnitude > 1)
             {
                 transform.position = pos;
@@ -44,12 +47,15 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
             {
                 transform.position += difference * 0.1f;
             }
-            
+            */
+
+            transform.position = pos;
+
         }
 
         private void Update()
         {
-            if (IsClient && !IsServer)
+            if (!IsServer)
                 return;
 
             cachedPosition = transform.position;
@@ -66,11 +72,16 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
             }
         }
 
-        public void OnPlayerSpawnServer()
+        void IOnPlayerSpawnedServer.OnPlayerSpawnedServer()
+        {
+            StartCoroutine(CrtSpawnPlayerOnMap());
+        }
+
+        private IEnumerator CrtSpawnPlayerOnMap()
         {
             Vector3 initPos = Vector3.zero;
 
-            Vector3 offset = new Vector3(0, 2, 0);
+            Vector3 offset = new Vector3(0, 0, 0);
 
             Ray upRay = new Ray(Vector3.down * 100, Vector3.up);
             Ray downRay = new Ray(Vector3.up * 100, Vector3.down);
@@ -97,24 +108,20 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
 
             transform.position = onFloorValue;
 
+            Rigidbody rb = transform.GetComponent<Rigidbody>();
+
+            yield return new WaitForSeconds(3f);
+
+            yield return new WaitUntil(() => rb.velocity == Vector3.zero && rb.angularVelocity == Vector3.zero);
+
             IsDoneServerSpawn = true;
         }
 
-        public void BroadcastPositionToClientsUDP()
+        void IPlayerSpawnSuccess.OnPlayerSpawnSuccess(GUIDPlayerSpawnSuccess spawnInfo)
         {
             byte[] positionPacket = PacketBuilder.BuildPacket(NetworkID, transform.position, SocketServer.IdentifierSerializer, Vector3NetworkSerializer.Instance);
 
-            if (IsServer && IsClient)
-                SocketServer.BroadcastUDP(positionPacket, id => !id.Equals( SocketClient<Guid>.CurrentNetworkID ));
-            if (IsServer && !IsClient)
-                SocketServer.BroadcastUDP(positionPacket);
-        }
-
-        public void OnPlayerSpawnSuccess(Guid identifier)
-        {
-            byte[] positionPacket = PacketBuilder.BuildPacket(NetworkID, transform.position, SocketServer.IdentifierSerializer, BaseNetworkSerializer<Vector3>.Instance);
-
-            SocketServer.ClientConnexionManager.ClientConnexions[identifier].SendTCP(positionPacket);
+            SocketServer.ClientConnexionManager.ClientConnexions[spawnInfo.ClientThePlayerSpawnedIn].SendTCP(positionPacket);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Assets.Scripts;
-using Assets.SocketLayer.PacketParser;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.PacketParser;
 using Sirenix.OdinInspector;
 using System;

@@ -1,11 +1,9 @@
-﻿using Sirenix.OdinInspector;
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Bloodthirst.Core.UI
 {
-    public class UIWindowHandle : MonoBehaviour , IPointerDownHandler  , IPointerUpHandler
+    public class UIWindowHandle : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         [SerializeField]
         private RectTransform uiWindowTransform = null;
@@ -32,7 +30,7 @@ namespace Bloodthirst.Core.UI
         private void Update()
         {
             Vector2 delta = Input.mousePosition - lastMousePos;
-            
+
             if (canMove)
             {
                 uiWindowTransform.anchoredPosition += delta;

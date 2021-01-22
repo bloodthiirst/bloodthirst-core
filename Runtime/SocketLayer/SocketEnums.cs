@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Bloodthirst.Socket.Core
+﻿namespace Bloodthirst.Socket.Core
 {
     public enum PROTOCOL
     {

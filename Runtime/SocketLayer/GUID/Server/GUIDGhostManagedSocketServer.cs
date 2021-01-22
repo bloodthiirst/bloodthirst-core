@@ -13,7 +13,7 @@ namespace Bloodthirst.Socket
         private readonly INetworkSerializer<Guid> identifierProcessor;
 
 
-        public GUIDGhostManagedSocketServer(IPAddress IP, int Port ) : base(IP, Port , new GUIDComparer() )
+        public GUIDGhostManagedSocketServer(IPAddress IP, int Port) : base(IP, Port, new GUIDComparer())
         {
             identifierProcessor = new IdentityGUIDNetworkSerializer();
         }

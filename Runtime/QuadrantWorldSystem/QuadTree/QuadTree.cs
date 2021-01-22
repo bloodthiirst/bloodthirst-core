@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Bloodthirst.System.Quadrant
 {
-    public class QuadTree<TKey , TElement> where TKey : IEquatable<TKey>
+    public class QuadTree<TKey, TElement> where TKey : IEquatable<TKey>
     {
-        private List<QuadLeaf<TKey,TElement>> rootLeafs { get; set; }
+        private List<QuadLeaf<TKey, TElement>> rootLeafs { get; set; }
 
         public IReadOnlyList<QuadLeaf<TKey, TElement>> RootLeafs => rootLeafs;
 
@@ -17,7 +17,7 @@ namespace Bloodthirst.System.Quadrant
 
         public void Clear()
         {
-            foreach(QuadLeaf<TKey, TElement> l in rootLeafs)
+            foreach (QuadLeaf<TKey, TElement> l in rootLeafs)
             {
                 l.Clear();
             }
@@ -26,13 +26,13 @@ namespace Bloodthirst.System.Quadrant
         }
 
 
-        public HashSet<QuadLeaf<TKey,TElement>> GetFinalLeafs()
+        public HashSet<QuadLeaf<TKey, TElement>> GetFinalLeafs()
         {
             HashSet<QuadLeaf<TKey, TElement>> lst = new HashSet<QuadLeaf<TKey, TElement>>();
 
-            foreach(QuadLeaf<TKey, TElement> rootLeaf in RootLeafs)
+            foreach (QuadLeaf<TKey, TElement> rootLeaf in RootLeafs)
             {
-                foreach(QuadLeaf<TKey, TElement> s in rootLeaf.GetFinalLeafs())
+                foreach (QuadLeaf<TKey, TElement> s in rootLeaf.GetFinalLeafs())
                 {
                     lst.Add(s);
                 }
@@ -46,13 +46,13 @@ namespace Bloodthirst.System.Quadrant
             QuadLeaf<TKey, TElement> current = rootLeafs.FirstOrDefault(l => l.Key.Equals(keys[0]));
 
             // add the entry leaf if it doesn't exist
-            if(current == null)
+            if (current == null)
             {
                 current = new QuadLeaf<TKey, TElement>(keys[0]);
                 rootLeafs.Add(current);
             }
 
-            for(int i = 1; i < keys.Count; i++)
+            for (int i = 1; i < keys.Count; i++)
             {
                 current = current.GetOrCreate(keys[i]);
             }

@@ -1,14 +1,9 @@
 ﻿using Assets.Scripts;
-using Assets.Scripts.NetworkCommand;
 using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets.SocketLayer.PacketParser
 {
@@ -44,8 +39,8 @@ namespace Assets.SocketLayer.PacketParser
         /// </summary>
         public abstract INetworkSerializer<TIdentitfier> IdentifierSerializer { get; }
 
-        public override void Process(TIdentitfier from , byte[] packet)
-        {    
+        public override void Process(TIdentitfier from, byte[] packet)
+        {
 
             TType data = DataSerializer.Deserialize(packet);
 

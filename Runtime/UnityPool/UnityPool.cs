@@ -1,13 +1,13 @@
-﻿using Bloodthirst.Core.UnitySingleton;
+﻿using Assets.Scripts.Core.GamePassInitiator;
+using Assets.Scripts.Core.Utils;
+using Bloodthirst.Core.BISDSystem;
+using Bloodthirst.Core.UnitySingleton;
+using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bloodthirst.Core.Utils;
 using UnityEngine;
-using Assets.Scripts.Core.Utils;
-using Assets.Scripts.Core.GamePassInitiator;
-using Bloodthirst.Core.BISDSystem;
 
 namespace Assets.Scripts.Core.UnityPool
 {
@@ -15,7 +15,7 @@ namespace Assets.Scripts.Core.UnityPool
     /// <summary>
     /// Generic pooling system singleton used to retrieve and reuse gameobjects
     /// </summary>
-    public class UnityPool : UnitySingleton<UnityPool> , ISingletonPass
+    public class UnityPool : UnitySingleton<UnityPool>, ISingletonPass
     {
         [SerializeField]
         [Required]
@@ -83,7 +83,7 @@ namespace Assets.Scripts.Core.UnityPool
 
             List<MonoBehaviour> res = new List<MonoBehaviour>();
 
-            if (!PooledObjects.TryGetValue(type , out res))
+            if (!PooledObjects.TryGetValue(type, out res))
                 return null;
 
             T instance = null;
@@ -116,7 +116,7 @@ namespace Assets.Scripts.Core.UnityPool
         /// </summary>
         /// <typeparam name="T">Type of the behaviour requested</typeparam>
         /// <returns>pooled instance of type T</returns>
-        public IEnumerable<T> Get<T>(int count , Predicate<T> filter) where T : MonoBehaviour
+        public IEnumerable<T> Get<T>(int count, Predicate<T> filter) where T : MonoBehaviour
         {
             Type type = typeof(T);
 
@@ -126,10 +126,10 @@ namespace Assets.Scripts.Core.UnityPool
                 yield break;
 
             T instance = null;
-            
+
             int number = res.Count < count ? res.Count : count;
 
-            for (int i = 0; i < number;i++)
+            for (int i = 0; i < number; i++)
             {
                 MonoBehaviour inst = res[i];
                 instance = inst.GetComponent<T>();
@@ -163,7 +163,7 @@ namespace Assets.Scripts.Core.UnityPool
 
             List<MonoBehaviour> res = null;
 
-            if (!PooledObjects.TryGetValue(type , out res))
+            if (!PooledObjects.TryGetValue(type, out res))
                 return null;
 
             T instance = res[0].GetComponent<T>();
@@ -222,7 +222,7 @@ namespace Assets.Scripts.Core.UnityPool
 
             t.gameObject.SetActive(false);
 
-            if (!PooledObjects.TryGetValue(type , out res))
+            if (!PooledObjects.TryGetValue(type, out res))
             {
                 PooledObjects.Add(type, new List<MonoBehaviour>() { t });
                 return;
@@ -244,7 +244,7 @@ namespace Assets.Scripts.Core.UnityPool
         public BEHAVIOUR Load<DATA, STATE, INSTANCE, BEHAVIOUR>(STATE state)
             where DATA : EntityData
             where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new()
-            where STATE : class , IEntityState<DATA> , new()
+            where STATE : class, IEntityState<DATA>, new()
             where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
 
 

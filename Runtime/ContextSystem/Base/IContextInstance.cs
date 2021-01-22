@@ -1,4 +1,6 @@
-﻿namespace Bloodthirst.System.ContextSystem {
-    public interface IContextInstance {
+﻿namespace Bloodthirst.System.ContextSystem
+{
+    public interface IContextInstance
+    {
     }
 }

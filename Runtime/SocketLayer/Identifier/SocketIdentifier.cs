@@ -2,8 +2,8 @@
 
 namespace Bloodthirst.Socket.Core
 {
-    public abstract class SocketIdentifier<TType, TIdentifier> 
-        where TType : SocketIdentifier<TType, TIdentifier> , new() 
+    public abstract class SocketIdentifier<TType, TIdentifier>
+        where TType : SocketIdentifier<TType, TIdentifier>, new()
         where TIdentifier : IComparable<TIdentifier>
     {
         private static TType instance;

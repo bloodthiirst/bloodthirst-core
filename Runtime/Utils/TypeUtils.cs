@@ -18,7 +18,7 @@ namespace Bloodthirst.Core.Utils
         {
             get
             {
-                if(allTypes == null)
+                if (allTypes == null)
                 {
                     allTypes = AppDomain.CurrentDomain
                                 .GetAssemblies()

@@ -10,9 +10,9 @@ namespace Bloodthirst.Core.AdvancedPool
         /// Type of pooled object
         /// </summary>
         public abstract Type PooledType { get; }
-        protected abstract string GetName(MonoBehaviour original , int index);
+        protected abstract string GetName(MonoBehaviour original, int index);
     }
-    public class Pool<TObject>: Pool where TObject : MonoBehaviour
+    public class Pool<TObject> : Pool where TObject : MonoBehaviour
     {
         private static readonly Type Type = typeof(TObject);
         public override Type PooledType => Type;
@@ -141,7 +141,7 @@ namespace Bloodthirst.Core.AdvancedPool
             _Pool.Add(t);
         }
 
-        protected override string GetName(MonoBehaviour original , int index)
+        protected override string GetName(MonoBehaviour original, int index)
         {
             return $"{original.name} - {index}";
         }

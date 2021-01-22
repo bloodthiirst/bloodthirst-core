@@ -15,7 +15,7 @@ namespace Bloodthirst.Core.ThreadProcessor
 
         public bool IsDone => done;
 
-        public ThreadCommandFunc(Func<T> Func, Action<T> OnDone )
+        public ThreadCommandFunc(Func<T> Func, Action<T> OnDone)
         {
             this.Func = Func;
             this.OnDone = OnDone;

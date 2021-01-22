@@ -1,11 +1,11 @@
-﻿using UnityEngine;
-using System;
-using Bloodthirst.Socket.PacketParser;
-using System.Collections.Generic;
+﻿using Assets.Scripts;
 using Assets.SocketLayer.PacketParser;
-using Assets.Scripts;
 using Bloodthirst.Socket;
+using Bloodthirst.Socket.PacketParser;
 using Sirenix.OdinInspector;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
@@ -44,7 +44,7 @@ namespace Assets.SocketLayer.BehaviourComponent
         /// <typeparam name="TParser"></typeparam>
         /// <typeparam name="TData"></typeparam>
         /// <returns></returns>
-        public TParser GetClient<TParser, TData>() where TParser : PacketClientProcessor<TData, TIdentifier> , new()
+        public TParser GetClient<TParser, TData>() where TParser : PacketClientProcessor<TData, TIdentifier>, new()
         {
             uint id = HashUtils.StringToHash(typeof(TData).Name);
 

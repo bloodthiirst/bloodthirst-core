@@ -9,7 +9,7 @@
         /// </summary>
         /// <param name="commandManager"></param>
         /// <param name="failCommandIfInterrupted"></param>
-        public BasicListCommand( CommandManager commandManager = null, bool failCommandIfInterrupted = false):base( commandManager, failCommandIfInterrupted)
+        public BasicListCommand(CommandManager commandManager = null, bool failCommandIfInterrupted = false) : base(commandManager, failCommandIfInterrupted)
         {
 
         }

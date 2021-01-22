@@ -1,18 +1,14 @@
 ﻿using Assets.Scripts.ChatUI;
 using Assets.Scripts.SocketLayer.Components;
 using Assets.Scripts.SocketLayer.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.Scripts.Chat.ChatCommand
 {
     public class SayChatCommand : ChatCommandBase<SayCommandData>
     {
-        public override void ExecuteCommand(SayCommandData data , ChatMessageNetworkBehaviour Player)
+        public override void ExecuteCommand(SayCommandData data, ChatMessageNetworkBehaviour Player)
         {
             // configure the text chat
 

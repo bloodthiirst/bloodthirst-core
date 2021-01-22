@@ -1,6 +1,9 @@
 ﻿using Assets.Scripts.SocketLayer.BehaviourComponent;
+using Assets.Scripts.SocketLayer.Commands;
 using Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity;
+using Assets.SocketLayer.Client.Base;
 using Bloodthirst.Core.SceneManager;
+using Bloodthirst.System.CommandSystem;
 using System;
 using UnityEngine;
 
@@ -40,7 +43,7 @@ namespace Assets.SocketLayer.BehaviourComponent
             {
                 NetworkPlayerEntityBase<Guid> player = clientPlayersProcessor.RemoveNetworkEntityClient(identifer);
 
-                if(player != null)
+                if (player != null)
                 {
                     playerGO = player;
                 }
@@ -82,22 +85,13 @@ namespace Assets.SocketLayer.BehaviourComponent
                 // make a unique client injection point for all socketclients 
                 // ex : ClientInjecor.Inject(networkEntity);
 
-                NetworkInjectionProvider.InjectSockets(networkEntity.gameObject);
+                //NetworkInjectionProvider.InjectSockets(networkEntity.gameObject);
 
-                /*
-                ISocketClient<GUIDSocketClient , Guid>[] socketClients = networkEntity.GetComponentsInChildren<ISocketClient<GUIDSocketClient ,Guid>>();
+
+                ISocketClient<GUIDSocketClient, Guid>[] socketClients = networkEntity.GetComponentsInChildren<ISocketClient<GUIDSocketClient, Guid>>();
 
                 networkClient.InjectSocketClient(socketClients);
-                */
-   
-                // init client side
 
-                IPlayerSpawnClient[] onSpawnClient = networkEntity.GetComponentsInChildren<IPlayerSpawnClient>();
-
-                foreach (IPlayerSpawnClient onSpawn in onSpawnClient)
-                {
-                    onSpawn.OnPlayerSpawnClient();
-                }
             }
 
             if (IsServer)
@@ -109,18 +103,12 @@ namespace Assets.SocketLayer.BehaviourComponent
                 ISocketServer<Guid>[] socketServers = networkEntity.GetComponentsInChildren<ISocketServer<Guid>>();
 
                 networkServer.InjectSocketServer(socketServers);
-
-                // init server side
-
-                IPlayerSpawnServer[] onSpawnServer = networkEntity.GetComponentsInChildren<IPlayerSpawnServer>();
-
-                foreach (IPlayerSpawnServer onSpawn in onSpawnServer)
-                {
-                    onSpawn.OnPlayerSpawnServer();
-                }
             }
 
 
+            var batch = CommandManagerBehaviour.AppendBatch<CommandBatchQueue>(this, true);
+
+            batch.Append(new NetworkPlayerPostSpawnInitializationCommand(networkEntity.gameObject));
 
             return networkEntity;
         }

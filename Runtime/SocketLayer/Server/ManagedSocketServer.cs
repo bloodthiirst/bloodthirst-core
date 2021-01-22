@@ -1,14 +1,11 @@
 ﻿using Assets.Models;
-using Assets.Scripts.NetworkCommand;
-using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
-using UnityEngine;
 
 namespace Bloodthirst.Socket
 {
@@ -18,6 +15,7 @@ namespace Bloodthirst.Socket
 
         public BasicSocketServer BasicSocketServer => basicSocketServer;
 
+        [ShowInInspector]
         private ClientConnexionManager<TIdentifier> clientConnexionManager;
         public ClientConnexionManager<TIdentifier> ClientConnexionManager => clientConnexionManager;
 
@@ -25,6 +23,7 @@ namespace Bloodthirst.Socket
 
         public ServerConnexionManager<TIdentifier> ServerConnexionManager => serverConnexionManager;
 
+        [ShowInInspector]
         private List<ConnectedClientSocket> anonymousClients;
 
         public List<ConnectedClientSocket> AnonymousClients => anonymousClients;
@@ -53,7 +52,7 @@ namespace Bloodthirst.Socket
         /// <summary>
         /// On message received from anonymous client
         /// </summary>
-        public event Action<ConnectedClientSocket, byte[] , PROTOCOL> OnAnonymousMessage;
+        public event Action<ConnectedClientSocket, byte[], PROTOCOL> OnAnonymousMessage;
 
         /// <summary>
         /// On message received from server client
@@ -63,13 +62,13 @@ namespace Bloodthirst.Socket
         /// <summary>
         /// On message received from a managed client
         /// </summary>
-        public event Action<TIdentifier, ConnectedClientSocket, byte[] , PROTOCOL> OnManagedClientMessage;
+        public event Action<TIdentifier, ConnectedClientSocket, byte[], PROTOCOL> OnManagedClientMessage;
 
 
         /// <summary>
         /// Event triggered when a client gets disconnected , this event works for both anonymous and maanged clients 
         /// </summary>
-        public event Action<TIdentifier , ConnectedClientSocket> OnClientDisconnected;
+        public event Action<TIdentifier, ConnectedClientSocket> OnClientDisconnected;
 
         /// <summary>
         /// Event triggered when a client gets disconnected , this event works for both anonymous and maanged clients 
@@ -145,12 +144,12 @@ namespace Bloodthirst.Socket
 
         public abstract TIdentifier GenerateServerIdentifier();
 
-        public bool SetAsServerClient(ServerNetworkIDRequest request , ConnectedClientSocket connectedClient)
+        public bool SetAsServerClient(ServerNetworkIDRequest request, ConnectedClientSocket connectedClient)
         {
             // if the hash of the server is not registed in the server types dictionary
             // then exit
 
-            if(!serverConnexionManager.ContainsHash(request.ServerTypeHash))
+            if (!serverConnexionManager.ContainsHash(request.ServerTypeHash))
             {
                 return false;
             }
@@ -209,7 +208,7 @@ namespace Bloodthirst.Socket
 
         public bool SetAsManagedClient(ConnectedClientSocket connectedClient, out TIdentifier identifier)
         {
-            // if client is not found in the anonymous list we exist
+            // if client is not found in the anonymous list we exit
 
             if (!anonymousClients.Contains(connectedClient))
             {
@@ -217,6 +216,10 @@ namespace Bloodthirst.Socket
 
                 return false;
             }
+
+            // remove the client form the anonymous list
+
+            anonymousClients.Remove(connectedClient);
 
             // else
             // generate an identitfier
@@ -227,17 +230,13 @@ namespace Bloodthirst.Socket
 
             clientConnexionManager.Add(id, connectedClient);
 
-            // remove the client form the anonymous list
-
-            anonymousClients.Remove(connectedClient);
-
             // we unsubscribe from the anoymous message receiver 
 
             connectedClient.OnTCPMessage -= OnAnonymousMessageTCPTriggered;
 
             // and we start using the message receiver with the identifier
 
-            connectedClient.OnTCPMessage += (client, msg) => OnManagedClientMessage?.Invoke(id, connectedClient, msg , PROTOCOL.TCP);
+            connectedClient.OnTCPMessage += (client, msg) => OnManagedClientMessage?.Invoke(id, client, msg, PROTOCOL.TCP);
 
             // we setup the udp messaging event
 
@@ -247,7 +246,7 @@ namespace Bloodthirst.Socket
 
             // and we start using the message receiver with the identifier
 
-            connectedClient.OnUDPMessage += (client, msg) => OnManagedClientMessage?.Invoke(id, connectedClient, msg , PROTOCOL.UDP);
+            connectedClient.OnUDPMessage += (client, msg) => OnManagedClientMessage?.Invoke(id, connectedClient, msg, PROTOCOL.UDP);
 
             // same thing with the on disconnect event
 
@@ -255,7 +254,7 @@ namespace Bloodthirst.Socket
 
             connectedClient.OnDisconnect += (client) =>
             {
-                OnClientDisconnected?.Invoke(id , connectedClient);
+                OnClientDisconnected?.Invoke(id, connectedClient);
                 ClientConnexionManager.Remove(id);
             };
 
@@ -264,6 +263,8 @@ namespace Bloodthirst.Socket
             OnManagedClientConnected?.Invoke(id, connectedClient);
 
             identifier = id;
+
+
 
             return true;
 
@@ -290,7 +291,7 @@ namespace Bloodthirst.Socket
             OnAnonymousMessage?.Invoke(connectedClient, data, PROTOCOL.UDP);
         }
 
-        public void BroadcastTCP(byte[] data , Predicate<TIdentifier> filter)
+        public void BroadcastTCP(byte[] data, Predicate<TIdentifier> filter)
         {
             foreach (var kv in ClientConnexionManager.ClientConnexions)
             {
@@ -309,9 +310,14 @@ namespace Bloodthirst.Socket
             }
         }
 
-        public void BroadcastUDP(byte[] data , Predicate<TIdentifier> filter)
+        /// <summary>
+        /// If filter is not true , then the socket client will be skipped
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="filter"></param>
+        public void BroadcastUDP(byte[] data, Predicate<TIdentifier> filter)
         {
-            foreach(var kv in ClientConnexionManager.ClientConnexions)
+            foreach (var kv in ClientConnexionManager.ClientConnexions)
             {
                 if (!filter(kv.Key))
                     continue;
@@ -329,8 +335,8 @@ namespace Bloodthirst.Socket
         }
 
         private void OnAnonymousMessageTCPTriggered(ConnectedClientSocket sender, byte[] message)
-        {   
-            OnAnonymousMessage?.Invoke(sender, message , PROTOCOL.TCP);
+        {
+            OnAnonymousMessage?.Invoke(sender, message, PROTOCOL.TCP);
         }
 
         private void OnGlobalMessageUDPTriggered(IPEndPoint sender, byte[] message)

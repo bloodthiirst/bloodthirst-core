@@ -1,6 +1,7 @@
-﻿using Assets.Scripts.NetworkCommand;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 using System.Text;
+using UnityEngine;
 
 namespace Bloodthirst.Socket.Serializer
 {
@@ -11,13 +12,15 @@ namespace Bloodthirst.Socket.Serializer
     /// <typeparam name="T"></typeparam>
     public class BaseNetworkSerializer<T> : INetworkSerializer<T>
     {
-        private static BaseNetworkSerializer<T>  instance;
+        private static Type type => typeof(T);
+
+        private static BaseNetworkSerializer<T> instance;
 
         public static BaseNetworkSerializer<T> Instance
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
                     instance = new BaseNetworkSerializer<T>();
                 }
@@ -26,38 +29,21 @@ namespace Bloodthirst.Socket.Serializer
             }
         }
 
-        public int StartIndex { get; set; }
-
-        public int Length { get; set; }
-
-        private readonly bool entireArray;
-
-        public BaseNetworkSerializer()
-        {
-            StartIndex = 0;
-            entireArray = true;
-        }
-
-        public BaseNetworkSerializer(int startIndex, int length)
-        {
-            StartIndex = startIndex;
-            Length = length;
-            entireArray = false;
-        }
-
-        public BaseNetworkSerializer(int startIndex)
-        {
-            StartIndex = startIndex;
-            entireArray = true;
-        }
-
         public T Deserialize(byte[] data)
         {
-            byte[] subData = entireArray ? data.SubArray(StartIndex) : data.SubArray(StartIndex , Length);
+            string json = Encoding.UTF8.GetString(data);
 
-            string json = Encoding.UTF8.GetString(subData);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(json);
+            }
+            catch (Exception ex)
+            {
+                Debug.Break();
+                Debug.LogError(ex.Message);
+            }
 
-            return JsonConvert.DeserializeObject<T>(json);
+            return default;
         }
 
         public byte[] Serialize(T t)

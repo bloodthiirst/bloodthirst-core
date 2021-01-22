@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.Scripts.SocketLayer.BehaviourComponent
@@ -16,7 +13,7 @@ namespace Assets.Scripts.SocketLayer.BehaviourComponent
         {
             get
             {
-                if(networkInjectors == null)
+                if (networkInjectors == null)
                 {
                     networkInjectors = new HashSet<INetworkInjector>();
                 }
@@ -37,7 +34,7 @@ namespace Assets.Scripts.SocketLayer.BehaviourComponent
 
         public static void InjectSockets(GameObject gameObject)
         {
-            for(int i = 0; i < NetworkInjectors.Count; i++)
+            for (int i = 0; i < NetworkInjectors.Count; i++)
             {
                 NetworkInjectors.ElementAt(i).InjectSocket(gameObject);
             }

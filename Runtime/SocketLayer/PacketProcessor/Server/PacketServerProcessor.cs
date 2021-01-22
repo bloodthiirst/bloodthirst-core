@@ -1,15 +1,10 @@
 ﻿using Assets.Scripts;
-using Assets.Scripts.NetworkCommand;
 using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets.SocketLayer.PacketParser
 {
@@ -21,9 +16,9 @@ namespace Assets.SocketLayer.PacketParser
 #endif
         private static readonly uint typeHash = HashUtils.StringToHash(typeof(TType).Name);
 
-        public event Action<TType, TIdentitfier , ConnectedClientSocket> OnPacketParsedUnityThread;
+        public event Action<TType, TIdentitfier, ConnectedClientSocket> OnPacketParsedUnityThread;
 
-        public event Action<TType, TIdentitfier , ConnectedClientSocket> OnPacketParsedThreaded;
+        public event Action<TType, TIdentitfier, ConnectedClientSocket> OnPacketParsedThreaded;
 
         protected PacketServerProcessor() : base(typeHash)
         {
@@ -45,8 +40,8 @@ namespace Assets.SocketLayer.PacketParser
         /// </summary>
         public abstract INetworkSerializer<TIdentitfier> IdentifierSerializer { get; }
 
-        public override void Process(ConnectedClientSocket from , TIdentitfier identitfier, byte[] packet)
-        {    
+        public override void Process(ConnectedClientSocket from, TIdentitfier identitfier, byte[] packet)
+        {
             TType data = DataSerializer.Deserialize(packet);
 
             if (!Validate(ref data))
@@ -56,14 +51,14 @@ namespace Assets.SocketLayer.PacketParser
 
             if (OnPacketParsedUnityThread != null)
             {
-                ThreadCommandProcessor.Append(new ThreadCommandMainAction(() => OnPacketParsedUnityThread?.Invoke(data, identitfier , from)));
+                ThreadCommandProcessor.Append(new ThreadCommandMainAction(() => OnPacketParsedUnityThread?.Invoke(data, identitfier, from)));
             }
 
             // trigger threaded events
 
             if (OnPacketParsedThreaded != null)
             {
-                OnPacketParsedThreaded?.Invoke(data, identitfier , from);
+                OnPacketParsedThreaded?.Invoke(data, identitfier, from);
             }
         }
     }

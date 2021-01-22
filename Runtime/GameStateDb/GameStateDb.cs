@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-[CreateAssetMenu(menuName ="GameStateDb/Database" , fileName = "Database")]
+[CreateAssetMenu(menuName = "GameStateDb/Database", fileName = "Database")]
 public class GameStateDb : SerializedScriptableObject
 {
     [SerializeField]

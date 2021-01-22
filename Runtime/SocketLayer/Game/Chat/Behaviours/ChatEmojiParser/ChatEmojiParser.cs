@@ -1,8 +1,8 @@
-﻿using Sirenix.OdinInspector;
-using UnityEngine;
+﻿using Assets.Scripts.Chat.Model;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
-using Assets.Scripts.Chat.Model;
 using TMPro;
+using UnityEngine;
 
 namespace Assets.Scripts.Chat.Emoji
 {

@@ -18,9 +18,9 @@ namespace Bloodthirst.Core.AdvancedPool
         {
             get
             {
-                if(_Pool == null)
+                if (_Pool == null)
                 {
-                    _Pool = new Pool<TObejct>(poolContainer , prefab , poolCount);
+                    _Pool = new Pool<TObejct>(poolContainer, prefab, poolCount);
                 }
                 return _Pool;
             }

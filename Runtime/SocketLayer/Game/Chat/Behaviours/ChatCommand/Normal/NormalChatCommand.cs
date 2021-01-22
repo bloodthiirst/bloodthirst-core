@@ -1,11 +1,7 @@
 ﻿using Assets.Scripts.ChatUI;
 using Assets.Scripts.SocketLayer.Components;
 using Assets.Scripts.SocketLayer.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Assets.Scripts.Chat.ChatCommand
@@ -13,7 +9,7 @@ namespace Assets.Scripts.Chat.ChatCommand
     public class NormalChatCommand : ChatCommandBase<NormalCommandData>
     {
 
-        public override void ExecuteCommand(NormalCommandData data , ChatMessageNetworkBehaviour Player)
+        public override void ExecuteCommand(NormalCommandData data, ChatMessageNetworkBehaviour Player)
         {
             // configure the text chat
 

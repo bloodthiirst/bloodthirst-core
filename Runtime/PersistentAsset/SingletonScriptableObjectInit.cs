@@ -50,7 +50,7 @@ namespace Bloodthirst.Core.PersistantAsset
 
             foreach (Type type in validTypes)
             {
-                PropertyInfo pathProp = type.GetProperty( "AssetPath", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+                PropertyInfo pathProp = type.GetProperty("AssetPath", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 
                 string typePath = (string)pathProp.GetValue(null);
 

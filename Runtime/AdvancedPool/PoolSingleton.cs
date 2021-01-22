@@ -23,7 +23,7 @@ namespace Bloodthirst.Core.AdvancedPool
                     Transform t = Instance.poolContainer;
                     TObejct p = Instance.prefab;
                     int cnt = Instance.count;
-                    pool = new Pool<TObejct>(t , p , cnt);
+                    pool = new Pool<TObejct>(t, p, cnt);
                 }
                 return pool;
             }
@@ -44,7 +44,7 @@ namespace Bloodthirst.Core.AdvancedPool
 
         protected void Awake()
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = this;
             }

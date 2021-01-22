@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +6,7 @@ using UnityEngine.UI;
 public class ImageAnimatorController : MonoBehaviour
 {
     private List<ImageAnimator> imageAnimators;
-    
+
     private void OnValidate()
     {
         if (imageAnimators == null)

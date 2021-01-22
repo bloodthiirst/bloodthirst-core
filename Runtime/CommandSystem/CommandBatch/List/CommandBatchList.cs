@@ -45,7 +45,7 @@ namespace Bloodthirst.System.CommandSystem
                     CommandsList.RemoveAt(i);
                     OnCommandRemoved?.Invoke(this, cmd.Command);
 
-                    if(cmd.Command.CommandState == COMMAND_STATE.FAILED && cmd.InterruptBatchOnFail)
+                    if (cmd.Command.CommandState == COMMAND_STATE.FAILED && cmd.InterruptBatchOnFail)
                     {
                         Interrupt();
                         return;
@@ -66,7 +66,7 @@ namespace Bloodthirst.System.CommandSystem
 
         }
 
-        public CommandBatchList Append(ICommandBase command , bool shouldInterrupt = false)
+        public CommandBatchList Append(ICommandBase command, bool shouldInterrupt = false)
         {
             CommandSettings cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = shouldInterrupt };
             return Append(cmd);

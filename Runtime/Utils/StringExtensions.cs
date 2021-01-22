@@ -35,7 +35,7 @@ namespace Bloodthirst.Core.Utils
         /// <param name="end"></param>
         /// <param name="replaceWith"></param>
         /// <returns></returns>
-        public static string ReplaceBetween(this string txt , int start , int end , string replaceWith )
+        public static string ReplaceBetween(this string txt, int start, int end, string replaceWith)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -53,13 +53,13 @@ namespace Bloodthirst.Core.Utils
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public static List<Tuple<SECTION_EDGE, int, int>> StringReplaceSection(this string txt , string start , string end)
+        public static List<Tuple<SECTION_EDGE, int, int>> StringReplaceSection(this string txt, string start, string end)
         {
             // data mean :
             // tyoe of token
             // int : start of token index
             // int : end of token index
-            List<Tuple<SECTION_EDGE, int , int>> sectionEdges = new List<Tuple<SECTION_EDGE, int ,int>>();
+            List<Tuple<SECTION_EDGE, int, int>> sectionEdges = new List<Tuple<SECTION_EDGE, int, int>>();
 
             // all starts
             List<int> allStarts = AllIndexesOf(txt, start);
@@ -67,7 +67,7 @@ namespace Bloodthirst.Core.Utils
             // all ends
             List<int> allEnds = AllIndexesOf(txt, end);
 
-            foreach(int str in allStarts)
+            foreach (int str in allStarts)
             {
                 sectionEdges.Add(new Tuple<SECTION_EDGE, int, int>(SECTION_EDGE.START, str, str + start.Length));
             }

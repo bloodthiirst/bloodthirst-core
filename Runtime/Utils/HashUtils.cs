@@ -21,7 +21,7 @@ namespace Assets.Scripts
         {
             string val = number.ToString();
 
-            for(int i = 0; i < 10 - val.Length; i++)
+            for (int i = 0; i < 10 - val.Length; i++)
             {
                 val = "0" + val;
             }

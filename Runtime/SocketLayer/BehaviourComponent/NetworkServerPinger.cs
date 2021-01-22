@@ -1,10 +1,10 @@
 ﻿using Assets.Models;
 using Assets.SocketLayer.BehaviourComponent;
 using Assets.SocketLayer.PacketParser;
-using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -63,7 +63,7 @@ public class NetworkServerPinger : MonoBehaviour
             networkTimer = GetComponent<NetworkServerTimer>();
         }
 
-        if(packetProcessor == null)
+        if (packetProcessor == null)
         {
             packetProcessor = GetComponent<GUIDNetworkServerGlobalPacketProcessor>();
         }
@@ -87,7 +87,7 @@ public class NetworkServerPinger : MonoBehaviour
         networkPingStats[connectedClient].TCP = pingResult;
     }
 
-    private void PingUDPReceived(PingPongUDP ping, Guid from , ConnectedClientSocket connectedClient)
+    private void PingUDPReceived(PingPongUDP ping, Guid from, ConnectedClientSocket connectedClient)
     {
         long pingResult = networkTimer.TimeElapsed - ping.SentAtServerTime;
 
@@ -110,7 +110,8 @@ public class NetworkServerPinger : MonoBehaviour
 
         currentTimer += Time.deltaTime;
 
-        if (currentTimer < pingTimer) {
+        if (currentTimer < pingTimer)
+        {
             return;
         }
 
@@ -125,7 +126,7 @@ public class NetworkServerPinger : MonoBehaviour
 
             if (!networkPingStats.ContainsKey(client))
             {
-                networkPingStats.Add(client, new PingValues() );
+                networkPingStats.Add(client, new PingValues());
             }
 
 

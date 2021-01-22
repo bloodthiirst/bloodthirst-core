@@ -4,7 +4,6 @@ using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Bloodthirst.Core.UI
 {
@@ -165,7 +164,7 @@ namespace Bloodthirst.Core.UI
                 window.ParentTransform.SetSiblingIndex(i);
             }
 
-            for (int i = 0; i < openWindows.Count - 1;i++)
+            for (int i = 0; i < openWindows.Count - 1; i++)
             {
                 IUIWindow win = openWindows[i];
 
@@ -178,7 +177,7 @@ namespace Bloodthirst.Core.UI
                 if (win.RequestOpen)
                 {
                     win.BeforeOpen();
-                    StartCoroutine(GameObjectUtils.CombineCoroutine( win.Open() , win.Unfocus()));
+                    StartCoroutine(GameObjectUtils.CombineCoroutine(win.Open(), win.Unfocus()));
                 }
                 else
                 {

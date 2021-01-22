@@ -1,5 +1,7 @@
-﻿namespace Bloodthirst.Core.PersistantAsset {
-    public interface ISingletonScriptableObject {
+﻿namespace Bloodthirst.Core.PersistantAsset
+{
+    public interface ISingletonScriptableObject
+    {
         void OnGameQuit();
     }
 }

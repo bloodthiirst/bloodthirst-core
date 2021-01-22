@@ -1,5 +1,6 @@
 ﻿using Bloodthirst.Core.UnitySingleton;
 using Sirenix.OdinInspector;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Bloodthirst.Core.ThreadProcessor
@@ -23,16 +24,16 @@ namespace Bloodthirst.Core.ThreadProcessor
         }
 
         [ShowInInspector]
-        private Queue<IMainThreadCommand> mainThreadCommand;
+        private ConcurrentQueue<IMainThreadCommand> mainThreadCommand;
 
 
-        private Queue<IMainThreadCommand> MainThreadCommand
+        private ConcurrentQueue<IMainThreadCommand> MainThreadCommand
         {
             get
             {
                 if (mainThreadCommand == null)
                 {
-                    mainThreadCommand = new Queue<IMainThreadCommand>();
+                    mainThreadCommand = new ConcurrentQueue<IMainThreadCommand>();
                 }
                 return mainThreadCommand;
             }
@@ -49,7 +50,7 @@ namespace Bloodthirst.Core.ThreadProcessor
             Instance.MainThreadCommand.Enqueue(threadCommand);
         }
 
-        private void FixedUpdate()
+        private void LateUpdate()
         {
             // execute command in other threads
 
@@ -85,7 +86,8 @@ namespace Bloodthirst.Core.ThreadProcessor
         {
             while (MainThreadCommand.Count != 0)
             {
-                MainThreadCommand.Dequeue()?.ExecuteCallback();
+                if (MainThreadCommand.TryDequeue(out var cmd))
+                    cmd?.ExecuteCallback();
             }
 
             return true;

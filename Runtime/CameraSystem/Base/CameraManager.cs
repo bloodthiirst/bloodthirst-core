@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Bloodthirst.Systems.CameraSystem {
-    public class CameraManager : UnitySingleton<CameraManager> , IEnablePass {
+namespace Bloodthirst.Systems.CameraSystem
+{
+    public class CameraManager : UnitySingleton<CameraManager>, IEnablePass
+    {
 
         [ShowInInspector]
         HashSet<ICameraController> AllCameras = new HashSet<ICameraController>();
@@ -34,29 +36,40 @@ namespace Bloodthirst.Systems.CameraSystem {
         [SerializeField]
         private bool isManagerActive;
 
-        public static void RegisterCamera(ICameraController camera) {
+        [SerializeField]
+        private bool pause;
+        public bool Pause { get => pause; set => pause = value; }
+
+        public static void RegisterCamera(ICameraController camera)
+        {
             Instance.AllCameras.Add(camera);
         }
 
-        public static void RemoveCamera(ICameraController camera) {
+        public static void RemoveCamera(ICameraController camera)
+        {
             Instance?.AllCameras.Remove(camera);
         }
 
-        private void DisableAllCameras() {
-            foreach (ICameraController camera in AllCameras) {
+        private void DisableAllCameras()
+        {
+            foreach (ICameraController camera in AllCameras)
+            {
                 camera.isEnabled = false;
             }
         }
 
-        private void PickInitialCamera() {
+        private void PickInitialCamera()
+        {
             if (initCamera == null)
                 return;
-            if (AllCameras.Contains(initCamera)) {
+            if (AllCameras.Contains(initCamera))
+            {
                 ChangeCamera(initCamera);
             }
         }
 
-        public void ChangeCamera(ICameraController camera) {
+        public void ChangeCamera(ICameraController camera)
+        {
 
             if (!isManagerActive)
                 return;
@@ -71,7 +84,8 @@ namespace Bloodthirst.Systems.CameraSystem {
                 return;
 
             // disable old camera
-            if (ActiveCamera != null) {
+            if (ActiveCamera != null)
+            {
                 ActiveCamera.isEnabled = false;
                 ActiveCamera = null;
             }
@@ -93,22 +107,26 @@ namespace Bloodthirst.Systems.CameraSystem {
                                     .Append(sceneCamera.transform.DOMove(position, transitionDuration))
                                     .SetEase(easeMode)
                                     .AppendCallback(() => donePosition = true)
-                                    .OnComplete(() => {
-                                        if (donePosition && doneRotation) {
+                                    .OnComplete(() =>
+                                    {
+                                        if (donePosition && doneRotation)
+                                        {
                                             camera.isEnabled = true;
                                             isInTransition = false;
                                             ActiveCamera = camera;
                                         }
                                     });
 
-      
+
 
             Sequence seqRotation = DOTween.Sequence()
                                     .Append(sceneCamera.transform.DORotateQuaternion(rotation, transitionDuration))
                                     .SetEase(easeMode)
                                     .AppendCallback(() => doneRotation = true)
-                                    .OnComplete(() => {
-                                        if (donePosition && doneRotation) {
+                                    .OnComplete(() =>
+                                    {
+                                        if (donePosition && doneRotation)
+                                        {
                                             camera.isEnabled = true;
                                             isInTransition = false;
                                             ActiveCamera = camera;
@@ -120,7 +138,8 @@ namespace Bloodthirst.Systems.CameraSystem {
             seqRotation.Play();
         }
 
-        public void ChangeCameraImmidiately(ICameraController camera) {
+        public void ChangeCameraImmidiately(ICameraController camera)
+        {
             if (isInTransition)
                 return;
 
@@ -131,7 +150,8 @@ namespace Bloodthirst.Systems.CameraSystem {
                 return;
 
             // disable old camera
-            if (ActiveCamera != null) {
+            if (ActiveCamera != null)
+            {
                 ActiveCamera.isEnabled = false;
                 ActiveCamera = null;
             }
@@ -149,8 +169,10 @@ namespace Bloodthirst.Systems.CameraSystem {
 
         }
 
-        private void Update() {
-
+        private void Update()
+        {
+            if (pause)
+                return;
             if (!isManagerActive)
                 return;
             if (isInTransition)
@@ -177,7 +199,7 @@ namespace Bloodthirst.Systems.CameraSystem {
 
             PickInitialCamera();
 
-            
+
         }
     }
 }

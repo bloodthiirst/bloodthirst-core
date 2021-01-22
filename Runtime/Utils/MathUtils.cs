@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.Core.Utils
 {
@@ -16,7 +11,7 @@ namespace Assets.Scripts.Core.Utils
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns></returns>
-        public static bool IsBetween( float val , float min , float max)
+        public static bool IsBetween(float val, float min, float max)
         {
             if (val < min)
                 return false;
@@ -26,16 +21,16 @@ namespace Assets.Scripts.Core.Utils
             return true;
         }
 
-        public static float Remap( float val , float oldMin , float oldMax , float newMin , float newMax )
+        public static float Remap(float val, float oldMin, float oldMax, float newMin, float newMax)
         {
 
-            if(!IsBetween(val , oldMin , oldMax))
+            if (!IsBetween(val, oldMin, oldMax))
             {
                 Debug.LogError("val needs to be between the oldMibn and oldMax");
                 return 0;
             }
 
-            if(oldMax < oldMin)
+            if (oldMax < oldMin)
             {
                 Debug.LogError("oldMax needs to be greater than oldMin");
                 return 0;

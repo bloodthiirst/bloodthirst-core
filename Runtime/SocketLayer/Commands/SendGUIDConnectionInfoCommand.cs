@@ -1,8 +1,8 @@
 ﻿using Assets.Models;
-using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace Assets.Scripts.SocketLayer.Commands
 
         private readonly ConnectedClientSocket playerSocket;
 
-        public SendGUIDConnectionInfoCommand(Guid playerId , List<Guid> existingPlayers , ConnectedClientSocket playerSocket)
+        public SendGUIDConnectionInfoCommand(Guid playerId, List<Guid> existingPlayers, ConnectedClientSocket playerSocket)
         {
             this.playerId = playerId;
             this.existingPlayers = existingPlayers;
@@ -25,7 +25,7 @@ namespace Assets.Scripts.SocketLayer.Commands
         }
 
         public override void OnStart()
-        {      
+        {
         }
 
 

@@ -1,8 +1,8 @@
 ﻿using Assets.Models;
-using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections.Generic;
@@ -22,14 +22,14 @@ namespace Assets.Scripts.SocketLayer.Commands
         }
 
         public override void OnStart()
-        {      
+        {
         }
 
 
         public override void OnTick(float delta)
         {
             GUIDNewPlayerConnected newPlayer = new GUIDNewPlayerConnected()
-            { 
+            {
                 NetworkID = playerId
             };
 

@@ -38,7 +38,7 @@ namespace Bloodthirst.Core.PersistantAsset
         {
             get
             {
-                SingletonScriptablePath pathAttr = (SingletonScriptablePath) typeof(T).GetCustomAttributes(typeof(SingletonScriptablePath), true).FirstOrDefault();
+                SingletonScriptablePath pathAttr = (SingletonScriptablePath)typeof(T).GetCustomAttributes(typeof(SingletonScriptablePath), true).FirstOrDefault();
 
                 if (pathAttr == null)
                 {

@@ -1,6 +1,5 @@
 ﻿using Bloodthirst.Core.UnitySingleton;
 using Sirenix.OdinInspector;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -109,7 +108,7 @@ namespace Bloodthirst.Core.Audio
 
         private void Preload()
         {
-            for(int i = 0; i < preloadValue; i++)
+            for (int i = 0; i < preloadValue; i++)
             {
                 AudioSource audioSource = gameObject.AddComponent<AudioSource>();
 
@@ -127,7 +126,8 @@ namespace Bloodthirst.Core.Audio
 
         private void Update()
         {
-            for (int i = BusyAudioSources.Count - 1; i >= 0; i--) {
+            for (int i = BusyAudioSources.Count - 1; i >= 0; i--)
+            {
 
                 currentAudio = BusyAudioSources[i];
 
@@ -145,7 +145,7 @@ namespace Bloodthirst.Core.Audio
         public AudioSource GetStandaloneAudioSource()
         {
             AudioSource audioSource = gameObject.AddComponent<AudioSource>();
-            
+
             StandaloneAudioSources.Add(audioSource);
 
             ResetAudioSource(audioSource);

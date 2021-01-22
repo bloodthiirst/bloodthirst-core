@@ -2,7 +2,6 @@
 using Assets.Scripts.SocketLayer.Components;
 using Assets.Scripts.SocketLayer.Game.Chat.Processors;
 using Bloodthirst.Core.UnitySingleton;
-using Bloodthirst.System.ContextSystem;
 using Sirenix.OdinInspector;
 using System.Collections;
 using TMPro;
@@ -116,7 +115,7 @@ public class ChatManagerUI : UnitySingleton<ChatManagerUI>
         yield return null;
 
         yield return null;
-        
+
         yield return null;
 
         chatScrollbar.value = 0f;

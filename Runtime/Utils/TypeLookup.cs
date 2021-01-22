@@ -1,7 +1,6 @@
 ﻿using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -37,7 +36,7 @@ namespace Bloodthirst.Core.Utils
                 return default;
             }
 
-            return (T) dictionary[type];
+            return (T)dictionary[type];
         }
 
         public void Remove<T>(T obj)

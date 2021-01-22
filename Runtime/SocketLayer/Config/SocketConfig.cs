@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using Sirenix.OdinInspector;
 using System.Net;
+using System.Net.NetworkInformation;
 using UnityEngine;
 
 public class SocketConfig : SingletonScriptableObject<SocketConfig>
@@ -30,13 +31,16 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
     /// <summary>
     /// is the game running as client ?
     /// </summary>
-    public bool IsClient {
-        get { 
-            return isClient; 
+    public bool IsClient
+    {
+        get
+        {
+            return isClient;
         }
 
-        set { 
-            isClient = value; 
+        set
+        {
+            isClient = value;
         }
     }
 
@@ -82,12 +86,41 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
 
     [BoxGroup("IP")]
     [ShowInInspector]
-    private bool isValidAddress
+    private bool IsValidAddress
     {
         get
         {
             return IPAddress.TryParse(serverAddress, out localVal);
         }
     }
+
+    [BoxGroup("IP")]
+    [ShowInInspector]
+    /// <summary>
+    /// Is the port free to use
+    /// </summary>
+    private bool IsPostAvailable
+    {
+        get
+        {
+            // Evaluate current system tcp connections. This is the same information provided
+            // by the netstat command line application, just in .Net strongly-typed object
+            // form.  We will look through the list, and if our port we would like to use
+            // in our TcpClient is occupied, we will set isAvailable to false.
+            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+
+            foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
+            {
+                if (tcpi.LocalEndPoint.Port == worldServerPort)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
 #endif
 }

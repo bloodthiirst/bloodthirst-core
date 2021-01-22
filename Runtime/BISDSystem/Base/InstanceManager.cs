@@ -13,7 +13,7 @@ namespace Bloodthirst.Core.BISDSystem
         {
             get
             {
-                if(typeLookup == null)
+                if (typeLookup == null)
                 {
                     typeLookup = new TypeLookup();
                 }

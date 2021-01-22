@@ -14,7 +14,7 @@ namespace Bloodthirst.Core.ThreadProcessor
 
         public bool IsDone => done;
 
-        public ThreadCommandAction(Action Func, Action OnDone = null )
+        public ThreadCommandAction(Action Func, Action OnDone = null)
         {
             this.Func = Func;
             this.OnDone = OnDone;
@@ -24,7 +24,7 @@ namespace Bloodthirst.Core.ThreadProcessor
         public void Start()
         {
             Action<object> act = (state) => { RunCommand(); };
-            ThreadPool.QueueUserWorkItem( new WaitCallback(act));
+            ThreadPool.QueueUserWorkItem(new WaitCallback(act));
         }
 
         private void RunCommand()

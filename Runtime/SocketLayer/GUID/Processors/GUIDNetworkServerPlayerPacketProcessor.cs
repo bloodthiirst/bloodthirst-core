@@ -1,5 +1,6 @@
-﻿using Assets.Scripts;
-using Assets.SocketLayer.PacketParser;
+﻿using Assets.Models;
+using Assets.Scripts;
+using Assets.Scripts.SocketLayer.Models;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.PacketParser;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public class GUIDNetworkServerPlayerPacketProcessor : MonoBehaviour , IPacketServerProcessor<Guid>
+    public class GUIDNetworkServerPlayerPacketProcessor : MonoBehaviour, IPacketServerProcessor<Guid>
     {
 
         private Dictionary<Guid, NetworkPlayerEntityBase<Guid>> playersActiveMap;
@@ -36,14 +37,21 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         }
 
-        public void AddNetworkEntityServer(Guid identifier , NetworkPlayerEntityBase<Guid> prefab)
+        public void AddNetworkEntityServer(Guid identifier, NetworkPlayerEntityBase<Guid> prefab)
         {
             playersActiveMap.Add(identifier, prefab);
         }
 
         public bool ProcessPacket(uint type, ConnectedClientSocket connectedClient, Guid from, byte[] data)
         {
+            uint chatHash = HashUtils.StringToHash(typeof(ChatMessage).Name);
+            uint playersuccess = HashUtils.StringToHash(typeof(GUIDPlayerSpawnSuccess).Name);
             // if is not player packet leave
+
+            if (type == chatHash || type == chatHash)
+            {
+
+            }
 
             if (from.Equals(GUIDIdentifier.DefaultClientID))
                 return false;
@@ -52,7 +60,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
             NetworkPlayerEntityBase<Guid> player;
 
-            if (!playersActiveMap.TryGetValue(from , out player))
+            if (!playersActiveMap.TryGetValue(from, out player))
                 return false;
 
             // execute the processor

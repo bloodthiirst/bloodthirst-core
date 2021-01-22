@@ -1,16 +1,17 @@
-﻿using Assets.Scripts.SocketLayer.Game.Player.Models;
+﻿using Assets.Models;
+using Assets.Scripts.SocketLayer.Game.Player.Models;
 using Assets.SocketLayer.PacketParser;
-using Assets.SocketLayer.PacketParser.Base;
 using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket;
+using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
 {
-    public class PlayerRotationNetworkBehaviour : GUIDNetworkBehaviourBase, IPlayerSpawnServer, IPlayerSpawnSuccess
+    public class PlayerRotationNetworkBehaviour : GUIDNetworkBehaviourBase, IOnPlayerSpawnedServer, IPlayerSpawnSuccess
     {
         public bool IsDoneServerSpawn { get; set; }
 
@@ -68,6 +69,7 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
 
         private void OnRotationClient(PlayerRotation rot, Guid from)
         {
+            /*
             float difference = rot.RotationValue - transform.rotation.eulerAngles.y;
 
             // if the difference is too high then snap it into place
@@ -83,10 +85,13 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
             {
                 transform.rotation = Quaternion.Euler(0, rot.RotationValue + difference * 0.5f, 0);
             }
+            */
+
+            transform.rotation = Quaternion.Euler(0, rot.RotationValue, 0);
 
         }
 
-        public void OnPlayerSpawnServer()
+        void IOnPlayerSpawnedServer.OnPlayerSpawnedServer()
         {
             transform.rotation = Quaternion.Euler(Vector3.zero);
 
@@ -101,13 +106,13 @@ namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
                 SocketServer.BroadcastUDP(packet);
         }
 
-        public void OnPlayerSpawnSuccess(Guid identifier)
+        void IPlayerSpawnSuccess.OnPlayerSpawnSuccess(GUIDPlayerSpawnSuccess spawnSuccess)
         {
             PlayerRotation rot = new PlayerRotation() { RotationValue = transform.rotation.eulerAngles.y };
 
             byte[] rotationPacket = PacketBuilder.BuildPacket(NetworkID, rot, SocketServer.IdentifierSerializer, BaseNetworkSerializer<PlayerRotation>.Instance);
 
-            SocketServer.ClientConnexionManager.ClientConnexions[identifier].SendTCP(rotationPacket);
+            SocketServer.ClientConnexionManager.ClientConnexions[spawnSuccess.ClientThePlayerSpawnedIn].SendTCP(rotationPacket);
         }
     }
 }

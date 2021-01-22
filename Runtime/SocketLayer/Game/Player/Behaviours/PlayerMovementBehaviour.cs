@@ -13,10 +13,6 @@ namespace Assets.Scripts.Player
         private float baseSpeed;
 
         [SerializeField]
-        [ReadOnly]
-        private Rigidbody rb;
-
-        [SerializeField]
         [InfoBox("Values used to multiply the overall speed \n- x : speed when going sideways \n- y : speed when going backwards \n- z : speed when going forward")]
         private Vector3 speedMultipliers;
 
@@ -38,12 +34,6 @@ namespace Assets.Scripts.Player
 
             return vec.normalized;
         }
-
-        private void Awake()
-        {
-            rb = GetComponent<Rigidbody>();
-        }
-
         private void Update()
         {
             MoveUsingInput(playerInputBehaviour.PlayerInput);
@@ -88,7 +78,7 @@ namespace Assets.Scripts.Player
             speedSum /= axis;
 
             var addedMovement = InputToTranslation(playerInput) * baseSpeed * speedSum * Time.deltaTime;
-            rb.position += addedMovement;
+            transform.position += addedMovement;
         }
     }
 }

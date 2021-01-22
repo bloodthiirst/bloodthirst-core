@@ -1,22 +1,20 @@
 ﻿using Assets.Scripts.SocketLayer.BehaviourComponent;
 using Assets.SocketLayer.BehaviourComponent;
-using Assets.SocketLayer.Client.Base;
 using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Core.UnitySingleton;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Bloodthirst.Socket.Core
 {
-    public abstract class NetworkClientEntityBase<TClient, TIdentifier> : 
+    public abstract class NetworkClientEntityBase<TClient, TIdentifier> :
         UnitySingleton<NetworkClientEntityBase<TClient, TIdentifier>>,
         ISocketClientInjector<TClient, TIdentifier>,
         INetworkInjector
-        
+
         where TClient : SocketClient<TIdentifier>
         where TIdentifier : IComparable<TIdentifier>
     {

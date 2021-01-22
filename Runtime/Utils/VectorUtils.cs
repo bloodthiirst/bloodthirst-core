@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.Utils
 {
@@ -17,19 +12,19 @@ namespace Assets.Scripts.Utils
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public static Vector3 Change( this Vector3 vec , float? x = null , float? y = null, float? z = null)
+        public static Vector3 Change(this Vector3 vec, float? x = null, float? y = null, float? z = null)
         {
             Vector3 res = vec;
 
             if (x != null)
                 res.x = x.Value;
-            
+
             if (y != null)
                 res.y = y.Value;
-            
+
             if (z != null)
                 res.z = z.Value;
-            
+
             return res;
         }
 
@@ -58,7 +53,7 @@ namespace Assets.Scripts.Utils
         /// </summary>
         /// <param name="original"></param>
         /// <returns></returns>
-        public static Vector3 MulVector(this Vector3 original , float x = 1 , float y = 1 , float z = 1)
+        public static Vector3 MulVector(this Vector3 original, float x = 1, float y = 1, float z = 1)
         {
             Vector3 res = original;
             res.x *= x;
@@ -73,7 +68,7 @@ namespace Assets.Scripts.Utils
         /// </summary>
         /// <param name="original"></param>
         /// <returns></returns>
-        public static Color MulColor(this Color original, float r = 1, float g = 1, float b = 1 , float a = 1)
+        public static Color MulColor(this Color original, float r = 1, float g = 1, float b = 1, float a = 1)
         {
             Color res = original;
             res.r *= r;

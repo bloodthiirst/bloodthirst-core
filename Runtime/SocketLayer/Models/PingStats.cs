@@ -1,7 +1,4 @@
-﻿using Sirenix.OdinInspector;
-using System;
-
-namespace Assets.Models
+﻿namespace Assets.Models
 {
     public struct PingStats
     {

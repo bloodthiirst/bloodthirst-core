@@ -1,7 +1,5 @@
-﻿using Bloodthirst.Socket.Core;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System.Diagnostics;
-using System.Threading;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

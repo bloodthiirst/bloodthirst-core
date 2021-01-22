@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Bloodthirst.System.CommandSystem
 {
@@ -11,11 +10,11 @@ namespace Bloodthirst.System.CommandSystem
         event Action<ICommandBase> OnCommandEnd;
 
         COMMAND_STATE CommandState { get; set; }
-        
+
         bool IsStarted { get; }
-        
+
         bool IsDone { get; }
-        
+
         ICommandBase FallbackCommand { get; set; }
 
         void Start();

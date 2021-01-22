@@ -2,7 +2,7 @@
 
 namespace Bloodthirst.Socket.Core
 {
-    public class GUIDIdentifier : SocketIdentifier<GUIDIdentifier , Guid>
+    public class GUIDIdentifier : SocketIdentifier<GUIDIdentifier, Guid>
     {
         private Guid client;
 

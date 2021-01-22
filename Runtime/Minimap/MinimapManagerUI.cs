@@ -83,7 +83,7 @@ public class MinimapManagerUI : UnitySingleton<MinimapManagerUI>, IPointerClickH
         {
             RaycastHit hit = raycastHits[i];
 
-            OnMinimapClickGameEvent.Invoke( new MinimapClickArgs() { ClickedObject = hit.transform.gameObject } );
+            OnMinimapClickGameEvent.Invoke(new MinimapClickArgs() { ClickedObject = hit.transform.gameObject });
         }
 
     }
@@ -97,7 +97,7 @@ public class MinimapManagerUI : UnitySingleton<MinimapManagerUI>, IPointerClickH
         {
             minimapCamera.transform.rotation = Quaternion.Euler(90, 0, -target.rotation.eulerAngles.y + rotationOffset);
         }
-        
+
         else
         {
             minimapCamera.transform.rotation = Quaternion.Euler(90, 0, 0);

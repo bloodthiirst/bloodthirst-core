@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace JsonDB
 {
@@ -13,7 +11,7 @@ namespace JsonDB
 
             if (y == null)
                 return false;
-            
+
             return x.EntityId == y.EntityId;
         }
 

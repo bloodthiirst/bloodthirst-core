@@ -65,7 +65,7 @@ namespace Bloodthirst.Core.Utils
 
         }
 
-        public static void HandlesDrawCube(Vector3 center , Vector3 size)
+        public static void HandlesDrawCube(Vector3 center, Vector3 size)
         {
             Vector3 halfSize = size * 0.5f;
 
@@ -89,8 +89,8 @@ namespace Bloodthirst.Core.Utils
             Handles.DrawAAConvexPolygon(points);
 
             // side C
-            points[0] = center + halfSize.MulVector( 1, 1, 1);
-            points[1] = center + halfSize.MulVector( 1, 1, -1);
+            points[0] = center + halfSize.MulVector(1, 1, 1);
+            points[1] = center + halfSize.MulVector(1, 1, -1);
             points[2] = center + halfSize.MulVector(-1, 1, -1);
             points[3] = center + halfSize.MulVector(-1, 1, 1);
 

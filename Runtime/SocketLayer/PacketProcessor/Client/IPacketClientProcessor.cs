@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace Bloodthirst.Socket.PacketParser
 {
@@ -16,6 +13,6 @@ namespace Bloodthirst.Socket.PacketParser
         /// method called to parse the packet to type T , process it then broadcast it
         /// </summary>
         /// <param name="packet"></param>
-        void Process(TIdentifer from , byte[] packet);
+        void Process(TIdentifer from, byte[] packet);
     }
 }

@@ -22,10 +22,10 @@ namespace Bloodthirst.Core.SceneManager
         private List<string> scenesList;
 
         [SerializeField]
-        [ValueDropdown(nameof(scenesList) , FlattenTreeView = true)]
+        [ValueDropdown(nameof(scenesList), FlattenTreeView = true)]
         [InfoBox("The scene to be loaded first , should be the scene that contains the SceneLoadingManager")]
-        private string initSceneName = default;
-  
+        private string initSceneName = null;
+
         public List<string> ScenesList
         {
             get
@@ -87,9 +87,9 @@ namespace Bloodthirst.Core.SceneManager
         {
             List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
 
-            for(int i = 0; i < scenesList.Count; i++)
+            for (int i = 0; i < scenesList.Count; i++)
             {
-                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenesList[i], true) );
+                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenesList[i], true));
             }
 
             // apply the change to the scenes list in build settings
@@ -171,7 +171,7 @@ namespace Bloodthirst.Core.SceneManager
 
             Scene sceneRef = default;
 
-            if(!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex).isLoaded)
+            if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex).isLoaded)
             {
                 cleanupScene = true;
 
@@ -185,7 +185,7 @@ namespace Bloodthirst.Core.SceneManager
 
             Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex);
 
-            if(!scene.IsValid())
+            if (!scene.IsValid())
             {
                 return;
             }
@@ -202,7 +202,7 @@ namespace Bloodthirst.Core.SceneManager
             }
             if (cleanupScene)
             {
-                EditorSceneManager.CloseScene(sceneRef, true );
+                EditorSceneManager.CloseScene(sceneRef, true);
             }
         }
 #endif

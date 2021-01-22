@@ -18,7 +18,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         public ClassType ClassType;
 
-        public BISDTag(string modelName , ClassType classType)
+        public BISDTag(string modelName, ClassType classType)
         {
             this.ModelName = modelName;
             this.ClassType = classType;

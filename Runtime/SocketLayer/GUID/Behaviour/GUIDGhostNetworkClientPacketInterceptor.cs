@@ -1,10 +1,9 @@
 ﻿using Assets.SocketLayer.Client.Base;
-using Assets.SocketLayer.Identifier;
-using Assets.SocketLayer.PacketParser.Base;
 using Assets.SocketLayer.Serialization.Data;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +25,7 @@ namespace Assets.SocketLayer.BehaviourComponent
             GetComponentsInChildren(packetProcessors);
         }
 
-        
+
         protected override void OnMessage(SocketClient<Guid> socketClient, byte[] packet, PROTOCOL protocol)
         {
             Debug.Log(" GUIDGhostNetworkClientPacketInterceptor received message");

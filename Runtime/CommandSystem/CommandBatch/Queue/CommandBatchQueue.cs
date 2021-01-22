@@ -20,7 +20,8 @@ namespace Bloodthirst.System.CommandSystem
 
         [SerializeField]
         private BATCH_STATE batchState;
-        public BATCH_STATE BatchState { 
+        public BATCH_STATE BatchState
+        {
             get => batchState;
             set
             {
@@ -115,7 +116,7 @@ namespace Bloodthirst.System.CommandSystem
 
         public void End()
         {
-            if(BatchState != BATCH_STATE.INTERRUPTED)
+            if (BatchState != BATCH_STATE.INTERRUPTED)
             {
                 InterruptSubcommands();
                 BatchState = BATCH_STATE.DONE;

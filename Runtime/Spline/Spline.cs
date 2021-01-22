@@ -1,6 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace Bloodthirst.Utils
 {
@@ -217,7 +216,7 @@ namespace Bloodthirst.Utils
         {
             float l = 0;
 
-            for(int i = 0; i < Segments.Count;i++)
+            for (int i = 0; i < Segments.Count; i++)
             {
                 l += Segments[i].Length;
             }

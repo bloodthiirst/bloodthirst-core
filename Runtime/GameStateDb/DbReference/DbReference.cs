@@ -1,5 +1,4 @@
-﻿using Sirenix.Serialization;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace JsonDB
@@ -36,12 +35,12 @@ namespace JsonDB
             };
         }
 
-        public static implicit operator T (DbReference<T> reference)
+        public static implicit operator T(DbReference<T> reference)
         {
             if (reference == null)
                 return default;
 
-            return (T) reference.Entity;
+            return (T)reference.Entity;
         }
     }
 }

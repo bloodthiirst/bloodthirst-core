@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Bloodthirst.System.Quadrant
 {
-    public interface IQuadrantEntity<T> where T :IQuadrantEntity<T>
+    public interface IQuadrantEntity<T> where T : IQuadrantEntity<T>
     {
         event Action<T> OnPositionChanged;
         event Action<T> OnQuadrantIdChanged;

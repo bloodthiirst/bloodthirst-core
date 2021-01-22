@@ -1,11 +1,9 @@
-﻿using Assets.Scripts.SocketLayer.BehaviourComponent;
-using Assets.SocketLayer.BehaviourComponent;
+﻿using Assets.SocketLayer.BehaviourComponent;
 using Bloodthirst.Core.UnitySingleton;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
@@ -71,7 +69,7 @@ namespace Bloodthirst.Socket.Core
         public List<IOnSocketServerConnected<ManagedSocketServer<TIdentifier>, TIdentifier>> OnConnectedBehaviours;
 
         [ShowInInspector]
-        private Dictionary<Type , SocketClient<TIdentifier>> ServerToServerClients;
+        private Dictionary<Type, SocketClient<TIdentifier>> ServerToServerClients;
 
         protected override void Awake()
         {

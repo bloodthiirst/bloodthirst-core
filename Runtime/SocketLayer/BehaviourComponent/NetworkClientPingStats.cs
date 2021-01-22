@@ -1,16 +1,16 @@
 ﻿using Assets.Models;
 using Assets.SocketLayer.Client.Base;
 using Assets.SocketLayer.PacketParser;
-using Assets.SocketLayer.PacketParser.Base;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
 namespace Assets.SocketLayer.BehaviourComponent
 {
-    public class NetworkClientPingStats : MonoBehaviour, ISocketClient< GUIDSocketClient, Guid>
+    public class NetworkClientPingStats : MonoBehaviour, ISocketClient<GUIDSocketClient, Guid>
     {
         [SerializeField]
         private GUIDNetworkClientGlobalPacketProcessor packetProcessor;
@@ -60,7 +60,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
             currentTimer = 0;
 
-            byte[] pingReqPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, default , SocketClient.IdentitySerializer, BaseNetworkSerializer<PingStatsRequest>.Instance);
+            byte[] pingReqPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, default, SocketClient.IdentitySerializer, BaseNetworkSerializer<PingStatsRequest>.Instance);
 
             SocketClient.SendTCP(pingReqPacket);
         }

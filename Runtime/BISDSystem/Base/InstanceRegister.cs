@@ -11,7 +11,7 @@ namespace Bloodthirst.Core.BISDSystem
         {
             get
             {
-                if(instances == null)
+                if (instances == null)
                 {
                     instances = new HashSet<INSTANCE>();
                 }
@@ -33,7 +33,7 @@ namespace Bloodthirst.Core.BISDSystem
         {
             Debug.Log($"Instance of { typeof(INSTANCE) } has been registered");
 
-            if(Instances.Add(i))
+            if (Instances.Add(i))
             {
                 OnInstanceAdded<INSTANCE>.Invoke(i);
             }

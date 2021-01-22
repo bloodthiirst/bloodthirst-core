@@ -15,8 +15,8 @@ namespace Bloodthirst.Core.UI
         private IList<UI> cachedUIs;
         private Pool<UI> pool;
         private RectTransform container;
-        public IList<UI> UIs => cachedUIs; 
-        
+        public IList<UI> UIs => cachedUIs;
+
         public UIListCreator(Pool<UI> pool, RectTransform container, IList<UI> cachedUIs = null)
         {
             // if not list is supplied , create one on the fly

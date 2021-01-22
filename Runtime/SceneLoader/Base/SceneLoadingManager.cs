@@ -1,12 +1,8 @@
-﻿using Assets.Scripts.Core.GamePassInitiator;
-using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.UnitySingleton;
 using Sirenix.OdinInspector;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 #if UNITY_EDITOR
-using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 #endif
@@ -36,7 +32,7 @@ namespace Bloodthirst.Core.SceneManager
         {
             get
             {
-                if(sceneInstanceManagers == null)
+                if (sceneInstanceManagers == null)
                 {
                     sceneInstanceManagers = new List<ISceneInstanceManager>();
                 }
@@ -62,7 +58,8 @@ namespace Bloodthirst.Core.SceneManager
             yield return CrtLoadScenes();
         }
 
-        private IEnumerator CrtLoadScenes() {
+        private IEnumerator CrtLoadScenes()
+        {
             // start scene loading
             LoadScene();
 
@@ -79,7 +76,7 @@ namespace Bloodthirst.Core.SceneManager
 
         public void HideAllScenes()
         {
-            foreach(ISceneInstanceManager sceneManager in SceneInstanceManagers)
+            foreach (ISceneInstanceManager sceneManager in SceneInstanceManagers)
             {
                 if (sceneManager.IsConfigScene)
                     continue;
@@ -88,13 +85,15 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        void LoadScene() {
+        void LoadScene()
+        {
             if (asyncOperations == null)
                 asyncOperations = new List<AsyncOperation>();
             else
                 asyncOperations.Clear();
 
-            for(int i = 0; i< ScenesListData.Instance.ScenesList.Count; i++ ) {
+            for (int i = 0; i < ScenesListData.Instance.ScenesList.Count; i++)
+            {
 
                 if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(i).isLoaded)
                     asyncOperations.Add(UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(i, LoadSceneMode.Additive));

@@ -1,9 +1,8 @@
-﻿using Bloodthirst.Socket.Serializer;
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Compression;
 
-namespace Assets.Scripts.NetworkCommand
+namespace Bloodthirst.Socket.Utils
 {
     public static class NetworkUtils
     {
@@ -59,56 +58,6 @@ namespace Assets.Scripts.NetworkCommand
             return ret;
         }
 
-        public static byte[] GetCompressedData<TData , TKey>(TData Data, TKey From, INetworkSerializer<TData> serializer , INetworkSerializer<TKey> identifierProcessor)
-        {
-            // type hash
-            // 4 bytes
-            byte[] typeHash = BitConverter.GetBytes(HashUtils.StringToHash(typeof(TData).Name));
-
-            // data content
-            // variable size
-            byte[] data = serializer.Serialize(Data);
-
-            /// from identifier
-            byte[] from = identifierProcessor.Serialize(From);
-
-            // hash + from + content
-            byte[] combinedData = Combine(typeHash, from, data);
-
-            // compress data
-            byte[] compressedBytes = Compress(combinedData);
-
-            // return comressed data
-            return compressedBytes;
-        }
-
-        public static byte[] GetCompressedData<TData, TKey>(TData Data, TKey From, INetworkSerializer<TKey> identifierProcessor)
-        {
-            // create default serializer
-            INetworkSerializer<TData> serializer = SerializerProvider.Get<TData>();
-
-            // type hash
-            // 4 bytes
-            byte[] typeHash = BitConverter.GetBytes(HashUtils.StringToHash(typeof(TData).Name));
-
-            // data content
-            // variable size
-            byte[] data = serializer.Serialize(Data);
-
-            /// from identifier
-            byte[] from = identifierProcessor.Serialize(From);
-
-            // hash + from + content
-            byte[] combinedData = Combine(typeHash, from, data);
-
-            // compress data
-            byte[] compressedBytes = Compress(combinedData);
-
-            // return comressed data
-            return compressedBytes;
-        }
-
-
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             T[] result = new T[length];
@@ -124,24 +73,5 @@ namespace Assets.Scripts.NetworkCommand
             Array.Copy(data, index, result, 0, length);
             return result;
         }
-
-        public static bool TryGetTypeFromJSON<TKey> (byte[] packet, out uint type , out TKey from, out byte[] data , INetworkSerializer<TKey> identifierProcessor)
-        {
-            // decompress the data
-            byte[] decompressed = Decompress(packet);
-
-            // get data type
-            type = BitConverter.ToUInt32(decompressed , 0);
-
-            // get from identifier
-            from = identifierProcessor.Deserialize( decompressed.SubArray(identifierProcessor.StartIndex, identifierProcessor.Length) );
-            
-            // get the actual data
-            data = decompressed.SubArray(identifierProcessor.Length + 4, decompressed.Length - (identifierProcessor.Length + 4) );
-
-            return true;
-
-        }
-
     }
 }
