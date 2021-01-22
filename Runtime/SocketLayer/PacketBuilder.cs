@@ -24,27 +24,25 @@ namespace Bloodthirst.Socket.Utils
 
             byte[] nonCompressed = NetworkUtils.Combine(type, from, content);
 
-            //return NetworkUtils.Compress(nonCompressed);
-            return nonCompressed;
-
+            return NetworkUtils.Compress(nonCompressed);
         }
 
         public static bool UnpackPacket<TIdentifier>(byte[] packet, out uint type, out TIdentifier from, out byte[] data, INetworkSerializer<TIdentifier> IdSerializer)
         {
             // decompress the data
-            //byte[] decompressed = NetworkUtils.Decompress(packet);
+            byte[] decompressed = NetworkUtils.Decompress(packet);
 
             // get data type
-            type = BitConverter.ToUInt32(packet, 0);
+            type = BitConverter.ToUInt32(decompressed, 0);
 
             // get from identifier
-            from = IdSerializer.Deserialize(packet.SubArray(4, 16));
+            from = IdSerializer.Deserialize(decompressed.SubArray(4, 16));
 
             // type int + from guid
             int headerSize = 4 + 16;
 
             // get the actual data
-            data = packet.SubArray(headerSize, packet.Length - headerSize);
+            data = decompressed.SubArray(headerSize, decompressed.Length - headerSize);
 
             return true;
         }
