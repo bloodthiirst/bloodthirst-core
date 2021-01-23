@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-using Assets.Scripts.Utils;
+using Bloodthirst.Scripts.Utils;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;

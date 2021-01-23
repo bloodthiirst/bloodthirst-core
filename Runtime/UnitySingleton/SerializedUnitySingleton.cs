@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Core.GamePassInitiator;
+﻿using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 
 namespace Bloodthirst.Core.UnitySingleton

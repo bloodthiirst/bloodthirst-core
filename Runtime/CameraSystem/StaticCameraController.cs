@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Core.Utils;
+﻿using Bloodthirst.Scripts.Core.Utils;
 using Bloodthirst.Systems.CameraSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;

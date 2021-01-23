@@ -1,15 +1,13 @@
-﻿using Assets.Scripts;
-using Assets.Scripts.SocketLayer.Models;
-using Assets.SocketLayer.PacketParser;
-using Bloodthirst.Socket;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.Models;
 using Bloodthirst.Socket.PacketParser;
+using Bloodthirst.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public class GUIDNetworkServerGlobalPacketProcessor : MonoBehaviour, IPacketServerProcessor<Guid>
     {
@@ -49,12 +47,6 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         public bool ProcessPacket(uint type, ConnectedClientSocket connectedClient, Guid from, byte[] data)
         {
-            if (type == HashUtils.StringToHash(typeof(ChatMessage).Name))
-            {
-
-            }
-
-
             // if is not global packet leave
 
             if (!from.Equals(GUIDIdentifier.DefaultClientID))

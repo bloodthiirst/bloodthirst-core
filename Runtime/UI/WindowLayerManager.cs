@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Core.Utils;
+﻿using Bloodthirst.Scripts.Core.Utils;
 using System.Collections.Generic;
 
 namespace Bloodthirst.Core.UI

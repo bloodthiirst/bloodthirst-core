@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Core.UnityPool;
+﻿using Bloodthirst.Scripts.Core.UnityPool;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

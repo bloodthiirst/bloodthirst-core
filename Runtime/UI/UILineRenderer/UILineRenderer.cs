@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets
+namespace Bloodthirst
 {
     [RequireComponent(typeof(CanvasRenderer))]
     public class UILineRenderer : MaskableGraphic

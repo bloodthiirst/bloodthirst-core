@@ -1,10 +1,10 @@
-﻿using Assets.Scripts.Core.GamePassInitiator;
+﻿using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Assets.Scripts.Core.GameInitPass
+namespace Bloodthirst.Scripts.Core.GameInitPass
 {
     public class GamePassInitiator : MonoBehaviour
     {

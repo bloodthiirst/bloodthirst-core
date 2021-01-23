@@ -1,6 +1,6 @@
-﻿using Assets.SocketLayer.Identifier;
-using Assets.SocketLayer.Serialization.Data;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.Identifier;
+using Bloodthirst.Socket.Serialization.Data;
 using Bloodthirst.Socket.Serializer;
 using System;
 using System.Net;

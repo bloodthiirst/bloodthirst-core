@@ -1,7 +1,7 @@
 ﻿using Bloodthirst.Core.UnitySingleton;
 using UnityEngine;
 
-namespace Assets.Scripts.Core.Utils
+namespace Bloodthirst.Scripts.Core.Utils
 {
     public class MouseUtils : UnitySingleton<MouseUtils>
     {

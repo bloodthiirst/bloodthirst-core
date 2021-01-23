@@ -1,9 +1,9 @@
-﻿using Assets.Models;
+﻿using Bloodthirst.Socket.Models;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
 using System;
 
-namespace Assets.SocketLayer.Serialization.Data
+namespace Bloodthirst.Socket.Serialization.Data
 {
     public class GUIDPlayerSpawnSuccessNetworkSerializer : INetworkSerializer<GUIDPlayerSpawnSuccess>
     {
@@ -19,8 +19,6 @@ namespace Assets.SocketLayer.Serialization.Data
         public byte[] Serialize(GUIDPlayerSpawnSuccess identifier)
         {
             byte[] data = new byte[32];
-
-
 
             Array.Copy(identifier.ClientThePlayerSpawnedIn.ToByteArray(), 0, data, 0, 16);
             Array.Copy(identifier.SpawnedPlayerID.ToByteArray(), 0, data, 16, 16);

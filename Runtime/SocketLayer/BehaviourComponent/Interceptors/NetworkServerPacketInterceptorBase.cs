@@ -1,9 +1,8 @@
-﻿using Bloodthirst.Socket;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
 using System;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public abstract class NetworkServerPacketInterceptorBase<TIdentifier> : MonoBehaviour, ISocketServer<TIdentifier>, IOnSocketServerConnected<ManagedSocketServer<TIdentifier>, TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {

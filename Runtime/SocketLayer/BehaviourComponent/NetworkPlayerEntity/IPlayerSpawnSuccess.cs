@@ -1,4 +1,4 @@
-﻿using Assets.Models;
+﻿using Bloodthirst.Socket.Models;
 
 namespace Bloodthirst.Socket.Core
 {

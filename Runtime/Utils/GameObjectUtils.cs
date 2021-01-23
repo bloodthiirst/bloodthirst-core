@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace Assets.Scripts.Core.Utils
+namespace Bloodthirst.Scripts.Core.Utils
 {
     public static class GameObjectUtils
     {

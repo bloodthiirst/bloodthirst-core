@@ -1,7 +1,7 @@
-﻿using Assets.Scripts.GameEvent;
-using Assets.Scripts.Minimap;
-using Assets.Scripts.Utils;
-using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.UnitySingleton;
+using Bloodthirst.Scripts.GameEvent;
+using Bloodthirst.Scripts.Minimap;
+using Bloodthirst.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;

@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Scripts.SocketLayer.BehaviourComponent
 {
 
     public static class NetworkInjectionProvider

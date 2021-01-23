@@ -1,5 +1,5 @@
-﻿using Assets.Scripts.Core.Utils;
-using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.UnitySingleton;
+using Bloodthirst.Scripts.Core.Utils;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;

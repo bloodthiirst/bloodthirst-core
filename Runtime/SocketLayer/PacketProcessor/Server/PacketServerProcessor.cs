@@ -1,12 +1,10 @@
-﻿using Assets.Scripts;
-using Bloodthirst.Core.ThreadProcessor;
-using Bloodthirst.Socket;
-using Bloodthirst.Socket.PacketParser;
+﻿using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Socket.Serializer;
+using Bloodthirst.Utils;
 using Sirenix.OdinInspector;
 using System;
 
-namespace Assets.SocketLayer.PacketParser
+namespace Bloodthirst.Socket.PacketParser
 {
     public abstract class PacketServerProcessor<TType, TIdentitfier> : PacketServerProcessorBase<TIdentitfier> where TIdentitfier : IComparable<TIdentitfier>
     {
@@ -22,6 +20,9 @@ namespace Assets.SocketLayer.PacketParser
 
         protected PacketServerProcessor() : base(typeHash)
         {
+            DataSerializer = SerializerProvider.Get<TType>();
+
+            IdentifierSerializer = SerializerProvider.Get<TIdentitfier>();
         }
 
         /// <summary>
@@ -33,12 +34,12 @@ namespace Assets.SocketLayer.PacketParser
         /// <summary>
         /// Serializer used for the data type
         /// </summary>
-        public abstract INetworkSerializer<TType> DataSerializer { get; }
+        public INetworkSerializer<TType> DataSerializer { get; }
 
         /// <summary>
         /// Serializer used for the identifier type
         /// </summary>
-        public abstract INetworkSerializer<TIdentitfier> IdentifierSerializer { get; }
+        public INetworkSerializer<TIdentitfier> IdentifierSerializer { get; }
 
         public override void Process(ConnectedClientSocket from, TIdentitfier identitfier, byte[] packet)
         {

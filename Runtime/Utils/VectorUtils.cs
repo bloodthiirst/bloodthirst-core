@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.Utils
+namespace Bloodthirst.Scripts.Utils
 {
     public static class VectorUtils
     {

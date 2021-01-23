@@ -1,15 +1,13 @@
-﻿using Assets.Models;
-using Assets.Scripts;
-using Assets.Scripts.SocketLayer.Models;
-using Bloodthirst.Socket;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.Models;
 using Bloodthirst.Socket.PacketParser;
+using Bloodthirst.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public class GUIDNetworkServerPlayerPacketProcessor : MonoBehaviour, IPacketServerProcessor<Guid>
     {
@@ -44,15 +42,6 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         public bool ProcessPacket(uint type, ConnectedClientSocket connectedClient, Guid from, byte[] data)
         {
-            uint chatHash = HashUtils.StringToHash(typeof(ChatMessage).Name);
-            uint playersuccess = HashUtils.StringToHash(typeof(GUIDPlayerSpawnSuccess).Name);
-            // if is not player packet leave
-
-            if (type == chatHash || type == chatHash)
-            {
-
-            }
-
             if (from.Equals(GUIDIdentifier.DefaultClientID))
                 return false;
 

@@ -1,5 +1,5 @@
-﻿using Assets.Scripts.Core.GamePassInitiator;
-using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.UnitySingleton;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;

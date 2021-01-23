@@ -1,11 +1,11 @@
-﻿using Assets.SocketLayer.Client.Base;
-using Bloodthirst.Socket;
+﻿using Bloodthirst.Socket;
+using Bloodthirst.Socket.Client.Base;
 using Bloodthirst.Socket.Core;
 using System;
 using System.Net;
 using UnityEngine;
 
-namespace Assets.Scripts.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Scripts.SocketLayer.BehaviourComponent
 {
     public class GUIDGhostNetworkClientEntity : NetworkClientEntityBase<GUIDGhostSocketClient, Guid>, IServerToServerConnection<Guid>
     {

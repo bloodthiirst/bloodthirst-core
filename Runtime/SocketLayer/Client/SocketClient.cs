@@ -78,7 +78,7 @@ namespace Bloodthirst.Socket
 
         public UdpClient UdpClient { get; set; }
 
-        public abstract INetworkSerializer<TIdentifier> IdentitySerializer { get; }
+        public INetworkSerializer<TIdentifier> IdentitySerializer { get; }
 
         private byte[] Buffer = new byte[SocketConfig.Instance.PacketSize];
 
@@ -90,6 +90,8 @@ namespace Bloodthirst.Socket
             // TCP
             TcpClient = new TcpClient();
             TcpClient.NoDelay = true;
+
+            IdentitySerializer = SerializerProvider.Get<TIdentifier>();
         }
 
         public void Connect()

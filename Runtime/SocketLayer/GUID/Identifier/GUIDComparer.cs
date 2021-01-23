@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Assets.SocketLayer.Identifier
+namespace Bloodthirst.Socket.Identifier
 {
     public class GUIDComparer : IEqualityComparer<Guid>
     {

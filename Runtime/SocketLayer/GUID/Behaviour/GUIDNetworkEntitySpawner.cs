@@ -1,13 +1,13 @@
-﻿using Assets.Scripts.SocketLayer.BehaviourComponent;
-using Assets.Scripts.SocketLayer.Commands;
-using Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity;
-using Assets.SocketLayer.Client.Base;
-using Bloodthirst.Core.SceneManager;
+﻿using Bloodthirst.Core.SceneManager;
+using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
+using Bloodthirst.Scripts.SocketLayer.Commands;
+using Bloodthirst.Socket.BehaviourComponent.NetworkPlayerEntity;
+using Bloodthirst.Socket.Client.Base;
 using Bloodthirst.System.CommandSystem;
 using System;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public class GUIDNetworkEntitySpawner : NetworkEntitySpawnerBase<Guid>
     {

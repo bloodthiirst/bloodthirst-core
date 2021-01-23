@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.GameEvent
+namespace Bloodthirst.Scripts.GameEvent
 {
     public class MinimapClickArgs
     {

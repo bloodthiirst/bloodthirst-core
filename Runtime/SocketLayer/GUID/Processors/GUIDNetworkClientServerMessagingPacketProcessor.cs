@@ -1,14 +1,12 @@
-﻿using Assets.Scripts;
-using Assets.SocketLayer.PacketParser;
-using Bloodthirst.Socket;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.PacketParser;
+using Bloodthirst.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public class GUIDNetworkClientServerMessagingPacketProcessor : MonoBehaviour, IPacketServerProcessor<Guid>
     {

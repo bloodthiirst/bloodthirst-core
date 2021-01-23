@@ -1,7 +1,7 @@
-﻿using Assets.Scripts.GameEvent;
-using Bloodthirst.Core.GameEvent;
+﻿using Bloodthirst.Core.GameEvent;
+using Bloodthirst.Scripts.GameEvent;
 
-namespace Assets.Scripts.Minimap
+namespace Bloodthirst.Scripts.Minimap
 {
     public class OnMinimapClickGameEvent : GameEvent<OnMinimapClickGameEvent, MinimapClickArgs>
     {

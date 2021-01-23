@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace Assets.SocketLayer.Serialization.Data
+namespace Bloodthirst.Socket.Serialization.Data
 {
     public class Vector3NetworkSerializer : INetworkSerializer<Vector3>
     {

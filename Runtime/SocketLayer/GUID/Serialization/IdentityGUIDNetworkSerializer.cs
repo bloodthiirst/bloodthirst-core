@@ -1,7 +1,7 @@
 ﻿using Bloodthirst.Socket.Serializer;
 using System;
 
-namespace Assets.SocketLayer.Serialization.Data
+namespace Bloodthirst.Socket.Serialization.Data
 {
     public class IdentityGUIDNetworkSerializer : INetworkSerializer<Guid>
     {

@@ -1,8 +1,7 @@
-﻿using Bloodthirst.Socket;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public interface ISocketClientInjector<TClient, TIdentifer>
         where TClient : SocketClient<TIdentifer>

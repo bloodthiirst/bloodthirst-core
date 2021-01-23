@@ -2,7 +2,7 @@
 using Bloodthirst.System.CommandSystem;
 using UnityEngine;
 
-namespace Assets.Scripts.SocketLayer.Commands
+namespace Bloodthirst.Scripts.SocketLayer.Commands
 {
     public class NetworkPlayerPostSpawnInitializationCommand : CommandBase<NetworkPlayerPostSpawnInitializationCommand>
     {

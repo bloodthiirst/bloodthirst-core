@@ -1,14 +1,14 @@
-﻿using Assets.Models;
-using Assets.SocketLayer.Client.Base;
-using Assets.SocketLayer.PacketParser;
+﻿using Bloodthirst.Models;
+using Bloodthirst.Socket.Client.Base;
 using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public class NetworkClientPingStats : MonoBehaviour, ISocketClient<GUIDSocketClient, Guid>
     {
@@ -20,6 +20,8 @@ namespace Assets.SocketLayer.BehaviourComponent
         [ShowInInspector]
         public GUIDSocketClient SocketClient { get; set; }
 
+        private INetworkSerializer<PingStatsRequest> pingStatsRequestSerializer;
+
         [ShowInInspector]
         [ReadOnly]
         private int pingTCP;
@@ -28,7 +30,6 @@ namespace Assets.SocketLayer.BehaviourComponent
         [ReadOnly]
         private int pingUDP;
 
-
         [SerializeField]
         private float pingTimer;
 
@@ -36,6 +37,8 @@ namespace Assets.SocketLayer.BehaviourComponent
 
         private void Awake()
         {
+            pingStatsRequestSerializer = SerializerProvider.Get<PingStatsRequest>();
+
             packetProcessor = GetComponent<GUIDNetworkClientGlobalPacketProcessor>();
 
             PingRequest = packetProcessor.GetOrCreate<PingStatsPacketClientProcessor, PingStats>();
@@ -60,7 +63,7 @@ namespace Assets.SocketLayer.BehaviourComponent
 
             currentTimer = 0;
 
-            byte[] pingReqPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, default, SocketClient.IdentitySerializer, BaseNetworkSerializer<PingStatsRequest>.Instance);
+            byte[] pingReqPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, default, SocketClient.IdentitySerializer, pingStatsRequestSerializer);
 
             SocketClient.SendTCP(pingReqPacket);
         }

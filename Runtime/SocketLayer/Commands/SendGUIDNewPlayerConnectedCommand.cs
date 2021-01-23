@@ -1,4 +1,4 @@
-﻿using Assets.Models;
+﻿using Bloodthirst.Models;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serializer;
@@ -7,18 +7,21 @@ using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.SocketLayer.Commands
+namespace Bloodthirst.Scripts.SocketLayer.Commands
 {
     public class SendGUIDNewPlayerConnectedCommand : CommandBase<SendGUIDConnectionInfoCommand>
     {
         private readonly Guid playerId;
 
-        private readonly INetworkSerializer<Guid> identifier;
+        private INetworkSerializer<Guid> guidSerializer;
+
+        private INetworkSerializer<GUIDNewPlayerConnected> newPlayerSerializer;
 
         public SendGUIDNewPlayerConnectedCommand(Guid playerId)
         {
             this.playerId = playerId;
-            this.identifier = GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer;
+            newPlayerSerializer = SerializerProvider.Get<GUIDNewPlayerConnected>();
+            guidSerializer = SerializerProvider.Get<Guid>();
         }
 
         public override void OnStart()
@@ -33,7 +36,7 @@ namespace Assets.Scripts.SocketLayer.Commands
                 NetworkID = playerId
             };
 
-            byte[] newPlayerPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, newPlayer, identifier, BaseNetworkSerializer<GUIDNewPlayerConnected>.Instance);
+            byte[] newPlayerPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, newPlayer, guidSerializer, newPlayerSerializer);
 
 
             foreach (KeyValuePair<Guid, ConnectedClientSocket> kv in GUIDNetworkServerEntity.Instance.SocketServer.ClientConnexionManager.ClientConnexions)

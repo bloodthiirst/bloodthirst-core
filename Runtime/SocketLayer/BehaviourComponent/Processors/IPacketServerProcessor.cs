@@ -1,7 +1,6 @@
-﻿using Bloodthirst.Socket;
-using System;
+﻿using System;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public interface IPacketServerProcessor<TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {

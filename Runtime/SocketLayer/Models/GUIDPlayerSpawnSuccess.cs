@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.Models
+namespace Bloodthirst.Socket.Models
 {
     public struct GUIDPlayerSpawnSuccess
     {

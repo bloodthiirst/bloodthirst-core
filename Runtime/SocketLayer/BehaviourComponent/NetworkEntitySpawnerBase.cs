@@ -1,9 +1,9 @@
-﻿using Bloodthirst.Socket;
+﻿using Bloodthirst.Socket.Core;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public abstract class NetworkEntitySpawnerBase<TIdentity> : MonoBehaviour where TIdentity : IComparable<TIdentity>
     {

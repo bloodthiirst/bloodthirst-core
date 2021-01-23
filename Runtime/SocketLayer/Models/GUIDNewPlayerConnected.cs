@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.Models
+namespace Bloodthirst.Models
 {
     public struct GUIDNewPlayerConnected
     {

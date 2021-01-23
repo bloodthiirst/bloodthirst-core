@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.Utils
+﻿namespace Bloodthirst.Scripts.Utils
 {
     static class BitUtils
     {

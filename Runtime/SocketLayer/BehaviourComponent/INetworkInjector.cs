@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Assets.Scripts.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Scripts.SocketLayer.BehaviourComponent
 {
     public interface INetworkInjector
     {

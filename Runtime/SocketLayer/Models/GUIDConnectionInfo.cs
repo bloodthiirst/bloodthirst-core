@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Assets.Models
+namespace Bloodthirst.Models
 {
     public struct GUIDConnectionInfo
     {

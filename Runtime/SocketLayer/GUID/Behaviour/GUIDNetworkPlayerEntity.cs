@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.SocketLayer.BehaviourComponent.NetworkPlayerEntity
+namespace Bloodthirst.Socket.BehaviourComponent.NetworkPlayerEntity
 {
     public class GUIDNetworkPlayerEntity : NetworkPlayerEntityBase<Guid>
     {

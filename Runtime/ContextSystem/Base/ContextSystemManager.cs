@@ -1,5 +1,6 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
@@ -15,13 +16,18 @@ namespace Bloodthirst.System.ContextSystem
 #endif
     public class ContextSystemManager : SingletonScriptableObject<ContextSystemManager>
     {
-
         [SerializeField]
         public List<ScriptableObject> AllContextInstance;
 
         [SerializeField]
-        private List<IContextInstance> contextSet;
-        public List<IContextInstance> ContextSet { get => contextSet; set => contextSet = value; }
+        private List<List<IContextInstance>> contextLayers;
+        public List<List<IContextInstance>> ContextLayers { get => contextLayers; set => contextLayers = value; }
+
+        public static event Action<int, IContextInstance> OnContextAdded;
+
+        public static event Action<int, IContextInstance> OnContextRemoved;
+
+        public static event Action OnContextChanged;
 
 #if UNITY_EDITOR
 
@@ -31,6 +37,7 @@ namespace Bloodthirst.System.ContextSystem
             EditorApplication.playModeStateChanged += InitContextSystem;
         }
 
+
         private static void InitContextSystem(PlayModeStateChange obj)
         {
             Instance.Initialize();
@@ -39,13 +46,13 @@ namespace Bloodthirst.System.ContextSystem
         [Button]
         public void Initialize()
         {
-            if (ContextSet == null)
+            if (ContextLayers == null)
             {
-                ContextSet = new List<IContextInstance>();
+                ContextLayers = new List<List<IContextInstance>>();
                 return;
             }
 
-            ContextSet.Clear();
+            ContextLayers.Clear();
 
             ReloadContexts();
         }
@@ -66,42 +73,88 @@ namespace Bloodthirst.System.ContextSystem
                 Instance.AllContextInstance.Add(allContexts[i]);
             }
 
-            if (Instance.ContextSet == null)
-                Instance.ContextSet = new List<IContextInstance>();
+            if (Instance.ContextLayers == null)
+                Instance.ContextLayers = new List<List<IContextInstance>>();
         }
+
+
 #endif
-
-        public static void AddContext(IContextInstance contextInstance)
+        private static void CheckSize(int contextLayer, int indexInLayer = -1)
         {
-            if (Instance.ContextSet.Contains(contextInstance))
-                return;
-
-            Instance.ContextSet.Add(contextInstance);
-        }
-
-        public static void SetContext(IContextInstance contextInstance, int index)
-        {
-            Instance.ContextSet[index] = contextInstance;
-        }
-
-        public static void RemoveContext(IContextInstance contextInstance)
-        {
-            Instance.ContextSet.Remove(contextInstance);
-        }
-
-        public static void RepalceContext(IContextInstance oldcontext, IContextInstance newContext)
-        {
-            if (!Instance.ContextSet.Contains(oldcontext))
+            int missingLayers = (contextLayer + 1) - Instance.contextLayers.Count;
+            // make sure we have enough layers
+            for (int i = 0; i < missingLayers; i++)
             {
-                AddContext(oldcontext);
+                Instance.contextLayers.Add(new List<IContextInstance>());
             }
 
-            RemoveContext(oldcontext);
-            AddContext(newContext);
+            if (indexInLayer == -1)
+                return;
+
+            int missingIndex = (indexInLayer + 1) - Instance.contextLayers[contextLayer].Count;
+            // make sure we have enough context slots
+            for (int i = 0; i < missingIndex; i++)
+            {
+                Instance.contextLayers[contextLayer].Add(null);
+            }
         }
-        public static bool HasContext(IContextInstance context)
+
+        public static int LayerCount(int contextLayer)
         {
-            return Instance.ContextSet.Contains(context);
+            CheckSize(contextLayer);
+
+            return Instance.ContextLayers[contextLayer].Count;
+        }
+
+        public static void AddContext(int contextLayer, IContextInstance contextInstance)
+        {
+            CheckSize(contextLayer);
+
+            if (Instance.ContextLayers[contextLayer].Contains(contextInstance))
+                return;
+
+            Instance.ContextLayers[contextLayer].Add(contextInstance);
+
+            OnContextAdded?.Invoke(contextLayer, contextInstance);
+            OnContextChanged?.Invoke();
+        }
+
+        public static void SetContext(IContextInstance contextInstance, int contextLayer, int indexInLayer)
+        {
+            CheckSize(contextLayer, indexInLayer);
+
+            Instance.ContextLayers[contextLayer][indexInLayer] = contextInstance;
+
+            OnContextChanged?.Invoke();
+        }
+
+        public static void RemoveContext(int contextLayer, IContextInstance contextInstance)
+        {
+            CheckSize(contextLayer);
+
+            if (Instance.ContextLayers[contextLayer].Remove(contextInstance))
+            {
+                OnContextRemoved?.Invoke(contextLayer, contextInstance);
+            }
+        }
+
+
+
+        public static void RepalceContext(int contextLayer, IContextInstance oldcontext, IContextInstance newContext)
+        {
+            if (!HasContext(contextLayer, oldcontext))
+                return;
+
+            int oldIndex = Instance.ContextLayers[contextLayer].IndexOf(oldcontext);
+            Instance.ContextLayers[contextLayer][oldIndex] = newContext;
+
+            OnContextRemoved?.Invoke(contextLayer, oldcontext);
+            OnContextAdded?.Invoke(contextLayer, newContext);
+        }
+        public static bool HasContext(int contextLayer, IContextInstance context)
+        {
+            CheckSize(contextLayer, 0);
+            return Instance.ContextLayers[contextLayer].Contains(context);
         }
     }
 }

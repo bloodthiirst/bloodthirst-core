@@ -1,8 +1,8 @@
-﻿using Bloodthirst.Socket;
+﻿using Bloodthirst.Socket.Core;
 using System;
 using System.Collections.Generic;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public interface ISocketServerInjector<T> where T : IComparable<T>
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public interface IPacketClientProcessor<TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {

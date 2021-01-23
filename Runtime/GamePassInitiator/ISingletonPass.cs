@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.Core.GamePassInitiator
+﻿namespace Bloodthirst.Scripts.Core.GamePassInitiator
 {
     public interface ISingletonPass : IGamePass
     {

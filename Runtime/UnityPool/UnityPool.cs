@@ -1,15 +1,15 @@
-﻿using Assets.Scripts.Core.GamePassInitiator;
-using Assets.Scripts.Core.Utils;
-using Bloodthirst.Core.BISDSystem;
+﻿using Bloodthirst.Core.BISDSystem;
 using Bloodthirst.Core.UnitySingleton;
 using Bloodthirst.Core.Utils;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
+using Bloodthirst.Scripts.Core.Utils;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Core.UnityPool
+namespace Bloodthirst.Scripts.Core.UnityPool
 {
 
     /// <summary>

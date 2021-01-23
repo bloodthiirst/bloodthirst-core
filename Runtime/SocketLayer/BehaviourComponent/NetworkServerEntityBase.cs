@@ -1,5 +1,5 @@
-﻿using Assets.SocketLayer.BehaviourComponent;
-using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.UnitySingleton;
+using Bloodthirst.Socket.BehaviourComponent;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;

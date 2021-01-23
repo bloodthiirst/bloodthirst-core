@@ -1,7 +1,7 @@
-﻿using Assets.Scripts.SocketLayer.BehaviourComponent;
-using Assets.SocketLayer.BehaviourComponent;
-using Bloodthirst.Core.ThreadProcessor;
+﻿using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Core.UnitySingleton;
+using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
+using Bloodthirst.Socket.BehaviourComponent;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;

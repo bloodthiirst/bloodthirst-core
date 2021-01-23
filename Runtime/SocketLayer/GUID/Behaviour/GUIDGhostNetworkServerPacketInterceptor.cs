@@ -1,6 +1,5 @@
-﻿using Assets.SocketLayer.Serialization.Data;
-using Bloodthirst.Socket;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.Serialization.Data;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;
@@ -8,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.SocketLayer.BehaviourComponent
+namespace Bloodthirst.Socket.BehaviourComponent
 {
     public class GUIDGhostNetworkServerPacketInterceptor : NetworkServerPacketInterceptorBase<Guid>
     {

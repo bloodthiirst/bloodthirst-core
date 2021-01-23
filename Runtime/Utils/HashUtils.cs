@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Assets.Scripts
+namespace Bloodthirst.Utils
 {
     public static class HashUtils
     {

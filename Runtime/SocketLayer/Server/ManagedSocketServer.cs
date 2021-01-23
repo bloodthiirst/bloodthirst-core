@@ -1,5 +1,4 @@
-﻿using Assets.Models;
-using Bloodthirst.Socket.Core;
+﻿using Bloodthirst.Models;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using System;
@@ -7,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
-namespace Bloodthirst.Socket
+namespace Bloodthirst.Socket.Core
 {
     public abstract class ManagedSocketServer<TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {

@@ -1,8 +1,8 @@
-﻿using Assets.Models;
-using Assets.SocketLayer.BehaviourComponent;
-using Assets.SocketLayer.PacketParser;
+﻿using Bloodthirst.Models;
 using Bloodthirst.Socket;
+using Bloodthirst.Socket.BehaviourComponent;
 using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;
@@ -49,8 +49,17 @@ public class NetworkServerPinger : MonoBehaviour
 
     private float currentTimer;
 
+    private INetworkSerializer<Guid> guidSerializer;
+
+    private INetworkSerializer<PingPongTCP> pingPongTCPSerializer;
+
+    private INetworkSerializer<PingPongUDP> pingPongUDPSerializer;
+
     private void Awake()
     {
+        pingPongTCPSerializer = SerializerProvider.Get<PingPongTCP>();
+        pingPongUDPSerializer = SerializerProvider.Get<PingPongUDP>();
+
         networkPingStats = new Dictionary<ConnectedClientSocket, PingValues>();
 
         if (networkServer == null)
@@ -135,7 +144,7 @@ public class NetworkServerPinger : MonoBehaviour
 
             PingPongUDP pingUDP = new PingPongUDP() { SentAtServerTime = networkTimer.TimeElapsed };
 
-            byte[] pingUDPPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, pingUDP, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingPongUDP>.Instance);
+            byte[] pingUDPPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, pingUDP, guidSerializer, pingPongUDPSerializer);
 
             client.SendUDP(pingUDPPacket);
 
@@ -143,7 +152,7 @@ public class NetworkServerPinger : MonoBehaviour
 
             PingPongTCP pingTCP = new PingPongTCP() { SentAtServerTime = networkTimer.TimeElapsed };
 
-            byte[] pingTCPPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, pingTCP, GUIDNetworkServerEntity.Instance.SocketServer.IdentifierSerializer, BaseNetworkSerializer<PingPongTCP>.Instance);
+            byte[] pingTCPPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, pingTCP, guidSerializer, pingPongTCPSerializer);
 
             client.SendTCP(pingTCPPacket);
         }

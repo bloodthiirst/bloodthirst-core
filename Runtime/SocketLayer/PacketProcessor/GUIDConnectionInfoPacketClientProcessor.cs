@@ -1,23 +1,13 @@
-﻿using Assets.Models;
-using Assets.SocketLayer.Serialization.Data;
-using Bloodthirst.Socket.Serializer;
+﻿using Bloodthirst.Models;
 using System;
 
-namespace Assets.SocketLayer.PacketParser
+namespace Bloodthirst.Socket.PacketParser
 {
     public class GUIDConnectionInfoPacketClientProcessor : PacketClientProcessor<GUIDConnectionInfo, Guid>
     {
-        public override INetworkSerializer<GUIDConnectionInfo> DataSerializer { get; }
-
-        public override INetworkSerializer<Guid> IdentifierSerializer { get; }
-
         public GUIDConnectionInfoPacketClientProcessor() : base()
         {
-            IdentifierSerializer = new IdentityGUIDNetworkSerializer();
-
-            DataSerializer = new BaseNetworkSerializer<GUIDConnectionInfo>();
         }
-
 
         public override bool Validate(ref GUIDConnectionInfo data)
         {

@@ -1,9 +1,9 @@
-﻿using Assets.Scripts.Core.UnityPool;
-using Bloodthirst.Core.BISDSystem;
+﻿using Bloodthirst.Core.BISDSystem;
+using Bloodthirst.Scripts.Core.UnityPool;
 using System;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Bloodthirst.Scripts
 {
     public class EntitySpawner : MonoBehaviour
     {
