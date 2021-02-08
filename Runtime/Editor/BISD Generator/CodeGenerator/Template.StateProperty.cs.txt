@@ -13,6 +13,15 @@
 		}
 
 		[Observable]
+		public [FIELD_TYPE] [FIELD_NICE_NAME]DontNotify
+		{
+			set
+			{
+				state.[FIELD] = value;
+			}
+		}
+
+		[Observable]
 		public void Trigger[FIELD_NICE_NAME]Changed()
 		{
 			On[FIELD_NICE_NAME]Changed?.Invoke(this);

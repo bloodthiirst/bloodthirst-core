@@ -1,15 +1,14 @@
-﻿using Bloodthirst.Core.BISDSystem;
-using Bloodthirst.Scripts.Core.UnityPool;
+﻿using Bloodthirst.Scripts.Core.UnityPool;
 using System;
 using UnityEngine;
 
-namespace Bloodthirst.Scripts
+namespace Bloodthirst.Core.BISDSystem
 {
     public class EntitySpawner : MonoBehaviour
     {
         public T SpawnEntity<T>() where T : MonoBehaviour
         {
-            T entity = UnityPool.Instance.Get<T>();
+            T entity = GenericUnityPool.Instance.Get<T>();
 
             entity.name = "Spawned " + typeof(T).Name;
 
@@ -24,7 +23,7 @@ namespace Bloodthirst.Scripts
 
         public T SpawnEntity<T>(Predicate<T> filter) where T : MonoBehaviour
         {
-            T entity = UnityPool.Instance.Get(filter);
+            T entity = GenericUnityPool.Instance.Get(filter);
 
             entity.name = "Spawned " + typeof(T).Name;
 
@@ -91,7 +90,7 @@ namespace Bloodthirst.Scripts
 
             identifier.TriggerRemoved();
 
-            UnityPool.Instance.Return(player);
+            GenericUnityPool.Instance.Return(player);
         }
     }
 }

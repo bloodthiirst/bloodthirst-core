@@ -14,10 +14,20 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 {
     public class ObservableFieldsCodeGenerator : ICodeGenerator
     {
+        /// <summary>
+        /// Path to the template text file
+        /// </summary>
         private const string STATE_PROPERTY_TEMPALTE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/BISD Generator/CodeGenerator/Template.StateProperty.cs.txt";
 
+        /// <summary>
+        /// The start of the part of the script to inject the auto-generated observables
+        /// </summary>
         private const string START_CONST = @"//OBSERVABLES_START";
-        private const string END_CONT = @"//OBSERVABLES_END";
+
+        /// <summary>
+        /// The end of the part of the script to inject the auto-generated observables
+        /// </summary>
+        private const string END_CONST = @"//OBSERVABLES_END";
 
         public bool ShouldInject(Container<Type> TypeList, Container<TextAsset> TextList)
         {
@@ -33,7 +43,11 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             // check if we need to regenerate the code
 
-            if (fields.Length != props.Length)
+            // we check for double the count since every observable has 2 properties
+            // 1 getter and setter that trigger event
+            // 1 setter that doesn't notify
+
+            if (fields.Length * 2 != props.Length)
             {
                 return true;
             }
@@ -128,7 +142,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             string oldScript = TextList.Instance.text;
 
-            List<Tuple<SECTION_EDGE, int, int>> sections = oldScript.StringReplaceSection(START_CONST, END_CONT);
+            List<Tuple<SECTION_EDGE, int, int>> sections = oldScript.StringReplaceSection(START_CONST, END_CONST);
 
             int padding = 0;
 

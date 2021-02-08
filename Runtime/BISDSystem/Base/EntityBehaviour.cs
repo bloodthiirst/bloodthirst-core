@@ -16,6 +16,10 @@ namespace Bloodthirst.Core.BISDSystem
         where STATE : class, IEntityState<DATA>, new()
         where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new()
     {
+
+        /// <summary>
+        /// The parent entity containing this behaviour
+        /// </summary>
         [SerializeField]
         private EntityIdentifier entityIdentifier;
 
@@ -101,9 +105,13 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
+        /// <summary>
+        /// <para>Gets invoked after the instance  callls for a remove </para>
+        /// <para>Apply the removal that needs to be done on the behaviour part, like invoking Destroy or sending back to the pool</para>
+        /// </summary>
+        /// <param name="ins"></param>
         public virtual void OnRemove(INSTANCE ins)
         {
-            // TODO : do the actual behaviour , like invoking Destroy or sending back to the pool
             instance.BeforeEntityRemoved -= OnRemove;
             instance = null;
         }
@@ -122,6 +130,10 @@ namespace Bloodthirst.Core.BISDSystem
             instanceRegister.Register(Instance);
         }
 
+        /// <summary>
+        /// Method invoked after the instance has been changed
+        /// </summary>
+        /// <param name="instance"></param>
         public abstract void OnSetInstance(INSTANCE instance);
 
         /// <summary>
@@ -134,7 +146,7 @@ namespace Bloodthirst.Core.BISDSystem
         /// <returns>Loaded bhaviour form pool</returns>
         public static BEHAVIOUR Load<BEHAVIOUR>(STATE state) where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
         {
-            BEHAVIOUR behaviour = UnityPool.Instance.Get<BEHAVIOUR>();
+            BEHAVIOUR behaviour = GenericUnityPool.Instance.Get<BEHAVIOUR>();
 
             behaviour.Instance.State = state;
 

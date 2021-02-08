@@ -1,5 +1,4 @@
 ﻿using Bloodthirst.Socket.Core;
-using Bloodthirst.Socket.Models;
 using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Utils;
 using Sirenix.OdinInspector;

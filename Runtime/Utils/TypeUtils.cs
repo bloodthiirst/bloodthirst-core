@@ -29,5 +29,44 @@ namespace Bloodthirst.Core.Utils
                 return allTypes;
             }
         }
+
+        /// <summary>
+        /// Is <paramref name="child"/>  a subtype (or same type) as <paramref name="parent"/> ?
+        /// </summary>
+        /// <param name="child"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool IsSubTypeOf(Type child, Type parent)
+        {
+            if (child == parent)
+                return true;
+
+            return parent.IsAssignableFrom(child);
+        }
+
+        /// <summary>
+        /// Is <typeparamref name="T"/> a subtype (or same type) as <paramref name="parent"/> ?
+        /// </summary>
+        /// <param name="child"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool IsSubTypeOf<T>(Type parent)
+        {
+            Type child = typeof(T);
+            return IsSubTypeOf(child, parent);
+        }
+
+        /// <summary>
+        /// Is <typeparamref name="T"/> a subtype (or same type) as <typeparamref name="K"/> ?
+        /// </summary>
+        /// <param name="child"></param>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static bool IsSubTypeOf<T, K>()
+        {
+            Type child = typeof(T);
+            Type parent = typeof(K);
+            return IsSubTypeOf(child, parent);
+        }
     }
 }

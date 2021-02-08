@@ -1,56 +1,29 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Text;
-using UnityEngine;
+﻿using System;
 
 namespace Bloodthirst.Socket.Serializer
 {
     /// <summary>
-    /// Basic network serialized using the bytes of JSON string
-    /// Does not apply compression
+    /// Base class to inherit to create a serializer for a certain type
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class BaseNetworkSerializer<T> : INetworkSerializer<T>
+    public abstract class BaseNetworkSerializer<T> : INetworkSerializer<T>
     {
         private static Type type => typeof(T);
 
-        private static BaseNetworkSerializer<T> instance;
+        public Type Type => type;
 
-        public static BaseNetworkSerializer<T> Instance
+        public abstract T Deserialize(byte[] data);
+
+        public abstract byte[] Serialize(T t);
+
+        byte[] INetworkSerializer.SerializeInternal(object identifier)
         {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new BaseNetworkSerializer<T>();
-                }
-
-                return instance;
-            }
+            return Serialize((T)identifier);
         }
 
-        public T Deserialize(byte[] data)
+        object INetworkSerializer.DeserializeInternal(byte[] data)
         {
-            string json = Encoding.UTF8.GetString(data);
-
-            try
-            {
-                return JsonConvert.DeserializeObject<T>(json);
-            }
-            catch (Exception ex)
-            {
-                Debug.Break();
-                Debug.LogError(ex.Message);
-            }
-
-            return default;
-        }
-
-        public byte[] Serialize(T t)
-        {
-            string JSONString = JsonConvert.SerializeObject(t);
-
-            return Encoding.UTF8.GetBytes(JSONString);
+            return Deserialize(data);
         }
     }
 }

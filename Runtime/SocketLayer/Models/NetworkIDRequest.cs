@@ -1,6 +1,8 @@
-﻿namespace Bloodthirst.Models
+﻿using Bloodthirst.Socket.Serialization;
+
+namespace Bloodthirst.Models
 {
-    public struct NetworkIDRequest
+    public struct NetworkIDRequest : IEmptyStruct
     {
     }
 }

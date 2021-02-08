@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Bloodthirst.Scripts.Core.Utils;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Bloodthirst.Core.UI
@@ -8,38 +9,25 @@ namespace Bloodthirst.Core.UI
         [SerializeField]
         private RectTransform uiWindowTransform = null;
 
-        private bool canMove;
-
         [SerializeField]
-        private Vector3 lastMousePos;
+        private bool canMove;
 
         public void OnPointerDown(PointerEventData eventData)
         {
             canMove = true;
         }
+
         public void OnPointerUp(PointerEventData eventData)
         {
             canMove = false;
         }
 
-        private void Start()
-        {
-            lastMousePos = Input.mousePosition;
-        }
-
         private void Update()
         {
-            Vector2 delta = Input.mousePosition - lastMousePos;
-
             if (canMove)
             {
-                uiWindowTransform.anchoredPosition += delta;
+                uiWindowTransform.anchoredPosition += (Vector2)MouseUtils.Instance.MouseDelta;
             }
-
-            lastMousePos = Input.mousePosition;
-
         }
-
-
     }
 }

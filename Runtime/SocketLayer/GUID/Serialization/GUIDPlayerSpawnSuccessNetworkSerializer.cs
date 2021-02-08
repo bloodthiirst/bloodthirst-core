@@ -5,9 +5,9 @@ using System;
 
 namespace Bloodthirst.Socket.Serialization.Data
 {
-    public class GUIDPlayerSpawnSuccessNetworkSerializer : INetworkSerializer<GUIDPlayerSpawnSuccess>
+    public class GUIDPlayerSpawnSuccessNetworkSerializer : BaseNetworkSerializer<GUIDPlayerSpawnSuccess>
     {
-        public GUIDPlayerSpawnSuccess Deserialize(byte[] packet)
+        public override GUIDPlayerSpawnSuccess Deserialize(byte[] packet)
         {
             return new GUIDPlayerSpawnSuccess()
             {
@@ -16,7 +16,7 @@ namespace Bloodthirst.Socket.Serialization.Data
             };
         }
 
-        public byte[] Serialize(GUIDPlayerSpawnSuccess identifier)
+        public override byte[] Serialize(GUIDPlayerSpawnSuccess identifier)
         {
             byte[] data = new byte[32];
 

@@ -20,8 +20,21 @@ namespace Bloodthirst.Core.UI
         public bool IsOpen { get; set; }
 
         public virtual bool RequestOpen { get; set; }
+
+        [ShowInInspector]
         public virtual bool RequestFocus { get; set; }
-        public virtual bool RequestUnfocus { get; set; }
+
+        private bool requestUnfocus;
+
+        [ShowInInspector]
+        public virtual bool RequestUnfocus
+        {
+            get => requestUnfocus;
+            set
+            {
+                requestUnfocus = value;
+            }
+        }
         public virtual bool RequestClose { get; set; }
 
         public event Action<IUIWindow> OnClose;

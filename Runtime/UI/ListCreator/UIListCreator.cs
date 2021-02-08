@@ -26,6 +26,10 @@ namespace Bloodthirst.Core.UI
             this.container = container;
         }
 
+        /// <summary>
+        /// Refresh the list of the UIs by passing it the instances that we want to show
+        /// </summary>
+        /// <param name="instances"></param>
         public void RefreshUI(IList<INSTANCE> instances)
         {
             int instCount = instances.Count;

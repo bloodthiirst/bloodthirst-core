@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Models;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
 using Bloodthirst.System.CommandSystem;

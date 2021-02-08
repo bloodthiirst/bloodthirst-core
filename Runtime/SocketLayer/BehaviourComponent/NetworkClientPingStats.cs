@@ -2,6 +2,7 @@
 using Bloodthirst.Socket.Client.Base;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.PacketParser;
+using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
 using Sirenix.OdinInspector;

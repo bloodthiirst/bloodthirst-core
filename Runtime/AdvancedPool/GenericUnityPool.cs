@@ -15,11 +15,11 @@ namespace Bloodthirst.Scripts.Core.UnityPool
     /// <summary>
     /// Generic pooling system singleton used to retrieve and reuse gameobjects
     /// </summary>
-    public class UnityPool : UnitySingleton<UnityPool>, ISingletonPass
+    public class GenericUnityPool : UnitySingleton<GenericUnityPool>, ISingletonPass
     {
         [SerializeField]
         [Required]
-        private UnityPoolContainer unityPoolContainer = default;
+        private GenericUnityPoolContainer unityPoolContainer = default;
 
         [SerializeField]
         [Required]

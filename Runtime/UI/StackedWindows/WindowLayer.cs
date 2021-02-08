@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Core.UnitySingleton;
 using Bloodthirst.Scripts.Core.Utils;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,15 +13,22 @@ namespace Bloodthirst.Core.UI
         [SerializeField]
         protected RectTransform container;
 
+        [SerializeField]
+        protected Canvas canvas;
+
+        public Canvas Canvas => canvas;
+
+        public event Action<IWindowLayer> OnLayerFocused;
+
         [ShowInInspector]
-        private List<IUIWindow> uiWindows;
+        private List<IUIWindow> uiWindows = new List<IUIWindow>();
+
+        private List<IUIWindow> openWindows = new List<IUIWindow>();
 
         public List<IUIWindow> UiWindows { get => uiWindows; set => uiWindows = value; }
 
         protected override void Awake()
         {
-            UiWindows = new List<IUIWindow>();
-
             WindowLayerManager.Add(this);
         }
 
@@ -54,18 +62,28 @@ namespace Bloodthirst.Core.UI
         {
             uiWindows.Remove(uiWindow);
             uiWindows.Add(uiWindow);
+
             Refresh();
         }
         private void OnWindowFocus(IUIWindow uiWindow)
         {
             if (uiWindows.Last() == uiWindow)
+            {
+                Refresh();
+                OnLayerFocused?.Invoke(this);
                 return;
-
+            }
             if (!uiWindows.Contains(uiWindow))
+            {
+                Refresh();
+                OnLayerFocused?.Invoke(this);
                 return;
+            }
 
             uiWindows.Remove(uiWindow);
             uiWindows.Add(uiWindow);
+
+            OnLayerFocused?.Invoke(this);
 
             Refresh();
         }
@@ -109,6 +127,8 @@ namespace Bloodthirst.Core.UI
                     uiWindows[i].RequestOpen = true;
             }
 
+
+            OnLayerFocused?.Invoke(this);
             Refresh();
         }
 
@@ -122,6 +142,7 @@ namespace Bloodthirst.Core.UI
             }
 
             Refresh();
+            OnLayerFocused?.Invoke(this);
         }
 
         public void Refresh()
@@ -148,35 +169,56 @@ namespace Bloodthirst.Core.UI
                 }
             }
 
-            List<IUIWindow> openWindows = new List<IUIWindow>();
+            // clear opens windows saved
+            openWindows.Clear();
 
-            // sort every thing except the last window
+            // - select the windows that need to shown
+            // which  are the windows that are already opened
+            // or the window that requested tp be opened
             for (int i = 0; i < uiWindows.Count; i++)
             {
                 IUIWindow window = uiWindows[i];
 
-                if (window.IsOpen)
+                if (window.IsOpen || window.RequestOpen)
                     openWindows.Add(window);
-
-                if (window.RequestOpen)
-                    openWindows.Add(window);
-
-                window.ParentTransform.SetSiblingIndex(i);
             }
 
+            // operate on all open windows EXCEPT the last one
+            // since they are behind the first window, they should be unfocused
             for (int i = 0; i < openWindows.Count - 1; i++)
             {
                 IUIWindow win = openWindows[i];
 
+                // if the window is already unfocused and no RequestFocus is called
+                // then we can skip it since it's already setup correctly
                 if (!win.IsFocused && !win.RequestOpen)
+                {
+                    win.RequestClose = false;
+                    win.RequestFocus = false;
+                    win.RequestUnfocus = false;
+                    win.RequestOpen = false;
                     continue;
+                }
 
+                // if a focus request is done then we switch spots
+                if (win.RequestFocus)
+                {
+                    openWindows[i] = openWindows[openWindows.Count - 1];
+                    openWindows[openWindows.Count - 1] = win;
+                    win = openWindows[i];
+                }
+
+                // unfocus
                 win.IsFocused = false;
-                win.IsOpen = true;
 
+                // this happens when we open everything at the same time
+                // but this is the case where a window asked to be open but it's in the middle of the stack
                 if (win.RequestOpen)
                 {
+                    win.IsOpen = true;
                     win.BeforeOpen();
+
+                    // combine the open and unfocus
                     StartCoroutine(GameObjectUtils.CombineCoroutine(win.Open(), win.Unfocus()));
                 }
                 else
@@ -192,19 +234,39 @@ namespace Bloodthirst.Core.UI
             if (openWindows.Count == 0)
                 return;
 
-            IUIWindow last = openWindows.Last();
+            IUIWindow last = openWindows[openWindows.Count - 1];
 
-            last.IsFocused = true;
             last.IsOpen = true;
 
+            // we do still the Unfocus check is in case where we want to unfocus the entire layer (for example , player clicked on a window in a different layer)
+            // in that case even the first open window is unfocused
             if (last.RequestOpen)
             {
                 last.BeforeOpen();
-                StartCoroutine(last.Open());
+
+                if (last.RequestUnfocus)
+                {
+                    last.IsFocused = false;
+                    StartCoroutine(GameObjectUtils.CombineCoroutine(last.Open(), last.Unfocus()));
+                }
+                else
+                {
+                    last.IsFocused = true;
+                    StartCoroutine(last.Open());
+                }
             }
             else
             {
-                StartCoroutine(last.Focus());
+                if (last.RequestUnfocus)
+                {
+                    last.IsFocused = false;
+                    StartCoroutine(last.Unfocus());
+                }
+                else
+                {
+                    last.IsFocused = true;
+                    StartCoroutine(last.Focus());
+                }
             }
 
 
@@ -212,6 +274,14 @@ namespace Bloodthirst.Core.UI
             last.RequestFocus = false;
             last.RequestUnfocus = false;
             last.RequestOpen = false;
+
+            // - then order them under the parents transform
+            for (int i = 0; i < uiWindows.Count; i++)
+            {
+                IUIWindow window = uiWindows[i];
+
+                window.ParentTransform.SetSiblingIndex(i);
+            }
 
         }
 

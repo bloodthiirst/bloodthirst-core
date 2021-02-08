@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Socket.Core;
+using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using System;

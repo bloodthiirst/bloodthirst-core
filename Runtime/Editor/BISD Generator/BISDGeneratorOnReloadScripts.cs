@@ -13,11 +13,29 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 {
     public class BISDGeneratorOnReloadScripts
     {
+        /// <summary>
+        /// Ending for state class files
+        /// </summary>
         private const string STATE_FILE_ENDING = "State";
+
+        /// <summary>
+        /// Ending for instance class files
+        /// </summary>
         private const string INSTANCE_FILE_ENDING = "Instance";
+
+        /// <summary>
+        /// Ending for behaviour class files
+        /// </summary>
         private const string BEHAVIOUR_FILE_ENDING = "Behaviour";
+
+        /// <summary>
+        /// Ending for data class files
+        /// </summary>
         private const string DATA_FILE_ENDING = "Data";
 
+        /// <summary>
+        /// Files that shouldn't be scanned for the code generation
+        /// </summary>
         private static readonly string[] filterFiles =
         {
             "BISDTag",

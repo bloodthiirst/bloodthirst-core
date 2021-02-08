@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Bloodthirst.Scripts.Core.UnityPool
 {
     [CreateAssetMenu(menuName = "UnityPool/UnityPoolContainer")]
-    public class UnityPoolContainer : SerializedScriptableObject
+    public class GenericUnityPoolContainer : SerializedScriptableObject
     {
         public Dictionary<MonoBehaviour, int> prefabsPoolDescription;
     }

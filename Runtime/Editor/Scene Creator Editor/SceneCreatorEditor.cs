@@ -7,8 +7,8 @@ using System.Linq;
 using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.PersistantAsset;
 using System.Collections.Generic;
-using Packages.com.bloodthirst.bloodthirst_core.Runtime.Editor.EditorOpenTracker;
 using UnityEngine.SceneManagement;
+using Bloodthirst.Utils.EditorOpenTracker;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -19,7 +19,7 @@ public class SceneCreatorEditor : EditorWindow
     [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.SCENE_CREATOR)]
     public static void OnReloadScripts()
     {
-        if (EditorOpenTracker.IsFirstTime())
+        if (EditorStartupTracker.IsFirstTime())
         {
             return;
         }

@@ -14,8 +14,6 @@ namespace Bloodthirst.Socket.Utils
             zip.Close();
             ms.Position = 0;
 
-            MemoryStream outStream = new MemoryStream();
-
             byte[] compressed = new byte[ms.Length];
             ms.Read(compressed, 0, compressed.Length);
 
