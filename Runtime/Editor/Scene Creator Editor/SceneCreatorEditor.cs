@@ -20,6 +20,9 @@ public class SceneCreatorEditor : EditorWindow
     [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.SCENE_CREATOR)]
     public static void OnReloadScripts()
     {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            return;
+
         if (EditorStartupTracker.IsFirstTime())
         {
             return;

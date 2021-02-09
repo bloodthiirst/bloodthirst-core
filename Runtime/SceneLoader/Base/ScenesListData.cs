@@ -57,6 +57,8 @@ namespace Bloodthirst.Core.SceneManager
         [DidReloadScripts(SingletonScriptableObjectInit.TRACK_ASSEMBLY_RELOAD)]
         public static void ReloadUpdater()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
 
             AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
             AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;

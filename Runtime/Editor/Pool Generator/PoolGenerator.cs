@@ -11,6 +11,10 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.AdvancedPool.Editor
 {
+    /// <summary>
+    /// <para> This class auto-generates pools of the prefabs marked with the <see cref="GeneratePool"></see></para>
+    /// <para> The pools are created in the "PoolScene" , a scene that is specifically made to contain thses auto-generated pools</para>
+    /// </summary>
     public class PoolGenerator
     {
         private const string POOL_TEMPLATE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Pool Generator/Template.Pool.cs.txt";
@@ -23,8 +27,25 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             nameof(PoolGenerator)
         };
 
+        [MenuItem("Bloodthirst Tools/AutoGen Pools/Refresh Pools")]
+        public static void ManualPoolTrigger()
+        {
+            RefreshPools();
+        }
+
         [DidReloadScripts(SingletonScriptableObjectInit.SINGLETONS_CREATION_CHECK)]
         public static void OnDidReloadScripts()
+        {
+            // TODO : skip trigger when exiting play mode too
+            // do that for every DidReloadScripts call
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+
+            RefreshPools();
+
+        }
+
+        private static void RefreshPools()
         {
             List<Type> validTypes = GetPoolableTypes();
 
@@ -77,7 +98,6 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             EditorApplication.update -= CheckForPoolsInScene;
             EditorApplication.update += CheckForPoolsInScene;
-
         }
 
         private static bool GetPoolScenePath(out string poolScenePath)
@@ -197,7 +217,11 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             }
 
             UnityEditor.SceneManagement.EditorSceneManager.SaveScene(poolsScene);
-            UnityEditor.SceneManagement.EditorSceneManager.CloseScene(poolsScene, true);
+
+            if (UnityEditor.SceneManagement.EditorSceneManager.sceneCount > 1)
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.CloseScene(poolsScene, true);
+            }
         }
 
         private static void CreatePoolScene()

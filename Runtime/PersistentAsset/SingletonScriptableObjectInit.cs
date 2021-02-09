@@ -37,6 +37,8 @@ namespace Bloodthirst.Core.PersistantAsset
         [DidReloadScripts(SINGLETONS_CREATION_CHECK)]
         public static void OnDidReloadScripts()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
 
             // get singleton types
 

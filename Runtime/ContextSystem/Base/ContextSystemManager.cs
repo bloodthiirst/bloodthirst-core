@@ -60,6 +60,8 @@ namespace Bloodthirst.System.ContextSystem
         [DidReloadScripts(SingletonScriptableObjectInit.SINGLETONS_RELOAD)]
         public static void ReloadContexts()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
 
             if (Instance.AllContextInstance == null)
                 Instance.AllContextInstance = new List<ScriptableObject>();

@@ -45,6 +45,10 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.BISD_OBSERVABLE_GENERATOR)]
         public static void OnReloadScripts()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+
+
             // code generators
             List<ICodeGenerator> codeGenerators = new List<ICodeGenerator>()
             {

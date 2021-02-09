@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Bloodthirst.Scripts.Core.GamePassInitiator;
+using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
-    public abstract class PoolBehaviour<TObejct> : MonoBehaviour, IPoolBehaviour where TObejct : MonoBehaviour
+    public abstract class PoolBehaviour<TObejct> : MonoBehaviour, IPoolBehaviour , IPostSceneLoadedPass where TObejct : MonoBehaviour
     {
 
         [SerializeField]
@@ -47,6 +48,11 @@ namespace Bloodthirst.Core.AdvancedPool
         {
             poolContainer = transform;
             _Pool = new Pool<TObejct>(poolContainer, prefab, poolCount);
+        }
+
+        void IPostSceneLoadedPass.DoScenePass()
+        {
+            Pool.InitializePool();
         }
     }
 }
