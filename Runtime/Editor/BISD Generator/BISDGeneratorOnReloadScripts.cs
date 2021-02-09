@@ -38,8 +38,8 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         /// </summary>
         private static readonly string[] filterFiles =
         {
-            "BISDTag",
-            "BISDGeneratorOnReloadScripts"
+            nameof(BISDTag),
+            nameof(BISDGeneratorOnReloadScripts)
         };
 
         [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.BISD_OBSERVABLE_GENERATOR)]
@@ -92,10 +92,10 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             // find all the scripts that contain the BISDTag
             // which means the scripts that need to be treated
-            List<TextAsset> textAssets = FindTextAssets()
+            List<TextAsset> textAssets = EditorUtils.FindTextAssets()
                 .Where(t => !filterFiles.Contains(t.name))
                 .Where(t => !t.name.EndsWith(".cs"))
-                .Where(t => t.text.Contains("BISDTag"))
+                .Where(t => t.text.Contains(nameof(BISDTag)))
                 .ToList();
 
             // key : model name
@@ -232,25 +232,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             }
         }
 
-        /// <summary>
-        /// Get all the text assets in the project , this includes scripts
-        /// </summary>
-        /// <returns></returns>
-        public static List<TextAsset> FindTextAssets()
-        {
-            List<TextAsset> assets = new List<TextAsset>();
-            string[] guids = AssetDatabase.FindAssets("t:TextAsset");
-            for (int i = 0; i < guids.Length; i++)
-            {
-                string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
-                TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
-                if (asset != null)
-                {
-                    assets.Add(asset);
-                }
-            }
-            return assets;
-        }
+
 
     }
 }

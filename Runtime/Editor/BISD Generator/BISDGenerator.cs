@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.IO;
+using Bloodthirst.Core.Utils;
 
 namespace Bloodthirst.Core.BISD.Editor
 {
@@ -114,18 +115,12 @@ namespace Bloodthirst.Core.BISD.Editor
                         + "/"
                         + modelName;
 
-            string finalPath = Application.dataPath.TrimEnd("Assets".ToCharArray())
+            string finalPath = EditorUtils.PathToProject
                              + relativePath;
 
 
 
             Debug.Log(finalPath);
-
-            TextAsset behaviour = new TextAsset(AssetDatabase.LoadAssetAtPath<TextAsset>(BEHAVIOUR_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            TextAsset instance = new TextAsset(AssetDatabase.LoadAssetAtPath<TextAsset>(INSTANCE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            TextAsset state = new TextAsset(AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            TextAsset data = new TextAsset(AssetDatabase.LoadAssetAtPath<TextAsset>(DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-
 
             File.WriteAllText(finalPath + "Behaviour.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(BEHAVIOUR_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
             File.WriteAllText(finalPath + "Instance.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(INSTANCE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));

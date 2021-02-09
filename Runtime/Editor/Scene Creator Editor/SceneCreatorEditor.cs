@@ -9,6 +9,7 @@ using Bloodthirst.Core.PersistantAsset;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Bloodthirst.Utils.EditorOpenTracker;
+using Bloodthirst.Core.Utils;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -26,6 +27,7 @@ public class SceneCreatorEditor : EditorWindow
 
         bool isNewSceneAdded = false;
 
+        // this only works on scenes that are already open in the editor
         for (int i = 0; i < UnityEditor.SceneManagement.EditorSceneManager.sceneCount; i++)
         {
             Scene scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i);
@@ -36,6 +38,7 @@ public class SceneCreatorEditor : EditorWindow
                 continue;
             }
             */
+
             bool hasManager = scene.GetRootGameObjects().FirstOrDefault(g => g.name.Equals("Scene Manager")) != null;
 
             // if scene does not have a manager
@@ -47,15 +50,13 @@ public class SceneCreatorEditor : EditorWindow
 
                 Type sceneManagerType = null;
 
-                IEnumerable<Type> allTypes = AppDomain.CurrentDomain
-                                            .GetAssemblies()
-                                            .SelectMany(asm => asm.GetTypes())
+                IEnumerable<Type> allTypes = TypeUtils.AllTypes
                                             .Where(t => typeof(MonoBehaviour).IsAssignableFrom(t))
-                                            .Where(t => t.Name.Contains(scene.name + "SceneManager"));
+                                            .Where(t => t.Name.Contains(scene.name + "Manager"));
 
                 foreach (Type t in allTypes)
                 {
-                    if (t.Name.Contains(scene.name + "SceneManager"))
+                    if (t.Name.Contains(scene.name + "Manager"))
                     {
                         sceneManagerType = t;
                         break;
@@ -67,7 +68,7 @@ public class SceneCreatorEditor : EditorWindow
 
                 if (sceneManagerType == null)
                 {
-                    //Debug.LogError("Couldn't find the right scene maanger for the scene : " + scene.name);
+                    Debug.LogError("Couldn't find the right scene maanger for the scene : " + scene.name);
                     continue;
                 }
 
@@ -193,21 +194,25 @@ public class SceneCreatorEditor : EditorWindow
     {
         string currentFolder = GetSelectedPathOrFallback();
 
-        GenerateFiles(currentFolder, SceneName.value);
+        CreateNewScene(currentFolder, SceneName.value);
     }
 
-    private void GenerateFiles(string currentFolder, string sceneName)
+    /// <summary>
+    /// <para>Create a scene using the convention of BloodthirstCore.</para>
+    /// <para>This will generate a scene + the appropriate <see cref="SceneInstanceManager{T}"/> that will be added to the scene during the next domain reload.</para>
+    /// </summary>
+    /// <param name="currentFolder"></param>
+    /// <param name="sceneName"></param>
+    public static void CreateNewScene(string currentFolder, string sceneName)
     {
-        string FolderName = sceneName + "Scene";
+        string fullSceneName = sceneName + "Scene";
 
-        string folderGUID = AssetDatabase.CreateFolder(currentFolder, FolderName);
+        // folder containing the scene related files
+        string relativePath = $"{currentFolder}/{fullSceneName}";
 
-        string relativePath = AssetDatabase.GUIDToAssetPath(folderGUID)
-                    + "/"
-                    + sceneName;
+        EditorUtils.CreateFoldersFromPath(relativePath);
 
-        string finalPath = Application.dataPath.TrimEnd("Assets".ToCharArray())
-                         + relativePath;
+        string finalPath = $"{EditorUtils.PathToProject}{relativePath}/{sceneName}";
 
 
 
@@ -221,9 +226,9 @@ public class SceneCreatorEditor : EditorWindow
         Scene scene = UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.EmptyScene, UnityEditor.SceneManagement.NewSceneMode.Additive);
         scene.name = sceneName + "Scene";
 
-        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, relativePath + "Scene.unity");
+        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, $"{relativePath}/{fullSceneName}.unity");
 
-        AssetDatabase.ImportAsset(finalPath + "SceneManager.cs");
+        AssetDatabase.ImportAsset($"{relativePath}/{sceneName}SceneManager.cs");
 
         AssetDatabase.SaveAssets();
 

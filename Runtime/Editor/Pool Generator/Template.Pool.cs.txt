@@ -1,0 +1,9 @@
+﻿using Bloodthirst.Core.AdvancedPool;
+using UnityEngine;
+
+namespace Assets.Scripts.Game.Pool
+{
+    public class [BEHAVIOUR]Pool : PoolBehaviour<[BEHAVIOUR]>
+    {
+    }
+}

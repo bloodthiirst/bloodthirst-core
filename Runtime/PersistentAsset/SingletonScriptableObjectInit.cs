@@ -30,6 +30,8 @@ namespace Bloodthirst.Core.PersistantAsset
 
         public const int EDITOR_OPEN_TRACKER = 5;
 
+        public const int POOL_GENERATOR = 6;
+
         #endregion
 
         [DidReloadScripts(SINGLETONS_CREATION_CHECK)]

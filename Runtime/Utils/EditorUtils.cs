@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Bloodthirst.Scripts.Utils;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -30,6 +31,45 @@ namespace Bloodthirst.Core.Utils
                     AssetDatabase.CreateFolder(parentFolder, folders[i]);
                 }
             }
+        }
+
+        private static string pathToProject;
+
+        /// <summary>
+        ///<para>Path to project (without the Asset folder)</para>
+        ///<para>Example : C:/UnityProjects/[ProjectName]</para>
+        /// </summary>
+        public static string PathToProject
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(pathToProject))
+                {
+                    pathToProject = Application.dataPath.TrimEnd("Assets".ToCharArray());
+                }
+
+                return pathToProject;
+            }
+        }
+
+        /// <summary>
+        /// Get all the text assets in the project , this includes scripts
+        /// </summary>
+        /// <returns></returns>
+        public static List<TextAsset> FindTextAssets()
+        {
+            List<TextAsset> assets = new List<TextAsset>();
+            string[] guids = AssetDatabase.FindAssets("t:TextAsset");
+            for (int i = 0; i < guids.Length; i++)
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+                TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+                if (asset != null)
+                {
+                    assets.Add(asset);
+                }
+            }
+            return assets;
         }
 
         public static void HandlesDrawCubeOutline(Vector3 center, Vector3 size)
