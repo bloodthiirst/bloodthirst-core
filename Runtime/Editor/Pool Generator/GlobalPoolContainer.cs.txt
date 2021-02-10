@@ -1,4 +1,5 @@
-﻿#if UNITY_EDITOR
+﻿using Bloodthirst.Core.UnitySingleton;
+#if UNITY_EDITOR
 using Bloodthirst.Core.AdvancedPool.Editor;
 #endif
 
@@ -9,7 +10,14 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
     /// <para> The pools are created in the "PoolScene" , a scene that is specifically made to contain thses auto-generated pools</para>
     /// <para> The pool generation is done by the <see cref="PoolGenerator"> class</see></para>
     /// </summary>
-    public class [BEHAVIOUR]Pool : PoolBehaviour<[BEHAVIOUR]>
+    public class GlobalPoolContainer : UnitySingleton<GlobalPoolContainer>
     {
+        #region fields for the auto-generated pools
+
+        // [START_POOLS]
+
+        // [END_POOLS]
+
+        #endregion
     }
 }

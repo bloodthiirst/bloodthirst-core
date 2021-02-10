@@ -46,6 +46,14 @@ namespace Bloodthirst.Core.Utils
             return sb.ToString();
         }
 
+
+        public static string RemoveWhitespace(this string input)
+        {
+            return new string(input.ToCharArray()
+                .Where(c => !Char.IsWhiteSpace(c))
+                .ToArray());
+        }
+
         /// <summary>
         /// Given a source text , a start string and an end string , return the start index and end index
         /// </summary>
