@@ -71,7 +71,7 @@ public class SceneCreatorEditor : EditorWindow
 
                 if (sceneManagerType == null)
                 {
-                    Debug.LogError("Couldn't find the right scene maanger for the scene : " + scene.name);
+                    Debug.LogError("Couldn't find the right scene manager for the scene : " + scene.name);
                     continue;
                 }
 

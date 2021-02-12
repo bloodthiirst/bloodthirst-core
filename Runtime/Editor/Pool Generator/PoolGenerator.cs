@@ -11,6 +11,7 @@ using System.IO;
 using UnityEngine.SceneManagement;
 using static Bloodthirst.Core.Utils.StringExtensions;
 using System.Text;
+using System.Globalization;
 
 namespace Bloodthirst.Core.AdvancedPool.Editor
 {
@@ -29,8 +30,9 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         #region auto-gen pools
         private const string POOL_TEMPLATE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Pool Generator/Template.Pool.cs.txt";
         private const string POOL_SCRIPTS_PATH = "Assets/Scripts/Pools";
-        private const string POOL_SCENE_PATH = "Assets/Scenes/PoolScene";
-        private const string REPLACE_KEYWORD = "[BEHAVIOUR]";
+        private const string POOL_SCENE_FOLDER_PATH = "Assets/Scenes/PoolScene";
+        private const string CLASS_NAME_REPLACE_KEYWORD = "[BEHAVIOUR]";
+        private const string CLASS_NAMESPACE_REPLACE_KEYWORD = "[NAMESPACE]";
         #endregion
 
         private static readonly string[] filterFiles =
@@ -41,6 +43,9 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             "GlobalPoolContainer.cs",
             "GlobalPoolContainer"
         };
+
+        private static readonly TextInfo TextInfo = new CultureInfo("en-US", false).TextInfo;
+
 
         private static List<Type> poolalbeTypes;
         private static List<Type> PoolableTypes
@@ -69,10 +74,30 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             }
         }
 
-        [MenuItem("Bloodthirst Tools/AutoGen Pools/Refresh Pools")]
-        public static void ManualPoolTrigger()
+
+        [MenuItem("Bloodthirst Tools/AutoGen Pools/Regenrate Pool Scene")]
+        public static void RegenratePoolScene()
         {
-            RefreshPools();
+            SceneCreatorEditor.CreateNewScene("Assets/Scenes", "Pool");
+        }
+
+        [MenuItem("Bloodthirst Tools/AutoGen Pools/Regenrate Pools")]
+        public static void RegenratePools()
+        {
+            Clean();
+
+            EditorApplication.update -= RefreshPools;
+            EditorApplication.update += RefreshPools;
+        }
+
+        private static void Clean()
+        {
+            // delete global container + pools
+            AssetDatabase.DeleteAsset(POOL_SCRIPTS_PATH);
+
+            // delete pools scene
+            AssetDatabase.DeleteAsset(POOL_SCENE_FOLDER_PATH);
+
         }
 
         [DidReloadScripts(SingletonScriptableObjectInit.SINGLETONS_CREATION_CHECK)]
@@ -88,6 +113,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static void RefreshPools()
         {
+            EditorApplication.update -= RefreshPools;
+
             // there are no poolable types that need to be treated
             if (PoolableTypes.Count == 0)
             {
@@ -119,7 +146,12 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 string relativePath = $"{POOL_SCRIPTS_PATH}/{$"{t.Name}Pool.cs"}";
                 string pathToProject = EditorUtils.PathToProject;
 
-                File.WriteAllText(pathToProject + relativePath, AssetDatabase.LoadAssetAtPath<TextAsset>(POOL_TEMPLATE).text.Replace(REPLACE_KEYWORD, t.Name));
+                string scriptText = AssetDatabase.LoadAssetAtPath<TextAsset>(POOL_TEMPLATE)
+                                .text
+                                .Replace(CLASS_NAME_REPLACE_KEYWORD, t.Name)
+                                .Replace(CLASS_NAMESPACE_REPLACE_KEYWORD, t.Namespace == null ? string.Empty : $"using {t.Namespace};") ;
+
+                File.WriteAllText(pathToProject + relativePath, scriptText);
 
                 AssetDatabase.ImportAsset(relativePath);
             }
@@ -144,7 +176,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             }
 
             // check if we have pool scene or not
-            bool hasPoolScene = GetPoolScenePath(out string poolScenePath);
+            bool hasPoolScene = GetPoolScenePath();
 
             //create it if it's not found
             // return since the SceneManager script generation will trigger domain reload
@@ -160,8 +192,14 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             EditorApplication.update += CheckForPoolsInScene;
         }
 
-        private static bool GetPoolScenePath(out string poolScenePath)
+        /// <summary>
+        /// Does the pool scene exist ?
+        /// </summary>
+        /// <param name="poolScenePath"></param>
+        /// <returns></returns>
+        private static bool GetPoolScenePath()
         {
+            /*
             string res = null;
 
             for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
@@ -179,6 +217,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             poolScenePath = null;
             return false;
+            */
+            return AssetDatabase.IsValidFolder(POOL_SCENE_FOLDER_PATH);
         }
 
         private static void RefreshGlobalPoolContainer()
@@ -193,12 +233,12 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         {
             EditorApplication.update -= CheckForPoolsInScene;
 
-            if (!GetPoolScenePath(out string poolScenePath))
+            if (!GetPoolScenePath())
             {
                 Debug.LogError("PoolScene not found in the project");
             }
 
-            Scene poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(poolScenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            Scene poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
 
             Type globalPoolContainerType = TypeUtils.AllTypes.FirstOrDefault(p => p.Name.Equals("GlobalPoolContainer"));
 
@@ -257,6 +297,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 return;
             }
 
+            // check if we should regenerate the global pool or not
+
             bool regenerate = false;
 
             Component globalPoolComp = globalPoolContainer.GetComponent(globalPoolContainerType);
@@ -267,6 +309,12 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 FieldInfo fieldForPool = poolFields[i];
 
                 if (fieldForPool.FieldType != pool.GetType())
+                {
+                    regenerate = true;
+                    break;
+                }
+
+                if (!fieldForPool.Name.Equals(PrefabToFieldName(pool)))
                 {
                     regenerate = true;
                     break;
@@ -292,6 +340,16 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         }
 
+        /// <summary>
+        /// Generates the appropriate name for a pool
+        /// </summary>
+        /// <param name="pool"></param>
+        /// <returns></returns>
+        private static string PrefabToFieldName(IPoolBehaviour pool)
+        {
+            return $"{pool.GetType().Name}For{TextInfo.ToTitleCase(pool.Prefab.name.RemoveWhitespace()) }";
+        }
+
         private static void RegenerateGlobalPoolFields(List<IPoolBehaviour> poolsInScene)
         {
             string oldScript = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
@@ -313,10 +371,25 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                     replacementText.Append(Environment.NewLine);
                     replacementText.Append(Environment.NewLine);
 
+
+
                     foreach (IPoolBehaviour pool in poolsInScene)
                     {
-                        var templateText = $"public {pool.GetType().Name} {pool.GetType().Name}_{pool.Prefab.name.RemoveWhitespace()};";
+                        string templateText = $"public {pool.GetType().Name} {PrefabToFieldName(pool)};";
+
                         replacementText
+                            .Append('\t')
+                            .Append('\t')
+                            .Append("/// <summary>")
+                            .Append(Environment.NewLine)
+                            .Append('\t')
+                            .Append('\t')
+                            .Append($"/// <para> this field is auto-generated , returns a pool for the prefab named : <c>{pool.Prefab.name}</c></para>")
+                            .Append(Environment.NewLine)
+                            .Append('\t')
+                            .Append('\t')
+                            .Append("/// </summary>")
+                            .Append(Environment.NewLine)
                             .Append('\t')
                             .Append('\t')
                             .Append(templateText)

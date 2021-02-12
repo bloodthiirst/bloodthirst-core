@@ -1,4 +1,8 @@
-﻿#if UNITY_EDITOR
+﻿#region generated namespace
+[NAMESPACE]
+#endregion
+
+#if UNITY_EDITOR
 using Bloodthirst.Core.AdvancedPool.Editor;
 #endif
 
