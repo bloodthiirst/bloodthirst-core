@@ -1,4 +1,8 @@
 ﻿using Bloodthirst.Core.UnitySingleton;
+using System.Collections.Generic;
+using UnityEngine;
+using Sirenix.OdinInspector;
+
 #if UNITY_EDITOR
 using Bloodthirst.Core.AdvancedPool.Editor;
 #endif
@@ -19,5 +23,28 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
         // [END_POOLS]
 
         #endregion
+
+        [ShowInInspector]
+        private List<IPoolBehaviour> allPools;
+
+        public List<IPoolBehaviour> AllPools 
+        {
+            get
+            {
+                if(allPools == null)
+                {
+                    allPools = new List<IPoolBehaviour>();
+                }
+
+                return allPools;
+            }
+        }
+
+        protected override void Awake()
+        {
+            // [LOAD_IN_LIST_START]
+
+            // [LOAD_IN_LIST_END]
+        }
     }
 }

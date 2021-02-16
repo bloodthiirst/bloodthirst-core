@@ -1,17 +1,23 @@
 ﻿using Bloodthirst.Scripts.Core.GamePassInitiator;
+using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
-    public abstract class PoolBehaviour<TObejct> : MonoBehaviour, IPoolBehaviour , IPostSceneLoadedPass where TObejct : MonoBehaviour
+    public abstract class PoolBehaviour<TObejct> : MonoBehaviour, IPoolBehaviour , IPostSceneLoadedPass where TObejct : Component
     {
 
-        [SerializeField]
-        private Transform poolContainer = null;
+        private static readonly Type type = typeof(TObejct);
 
         [SerializeField]
-        private TObejct prefab;
+        protected Transform poolContainer = null;
+
+        [SerializeField]
+        protected TObejct prefab;
+        
+        [SerializeField]
+        protected int poolCount;
 
         public TObejct Prefab
         {
@@ -25,8 +31,7 @@ namespace Bloodthirst.Core.AdvancedPool
             set => Prefab = value.GetComponent<TObejct>();
         }
 
-        [SerializeField]
-        private int poolCount;
+        
         int IPoolBehaviour.Count { get => poolCount; set => poolCount = value; }
 
         private Pool<TObejct> _Pool;
@@ -42,7 +47,12 @@ namespace Bloodthirst.Core.AdvancedPool
             }
         }
 
+        Type IPoolBehaviour.Type => type;
 
+        [SerializeField]
+        [ReadOnly]
+        private string prefabPath;
+        public string PrefabPath { get => prefabPath; set => prefabPath = value; }
 
         void IPoolBehaviour.Initialize()
         {

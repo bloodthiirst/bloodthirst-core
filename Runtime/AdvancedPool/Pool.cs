@@ -10,9 +10,14 @@ namespace Bloodthirst.Core.AdvancedPool
         /// Type of pooled object
         /// </summary>
         public abstract Type PooledType { get; }
-        protected abstract string GetName(MonoBehaviour original, int index);
+
+        public abstract void Get(out GameObject go);
+
+        public abstract void Return(GameObject t);
+
+        protected abstract string GetName(Component original, int index);
     }
-    public class Pool<TObject> : Pool where TObject : MonoBehaviour
+    public class Pool<TObject> : Pool where TObject : Component
     {
         private static readonly Type Type = typeof(TObject);
         public override Type PooledType => Type;
@@ -24,6 +29,23 @@ namespace Bloodthirst.Core.AdvancedPool
         private int PoolCount { get; set; }
 
         private List<TObject> _pool;
+
+        private List<TObject> _usedInstances;
+
+        public List<TObject> UsedInstances => _UsedInstances;
+
+        private List<TObject> _UsedInstances
+        {
+            get
+            {
+                if (_usedInstances == null)
+                {
+                    _usedInstances = new List<TObject>();
+                }
+
+                return _usedInstances;
+            }
+        }
 
         private Transform PoolTransform { get; set; }
 
@@ -64,7 +86,57 @@ namespace Bloodthirst.Core.AdvancedPool
             }
         }
 
-        public TObject Get(Predicate<TObject> filter)
+        public override void Return(GameObject t)
+        {
+            if (t == null)
+            {
+                Debug.Assert(t == null);
+                return;
+            }
+
+            if (t.TryGetComponent(out TObject comp))
+            {
+                Debug.LogError($"Instance doesn't contain contain a componenet of type {typeof(TObject).Name}");
+            }
+
+            IOnDespawn[] array = t.GetComponentsInChildren<IOnDespawn>(true);
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                IOnDespawn onSpawn = array[i];
+                onSpawn.OnDespawn();
+            }
+
+            t.transform.SetParent(PoolTransform);
+            t.gameObject.SetActive(false);
+            _Pool.Add(comp);
+            _UsedInstances.Remove(comp);
+        }
+
+        public override void Get(out GameObject go)
+        {
+            CheckPoolSize();
+
+            TObject obj = _Pool[0];
+
+            _Pool.RemoveAt(0);
+            _UsedInstances.Add(obj);
+
+            obj.transform.SetParent(null);
+            obj.gameObject.SetActive(true);
+
+            IOnSpawn[] array = obj.GetComponentsInChildren<IOnSpawn>(true);
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                IOnSpawn onSpawn = array[i];
+                onSpawn.OnSpawn();
+            }
+
+            go = obj.gameObject;
+        }
+
+        public TObject Get<T>(Predicate<TObject> filter)
         {
             CheckPoolSize();
 
@@ -76,6 +148,8 @@ namespace Bloodthirst.Core.AdvancedPool
                     continue;
 
                 _Pool.RemoveAt(i);
+                _UsedInstances.Add(ins);
+
                 ins.gameObject.SetActive(true);
 
                 IOnSpawn[] array = ins.GetComponentsInChildren<IOnSpawn>(true);
@@ -106,12 +180,15 @@ namespace Bloodthirst.Core.AdvancedPool
             CheckPoolSize();
 
             TObject obj = _Pool[0];
+
             _Pool.RemoveAt(0);
+            _UsedInstances.Add(obj);
 
             obj.transform.SetParent(null);
             obj.gameObject.SetActive(true);
 
             IOnSpawn[] array = obj.GetComponentsInChildren<IOnSpawn>(true);
+
             for (int i = 0; i < array.Length; i++)
             {
                 IOnSpawn onSpawn = array[i];
@@ -139,9 +216,10 @@ namespace Bloodthirst.Core.AdvancedPool
             t.transform.SetParent(PoolTransform);
             t.gameObject.SetActive(false);
             _Pool.Add(t);
+            _UsedInstances.Remove(t);
         }
 
-        protected override string GetName(MonoBehaviour original, int index)
+        protected override string GetName(Component original, int index)
         {
             return $"{original.name} - {index}";
         }

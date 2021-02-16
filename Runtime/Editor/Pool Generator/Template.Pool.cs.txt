@@ -6,6 +6,8 @@
 using Bloodthirst.Core.AdvancedPool.Editor;
 #endif
 
+using System;
+
 namespace Bloodthirst.Core.AdvancedPool.Pools
 {
     /// <summary>
@@ -13,6 +15,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
     /// <para> The pools are created in the "PoolScene" , a scene that is specifically made to contain thses auto-generated pools</para>
     /// <para> The pool generation is done by the <see cref="PoolGenerator"> class</see></para>
     /// </summary>
+    [Serializable]
     public class [BEHAVIOUR]Pool : PoolBehaviour<[BEHAVIOUR]>
     {
     }

@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Bloodthirst.Scripts.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -154,6 +155,34 @@ namespace Bloodthirst.Core.Utils
             points[3] = center + halfSize.MulVector(-1, -1, 1);
 
             Handles.DrawAAConvexPolygon(points);
+        }
+
+        /// <summary>
+        /// Get a path to an asset placed in a resource folder
+        /// </summary>
+        /// <param name="poolablePrefab"></param>
+        /// <returns></returns>
+        public static string GetResourcesPath(UnityEngine.Object poolablePrefab)
+        {
+            var path = AssetDatabase.GetAssetPath(poolablePrefab);
+
+            if (string.IsNullOrEmpty(path))
+                return null;
+
+            int index = path.LastIndexOf("Resources/", path.Length - 1);
+
+            path = path.Substring(index + "Resources/".Length);
+
+            if (index == -1)
+                return path;
+
+            int extensionDot = path.LastIndexOf(".", path.Length - 1);
+
+            if (extensionDot == -1)
+                return path;
+
+            return path.Substring(0, extensionDot);
+
         }
     }
 }

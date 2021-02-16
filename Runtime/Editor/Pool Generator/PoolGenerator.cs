@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 using static Bloodthirst.Core.Utils.StringExtensions;
 using System.Text;
 using System.Globalization;
+using System.Collections;
 
 namespace Bloodthirst.Core.AdvancedPool.Editor
 {
@@ -37,7 +38,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static readonly string[] filterFiles =
         {
-            nameof(GeneratePool),
+            "GeneratePool",
             nameof(PoolGenerator),
             "Template.Pool.cs",
             "GlobalPoolContainer.cs",
@@ -74,13 +75,6 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             }
         }
 
-
-        [MenuItem("Bloodthirst Tools/AutoGen Pools/Regenrate Pool Scene")]
-        public static void RegenratePoolScene()
-        {
-            SceneCreatorEditor.CreateNewScene("Assets/Scenes", "Pool");
-        }
-
         [MenuItem("Bloodthirst Tools/AutoGen Pools/Regenrate Pools")]
         public static void RegenratePools()
         {
@@ -100,7 +94,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         }
 
-        [DidReloadScripts(SingletonScriptableObjectInit.SINGLETONS_CREATION_CHECK)]
+        [DidReloadScripts(SingletonScriptableObjectInit.POOL_GENERATOR)]
         public static void OnDidReloadScripts()
         {
             // TODO : skip trigger when exiting play mode too
@@ -281,6 +275,11 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
                 // assign the prefab
                 poolComponent.Prefab = poolablePrefab.gameObject;
+
+                // we need to eliminate everyting before the resource folder
+                string resPath = EditorUtils.GetResourcesPath(poolablePrefab);
+
+                poolComponent.PrefabPath = resPath;
                 poolComponent.Count = 100;
                 poolComponent.Initialize();
 
@@ -303,6 +302,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             Component globalPoolComp = globalPoolContainer.GetComponent(globalPoolContainerType);
 
+            IList poolList = globalPoolComp.GetType().GetProperty("AllPools" , BindingFlags.Public | BindingFlags.Instance).GetValue(globalPoolComp) as IList;
+
             for (int i = 0; i < poolsInScene.Count; i++)
             {
                 IPoolBehaviour pool = poolsInScene[i];
@@ -322,6 +323,14 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 else
                 {
                     fieldForPool.SetValue(globalPoolComp, pool);
+                    
+                    // remove all duplicates
+                    while (poolList.Contains(pool))
+                    {
+                        poolList.Remove(pool);
+                    }
+
+                    poolList.Add(pool);
                 }
             }
 
@@ -354,14 +363,15 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         {
             string oldScript = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
 
-            List<Tuple<StringExtensions.SECTION_EDGE, int, int>> sections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
+            // fields section
+            List<Tuple<StringExtensions.SECTION_EDGE, int, int>> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
 
             int padding = 0;
 
-            for (int i = 0; i < sections.Count - 1; i++)
+            for (int i = 0; i < fieldsSections.Count - 1; i++)
             {
-                Tuple<StringExtensions.SECTION_EDGE, int, int> start = sections[i];
-                Tuple<StringExtensions.SECTION_EDGE, int, int> end = sections[i + 1];
+                Tuple<StringExtensions.SECTION_EDGE, int, int> start = fieldsSections[i];
+                Tuple<StringExtensions.SECTION_EDGE, int, int> end = fieldsSections[i + 1];
                 // if we have correct start and end
                 // then do the replacing
                 if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
@@ -408,6 +418,54 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                     padding += replacementText.Length - oldTextLength;
                 }
             }
+
+            List<Tuple<StringExtensions.SECTION_EDGE, int, int>> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
+
+            // awake section
+
+            padding = 0;
+
+            for (int i = 0; i < awakeInitSections.Count - 1; i++)
+            {
+                Tuple<StringExtensions.SECTION_EDGE, int, int> start = awakeInitSections[i];
+                Tuple<StringExtensions.SECTION_EDGE, int, int> end = awakeInitSections[i + 1];
+                // if we have correct start and end
+                // then do the replacing
+                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                {
+                    var replacementText = new StringBuilder();
+
+                    replacementText.Append(Environment.NewLine);
+                    replacementText.Append(Environment.NewLine);
+
+
+
+                    foreach (IPoolBehaviour pool in poolsInScene)
+                    {
+                        string templateText = $"AllPools.Add({PrefabToFieldName(pool)});";
+
+                        replacementText
+                            .Append('\t')
+                            .Append('\t')
+                            .Append('\t')
+                            .Append(templateText)
+                            .Append(Environment.NewLine)
+                            .Append(Environment.NewLine);
+                    }
+
+                    replacementText
+                    .Append("\t")
+                    .Append("\t")
+                    .Append("\t");
+
+                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+
+                    int oldTextLength = end.Item2 - start.Item3;
+
+                    padding += replacementText.Length - oldTextLength;
+                }
+            }
+
 
             string relativePath = $"{POOL_SCRIPTS_PATH}/GlobalPoolContainer.cs";
             string pathToProject = EditorUtils.PathToProject;

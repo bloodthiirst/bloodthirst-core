@@ -1,3 +1,5 @@
+using Bloodthirst.Core.Utils;
+using Bloodthirst.Scripts.Utils;
 using Bloodthirst.Utils;
 using Packages.com.bloodthirst.bloodthirst_core.Runtime.UI.UILineRenderer;
 using Sirenix.OdinInspector;
@@ -80,9 +82,9 @@ namespace Bloodthirst
         /// <summary>
         /// The initial points that define the line (non smoothed)
         /// </summary>
-        private Vector2[] points;
+        private Vector3[] points;
 
-        public Vector2[] Points
+        public Vector3[] Points
         {
             get => points;
             set
@@ -106,7 +108,7 @@ namespace Bloodthirst
         /// </summary>
         /// <param name="newPoints"></param>
         /// <returns></returns>
-        bool CheckPointsChanged(Vector2[] newPoints)
+        bool CheckPointsChanged(Vector3[] newPoints)
         {
             if (newPoints.Length != points.Length)
                 return true;
@@ -120,25 +122,23 @@ namespace Bloodthirst
             return false;
         }
 
+
         [Button]
         public void GenerateMesh()
         {
             Mesh mesh = new Mesh();
 
-            List<LineQuad> finaleVerts = new List<LineQuad>();
+            lineQuads = new List<LineQuad>();
 
             if (points == null || points.Length < 2)
-                points = new[] { new Vector2(0, 0), new Vector2(1, 1) };
-
-            Vector2 prevVUp = Vector2.zero;
-            Vector2 prevVBottom = Vector2.zero;
+                points = new[] { new Vector3(0, 0, 0), new Vector3(1, 1, 1) };
 
             float totalLength = 0;
-            Spline<Node2D> spline = new Spline<Node2D>();
-            List<Vector2> InterpolatedPoints = new List<Vector2>();
+            Spline<Node3D> spline = new Spline<Node3D>();
+            InterpolatedPoints = new List<Vector3>();
 
 
-            List<Node2D> nodes = points.Select(v => new Node2D() { point = v }).ToList();
+            List<Node3D> nodes = points.Select(v => new Node3D() { point = v }).ToList();
 
 
             spline.NormalizeHandles = normalizeHandles;
@@ -155,7 +155,7 @@ namespace Bloodthirst
                 for (int j = 0; j < detailPerSegment; j++)
                 {
                     float t = j / (float)(detailPerSegment);
-                    Vector2 v2 = spline[i].GetPoint(t);
+                    Vector3 v2 = spline[i].GetPoint(t);
                     InterpolatedPoints.Add(v2);
                 }
 
@@ -167,30 +167,33 @@ namespace Bloodthirst
 
             for (int i = 1; i < InterpolatedPoints.Count; i++)
             {
-                Vector2 prev = InterpolatedPoints[i - 1];
-                Vector2 cur = InterpolatedPoints[i];
+                Vector3 prev = InterpolatedPoints[i - 1];
+                Vector3 cur = InterpolatedPoints[i];
 
                 if (cur == prev)
                     continue;
 
+                Vector3 dir = cur - prev;
 
-                prev = new Vector2(prev.x, prev.y);
-                cur = new Vector2(cur.x, cur.y);
+                //float angle = Mathf.Atan2(dir.y, dir.x) * 180f / Mathf.PI;
 
-                float angle = Mathf.Atan2(cur.y - prev.y, cur.x - prev.x) * 180f / Mathf.PI;
+                currentLength += (dir).magnitude;
 
-                currentLength += (cur - prev).magnitude;
+                Vector3 up = Vector3.up;
+                Vector3 right = Vector3.Cross(dir.normalized, up).normalized;
+                Vector3 trueUp = Vector3.Cross(right, dir.normalized).normalized;
+                Vector3 trueRight = Vector3.Cross(dir.normalized, trueUp).normalized;
 
-                var prevBottom = prev + new Vector2(0, -LineThikness / 2);
-                var prevUp = prev + new Vector2(0, +LineThikness / 2);
-                var currentUp = cur + new Vector2(0, +LineThikness / 2);
-                var currentBottom = cur + new Vector2(0, -LineThikness / 2);
-
+                var prevBottom = prev + (trueRight * (-LineThikness / 2));
+                var prevUp = prev + (trueRight * (+LineThikness / 2));
+                var currentUp = cur + (trueRight * (+LineThikness / 2));
+                var currentBottom = cur + (trueRight * (-LineThikness / 2));
+                /*
                 prevBottom = RotatePointAroundPivot(prevBottom, prev, new Vector3(0, 0, angle));
                 prevUp = RotatePointAroundPivot(prevUp, prev, new Vector3(0, 0, angle));
                 currentUp = RotatePointAroundPivot(currentUp, cur, new Vector3(0, 0, angle));
                 currentBottom = RotatePointAroundPivot(currentBottom, cur, new Vector3(0, 0, angle));
-
+                */
                 float ratioBeforePrev = (i - 2) / (float)(InterpolatedPoints.Count - 1);
                 float ratioPrev = (i - 1) / (float)(InterpolatedPoints.Count - 1);
                 float ratioCurr = (i) / (float)(InterpolatedPoints.Count - 1);
@@ -200,15 +203,26 @@ namespace Bloodthirst
                     RightDownPos = currentBottom,
                     RightUpPos = currentUp,
                     LeftDownPos = prevBottom,
-                    LeftUpPos = prevUp
+                    LeftUpPos = prevUp,
+                    Normal = trueUp
                 };
 
-                finaleVerts.Add(quad);
+                lineQuads.Add(quad);
                 prevLength = currentLength;
             }
 
             material.SetFloat("_LineLength", currentLength);
 
+            List<UIVertex> tris = new List<UIVertex>();
+
+            List<bool> cornerIsUp = new List<bool>();
+            List<Vector3> topRow = new List<Vector3>();
+            List<Vector3> bottomRow = new List<Vector3>();
+
+            LineQuad prevQuad = null;
+            LineQuad currQuad = null;
+
+            #region sowing
 
             ///// sow the middle parts 
             // 0 : prev bottom
@@ -216,29 +230,24 @@ namespace Bloodthirst
             // 2 : current up
             // 3 : current bottom
 
-            List<UIVertex> tris = new List<UIVertex>();
 
-            List<bool> cornerIsUp = new List<bool>();
-            List<Vector2> topRow = new List<Vector2>();
-            List<Vector2> bottomRow = new List<Vector2>();
-
-            LineQuad prevQuad = null;
-            LineQuad currQuad = null;
             // TODO handle opposite angle
-            for (int i = 1; i < finaleVerts.Count; i++)
+            for (int i = 1; i < lineQuads.Count; i++)
             {
-                prevQuad = finaleVerts[i - 1];
-                currQuad = finaleVerts[i];
+                prevQuad = lineQuads[i - 1];
+                currQuad = lineQuads[i];
 
-                Vector2 trueMiddle = Vector2.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
+                Vector3 trueMiddle = Vector3.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
 
-                Vector2 middleOfLineThrough = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
+                Vector3 middleOfLineThrough = Vector3.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
 
-                float angle = Vector2.SignedAngle(middleOfLineThrough - trueMiddle, currQuad.LeftUpPos - trueMiddle);
+                Vector3 middleUp = Vector3.Lerp(prevQuad.Normal, currQuad.Normal, 0.5f);
+
+                float angle = VectorUtils.AngleOffAroundAxis(middleOfLineThrough - trueMiddle, currQuad.LeftUpPos - trueMiddle, middleUp);
 
                 if (angle > 0)
                 {
-                    middleOfLineThrough = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
+                    middleOfLineThrough = Vector3.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
 
                     angle = 180 - 90 - angle;
 
@@ -251,11 +260,11 @@ namespace Bloodthirst
 
                     Vector3 convergeancePoint = trueMiddle + (((middleOfLineThrough - trueMiddle).normalized) * hyp);
 
-                    Vector2 inter = convergeancePoint;
+                    Vector3 inter = convergeancePoint;
 
                     // calculate new segment lengths
-                    float newPrevLength = Vector2.Distance(prevQuad.LeftUpPos, inter);
-                    float newCurrLength = Vector2.Distance(currQuad.RightUpPos, inter);
+                    float newPrevLength = Vector3.Distance(prevQuad.LeftUpPos, inter);
+                    float newCurrLength = Vector3.Distance(currQuad.RightUpPos, inter);
 
                     // replace with new intersection point
                     prevQuad.RightUpPos = inter;
@@ -263,11 +272,11 @@ namespace Bloodthirst
 
                     // push back the other row to align it with the new modified one
                     // prev segment 
-                    Vector2 directionPrev = (prevQuad.RightDownPos - prevQuad.LeftDownPos).normalized;
+                    Vector3 directionPrev = (prevQuad.RightDownPos - prevQuad.LeftDownPos).normalized;
                     prevQuad.RightDownPos = prevQuad.LeftDownPos + (directionPrev * newPrevLength);
 
                     // current segment
-                    Vector2 directionCurr = (currQuad.RightDownPos - currQuad.LeftDownPos).normalized;
+                    Vector3 directionCurr = (currQuad.RightDownPos - currQuad.LeftDownPos).normalized;
                     currQuad.LeftDownPos = currQuad.RightDownPos - (directionCurr * newCurrLength);
 
 
@@ -289,7 +298,7 @@ namespace Bloodthirst
                     {
 
                         float t = j / (float)cornerSmoothing;
-                        Vector2 l = Vector2.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, t);
+                        Vector3 l = Vector3.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, t);
                         l = inter + ((l - inter).normalized * LineThikness);
 
                         // add interpolation
@@ -300,7 +309,7 @@ namespace Bloodthirst
 
                 else
                 {
-                    middleOfLineThrough = Vector2.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, 0.5f);
+                    middleOfLineThrough = Vector3.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, 0.5f);
 
                     angle = 180 - 90 - angle;
 
@@ -313,11 +322,11 @@ namespace Bloodthirst
 
                     Vector3 convergeancePoint = trueMiddle + (((middleOfLineThrough - trueMiddle).normalized) * hyp);
 
-                    Vector2 inter = convergeancePoint;
+                    Vector3 inter = convergeancePoint;
 
                     // calculate new segment lengths
-                    float newPrevLength = Vector2.Distance(prevQuad.LeftDownPos, inter);
-                    float newCurrLength = Vector2.Distance(currQuad.RightDownPos, inter);
+                    float newPrevLength = Vector3.Distance(prevQuad.LeftDownPos, inter);
+                    float newCurrLength = Vector3.Distance(currQuad.RightDownPos, inter);
 
                     // replace with new intersection point
                     prevQuad.RightDownPos = inter;
@@ -325,11 +334,11 @@ namespace Bloodthirst
 
                     // push back the other row to align it with the new modified one
                     // prev segment 
-                    Vector2 directionPrev = (prevQuad.RightUpPos - prevQuad.LeftUpPos).normalized;
+                    Vector3 directionPrev = (prevQuad.RightUpPos - prevQuad.LeftUpPos).normalized;
                     prevQuad.RightUpPos = prevQuad.LeftUpPos + (directionPrev * newPrevLength);
 
                     // current segment
-                    Vector2 directionCurr = (currQuad.RightUpPos - currQuad.LeftUpPos).normalized;
+                    Vector3 directionCurr = (currQuad.RightUpPos - currQuad.LeftUpPos).normalized;
                     currQuad.LeftUpPos = currQuad.RightUpPos - (directionCurr * newCurrLength);
 
 
@@ -351,7 +360,7 @@ namespace Bloodthirst
                     {
 
                         float t = j / (float)cornerSmoothing;
-                        Vector2 l = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, t);
+                        Vector3 l = Vector3.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, t);
                         l = inter + ((l - inter).normalized * LineThikness);
 
                         // add interpolation
@@ -369,6 +378,8 @@ namespace Bloodthirst
             bottomRow.Add(currQuad.LeftDownPos);
             bottomRow.Add(currQuad.RightDownPos);
 
+            #endregion
+
             // TODO : massage the UVs down
             // group all verts that belong to topline and bottomline together
 
@@ -380,7 +391,7 @@ namespace Bloodthirst
 
             for (int i = 1; i < topRow.Count; i++)
             {
-                topRowLength += Vector2.Distance(topRow[i], topRow[i - 1]);
+                topRowLength += Vector3.Distance(topRow[i], topRow[i - 1]);
             }
 
             List<float> uvTopRatios = new List<float>();
@@ -388,7 +399,7 @@ namespace Bloodthirst
             float currentTopUv = 0;
             for (int i = 1; i < topRow.Count; i++)
             {
-                currentTopUv += Vector2.Distance(topRow[i], topRow[i - 1]);
+                currentTopUv += Vector3.Distance(topRow[i], topRow[i - 1]);
                 uvTopRatios.Add(currentTopUv / topRowLength);
             }
 
@@ -398,7 +409,7 @@ namespace Bloodthirst
 
             for (int i = 1; i < bottomRow.Count; i++)
             {
-                bottomRowLength += Vector2.Distance(bottomRow[i], bottomRow[i - 1]);
+                bottomRowLength += Vector3.Distance(bottomRow[i], bottomRow[i - 1]);
             }
 
             List<float> uvBottomRatios = new List<float>();
@@ -406,7 +417,7 @@ namespace Bloodthirst
             float currentBottomUv = 0;
             for (int i = 1; i < bottomRow.Count; i++)
             {
-                currentBottomUv += Vector2.Distance(bottomRow[i], bottomRow[i - 1]);
+                currentBottomUv += Vector3.Distance(bottomRow[i], bottomRow[i - 1]);
                 uvBottomRatios.Add(currentBottomUv / bottomRowLength);
             }
 
@@ -415,18 +426,18 @@ namespace Bloodthirst
             while (bottomIndex < bottomRow.Count - 1)
             {
 
-                Vector2 uv0top = new Vector2(uvTopRatios[topIndex], 1f);
+                Vector3 uv0top = new Vector3(uvTopRatios[topIndex], 1f);
                 UIVertex p1 = new UIVertex() { position = topRow[topIndex], uv0 = uv0top };
 
                 topIndex++;
-                uv0top = new Vector2(uvTopRatios[topIndex], 1f);
+                uv0top = new Vector3(uvTopRatios[topIndex], 1f);
                 UIVertex p2 = new UIVertex() { position = topRow[topIndex], uv0 = uv0top };
 
-                Vector2 uv0bottom = new Vector2(uvBottomRatios[bottomIndex], 0f);
+                Vector3 uv0bottom = new Vector3(uvBottomRatios[bottomIndex], 0f);
                 UIVertex p3 = new UIVertex() { position = bottomRow[bottomIndex], uv0 = uv0bottom };
 
                 bottomIndex++;
-                uv0bottom = new Vector2(uvBottomRatios[bottomIndex], 0f);
+                uv0bottom = new Vector3(uvBottomRatios[bottomIndex], 0f);
                 UIVertex p4 = new UIVertex() { position = bottomRow[bottomIndex], uv0 = uv0bottom };
 
                 // TODO : multiple ways to calculate uv
@@ -478,7 +489,7 @@ namespace Bloodthirst
                 tris.Add(p2);
             }
 
-            List<Vector3> pointsIn3d = tris.Select(v => new Vector3(v.position.x, 0, v.position.y)).ToList();
+            List<Vector3> pointsIn3d = tris.Select(v => v.position).ToList();
             List<int> trianglesIndexes = tris.Select((v, i) => i).ToList();
             List<Vector2> uvs = tris.Select(v => new Vector2(v.uv0.x, v.uv0.y)).ToList();
 
@@ -505,6 +516,41 @@ namespace Bloodthirst
             mesh.Optimize();
 
             meshFilter.mesh = mesh;
+        }
+
+        private List<Vector3> InterpolatedPoints;
+
+        private List<LineQuad> lineQuads;
+
+        private void OnDrawGizmos()
+        {
+            for (int i = 0; i < InterpolatedPoints.Count - 1; i++)
+            {
+                var curr = InterpolatedPoints[i];
+                var next = InterpolatedPoints[i + 1];
+
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(curr, 2);
+                Gizmos.DrawSphere(next, 2);
+
+                Gizmos.color = Color.red;
+                Gizmos.DrawLine(curr, next);
+            }
+
+            if (lineQuads == null)
+                return;
+            Gizmos.color = Color.green;
+
+            for (int i = 0; i < lineQuads.Count; i++)
+            {
+                var q = lineQuads[i];
+
+                Gizmos.DrawLine(q.LeftDownPos, q.LeftUpPos);
+                Gizmos.DrawLine(q.LeftUpPos, q.RightUpPos);
+                Gizmos.DrawLine(q.RightUpPos, q.RightDownPos);
+                Gizmos.DrawLine(q.RightDownPos, q.LeftDownPos);
+            }
+
         }
 
         private Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)

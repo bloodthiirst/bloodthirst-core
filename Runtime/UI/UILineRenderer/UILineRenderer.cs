@@ -233,9 +233,9 @@ namespace Bloodthirst
                 prevQuad = finaleVerts[i - 1];
                 currQuad = finaleVerts[i];
 
-                Vector2 trueMiddle = Vector2.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
+                Vector3 trueMiddle = Vector2.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
 
-                Vector2 middleOfLineThrough = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
+                Vector3 middleOfLineThrough = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
 
                 float angle = Vector2.SignedAngle(middleOfLineThrough - trueMiddle, currQuad.LeftUpPos - trueMiddle);
 
@@ -266,11 +266,11 @@ namespace Bloodthirst
 
                     // push back the other row to align it with the new modified one
                     // prev segment 
-                    Vector2 directionPrev = (prevQuad.RightDownPos - prevQuad.LeftDownPos).normalized;
+                    Vector3 directionPrev = (prevQuad.RightDownPos - prevQuad.LeftDownPos).normalized;
                     prevQuad.RightDownPos = prevQuad.LeftDownPos + (directionPrev * newPrevLength);
 
                     // current segment
-                    Vector2 directionCurr = (currQuad.RightDownPos - currQuad.LeftDownPos).normalized;
+                    Vector3 directionCurr = (currQuad.RightDownPos - currQuad.LeftDownPos).normalized;
                     currQuad.LeftDownPos = currQuad.RightDownPos - (directionCurr * newCurrLength);
 
 
@@ -328,11 +328,11 @@ namespace Bloodthirst
 
                     // push back the other row to align it with the new modified one
                     // prev segment 
-                    Vector2 directionPrev = (prevQuad.RightUpPos - prevQuad.LeftUpPos).normalized;
+                    Vector3 directionPrev = (prevQuad.RightUpPos - prevQuad.LeftUpPos).normalized;
                     prevQuad.RightUpPos = prevQuad.LeftUpPos + (directionPrev * newPrevLength);
 
                     // current segment
-                    Vector2 directionCurr = (currQuad.RightUpPos - currQuad.LeftUpPos).normalized;
+                    Vector3 directionCurr = (currQuad.RightUpPos - currQuad.LeftUpPos).normalized;
                     currQuad.LeftUpPos = currQuad.RightUpPos - (directionCurr * newCurrLength);
 
 

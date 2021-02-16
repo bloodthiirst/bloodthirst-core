@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.SceneManager;
+﻿using Bloodthirst.Core.AdvancedPool;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
 using Bloodthirst.Scripts.SocketLayer.Commands;
 using Bloodthirst.Socket.BehaviourComponent.NetworkPlayerEntity;
@@ -16,11 +17,6 @@ namespace Bloodthirst.Socket.BehaviourComponent
         private static bool IsClient => SocketConfig.Instance.IsClient;
 
         [SerializeField]
-        private GUIDNetworkPlayerEntity playerPrefab;
-
-        protected override NetworkPlayerEntityBase<Guid> PlayerPrefab => playerPrefab;
-
-        [SerializeField]
         private GUIDNetworkClientPlayerPacketProcessor clientPlayersProcessor;
 
         [SerializeField]
@@ -33,7 +29,10 @@ namespace Bloodthirst.Socket.BehaviourComponent
         private GUIDNetworkClientEntity networkClient;
 
         [SerializeField]
-        private SceneManagerProviderBehaviourBase sceneManagerProvider;
+        private SceneManagerProviderBehaviourBase sceneManagerProvider = null;
+
+        [SerializeField]
+        private PrefabInstanceProviderBehaviourBase prefabInstanceProvider = null;
 
         public void Remove(Guid identifer)
         {
@@ -59,12 +58,15 @@ namespace Bloodthirst.Socket.BehaviourComponent
                 }
             }
 
-            Destroy(playerGO.gameObject);
+            GUIDNetworkPlayerEntity playerEntity = playerGO.GetComponent<GUIDNetworkPlayerEntity>();
+
+            prefabInstanceProvider.RemovePrefabInstance(playerEntity);
         }
 
         public NetworkPlayerEntityBase<Guid> Add(Guid identifier)
         {
-            NetworkPlayerEntityBase<Guid> networkEntity = Instantiate(playerPrefab);
+            GUIDNetworkPlayerEntity go = prefabInstanceProvider.GetPrefabInstance<GUIDNetworkPlayerEntity>();
+            NetworkPlayerEntityBase<Guid> networkEntity = go.GetComponent<NetworkPlayerEntityBase<Guid>>();
 
             // move to gameplay scene
 
