@@ -12,9 +12,9 @@ namespace Bloodthirst.Scripts.SocketLayer.Commands
 {
     public class SendGUIDConnectionInfoCommand : CommandBase<SendGUIDConnectionInfoCommand>
     {
-        private readonly Guid playerId;
+        private readonly GUIDAndPrefabPath playerId;
 
-        private readonly List<Guid> existingPlayers;
+        private readonly List<GUIDAndPrefabPath> existingPlayers;
 
         private readonly ConnectedClientSocket playerSocket;
 
@@ -22,7 +22,7 @@ namespace Bloodthirst.Scripts.SocketLayer.Commands
 
         private INetworkSerializer<GUIDConnectionInfo> connectionInfoSerializer;
 
-        public SendGUIDConnectionInfoCommand(Guid playerId, List<Guid> existingPlayers, ConnectedClientSocket playerSocket)
+        public SendGUIDConnectionInfoCommand(GUIDAndPrefabPath playerId, List<GUIDAndPrefabPath> existingPlayers, ConnectedClientSocket playerSocket)
         {
             this.playerId = playerId;
             this.existingPlayers = existingPlayers;

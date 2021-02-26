@@ -44,7 +44,13 @@ namespace Bloodthirst.Socket.BehaviourComponent
 
             PingRequest = packetProcessor.GetOrCreate<PingStatsPacketClientProcessor, PingStats>();
 
+            PingRequest.OnPacketParsedThreaded -= OnPingStats;
             PingRequest.OnPacketParsedThreaded += OnPingStats;
+        }
+
+        private void OnDestroy()
+        {
+            PingRequest.OnPacketParsedThreaded -= OnPingStats;
         }
 
         private void Update()

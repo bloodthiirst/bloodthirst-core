@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.PersistantAsset;
+﻿using Bloodthirst.Core.Consts;
+using Bloodthirst.Core.PersistantAsset;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -54,7 +55,7 @@ namespace Bloodthirst.Core.SceneManager
             canOpenScene = false;
         }
 
-        [DidReloadScripts(SingletonScriptableObjectInit.TRACK_ASSEMBLY_RELOAD)]
+        [DidReloadScripts(BloodthirstCoreConsts.TRACK_ASSEMBLY_RELOAD)]
         public static void ReloadUpdater()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)

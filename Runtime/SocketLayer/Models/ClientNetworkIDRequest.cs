@@ -1,8 +1,8 @@
-﻿using Bloodthirst.Socket.Serialization;
-
-namespace Bloodthirst.Models
+﻿namespace Bloodthirst.Models
 {
-    public struct ClientNetworkIDRequest : IEmptyStruct
+    public struct ClientNetworkIDRequest
     {
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.PersistantAsset;
+﻿using Bloodthirst.Core.Consts;
+using Bloodthirst.Core.PersistantAsset;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace Bloodthirst.System.ContextSystem
             ReloadContexts();
         }
 
-        [DidReloadScripts(SingletonScriptableObjectInit.SINGLETONS_RELOAD)]
+        [DidReloadScripts(BloodthirstCoreConsts.SINGLETONS_RELOAD)]
         public static void ReloadContexts()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)

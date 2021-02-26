@@ -5,8 +5,8 @@ namespace Bloodthirst.Models
 {
     public struct GUIDConnectionInfo
     {
-        public Guid PlayerNetworkID { get; set; }
+        public GUIDAndPrefabPath PlayerNetworkID { get; set; }
 
-        public List<Guid> ExistingPlayers { get; set; }
+        public List<GUIDAndPrefabPath> ExistingPlayers { get; set; }
     }
 }

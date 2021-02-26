@@ -63,10 +63,13 @@ namespace Bloodthirst.Socket.BehaviourComponent
             prefabInstanceProvider.RemovePrefabInstance(playerEntity);
         }
 
-        public NetworkPlayerEntityBase<Guid> Add(Guid identifier)
+        public NetworkPlayerEntityBase<Guid> Add(Guid identifier , string prefabPath)
         {
-            GUIDNetworkPlayerEntity go = prefabInstanceProvider.GetPrefabInstance<GUIDNetworkPlayerEntity>();
+            GUIDNetworkPlayerEntity go = prefabInstanceProvider.GetPrefabInstance<GUIDNetworkPlayerEntity>(prefabPath);
+
             NetworkPlayerEntityBase<Guid> networkEntity = go.GetComponent<NetworkPlayerEntityBase<Guid>>();
+
+            Debug.Assert(networkEntity != null, "networkEntity is null");
 
             // move to gameplay scene
 

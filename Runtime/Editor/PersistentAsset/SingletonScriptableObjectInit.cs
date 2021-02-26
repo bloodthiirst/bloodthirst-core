@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.Consts;
+using Bloodthirst.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,25 +17,8 @@ namespace Bloodthirst.Core.PersistantAsset
 
 #if UNITY_EDITOR
 
-        #region DidReloadScripts conts
 
-        public const int TRACK_ASSEMBLY_RELOAD = 0;
-
-        public const int SINGLETONS_CREATION_CHECK = 1;
-
-        public const int SINGLETONS_RELOAD = 2;
-
-        public const int SCENE_CREATOR = 3;
-
-        public const int BISD_OBSERVABLE_GENERATOR = 4;
-
-        public const int EDITOR_OPEN_TRACKER = 5;
-
-        public const int POOL_GENERATOR = 6;
-
-        #endregion
-
-        [DidReloadScripts(SINGLETONS_CREATION_CHECK)]
+        [DidReloadScripts(BloodthirstCoreConsts.SINGLETONS_CREATION_CHECK)]
         public static void OnDidReloadScripts()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)

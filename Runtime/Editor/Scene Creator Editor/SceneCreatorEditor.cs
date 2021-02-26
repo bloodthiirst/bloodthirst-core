@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Bloodthirst.Utils.EditorOpenTracker;
 using Bloodthirst.Core.Utils;
+using Bloodthirst.Core.Consts;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -17,7 +18,7 @@ public class SceneCreatorEditor : EditorWindow
 
     private const string REPLACE_KEYWORD = "[SCENENAME]";
 
-    [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.SCENE_CREATOR)]
+    [UnityEditor.Callbacks.DidReloadScripts(BloodthirstCoreConsts.SCENE_CREATOR)]
     public static void OnReloadScripts()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -31,6 +32,7 @@ public class SceneCreatorEditor : EditorWindow
         bool isNewSceneAdded = false;
 
         // this only works on scenes that are already open in the editor
+        // TODO : reopen scenes to check
         for (int i = 0; i < UnityEditor.SceneManagement.EditorSceneManager.sceneCount; i++)
         {
             Scene scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i);
@@ -41,14 +43,12 @@ public class SceneCreatorEditor : EditorWindow
                 continue;
             }
             */
-
             bool hasManager = scene.GetRootGameObjects().FirstOrDefault(g => g.name.Equals("Scene Manager")) != null;
 
             // if scene does not have a manager
 
             if (!hasManager)
             {
-
                 // search for the manager type
 
                 Type sceneManagerType = null;
@@ -66,7 +66,7 @@ public class SceneCreatorEditor : EditorWindow
                     }
                 }
 
-                // if scene doesnt have a maanger then 
+                // if scene doesnt have a manager then 
 
 
                 if (sceneManagerType == null)
@@ -231,7 +231,7 @@ public class SceneCreatorEditor : EditorWindow
 
         UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, $"{relativePath}/{fullSceneName}.unity");
 
-        AssetDatabase.ImportAsset($"{relativePath}/{sceneName}SceneManager.cs");
+        AssetDatabase.ImportAsset($"{relativePath} " , ImportAssetOptions.ForceUpdate);
 
         AssetDatabase.SaveAssets();
 

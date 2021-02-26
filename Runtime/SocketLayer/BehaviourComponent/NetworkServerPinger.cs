@@ -60,6 +60,7 @@ public class NetworkServerPinger : MonoBehaviour
     {
         pingPongTCPSerializer = SerializerProvider.Get<PingPongTCP>();
         pingPongUDPSerializer = SerializerProvider.Get<PingPongUDP>();
+        guidSerializer = SerializerProvider.Get<Guid>();
 
         networkPingStats = new Dictionary<ConnectedClientSocket, PingValues>();
 

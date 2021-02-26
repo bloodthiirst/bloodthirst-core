@@ -12,13 +12,12 @@ namespace Bloodthirst.Scripts.SocketLayer.Commands
 {
     public class SendGUIDNewPlayerConnectedCommand : CommandBase<SendGUIDConnectionInfoCommand>
     {
-        private readonly Guid playerId;
-
+        private readonly GUIDAndPrefabPath playerId;
         private INetworkSerializer<Guid> guidSerializer;
 
         private INetworkSerializer<GUIDNewPlayerConnected> newPlayerSerializer;
 
-        public SendGUIDNewPlayerConnectedCommand(Guid playerId)
+        public SendGUIDNewPlayerConnectedCommand(GUIDAndPrefabPath playerId)
         {
             this.playerId = playerId;
             newPlayerSerializer = SerializerProvider.Get<GUIDNewPlayerConnected>();
@@ -34,7 +33,7 @@ namespace Bloodthirst.Scripts.SocketLayer.Commands
         {
             GUIDNewPlayerConnected newPlayer = new GUIDNewPlayerConnected()
             {
-                NetworkID = playerId
+                GUIDandPrefab = playerId
             };
 
             byte[] newPlayerPacket = PacketBuilder.BuildPacket(GUIDIdentifier.DefaultClientID, newPlayer, guidSerializer, newPlayerSerializer);

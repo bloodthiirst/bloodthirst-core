@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.PersistantAsset;
+﻿using Bloodthirst.Core.Consts;
+using Bloodthirst.Core.PersistantAsset;
 using Bloodthirst.Core.Utils;
 using Sirenix.Utilities;
 using System;
@@ -42,7 +43,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             nameof(BISDGeneratorOnReloadScripts)
         };
 
-        [UnityEditor.Callbacks.DidReloadScripts(SingletonScriptableObjectInit.BISD_OBSERVABLE_GENERATOR)]
+        [UnityEditor.Callbacks.DidReloadScripts(BloodthirstCoreConsts.BISD_OBSERVABLE_GENERATOR)]
         public static void OnReloadScripts()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
