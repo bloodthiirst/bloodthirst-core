@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -60,6 +61,25 @@ namespace Bloodthirst.Core.Utils
         {
             return list.FirstOrDefault(t => filter(t)) != null;
         }
+
+        public static T CreateIfNull<T>(this T instance) where T : new()
+        {
+            if (instance == null)
+                instance = new T();
+
+            return instance;
+        }
+
+        public static C CreateOrClear<C>(this C collection) where C : IList, new()
+        {
+            if (collection == null)
+                collection = new C();
+            else
+                collection.Clear();
+
+            return collection;
+        }
+
 
         /// <summary>
         /// Copy the dictionary's content to another dictionary

@@ -216,6 +216,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             if (!isReadyToLinkReferences)
             {
                 Debug.LogWarning("=> NOT READY to link references");
+
+                // wait for the next reload and recheck again
                 EditorApplication.delayCall -= Create;
                 EditorApplication.delayCall += Create;
                 return;
@@ -331,7 +333,6 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         /// </summary>
         private static void BootstrapGameObjectsInScene()
         {
-            AssemblyReloadEvents.afterAssemblyReload -= BootstrapGameObjectsInScene;
 
             if (!HasPoolScene())
             {
@@ -342,8 +343,14 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             Debug.LogWarning("=> LINKING Pool refs");
 
             // open scene
-            Scene poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            Scene poolsScene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity");
+            bool wasOpen = true;
 
+            if(!poolsScene.IsValid())
+            {
+                wasOpen = false;
+                poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            }
             // create global pool GO if necessary
             Component globalPoolComp = CreateGlobalPoolGameObject(ref poolsScene);
 
@@ -363,7 +370,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             UnityEditor.SceneManagement.EditorSceneManager.SaveScene(poolsScene);
 
-            if (UnityEngine.SceneManagement.SceneManager.sceneCount > 1)
+            if(!wasOpen)
             {
                 UnityEditor.SceneManagement.EditorSceneManager.CloseScene(poolsScene, true);
             }

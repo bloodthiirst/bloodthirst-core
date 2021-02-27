@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -71,6 +72,28 @@ namespace Bloodthirst.Core.Utils
                 }
             }
             return assets;
+        }
+
+        /// <summary>
+        /// Get all scene in the project (open AND closed)
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> GetAllScenePathsInProject()
+        {
+            // load scene assets
+            string[] scenesGUIDs = AssetDatabase.FindAssets("t:Scene");
+
+            List<string> editorBuildSettingsScenes = new List<string>();
+
+            foreach (string sceneGUID in scenesGUIDs)
+            {
+                string scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
+
+                // if scene is valid add it to the scenes list in build settings
+                editorBuildSettingsScenes.Add(scenePath);
+            }
+
+            return editorBuildSettingsScenes;
         }
 
         public static void HandlesDrawCubeOutline(Vector3 center, Vector3 size)

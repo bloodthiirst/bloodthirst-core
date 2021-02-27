@@ -7,7 +7,7 @@ using System.Linq;
 public class SceneLoadHelper : EditorWindow
 {
 
-    [MenuItem("Bloodthirst Tools/Scene Load Helper")]
+    [MenuItem("Bloodthirst Tools/Scene Management/Scene Load Helper Window")]
     public static void ShowExample()
     {
         SceneLoadHelper wnd = GetWindow<SceneLoadHelper>();

@@ -1,4 +1,4 @@
-using Bloodthirst.Scripts.Core.Utils;
+using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;

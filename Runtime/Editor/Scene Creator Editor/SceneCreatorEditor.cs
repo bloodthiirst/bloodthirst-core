@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 using Bloodthirst.Utils.EditorOpenTracker;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Core.Consts;
+using UnityEditor.SceneManagement;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -29,14 +30,50 @@ public class SceneCreatorEditor : EditorWindow
             return;
         }
 
+        EditorApplication.update -= SetupTheSceneManagers;
+        EditorApplication.update += SetupTheSceneManagers;
+    }
+
+    [MenuItem("Bloodthirst Tools/Scene Management/Refresh Scene Setup")]
+    private static void SetupTheSceneManagers()
+    {
+        EditorApplication.update -= SetupTheSceneManagers;
+
         bool isNewSceneAdded = false;
 
-        // this only works on scenes that are already open in the editor
-        // TODO : reopen scenes to check
-        for (int i = 0; i < UnityEditor.SceneManagement.EditorSceneManager.sceneCount; i++)
-        {
-            Scene scene = UnityEditor.SceneManagement.EditorSceneManager.GetSceneAt(i);
+        // save open scenes
 
+        List<Scene> savedOpenScenes = new List<Scene>();
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            Scene scene = SceneManager.GetSceneAt(i);
+            savedOpenScenes.Add(scene);
+        }
+
+        // get all scenes and open them
+        List<Scene> allScenes = new List<Scene>();
+
+        foreach (string scenePath in EditorUtils.GetAllScenePathsInProject())
+        {
+            Scene s = SceneManager.GetSceneByPath(scenePath);
+
+            if (!s.IsValid())
+            {
+                s = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+            }
+            allScenes.Add(s);
+        }
+
+
+        for (int i = 0; i < allScenes.Count; i++)
+        {
+            Scene scene = allScenes[i];
+
+            if (!scene.IsValid())
+            {
+                Debug.LogError($"the scene '{scene.name}' is invalid");
+                continue;
+            }
             /*
             if (scene.buildIndex == -1)
             {
@@ -66,12 +103,11 @@ public class SceneCreatorEditor : EditorWindow
                     }
                 }
 
-                // if scene doesnt have a manager then 
-
+                // if scene doesnt have a manager then
 
                 if (sceneManagerType == null)
                 {
-                    Debug.LogError("Couldn't find the right scene manager for the scene : " + scene.name);
+                    //Debug.LogError("Couldn't find the right scene manager for the scene : " + scene.name);
                     continue;
                 }
 
@@ -88,6 +124,18 @@ public class SceneCreatorEditor : EditorWindow
                 UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
 
                 isNewSceneAdded = true;
+            }
+        }
+
+        // close scene and leave the ones previously open
+
+        foreach (string scenePath in EditorUtils.GetAllScenePathsInProject())
+        {
+            Scene s = SceneManager.GetSceneByPath(scenePath);
+
+            if (!savedOpenScenes.Contains(s))
+            {
+                EditorSceneManager.CloseScene(s, true);
             }
         }
 
@@ -108,24 +156,24 @@ public class SceneCreatorEditor : EditorWindow
             return;
         }
 
+        // reload the scenes list in the scene data scriptable object
+
         scenesListData.LoadAllScenesAvailable();
 
         if (HasOpenInstances<SceneLoadHelper>())
         {
             GetWindow<SceneLoadHelper>().RefreshWindow();
         }
-
-
     }
 
-    [MenuItem("Bloodthirst Tools/Scene Creator Editor")]
+    [MenuItem("Bloodthirst Tools/Scene Management/Scene Creator Editor")]
     public static void ShowWindow()
     {
         SceneCreatorEditor wnd = GetWindow<SceneCreatorEditor>();
         wnd.titleContent = new GUIContent("SceneCreatorEditor");
     }
 
-    [MenuItem("Assets/Scene Creator Editor")]
+    [MenuItem("Assets/Scene Management/Scene Creator Editor")]
     public static void AssetMenu()
     {
         ShowWindow();
@@ -226,16 +274,18 @@ public class SceneCreatorEditor : EditorWindow
 
         // create scene asset
 
-        Scene scene = UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.EmptyScene, UnityEditor.SceneManagement.NewSceneMode.Additive);
+        Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene , NewSceneMode.Additive);
         scene.name = sceneName + "Scene";
 
-        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, $"{relativePath}/{fullSceneName}.unity");
+        EditorSceneManager.SaveScene(scene, $"{relativePath}/{fullSceneName}.unity");
 
-        AssetDatabase.ImportAsset($"{relativePath} " , ImportAssetOptions.ForceUpdate);
+        EditorSceneManager.CloseScene(scene, true);
+
+        AssetDatabase.ImportAsset($"{relativePath} ", ImportAssetOptions.ForceUpdate);
 
         AssetDatabase.SaveAssets();
 
-        AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+
     }
 
     private void OnModelNameChanged(ChangeEvent<string> evt)
