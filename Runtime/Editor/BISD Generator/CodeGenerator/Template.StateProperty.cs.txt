@@ -7,8 +7,11 @@
 			get  => state.[FIELD];
 			set
 			{
-				state.[FIELD] = value;
-				Trigger[FIELD_NICE_NAME]Changed();
+				if(state.[FIELD] != value)
+				{
+					state.[FIELD] = value;
+					Trigger[FIELD_NICE_NAME]Changed();
+				}
 			}
 		}
 
@@ -18,6 +21,16 @@
 			set
 			{
 				state.[FIELD] = value;
+			}
+		}
+
+		[Observable]
+		public [FIELD_TYPE] [FIELD_NICE_NAME]ForceValue
+		{
+			set
+			{
+				state.[FIELD] = value;
+				Trigger[FIELD_NICE_NAME]Changed();
 			}
 		}
 

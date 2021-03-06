@@ -47,7 +47,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             // 1 getter and setter that trigger event
             // 1 setter that doesn't notify
 
-            if (fields.Length * 2 != props.Length)
+            if (fields.Length * 3 != props.Length)
             {
                 return true;
             }

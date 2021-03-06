@@ -153,11 +153,49 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 return false;
             }
 
+            if(!HasAllPoolFields())
+            {
+                return false;
+            }
+
             //create it if it's not found
             // return since the SceneManager script generation will trigger domain reload
             if (!HasPoolScene())
             {
                 return false;
+            }
+
+            return true;
+        }
+
+        private static bool HasAllPoolFields()
+        {
+            Type type = GetGlobalPoolContainerType();
+
+            if(type == null)
+            {
+                return false;
+            }
+
+            // pools fiels
+            List<FieldInfo> poolFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance).ToList();
+
+            if (poolFields.Count != PoolablePrefabs.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < poolFields.Count; i++)
+            {
+                FieldInfo field = poolFields[i];
+
+                Component correctPool = PoolablePrefabs.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.gameObject.name.RemoveWhitespace())));
+
+                if (correctPool == null)
+                {
+                    Debug.LogError("=> ERROR not all fiels are generated");
+                    return false;
+                }
             }
 
             return true;
@@ -198,6 +236,12 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 CreateGlobalPool();
                 RegenerateGlobalPoolFields();
 
+            }
+
+            if (!HasAllPoolFields())
+            {
+                isReadyToLinkReferences = false;
+                RegenerateGlobalPoolFields();
             }
 
 

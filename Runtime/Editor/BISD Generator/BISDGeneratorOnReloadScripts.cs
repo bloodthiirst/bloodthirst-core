@@ -43,13 +43,23 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             nameof(BISDGeneratorOnReloadScripts)
         };
 
+        [MenuItem("Bloodthirst Tools/CoodGeneration/Refresh")]
+        public static void MenuOption()
+        {
+            ExecuteCodeGeneration();
+        }
+
         [UnityEditor.Callbacks.DidReloadScripts(BloodthirstCoreConsts.BISD_OBSERVABLE_GENERATOR)]
         public static void OnReloadScripts()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 
+            ExecuteCodeGeneration(false);
+        }
 
+        private static void ExecuteCodeGeneration(bool lazyGeneration = true)
+        {
             // code generators
             List<ICodeGenerator> codeGenerators = new List<ICodeGenerator>()
             {
@@ -73,7 +83,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
                 foreach (ICodeGenerator generator in codeGenerators)
                 {
-                    if (generator.ShouldInject(typeList, textList))
+                    if (!lazyGeneration || (lazyGeneration && generator.ShouldInject(typeList, textList)) )
                     {
                         generator.InjectGeneratedCode(typeList, textList);
                     }
