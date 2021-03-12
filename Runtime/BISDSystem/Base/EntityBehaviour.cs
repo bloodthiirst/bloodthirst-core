@@ -43,12 +43,10 @@ namespace Bloodthirst.Core.BISDSystem
                 {
                     EntityInstanceRegister.Unregister(instance);
                     InstanceRegister<INSTANCE>.Unregister(instance);
+
                     instance.BeforeEntityRemoved -= OnRemove;
 
                     OnDisposedInstance(instance);
-
-                    EntityInstanceRegister.Unregister(instance);
-
                     instance.NotifyInstanceDisposed();
                 }
 
@@ -61,11 +59,11 @@ namespace Bloodthirst.Core.BISDSystem
 
                 EntityInstanceRegister.Register(instance);
                 InstanceRegister<INSTANCE>.Register(instance);
+
                 instance.BeforeEntityRemoved -= OnRemove;
                 instance.BeforeEntityRemoved += OnRemove;
 
                 OnSetInstance(instance);
-
                 instance.NotifyInstanceBinded();
                 
                 instance.NotifyStateChanged();
@@ -116,11 +114,7 @@ namespace Bloodthirst.Core.BISDSystem
         /// <param name="ins"></param>
         public virtual void OnRemove(INSTANCE ins)
         {
-            EntityInstanceRegister.Unregister(instance);
-            InstanceRegister<INSTANCE>.Unregister(instance);
-            OnDisposedInstance(instance);
-            instance.BeforeEntityRemoved -= OnRemove;
-            instance = null;
+            Instance = null;
         }
 
         protected virtual void OnDestroy()

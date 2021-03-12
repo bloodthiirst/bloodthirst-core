@@ -1,5 +1,6 @@
 ﻿using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
@@ -8,6 +9,10 @@ namespace Bloodthirst.Core.BISDSystem
     {
         [HideIf(nameof(typeLookup) , Value = null)]
         private TypeLookup typeLookup;
+
+        public event Action<object> OnRegistered;
+
+        public event Action<object> OnUnregistered;
 
         private TypeLookup TypeLookup
         {
@@ -32,11 +37,14 @@ namespace Bloodthirst.Core.BISDSystem
         public void Register<T>(T instance)
         {
             TypeLookup.Add(instance);
+            OnRegistered?.Invoke(instance);
+
         }
 
         public void Unregister<T>(T instance)
         {
             TypeLookup.Remove(instance);
+            OnUnregistered?.Invoke(instance);
         }
     }
 }
