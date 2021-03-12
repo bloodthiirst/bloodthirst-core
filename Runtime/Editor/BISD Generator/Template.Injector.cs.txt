@@ -1,0 +1,13 @@
+﻿using Bloodthirst.Core.BISD.CodeGeneration;
+using Bloodthirst.Core.BISDSystem;
+using System;
+
+namespace Assets.Scripts.Game.[MODELNAME]Model
+{
+    [BISDTag("[MODELNAME]" , ClassType.INJECTOR)]
+    [Serializable]
+    public abstract class [MODELNAME]InjectorBase : EntityInjectorBase<[MODELNAME]Data, [MODELNAME]State, [MODELNAME]Instance, [MODELNAME]Behaviour>
+    {
+        public abstract [MODELNAME]Instance GetInstance();
+    }
+}

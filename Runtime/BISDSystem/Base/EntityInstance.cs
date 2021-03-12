@@ -35,9 +35,19 @@ namespace Bloodthirst.Core.BISDSystem
         }
 
         /// <summary>
+        /// Event to listen to instance is linked to a behaviour (on instance change or spawn)
+        /// </summary>
+        public event Action<INSTANCE> OnInstanceBinded;
+
+        /// <summary>
         /// Event to listen to instance remove
         /// </summary>
-        public Action<INSTANCE> BeforeEntityRemoved;
+        public event Action<INSTANCE> BeforeEntityRemoved;
+
+        /// <summary>
+        /// Event to listen to instance disposal/change
+        /// </summary>
+        public event Action<INSTANCE> BeforeInstanceDisposed;
 
         /// <summary>
         /// Event to listen to state changes
@@ -87,8 +97,17 @@ namespace Bloodthirst.Core.BISDSystem
 
         private void OnEntityRemoved(EntityIdentifier entityIdentifier)
         {
-            InstanceRegister<INSTANCE>.Unregister((INSTANCE)this);
             BeforeEntityRemoved?.Invoke((INSTANCE)this);
+        }
+
+        public void NotifyInstanceDisposed()
+        {
+            BeforeInstanceDisposed?.Invoke((INSTANCE)this);
+        }
+
+        public void NotifyInstanceBinded()
+        {
+            OnInstanceBinded?.Invoke((INSTANCE)this);
         }
 
         public void NotifyStateChanged()

@@ -2,6 +2,6 @@
 {
     public interface IInstanceRegisterBehaviour
     {
-        IInstanceRegister InstanceRegister { get; }
+        IEntityInstanceRegister InstanceRegister { get; }
     }
 }

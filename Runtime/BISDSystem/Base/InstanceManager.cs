@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public class InstanceManager : MonoBehaviour, IInstanceRegisterBehaviour, IInstanceProviderBehaviour, IInstanceProvider, IInstanceRegister
+    public class InstanceManager : MonoBehaviour, IInstanceRegisterBehaviour, IInstanceProviderBehaviour, IInstanceProvider, IEntityInstanceRegister
     {
-        [ShowInInspector]
+        [HideIf(nameof(typeLookup) , Value = null)]
         private TypeLookup typeLookup;
 
         private TypeLookup TypeLookup
@@ -20,7 +20,7 @@ namespace Bloodthirst.Core.BISDSystem
                 return typeLookup;
             }
         }
-        public IInstanceRegister InstanceRegister => this;
+        public IEntityInstanceRegister InstanceRegister => this;
 
         public IInstanceProvider InstanceProvider => this;
 
@@ -32,6 +32,11 @@ namespace Bloodthirst.Core.BISDSystem
         public void Register<T>(T instance)
         {
             TypeLookup.Add(instance);
+        }
+
+        public void Unregister<T>(T instance)
+        {
+            TypeLookup.Remove(instance);
         }
     }
 }

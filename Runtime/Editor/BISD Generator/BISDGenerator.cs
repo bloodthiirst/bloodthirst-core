@@ -25,20 +25,6 @@ namespace Bloodthirst.Core.BISD.Editor
             wnd.titleContent = new GUIContent("BISDGenerator");
         }
 
-        [MenuItem("Bloodthirst Tools/Load All Scenes Additively")]
-        public static void SceneLoader()
-        {
-            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings; i++)
-            {
-                if (UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(i).isLoaded)
-                {
-                    continue;
-                }
-
-                UnityEditor.SceneManagement.EditorSceneManager.OpenScene(UnityEngine.SceneManagement.SceneUtility.GetScenePathByBuildIndex(i), UnityEditor.SceneManagement.OpenSceneMode.Additive);
-            }
-        }
-
         [MenuItem("Assets/BISD Generator")]
         public static void AssetMenu()
         {

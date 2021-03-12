@@ -41,11 +41,25 @@ namespace Bloodthirst.Core.BISDSystem
 
             // get instance register and provider and identifier
 
-            IInstanceRegister instanceRegister = entity.GetComponentInChildren<IInstanceRegisterBehaviour>().InstanceRegister;
+            IEntityInstanceRegister instanceRegister = entity.GetComponentInChildren<IInstanceRegisterBehaviour>().InstanceRegister;
 
             IInstanceProvider instanceProvider = entity.GetComponentInChildren<IInstanceProviderBehaviour>().InstanceProvider;
 
             EntityIdentifier entityIdentifier = entity.GetComponentInChildren<EntityIdentifier>();
+
+            // initialize identifier
+            foreach (IInitializeIdentifier init in entity.GetComponentsInChildren<IInitializeIdentifier>())
+            {
+                init.InitializeIdentifier(entityIdentifier);
+            }
+
+            // register instances
+
+            foreach (IHasEntityRegisterInstance init in entity.GetComponentsInChildren<IHasEntityRegisterInstance>())
+            {
+                init.ProvideEntityInstanceInstance(instanceRegister);
+            }
+
 
             // init instancee
 
@@ -54,24 +68,12 @@ namespace Bloodthirst.Core.BISDSystem
                 init.InitializeInstance(entityIdentifier);
             }
 
-            // initialize identifier
-            foreach (IInitializeIdentifier init in entity.GetComponentsInChildren<IInitializeIdentifier>())
-            {
-                init.InitializeIdentifier(entityIdentifier);
-            }
 
             // initialize provider
 
             foreach (IInitializeProvider init in entity.GetComponentsInChildren<IInitializeProvider>())
             {
                 init.InitializeProvider(instanceProvider);
-            }
-
-            // register instances
-
-            foreach (IRegisterInstance init in entity.GetComponentsInChildren<IRegisterInstance>())
-            {
-                init.RegisterInstance(instanceRegister);
             }
 
             // query instance dependencies

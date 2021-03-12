@@ -2,7 +2,6 @@
 
 namespace Bloodthirst.Core.BISD.CodeGeneration
 {
-
     public enum ClassType
     {
         BEHAVIOUR,

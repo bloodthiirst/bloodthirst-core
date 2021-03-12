@@ -6,7 +6,7 @@ namespace Bloodthirst.Core.Utils
 {
     public class TypeLookup
     {
-        [ShowInInspector]
+        [HideIf(nameof(dictionary) , Value = null)]
         private Dictionary<Type, object> dictionary;
 
         public TypeLookup()

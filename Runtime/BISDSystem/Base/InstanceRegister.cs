@@ -31,10 +31,9 @@ namespace Bloodthirst.Core.BISDSystem
         /// <param name="i"></param>
         public static void Register(INSTANCE i)
         {
-            Debug.Log($"Instance of { typeof(INSTANCE) } has been registered");
-
             if (Instances.Add(i))
             {
+                Debug.Log($"Instance of { typeof(INSTANCE) } has been registered");
                 OnInstanceAdded<INSTANCE>.Invoke(i);
             }
         }
@@ -44,10 +43,9 @@ namespace Bloodthirst.Core.BISDSystem
         /// </summary>
         public static void Unregister(INSTANCE i)
         {
-            Debug.Log($"Instance of { typeof(INSTANCE) } has been unregistered");
-
             if (Instances.Remove(i))
             {
+                Debug.Log($"Instance of { typeof(INSTANCE) } has been unregistered");
                 OnInstanceRemoved<INSTANCE>.Invoke(i);
             }
         }

@@ -4,13 +4,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public enum LOAD_METHOD
-    {
-        FROM_DATA,
-        FROM_INSTANCE
-    }
-
-    public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour, IInitializeInstance, IRegisterInstance, IInitializeProvider, IInitializeIdentifier,
+    public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour, IInitializeInstance, IHasEntityRegisterInstance, IInitializeProvider, IInitializeIdentifier,
         IBehaviour<INSTANCE>
         where DATA : EntityData
         where STATE : class, IEntityState<DATA>, new()
@@ -21,9 +15,21 @@ namespace Bloodthirst.Core.BISDSystem
         /// The parent entity containing this behaviour
         /// </summary>
         [SerializeField]
+        [HideInInspector]
         private EntityIdentifier entityIdentifier;
 
-        protected EntityIdentifier EntityIdentifier { get => entityIdentifier; set => entityIdentifier = value; }
+        protected EntityIdentifier EntityIdentifier 
+        { 
+            get => entityIdentifier;
+            set => entityIdentifier = value; 
+        }
+
+        private IEntityInstanceRegister entityInstanceRegister;
+        protected IEntityInstanceRegister EntityInstanceRegister 
+        { 
+            get => entityInstanceRegister;
+            set => entityInstanceRegister = value; 
+        }
 
         public INSTANCE Instance
         {
@@ -35,18 +41,33 @@ namespace Bloodthirst.Core.BISDSystem
             {
                 if (instance != null)
                 {
+                    EntityInstanceRegister.Unregister(instance);
                     InstanceRegister<INSTANCE>.Unregister(instance);
                     instance.BeforeEntityRemoved -= OnRemove;
+
+                    OnDisposedInstance(instance);
+
+                    EntityInstanceRegister.Unregister(instance);
+
+                    instance.NotifyInstanceDisposed();
                 }
 
                 instance = value;
 
+                if (instance == null)
+                    return;
+
+                instance.EntityIdentifier = EntityIdentifier;
+
+                EntityInstanceRegister.Register(instance);
                 InstanceRegister<INSTANCE>.Register(instance);
                 instance.BeforeEntityRemoved -= OnRemove;
                 instance.BeforeEntityRemoved += OnRemove;
 
                 OnSetInstance(instance);
 
+                instance.NotifyInstanceBinded();
+                
                 instance.NotifyStateChanged();
             }
         }
@@ -56,16 +77,12 @@ namespace Bloodthirst.Core.BISDSystem
         public STATE State => instance.State;
 
         [SerializeField]
-        private LOAD_METHOD loadMethod = default;
+        private DATA tagData = default;
+
+        public DATA TagData => tagData;
+
 
         [SerializeField]
-        [ShowIf("loadMethod", LOAD_METHOD.FROM_DATA)]
-        private DATA loadData = default;
-
-        public DATA TagData => loadData;
-
-        [SerializeField]
-        [ShowIf("loadMethod", LOAD_METHOD.FROM_INSTANCE)]
         protected INSTANCE instance = default;
 
         private void OnValidate()
@@ -81,37 +98,27 @@ namespace Bloodthirst.Core.BISDSystem
         /// </summary>
         public virtual void InitializeInstance(EntityIdentifier entityIdentifier)
         {
-            switch (loadMethod)
+            IInstanceInjector<INSTANCE> injector = GetComponentInChildren<IInstanceInjector<INSTANCE>>();
+
+            if (injector != null)
             {
-                case LOAD_METHOD.FROM_DATA:
-                    {
-                        STATE st = new STATE();
-                        st.Data = loadData;
-
-                        INSTANCE ins = new INSTANCE();
-                        ins.State = st;
-
-                        Instance = ins;
-                        break;
-                    }
-                case LOAD_METHOD.FROM_INSTANCE:
-                    {
-                        Instance = Instance;
-                        break;
-                    }
-
-                default:
-                    break;
+                Instance = injector.GetInstance();
+                return;
             }
+
+            Instance = Instance;
         }
 
         /// <summary>
-        /// <para>Gets invoked after the instance  callls for a remove </para>
+        /// <para>Gets invoked after the instance  calls for a remove </para>
         /// <para>Apply the removal that needs to be done on the behaviour part, like invoking Destroy or sending back to the pool</para>
         /// </summary>
         /// <param name="ins"></param>
         public virtual void OnRemove(INSTANCE ins)
         {
+            EntityInstanceRegister.Unregister(instance);
+            InstanceRegister<INSTANCE>.Unregister(instance);
+            OnDisposedInstance(instance);
             instance.BeforeEntityRemoved -= OnRemove;
             instance = null;
         }
@@ -125,10 +132,12 @@ namespace Bloodthirst.Core.BISDSystem
             instance = null;
         }
 
-        public void RegisterInstance(IInstanceRegister instanceRegister)
-        {
-            instanceRegister.Register(Instance);
-        }
+        /// <summary>
+        /// <para>When the <see cref="Instance"/> is being changed , this method is invoked with the OLD instance passed as parameter</para>
+        /// <para>Use this method to remove any links made to the old instance </para>
+        /// </summary>
+        /// <param name="instance"></param>
+        public abstract void OnDisposedInstance(INSTANCE instance);
 
         /// <summary>
         /// Method invoked after the instance has been changed
@@ -156,6 +165,11 @@ namespace Bloodthirst.Core.BISDSystem
             return behaviour;
         }
 
+        public void ProvideEntityInstanceInstance(IEntityInstanceRegister instanceRegister)
+        {
+            EntityInstanceRegister = instanceRegister;
+        }
+
         public void InitializeProvider(IInstanceProvider instanceProvider)
         {
             Instance.InstanceProvider = instanceProvider;
@@ -164,8 +178,6 @@ namespace Bloodthirst.Core.BISDSystem
         public void InitializeIdentifier(EntityIdentifier entityIdentifier)
         {
             EntityIdentifier = entityIdentifier;
-
-            Instance.EntityIdentifier = entityIdentifier;
         }
     }
 }
