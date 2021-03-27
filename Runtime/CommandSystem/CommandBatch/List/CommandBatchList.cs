@@ -31,6 +31,7 @@ namespace Bloodthirst.System.CommandSystem
             CommandsList = new List<CommandSettings>();
             BatchState = BATCH_STATE.EXECUTING;
         }
+
         public void Tick(float delta)
         {
 

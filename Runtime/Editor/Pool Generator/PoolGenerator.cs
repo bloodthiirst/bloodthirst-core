@@ -1,19 +1,17 @@
-using Bloodthirst.Core.PersistantAsset;
+using Bloodthirst.Core.Consts;
 using Bloodthirst.Core.Utils;
-using System.Collections.Generic;
-using System.Reflection;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
-using System.Linq;
-using UnityEditor;
-using System.IO;
 using UnityEngine.SceneManagement;
 using static Bloodthirst.Core.Utils.StringExtensions;
-using System.Text;
-using System.Globalization;
-using System.Collections;
-using Bloodthirst.Core.Consts;
 
 namespace Bloodthirst.Core.AdvancedPool.Editor
 {
@@ -153,7 +151,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 return false;
             }
 
-            if(!HasAllPoolFields())
+            if (!HasAllPoolFields())
             {
                 return false;
             }
@@ -172,7 +170,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         {
             Type type = GetGlobalPoolContainerType();
 
-            if(type == null)
+            if (type == null)
             {
                 return false;
             }
@@ -390,7 +388,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             Scene poolsScene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity");
             bool wasOpen = true;
 
-            if(!poolsScene.IsValid())
+            if (!poolsScene.IsValid())
             {
                 wasOpen = false;
                 poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
@@ -414,7 +412,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             UnityEditor.SceneManagement.EditorSceneManager.SaveScene(poolsScene);
 
-            if(!wasOpen)
+            if (!wasOpen)
             {
                 UnityEditor.SceneManagement.EditorSceneManager.CloseScene(poolsScene, true);
             }

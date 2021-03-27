@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
-    public abstract class PoolBehaviour<TObejct> : MonoBehaviour, IPoolBehaviour , IPostSceneLoadedPass where TObejct : Component
+    public abstract class PoolBehaviour<TObejct> : MonoBehaviour, IPoolBehaviour, IPostSceneLoadedPass where TObejct : Component
     {
 
         private static readonly Type type = typeof(TObejct);
@@ -15,7 +15,7 @@ namespace Bloodthirst.Core.AdvancedPool
 
         [SerializeField]
         protected TObejct prefab;
-        
+
         [SerializeField]
         protected int poolCount;
 
@@ -31,7 +31,7 @@ namespace Bloodthirst.Core.AdvancedPool
             set => Prefab = value.GetComponent<TObejct>();
         }
 
-        
+
         int IPoolBehaviour.Count { get => poolCount; set => poolCount = value; }
 
         private Pool<TObejct> _Pool;

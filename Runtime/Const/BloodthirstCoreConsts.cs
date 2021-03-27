@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Bloodthirst.Core.Consts
+﻿namespace Bloodthirst.Core.Consts
 {
     public static class BloodthirstCoreConsts
     {
@@ -18,7 +15,7 @@ namespace Bloodthirst.Core.Consts
 
         #region DidReloadScripts conts
 
-        public const int TRACK_ASSEMBLY_RELOAD =  0;
+        public const int TRACK_ASSEMBLY_RELOAD = 0;
 
         public const int SINGLETONS_CREATION_CHECK = 1;
 

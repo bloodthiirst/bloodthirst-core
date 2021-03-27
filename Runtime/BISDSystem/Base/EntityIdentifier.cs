@@ -11,6 +11,32 @@ namespace Bloodthirst.Core.BISDSystem
     /// </summary>
     public class EntityIdentifier : MonoBehaviour
     {
+        [SerializeField]
+        private int id;
+
+        public int Id
+        {
+            get => id;
+            set
+            {
+                id = value;
+                ChangeEntityID(id);
+            }
+        }
+
+        private void ChangeEntityID(int identifier)
+        {
+            IEntityInstance[] all = GetComponentsInChildren<IEntityInstance>(true);
+
+            for (int i = 0; i < all.Length; i++)
+            {
+                IEntityInstance curr = all[i];
+
+                curr.State.Id = id;
+            }
+        }
+
+
         /// <summary>
         /// <para>Event triggered when an entity is spawned</para>
         /// <para>This event invoked after all the injection steps have taken place</para>
@@ -22,6 +48,14 @@ namespace Bloodthirst.Core.BISDSystem
         /// <para>This could mean either sent back to a pool or destroyed , depending on the spawners behaviour</para>
         /// </summary>
         public event Action<EntityIdentifier> OnEntityRemoved;
+
+        [SerializeField]
+        private PrefabReferenceData prefabReferenceData;
+
+        /// <summary>
+        /// Prefab used to spawn this entity
+        /// </summary>
+        public PrefabReferenceData PrefabReferenceData => prefabReferenceData;
 
         [SerializeField]
         private EntityType entityType;

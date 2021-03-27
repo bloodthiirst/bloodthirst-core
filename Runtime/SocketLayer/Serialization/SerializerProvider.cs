@@ -1,6 +1,5 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using Bloodthirst.Core.Utils;
-using Bloodthirst.Scripts.Core.Utils;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;

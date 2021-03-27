@@ -1,4 +1,4 @@
-﻿using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.Singleton;
 using UnityEngine;
 
 namespace Bloodthirst.Scripts.Core.Utils

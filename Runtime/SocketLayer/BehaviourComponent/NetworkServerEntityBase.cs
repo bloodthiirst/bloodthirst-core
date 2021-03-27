@@ -1,4 +1,4 @@
-﻿using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.Singleton;
 using Bloodthirst.Socket.BehaviourComponent;
 using Sirenix.OdinInspector;
 using System;

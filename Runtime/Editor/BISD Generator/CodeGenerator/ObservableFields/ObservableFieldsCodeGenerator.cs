@@ -35,7 +35,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             // fields of state
             FieldInfo[] fields = GetObseravableFields(TypeList);
-            
+
             // instance vars
             PropertyInfo[] props = GetObservableProps(TypeList);
 
@@ -104,7 +104,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             }
 
             // if dont have to regenerate , go to next type
-            
+
             return mustRegenerate;
         }
 

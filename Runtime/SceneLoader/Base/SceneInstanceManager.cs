@@ -1,4 +1,4 @@
-﻿using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.Singleton;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;

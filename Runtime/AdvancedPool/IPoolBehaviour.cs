@@ -10,6 +10,6 @@ namespace Bloodthirst.Core.AdvancedPool
         string PrefabPath { get; set; }
         int Count { get; set; }
         void Initialize();
-        
+
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Bloodthirst.Core.BISDSystem;
-using Bloodthirst.Core.UnitySingleton;
+using Bloodthirst.Core.Singleton;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.Core.Utils;

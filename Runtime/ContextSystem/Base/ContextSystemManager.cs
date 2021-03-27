@@ -69,7 +69,7 @@ namespace Bloodthirst.System.ContextSystem
             else
                 Instance.AllContextInstance.Clear();
 
-            ScriptableObject[] allContexts = Resources.LoadAll("Singletons", typeof(IContextInstance)).Cast<ScriptableObject>().Where(so => so != null).ToArray();
+            ScriptableObject[] allContexts = Resources.LoadAll("Singletons", typeof(IContextInstance)).OfType<ScriptableObject>().Where(so => so != null).ToArray();
 
             for (int i = 0; i < allContexts.Length; i++)
             {

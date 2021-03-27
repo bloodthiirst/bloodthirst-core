@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Core.AdvancedPool;
-using Bloodthirst.Core.SceneManager;
+﻿using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
 using Bloodthirst.Scripts.SocketLayer.Commands;
 using Bloodthirst.Socket.BehaviourComponent.NetworkPlayerEntity;
@@ -63,7 +62,7 @@ namespace Bloodthirst.Socket.BehaviourComponent
             prefabInstanceProvider.RemovePrefabInstance(playerEntity);
         }
 
-        public NetworkPlayerEntityBase<Guid> Add(Guid identifier , string prefabPath)
+        public NetworkPlayerEntityBase<Guid> Add(Guid identifier, string prefabPath)
         {
             GUIDNetworkPlayerEntity go = prefabInstanceProvider.GetPrefabInstance<GUIDNetworkPlayerEntity>(prefabPath);
 

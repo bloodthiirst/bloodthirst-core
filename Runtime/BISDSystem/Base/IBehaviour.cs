@@ -4,9 +4,4 @@
     {
         INSTANCE Instance { get; }
     }
-    public interface IRemovableBehaviour
-    {
-        IRemovable Removable { get; }
-    }
-
 }

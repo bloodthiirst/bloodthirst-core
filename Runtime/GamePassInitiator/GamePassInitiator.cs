@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Bloodthirst.Scripts.Core.GameInitPass
+namespace Bloodthirst.Core.GameInitPass
 {
     public class GamePassInitiator : MonoBehaviour
     {
@@ -111,9 +111,9 @@ namespace Bloodthirst.Scripts.Core.GameInitPass
                 list.Clear();
             }
 
-            for (int i = 0; i < SceneManager.sceneCount; i++)
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
             {
-                GameObject[] rootGameObjects = SceneManager.GetSceneAt(i).GetRootGameObjects();
+                GameObject[] rootGameObjects = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).GetRootGameObjects();
                 foreach (GameObject rootGameObject in rootGameObjects)
                 {
                     T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>();

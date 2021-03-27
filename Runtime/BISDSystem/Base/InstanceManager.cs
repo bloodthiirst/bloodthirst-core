@@ -7,7 +7,7 @@ namespace Bloodthirst.Core.BISDSystem
 {
     public class InstanceManager : MonoBehaviour, IInstanceRegisterBehaviour, IInstanceProviderBehaviour, IInstanceProvider, IEntityInstanceRegister
     {
-        [HideIf(nameof(typeLookup) , Value = null)]
+        [ShowInInspector]
         private TypeLookup typeLookup;
 
         public event Action<object> OnRegistered;

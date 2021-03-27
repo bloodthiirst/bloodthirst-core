@@ -1,12 +1,9 @@
 ﻿using Bloodthirst.Core.Consts;
-using Bloodthirst.Core.PersistantAsset;
 using Bloodthirst.Core.Utils;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -83,7 +80,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
                 foreach (ICodeGenerator generator in codeGenerators)
                 {
-                    if (!lazyGeneration || (generator.ShouldInject(typeList, textList) && lazyGeneration ) )
+                    if (!lazyGeneration || (generator.ShouldInject(typeList, textList) && lazyGeneration))
                     {
                         generator.InjectGeneratedCode(typeList, textList);
                     }

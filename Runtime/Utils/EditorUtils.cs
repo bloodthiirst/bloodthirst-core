@@ -1,11 +1,9 @@
 ﻿#if UNITY_EDITOR
 using Bloodthirst.Scripts.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.Utils
 {

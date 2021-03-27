@@ -1,14 +1,37 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Core.BISDSystem
 {
     [Serializable]
-    public abstract class EntityInstance<DATA, STATE, INSTANCE>
+    public abstract class EntityInstance<DATA, STATE, INSTANCE> : IEntityInstance
         where DATA : EntityData
         where STATE : class, IEntityState<DATA>
         where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>
     {
+
+        private bool isActive = true;
+
+        /// <summary>
+        /// Is this instance active ?
+        /// </summary>
+        public bool IsActive
+        {
+            get => isActive;
+            private set
+            {
+                if (isActive == value)
+                    return;
+
+                isActive = value;
+                OnIsActiveChanged?.Invoke((INSTANCE)this);
+            }
+        }
+
+        public IInstanceProvider InstanceProvider { get; set; }
+
         private EntityIdentifier entityIdentifier;
 
         public EntityIdentifier EntityIdentifier
@@ -34,15 +57,22 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        /// <summary>
-        /// Event to listen to instance is linked to a behaviour (on instance change or spawn)
-        /// </summary>
-        public event Action<INSTANCE> OnInstanceBinded;
+        public event Action<INSTANCE> OnIsActiveChanged;
 
         /// <summary>
         /// Event to listen to instance remove
         /// </summary>
         public event Action<INSTANCE> BeforeEntityRemoved;
+
+        /// <summary>
+        /// Event to listen to instance spawned
+        /// </summary>
+        public event Action<INSTANCE> OnEntitySpawn;
+
+        /// <summary>
+        /// Event to listen to instance is linked to a behaviour (on instance change or spawn)
+        /// </summary>
+        public event Action<INSTANCE> OnInstanceBinded;
 
         /// <summary>
         /// Event to listen to instance disposal/change
@@ -82,17 +112,42 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
+        EntityIdentifier IEntityInstance.EntityIdentifier => EntityIdentifier;
 
-        public IInstanceProvider InstanceProvider { get; set; }
+        IEntityState IEntityInstance.State
+        {
+            get => State;
+            set
+            {
+                Assert.IsTrue(value is STATE);
+                State =(STATE) value;
+            }
+        }
+
+        private readonly Type stateType = typeof(STATE);
+
+        Type IEntityInstance.StateType => stateType;
 
         public EntityInstance()
         {
 
         }
 
+        [Button]
+        public void Enable()
+        {
+            IsActive = true;
+        }
+
+        [Button]
+        public void Disable()
+        {
+            IsActive = false;
+        }
+
         private void OnEntitySpawned(EntityIdentifier entityIdentifier)
         {
-
+            OnEntitySpawn?.Invoke((INSTANCE)this);
         }
 
         private void OnEntityRemoved(EntityIdentifier entityIdentifier)

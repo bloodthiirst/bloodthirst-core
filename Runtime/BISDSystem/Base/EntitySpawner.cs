@@ -36,6 +36,39 @@ namespace Bloodthirst.Core.BISDSystem
             return entity;
         }
 
+        public BEHAVIOUR AddBehaviour<BEHAVIOUR, INSTANCE, STATE, DATA>(MonoBehaviour entity) where DATA : EntityData where STATE : class, IEntityState<DATA> , new() where INSTANCE : EntityInstance<DATA, STATE, INSTANCE> , new() where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE> 
+        {
+            // get instance register and provider and identifier
+
+            IEntityInstanceRegister instanceRegister = entity.GetComponentInChildren<IInstanceRegisterBehaviour>().InstanceRegister;
+
+            IInstanceProvider instanceProvider = entity.GetComponentInChildren<IInstanceProviderBehaviour>().InstanceProvider;
+
+            EntityIdentifier entityIdentifier = entity.GetComponentInChildren<EntityIdentifier>();
+
+            BEHAVIOUR behaviour = entity.gameObject.AddComponent<BEHAVIOUR>();
+
+            ((IInitializeIdentifier)behaviour).InitializeIdentifier(entityIdentifier);
+
+            // register instances
+            ((IHasEntityRegisterInstance)behaviour).ProvideEntityInstanceInstance(instanceRegister);
+
+            // init instancee
+           ((IInitializeInstance)behaviour).InitializeInstance(entityIdentifier);
+
+            // initialize provider
+
+            ((IInitializeProvider)behaviour).InitializeProvider(instanceProvider);
+
+            // query instance dependencies
+            if (behaviour is IQueryInstance query)
+            {
+                query.QueryInstance(instanceProvider);
+            }
+
+            return behaviour;
+        }
+
         public T InjectDependencies<T>(T entity) where T : MonoBehaviour
         {
 

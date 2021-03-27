@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:VisualElement class="container p-5">
+
+        <engine:VisualElement class="row">
+            <engine:TextField name="selectPathTxt" class="flex-grow"/>
+            <engine:Button text="Select Path" name="selectPathBtn" style="width : 75px"/>
+        </engine:VisualElement>
+
+
+        <engine:VisualElement class="row">
+            <engine:TextField label="Asset filename" name="gameDataNameTxt" class="flex-grow"/>
+        </engine:VisualElement>
+
+        
+        <engine:VisualElement class="row">
+            <engine:TextField label="Title" name="titleTxt" class="flex-grow"/>
+        </engine:VisualElement>
+
+        <engine:VisualElement class="row">
+            <engine:Button text="Save asset" name="createAssetBtn" class="flex-grow"/>
+        </engine:VisualElement>
+
+
+    </engine:VisualElement>
+</engine:UXML>

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    [InlineEditor(InlineEditorModes.FullEditor , DrawHeader = false)]
+    [InlineEditor(InlineEditorModes.FullEditor, DrawHeader = false)]
     public struct ReadOnlyString
     {
         [ShowInInspector]

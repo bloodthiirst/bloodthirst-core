@@ -1,17 +1,16 @@
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
-using System.IO;
-using System;
-using System.Linq;
-using Bloodthirst.Core.SceneManager;
-using Bloodthirst.Core.PersistantAsset;
-using System.Collections.Generic;
-using UnityEngine.SceneManagement;
-using Bloodthirst.Utils.EditorOpenTracker;
-using Bloodthirst.Core.Utils;
 using Bloodthirst.Core.Consts;
+using Bloodthirst.Core.SceneManager;
+using Bloodthirst.Core.Utils;
+using Bloodthirst.Utils.EditorOpenTracker;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class SceneCreatorEditor : EditorWindow
 {
@@ -274,7 +273,7 @@ public class SceneCreatorEditor : EditorWindow
 
         // create scene asset
 
-        Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene , NewSceneMode.Additive);
+        Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
         scene.name = sceneName + "Scene";
 
         EditorSceneManager.SaveScene(scene, $"{relativePath}/{fullSceneName}.unity");

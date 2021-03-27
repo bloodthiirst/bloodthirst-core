@@ -1,11 +1,15 @@
+using Bloodthirst.Editor;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
-using System.Linq;
+using UnityEngine.UIElements;
 
 public class SceneLoadHelper : EditorWindow
 {
+
+    private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Scene Load Helper/SceneLoadHelper.uss";
+    private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Scene Load Helper/SceneLoadHelper.uxml";
 
     [MenuItem("Bloodthirst Tools/Scene Management/Scene Load Helper Window")]
     public static void ShowExample()
@@ -26,17 +30,15 @@ public class SceneLoadHelper : EditorWindow
 
 
         // Import UXML
-        VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Scene Load Helper/SceneLoadHelper.uxml");
+        VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
 
         VisualElement labelFromUXML = visualTree.CloneTree();
 
+        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(USS_PATH);
+
         root.Add(labelFromUXML);
-
-        // A stylesheet can be added to a VisualElement.
-        // The style will be applied to the VisualElement and all of its children.
-        StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Scene Load Helper/SceneLoadHelper.uss");
-
         root.styleSheets.Add(styleSheet);
+        root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
 
         BootstrapWindow();
 
@@ -68,18 +70,20 @@ public class SceneLoadHelper : EditorWindow
 
         btn.AddToClassList("btn");
 
-        btn.AddToClassList("h-50");
+        btn.AddToClassList("flex-grow");
+        btn.AddToClassList("big-btn");
 
         btn.text = "Play with all scenes loaded";
 
-        btn.clickable.clicked += () => {
+        btn.clickable.clicked += () =>
+        {
             OpenAllScenes();
             EditorApplication.isPlaying = true;
         };
 
         row.Add(btn);
 
-        
+
     }
 
     private void LoadAllSceneAdditively()
@@ -91,7 +95,9 @@ public class SceneLoadHelper : EditorWindow
 
         btn.AddToClassList("btn");
 
-        btn.AddToClassList("h-50");
+        btn.AddToClassList("flex-grow");
+
+        btn.AddToClassList("big-btn");
 
         btn.text = "Load All Scenes Additively";
 
@@ -100,7 +106,7 @@ public class SceneLoadHelper : EditorWindow
         row.Add(btn);
 
 
-        
+
     }
 
     private void OpenAllScenes()
@@ -125,6 +131,8 @@ public class SceneLoadHelper : EditorWindow
             Button btn = new Button();
 
             btn.AddToClassList("btn");
+
+            btn.AddToClassList("flex-grow");
 
             string scenePath = EditorBuildSettings.scenes[i].path;
 

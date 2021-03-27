@@ -1,49 +1,42 @@
-﻿using Sirenix.OdinInspector;
-using UnityEngine;
+﻿using Bloodthirst.Scripts.Core.GamePassInitiator;
+using Sirenix.OdinInspector;
 
-namespace Bloodthirst.Core.UnitySingleton
+namespace Bloodthirst.Core.Pooling
 {
-    public class UnitySingleton<T> : MonoBehaviour where T : UnitySingleton<T>
+    public class SerializedUnitySingleton<T> : SerializedMonoBehaviour, ISingletonPass where T : SerializedUnitySingleton<T>
     {
 
-        [ShowInInspector]
-        [ReadOnly]
         protected static T instance;
 
+        [ShowInInspector]
         public static T Instance
         {
-
             get
             {
                 if (instance == null)
                 {
                     instance = FindObjectOfType<T>();
                 }
-
                 return instance;
+            }
+        }
+
+        public void DoSingletonPass()
+        {
+            if (instance == null)
+            {
+                instance = GetComponent<T>();
             }
         }
 
         protected virtual void Awake()
         {
-
-            if (instance == null)
-            {
-                instance = GetComponent<T>();
-                return;
-            }
-
-        }
-
-        private void OnEnable()
-        {
             if (instance == null)
             {
                 instance = GetComponent<T>();
                 return;
             }
         }
-
     }
 
 
