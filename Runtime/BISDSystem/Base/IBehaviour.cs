@@ -1,7 +1,7 @@
 ﻿namespace Bloodthirst.Core.BISDSystem
 {
-    public interface IBehaviour<INSTANCE>
+    public interface IBehaviour 
     {
-        INSTANCE Instance { get; }
+        IEntityInstance Instance { get; }
     }
 }

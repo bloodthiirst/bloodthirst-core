@@ -12,26 +12,11 @@ namespace Bloodthirst.Core.BISDSystem
         where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>
     {
 
-        private bool isActive = true;
+        private readonly Type stateType = typeof(STATE);
 
-        /// <summary>
-        /// Is this instance active ?
-        /// </summary>
-        public bool IsActive
-        {
-            get => isActive;
-            private set
-            {
-                if (isActive == value)
-                    return;
+        private readonly Type instanceType = typeof(INSTANCE);
 
-                isActive = value;
-                OnIsActiveChanged?.Invoke((INSTANCE)this);
-            }
-        }
-
-        public IInstanceProvider InstanceProvider { get; set; }
-
+        [SerializeField]
         private EntityIdentifier entityIdentifier;
 
         public EntityIdentifier EntityIdentifier
@@ -56,6 +41,28 @@ namespace Bloodthirst.Core.BISDSystem
 
             }
         }
+
+        [SerializeField]
+        private bool isActive = true;
+
+        /// <summary>
+        /// Is this instance active ?
+        /// </summary>
+        public bool IsActive
+        {
+            get => isActive;
+            private set
+            {
+                if (isActive == value)
+                    return;
+
+                isActive = value;
+                OnIsActiveChanged?.Invoke((INSTANCE)this);
+            }
+        }
+
+        public IInstanceProvider InstanceProvider { get; set; }
+
 
         public event Action<INSTANCE> OnIsActiveChanged;
 
@@ -112,22 +119,6 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        EntityIdentifier IEntityInstance.EntityIdentifier => EntityIdentifier;
-
-        IEntityState IEntityInstance.State
-        {
-            get => State;
-            set
-            {
-                Assert.IsTrue(value is STATE);
-                State =(STATE) value;
-            }
-        }
-
-        private readonly Type stateType = typeof(STATE);
-
-        Type IEntityInstance.StateType => stateType;
-
         public EntityInstance()
         {
 
@@ -178,5 +169,24 @@ namespace Bloodthirst.Core.BISDSystem
         {
 
         }
+
+        #region interface implementations
+        EntityIdentifier IEntityInstance.EntityIdentifier => EntityIdentifier;
+
+        IEntityState IEntityInstance.State
+        {
+            get => State;
+            set
+            {
+                Assert.IsTrue(value is STATE);
+                State = (STATE)value;
+            }
+        }
+
+        Type IEntityInstance.StateType => stateType;
+
+        Type IEntityInstance.InstanceType => instanceType;
+
+        #endregion
     }
 }

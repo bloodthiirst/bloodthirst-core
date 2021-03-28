@@ -113,10 +113,10 @@ namespace Bloodthirst.Core.BISD.Editor
             File.WriteAllText(finalPath + "State.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
             File.WriteAllText(finalPath + "Data.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
 
-            AssetDatabase.ImportAsset(finalPath + "Behaviour.cs");
-            AssetDatabase.ImportAsset(finalPath + "Instance.cs");
-            AssetDatabase.ImportAsset(finalPath + "State.cs");
-            AssetDatabase.ImportAsset(finalPath + "Data.cs");
+            AssetDatabase.ImportAsset(relativePath + "Behaviour.cs");
+            AssetDatabase.ImportAsset(relativePath + "Instance.cs");
+            AssetDatabase.ImportAsset(relativePath + "State.cs");
+            AssetDatabase.ImportAsset(relativePath + "Data.cs");
 
             AssetDatabase.SaveAssets();
 

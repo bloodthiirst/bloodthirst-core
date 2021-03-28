@@ -17,7 +17,7 @@ namespace Bloodthirst.Core.BISDSystem
                 if (instances == null)
                 {
                     instances = new HashSet<INSTANCE>();
-                    InstanceRegister._AllInstanceSets.Add(instances);
+                    EntityManager._AllInstanceSets.Add(instances);
 
                 }
 
@@ -59,8 +59,17 @@ namespace Bloodthirst.Core.BISDSystem
 
     }
 
-    public class InstanceRegister
+    public class EntityManager
     {
+        private static int entityCount;
+
+        private static int EntityCount => entityCount;
+
+        public static int GetNextId()
+        {
+            return entityCount++;
+        }
+
         private static List<IEnumerable> _allInstanceSets;
 
         internal static List<IEnumerable> _AllInstanceSets
@@ -105,24 +114,41 @@ namespace Bloodthirst.Core.BISDSystem
 
         // TODO : work on loading
         [Button]
-        public static void Load(BISDGameData gameData)
+        public static void Load(BISDGameStateData gameData , bool withPostLoad)
         {
             EntitySpawner spawner = Object.FindObjectOfType<EntitySpawner>();
 
+            Load(gameData, spawner , withPostLoad);
+        }
+
+        public static void Load(BISDGameStateData gameData , EntitySpawner spawner , bool withPostLoad)
+        {
+            List<EntityIdentifier> spawned = withPostLoad ? new List<EntityIdentifier>() : null;
+
             foreach (KeyValuePair<PrefabIDPair, List<IEntityState>> kv in gameData.States)
             {
+                // get the id component of the entity
                 EntityIdentifier prefabId = kv.Key.PrefabRefernece.GetComponent<EntityIdentifier>();
-                EntityIdentifier loadedEntity = spawner.SpawnEntity<EntityIdentifier>(e => e.EntityType == prefabId.EntityType);
 
+                // copy the preloaded states
                 List<IEntityState> dataToBeLoaded = kv.Value.ToList();
 
-                foreach(IEntityInstance loadable in loadedEntity.GetComponentsInChildren<IEntityInstance>())
+                // spawn the entity with the preloaded data
+                EntityIdentifier loadedEntity = spawner.SpawnEntity<EntityIdentifier>(e => e.EntityType == prefabId.EntityType , dataToBeLoaded);
+
+                if (withPostLoad)
                 {
-                    for(int i = dataToBeLoaded.Count -1; i > -1; i--)
+                    spawned.Add(loadedEntity);
+                }
+
+
+                foreach (IEntityInstance loadable in loadedEntity.GetComponentsInChildren<IEntityInstance>())
+                {
+                    for (int i = dataToBeLoaded.Count - 1; i > -1; i--)
                     {
                         IEntityState currState = dataToBeLoaded[i];
 
-                        if(loadable.StateType == currState.GetType())
+                        if (loadable.StateType == currState.GetType())
                         {
                             loadable.State = currState;
                             dataToBeLoaded.RemoveAt(i);
@@ -131,6 +157,19 @@ namespace Bloodthirst.Core.BISDSystem
                     }
                 }
 
+            }
+
+            if (!withPostLoad)
+                return;
+
+            foreach(EntityIdentifier s in spawned)
+            {
+                IPostEntityLoaded[] postLoads = s.GetComponentsInChildren<IPostEntityLoaded>(true);
+
+                foreach(IPostEntityLoaded p in postLoads)
+                {
+                    p.PostEntityLoaded();
+                }
             }
         }
     }

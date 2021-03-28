@@ -1,7 +1,10 @@
-﻿namespace Bloodthirst.Core.BISDSystem
+﻿using System;
+
+namespace Bloodthirst.Core.BISDSystem
 {
     public interface IInitializeInstance
     {
-        void InitializeInstance(EntityIdentifier entityIdentifier);
+        Type StateType { get; }
+        void InitializeInstance(EntityIdentifier entityIdentifier , IEntityState preloadState);
     }
 }

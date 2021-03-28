@@ -6,6 +6,7 @@ namespace Bloodthirst.Core.BISDSystem
     {
         EntityIdentifier EntityIdentifier { get; }
         Type StateType { get; }
+        Type InstanceType { get; }
         IEntityState State { get; set; }
     }
 }

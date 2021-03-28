@@ -26,13 +26,17 @@ namespace Bloodthirst.Core.BISDSystem
 
         private void ChangeEntityID(int identifier)
         {
-            IEntityInstance[] all = GetComponentsInChildren<IEntityInstance>(true);
+            IBehaviour[] all = GetComponentsInChildren<IBehaviour>(true);
 
             for (int i = 0; i < all.Length; i++)
             {
-                IEntityInstance curr = all[i];
+                IBehaviour curr = all[i];
 
-                curr.State.Id = id;
+                IEntityState state =  curr.Instance.State;
+
+                state.Id = identifier;
+
+                curr.Instance.State = state;
             }
         }
 

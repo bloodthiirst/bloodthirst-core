@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public class BISDGameData : SerializedScriptableObject
+    public class BISDGameStateData : SerializedScriptableObject
     {
         [SerializeField]
         private string title;

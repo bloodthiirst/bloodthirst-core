@@ -1,15 +1,21 @@
-﻿using Bloodthirst.Scripts.Core.UnityPool;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour, IInitializeInstance, IHasEntityRegisterInstance, IInitializeProvider, IInitializeIdentifier,
-        IBehaviour<INSTANCE>
+    public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour,
+        IInitializeIdentifier,
+        IInitializeInstance,
+        IHasEntityInstanceRegister,
+        IHasEntityInstanceProvider,
+        IBehaviour,
+        IPostEntityLoaded
         where DATA : EntityData
         where STATE : class, IEntityState<DATA>, new()
         where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new()
     {
+
+        private readonly Type stateType = typeof(STATE);
 
         /// <summary>
         /// The parent entity containing this behaviour
@@ -30,6 +36,18 @@ namespace Bloodthirst.Core.BISDSystem
             get => entityInstanceRegister;
             set => entityInstanceRegister = value;
         }
+
+        public DATA Data => instance.State.Data;
+
+        public STATE State => instance.State;
+
+        [SerializeField]
+        private DATA tagData = default;
+
+        public DATA TagData => tagData;
+
+        [SerializeField]
+        protected INSTANCE instance = default;
 
         public INSTANCE Instance
         {
@@ -87,33 +105,41 @@ namespace Bloodthirst.Core.BISDSystem
 
         }
 
-        public DATA Data => instance.State.Data;
-
-        public STATE State => instance.State;
-
-        [SerializeField]
-        private DATA tagData = default;
-
-        public DATA TagData => tagData;
-
-
-        [SerializeField]
-        protected INSTANCE instance = default;
-
-        private void OnValidate()
+        #region Unity callbacks
+        protected virtual void OnValidate()
         {
             if (entityIdentifier == null)
             {
                 entityIdentifier = GetComponent<EntityIdentifier>();
             }
         }
+        protected virtual void OnDestroy()
+        {
+            if (Instance == null)
+                return;
+
+            instance.BeforeEntityRemoved -= OnEntityRemove;
+            instance = null;
+        }
+        #endregion
 
         /// <summary>
         /// <para>Inject the instance either by using the exterior data or by using the serialized instance</para>
         /// <para>This should only be called by the <see cref="EntitySpawner" and injection points/></para>
         /// </summary>
-        protected virtual void InitializeInstance(EntityIdentifier entityIdentifier)
+        protected virtual void InitializeInstance(EntityIdentifier entityIdentifier , IEntityState preloadState)
         {
+            if(preloadState != null)
+            {
+                INSTANCE loaded = new INSTANCE
+                {
+                    State = (STATE)preloadState
+                };
+
+                Instance = loaded;
+                return;
+            }
+
             IInstanceInjector<INSTANCE> injector = GetComponentInChildren<IInstanceInjector<INSTANCE>>();
 
             if (injector != null)
@@ -126,23 +152,10 @@ namespace Bloodthirst.Core.BISDSystem
         }
 
         /// <summary>
-        /// <para>Gets invoked after the instance  calls for a remove </para>
-        /// <para>Apply the removal that needs to be done on the behaviour part, like invoking Destroy or sending back to the pool</para>
+        /// Method invoked after the instance has been changed
         /// </summary>
-        /// <param name="ins"></param>
-        public virtual void OnEntityRemove(INSTANCE ins)
-        {
-            Instance = null;
-        }
-
-        protected virtual void OnDestroy()
-        {
-            if (Instance == null)
-                return;
-
-            instance.BeforeEntityRemoved -= OnEntityRemove;
-            instance = null;
-        }
+        /// <param name="instance"></param>
+        public abstract void OnSetInstance(INSTANCE instance);
 
         /// <summary>
         /// <para>When the <see cref="Instance"/> is being changed , this method is invoked with the OLD instance passed as parameter</para>
@@ -152,41 +165,37 @@ namespace Bloodthirst.Core.BISDSystem
         public abstract void OnDisposedInstance(INSTANCE instance);
 
         /// <summary>
-        /// Method invoked after the instance has been changed
+        /// <para>Gets invoked after the instance  calls for a remove </para>
+        /// <para>Apply the removal that needs to be done on the behaviour part, like invoking Destroy or sending back to the pool</para>
         /// </summary>
-        /// <param name="instance"></param>
-        public abstract void OnSetInstance(INSTANCE instance);
+        /// <param name="ins"></param>
+        public virtual void OnEntityRemove(INSTANCE ins)
+        {
+            Instance = null;
+        }
 
         /// <summary>
-        /// Takes a state as a parameter and returns a behaviour that has been hooked up using the DATA,STATE,INSTANCE pattern
+        /// <para>Method called by the entity spawner after all loading is done</para>
+        /// <para>Usefull when we wanna look for a specific entity but we need to make sure that all the data is present in the scene</para>
         /// </summary>
-        /// <typeparam name="BEHAVIOUR">Behaviour class</typeparam>
-        /// <typeparam name="INSTANCE">Instance class</typeparam>
-        /// <typeparam name="STATE">State struct</typeparam>
-        /// <param name="state"></param>
-        /// <returns>Loaded bhaviour form pool</returns>
-        public static BEHAVIOUR Load<BEHAVIOUR>(STATE state) where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
+        protected virtual void PostEntityLoaded() { }
+
+        #region interface implementations
+        IEntityInstance IBehaviour.Instance => Instance;
+
+        Type IInitializeInstance.StateType => stateType;
+
+        void IInitializeInstance.InitializeInstance(EntityIdentifier entityIdentifier , IEntityState preloadState)
         {
-            BEHAVIOUR behaviour = GenericUnityPool.Instance.Get<BEHAVIOUR>();
-
-            behaviour.Instance.State = state;
-
-            behaviour.Instance = behaviour.Instance;
-
-
-            return behaviour;
-        }
-        void IInitializeInstance.InitializeInstance(EntityIdentifier entityIdentifier)
-        {
-            InitializeInstance(entityIdentifier);
+            InitializeInstance(entityIdentifier , preloadState);
         }
 
-        void IHasEntityRegisterInstance.ProvideEntityInstanceInstance(IEntityInstanceRegister instanceRegister)
+        void IHasEntityInstanceRegister.InitializeEntityInstanceRegister(IEntityInstanceRegister instanceRegister)
         {
             EntityInstanceRegister = instanceRegister;
         }
 
-        void IInitializeProvider.InitializeProvider(IInstanceProvider instanceProvider)
+        void IHasEntityInstanceProvider.InitializeEntityInstanceProvider(IInstanceProvider instanceProvider)
         {
             Instance.InstanceProvider = instanceProvider;
         }
@@ -195,5 +204,11 @@ namespace Bloodthirst.Core.BISDSystem
         {
             EntityIdentifier = entityIdentifier;
         }
+
+        void IPostEntityLoaded.PostEntityLoaded()
+        {
+            PostEntityLoaded();
+        }
+        #endregion
     }
 }

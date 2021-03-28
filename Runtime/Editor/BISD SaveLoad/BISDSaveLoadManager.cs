@@ -96,11 +96,11 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private void OnCreateAssetClicked()
         {
-            BISDGameData data = CreateInstance<BISDGameData>();
+            BISDGameStateData data = CreateInstance<BISDGameStateData>();
 
             data.Title = titleTxt.value;
 
-            data.States = InstanceRegister.GetAllEntityStates();
+            data.States = EntityManager.GetAllEntityStates();
 
             AssetDatabase.CreateAsset(data, selectPathTxt.value + "/" + gameDataNameTxt.value + ".asset");
         }
