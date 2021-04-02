@@ -36,13 +36,13 @@ namespace Bloodthirst.System.Quadrant
         /// <summary>
         /// Container for all the entities that need to be grouped by cube
         /// </summary>
-        private QuadTree<int, T> quadTree;
+        private QuadTreeEquatable<int, T> quadTree;
 
-        public QuadTree<int, T> QuadTree => quadTree;
+        public QuadTreeEquatable<int, T> QuadTree => quadTree;
 
         public QuadrantManager()
         {
-            quadTree = new QuadTree<int, T>();
+            quadTree = new QuadTreeEquatable<int, T>();
         }
 
         public void Clear()
@@ -54,9 +54,9 @@ namespace Bloodthirst.System.Quadrant
         private void OnCubeResized()
         {
             // cache previous entities
-            List<QuadLeaf<int, T>> list = new List<QuadLeaf<int, T>>();
+            List<QuadLeafEquatable<int, T>> list = new List<QuadLeafEquatable<int, T>>();
 
-            foreach (QuadLeaf<int, T> l in quadTree.RootLeafs)
+            foreach (QuadLeafEquatable<int, T> l in quadTree.RootLeafs)
             {
                 list.AddRange(l.GetAllRecursively());
             }
@@ -65,7 +65,7 @@ namespace Bloodthirst.System.Quadrant
 
             List<T> elements = list.SelectMany(l => l.Elements).ToList();
 
-            foreach (QuadLeaf<int, T> l in list)
+            foreach (QuadLeafEquatable<int, T> l in list)
             {
                 foreach (T e in l.Elements)
                 {
@@ -82,7 +82,7 @@ namespace Bloodthirst.System.Quadrant
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        private QuadLeaf<int, T> this[List<int> id]
+        private QuadLeafEquatable<int, T> this[List<int> id]
         {
             get
             {
@@ -103,7 +103,7 @@ namespace Bloodthirst.System.Quadrant
 
             entity.QuandrantId = id;
 
-            QuadLeaf<int, T> leaf = this[id];
+            QuadLeafEquatable<int, T> leaf = this[id];
 
             leaf.Elements.Add(entity);
 
@@ -151,7 +151,7 @@ namespace Bloodthirst.System.Quadrant
         {
             if (id != null)
             {
-                QuadLeaf<int, T> leaf = this[id];
+                QuadLeafEquatable<int, T> leaf = this[id];
                 leaf.Elements.Remove(entity);
             }
             entity.QuandrantId = null;

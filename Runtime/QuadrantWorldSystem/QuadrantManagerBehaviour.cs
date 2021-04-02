@@ -115,10 +115,10 @@ namespace Bloodthirst.System.Quadrant
 
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
 
-            HashSet<QuadLeaf<int, QuadrantEntityBehaviour>> allLeafts = quadrantManager.QuadTree.GetFinalLeafs();
-            List<QuadLeaf<int, QuadrantEntityBehaviour>> nonEmptyLeafs = allLeafts.Where(l => l.Elements.Count != 0).ToList();
+            HashSet<QuadLeafEquatable<int, QuadrantEntityBehaviour>> allLeafts = quadrantManager.QuadTree.GetFinalLeafs();
+            List<QuadLeafEquatable<int, QuadrantEntityBehaviour>> nonEmptyLeafs = allLeafts.Where(l => l.Elements.Count != 0).ToList();
             // fill
-            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
+            foreach (QuadLeafEquatable<int, QuadrantEntityBehaviour> q in allLeafts)
             {
                 List<int> keys = q.GetKeySequence();
 
@@ -142,7 +142,7 @@ namespace Bloodthirst.System.Quadrant
 
             // outline
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Less;
-            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
+            foreach (QuadLeafEquatable<int, QuadrantEntityBehaviour> q in allLeafts)
             {
                 List<int> keys = q.GetKeySequence();
 
@@ -171,7 +171,7 @@ namespace Bloodthirst.System.Quadrant
 
 
             // label for count
-            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
+            foreach (QuadLeafEquatable<int, QuadrantEntityBehaviour> q in allLeafts)
             {
                 List<int> keys = q.GetKeySequence();
 
@@ -198,7 +198,7 @@ namespace Bloodthirst.System.Quadrant
             labelStyle.contentOffset = new Vector2(0, 7.5f);
 
             // label for id
-            foreach (QuadLeaf<int, QuadrantEntityBehaviour> q in allLeafts)
+            foreach (QuadLeafEquatable<int, QuadrantEntityBehaviour> q in allLeafts)
             {
                 List<int> keys = q.GetKeySequence();
 
