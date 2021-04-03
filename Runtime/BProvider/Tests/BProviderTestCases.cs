@@ -1,31 +1,41 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.System.CommandSystem;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
 
 public class BProviderTestCases
 {
+  
+    private abstract class BaseClass{ }
+    private class Child1Class : BaseClass , IChildClass { }
+    private class Child2Class : BaseClass , IChildClass { }
+    private interface IChildClass  { }
+
+    private Child1Class child1Class;
+    private Child2Class child2Class;
+
+    public BProviderTestCases()
+    {
+        child1Class = new Child1Class();
+        child2Class = new Child2Class();
+    }
+
     [Test]
     public void SimpleAddAndGetInstance()
     {
         BProvider provider = new BProvider();
 
-        SceneLoadingManager sceneLoadingManager = new GameObject().AddComponent<SceneLoadingManager>();
+        
 
-        provider.RegisterType<SceneLoadingManager>();
+        provider.RegisterType<Child1Class>();
 
-        provider.RegisterInstance(sceneLoadingManager);
+        provider.RegisterInstance(child1Class);
 
-        IEnumerable<SceneLoadingManager> sceneLoadingManagergQuery = provider.GetInstances<SceneLoadingManager>();
+        IEnumerable<Child1Class> DIQuery = provider.GetInstances<Child1Class>();
 
-        Assert.IsTrue(sceneLoadingManagergQuery.Count() == 1);
+        Assert.IsTrue(DIQuery.Count() == 1);
 
-        Assert.AreEqual(sceneLoadingManager, sceneLoadingManagergQuery.First());
+        Assert.AreEqual(child1Class, DIQuery.First());
 
     }
 
@@ -34,27 +44,24 @@ public class BProviderTestCases
     {
         BProvider provider = new BProvider();
 
-        SceneLoadingManager sceneLoadingManager = new GameObject().AddComponent<SceneLoadingManager>();
-        CommandManagerBehaviour commandManagerBehaviour = new GameObject().AddComponent<CommandManagerBehaviour>();
+        provider.RegisterType<Child1Class>();
+        provider.RegisterType<Child2Class>();
 
-        provider.RegisterType<SceneLoadingManager>();
-        provider.RegisterType<SceneLoadingManager>();
+        provider.RegisterInstance(child1Class);
+        provider.RegisterInstance(child2Class);
 
-        provider.RegisterInstance(sceneLoadingManager);
-        provider.RegisterInstance(commandManagerBehaviour);
+        IEnumerable<Child1Class> DIQuery1 = provider.GetInstances<Child1Class>();
+        IEnumerable<Child2Class> DIQuery2 = provider.GetInstances<Child2Class>();
 
-        IEnumerable<SceneLoadingManager> sceneLoadingManagergQuery = provider.GetInstances<SceneLoadingManager>();
-        IEnumerable<CommandManagerBehaviour> commandManagerBehaviourQuery = provider.GetInstances<CommandManagerBehaviour>();
+        Assert.IsTrue(DIQuery1.Count() == 1);
+        Assert.IsTrue(DIQuery2.Count() == 1);
 
-        Assert.IsTrue(sceneLoadingManagergQuery.Count() == 1);
-        Assert.IsTrue(commandManagerBehaviourQuery.Count() == 1);
+        Assert.AreEqual(child1Class, DIQuery1.First());
+        Assert.AreEqual(child2Class, DIQuery2.First());
 
-        Assert.AreEqual(sceneLoadingManager, sceneLoadingManagergQuery.First());
-        Assert.AreEqual(commandManagerBehaviour, commandManagerBehaviourQuery.First());
-
-        List<MonoBehaviour> monoBehaviours = provider.GetInstances<MonoBehaviour>().ToList();
-        Assert.IsTrue(monoBehaviours.Contains(sceneLoadingManager));
-        Assert.IsTrue(monoBehaviours.Contains(commandManagerBehaviour));
+        List<BaseClass> monoBehaviours = provider.GetInstances<BaseClass>().ToList();
+        Assert.IsTrue(monoBehaviours.Contains(child1Class));
+        Assert.IsTrue(monoBehaviours.Contains(child2Class));
 
     }
 
@@ -63,21 +70,19 @@ public class BProviderTestCases
     {
         BProvider provider = new BProvider();
 
-        SceneLoadingManager sceneLoadingManager = new GameObject().AddComponent<SceneLoadingManager>();
+        provider.RegisterType<Child1Class>();
 
-        SceneLoadingManager sceneLoadingManager2nd = new GameObject().AddComponent<SceneLoadingManager>();
+        bool firstSingletonRes = provider.RegisterSingleton(child1Class);
 
-        provider.RegisterType<SceneLoadingManager>();
+        BSingleton<Child1Class> DIQuery1 = provider.GetSingleton<Child1Class>();
 
-        bool firstSingletonRes = provider.RegisterSingleton(sceneLoadingManager);
+        bool sameSingletonRes = provider.RegisterSingleton(child1Class);
 
-        SceneLoadingManager sceneLoadingManagergQuery = provider.GetSingleton<SceneLoadingManager>();
+        Child1Class anotherSingleton = new Child1Class();
 
-        bool sameSingletonRes = provider.RegisterSingleton(sceneLoadingManager);
+        bool secondSingeton = provider.RegisterSingleton(anotherSingleton);
 
-        bool secondSingeton = provider.RegisterSingleton(sceneLoadingManager2nd);
-
-        Assert.AreEqual(sceneLoadingManager, sceneLoadingManagergQuery);
+        Assert.AreEqual(child1Class, DIQuery1.Get);
 
         Assert.IsTrue(firstSingletonRes);
 

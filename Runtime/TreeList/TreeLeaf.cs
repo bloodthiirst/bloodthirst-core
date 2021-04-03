@@ -2,15 +2,15 @@
 
 namespace Bloodthirst.Core.TreeList
 {
-    public class TreeLeaf<TKey, TElement> where TKey : class
+    public class TreeLeaf<TKey, TValue> where TKey : class
     {
         public TKey LeafKey { get; set; }
-        public List<TElement> Elements { get; set; }
-        public TreeLeaf<TKey,TElement> Parent { get; set; }
-        private List<TreeLeaf<TKey, TElement>> _SubLeafs { get; set; }
-        public IReadOnlyList<TreeLeaf<TKey, TElement>> SubLeafs => _SubLeafs;
+        public TValue Value { get; set; }
+        public TreeLeaf<TKey, TValue> Parent { get; set; }
+        private List<TreeLeaf<TKey, TValue>> _SubLeafs { get; set; }
+        public IReadOnlyList<TreeLeaf<TKey, TValue>> SubLeafs => _SubLeafs;
 
-        private bool LookForKeyInternal(TKey searchKey, TreeLeafInfo<TKey, TElement> info, out TreeLeafInfo<TKey, TElement> result)
+        private bool LookForKeyInternal(TKey searchKey, TreeLeafInfo<TKey, TValue> info, out TreeLeafInfo<TKey, TValue> result)
         {
             info.Depth++;
 
@@ -53,14 +53,11 @@ namespace Bloodthirst.Core.TreeList
         /// Get the elements of the leaf and all of the elements in the subleafs recursivly
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TElement> TraverseAllSubElements()
+        public IEnumerable<TValue> TraverseAllSubElements()
         {
-            if (Elements != null)
+            if (Value != null)
             {
-                for (int i = 0; i < Elements.Count; i++)
-                {
-                    yield return Elements[i];
-                }
+                yield return Value;
             }
 
             if (SubLeafs == null)
@@ -68,8 +65,8 @@ namespace Bloodthirst.Core.TreeList
 
             for (int i = 0; i < SubLeafs.Count; i++)
             {
-                TreeLeaf<TKey, TElement> s = SubLeafs[i];
-                foreach (TElement e in s.TraverseAllSubElements())
+                TreeLeaf<TKey, TValue> s = SubLeafs[i];
+                foreach (TValue e in s.TraverseAllSubElements())
                 {
                     yield return e;
                 }
@@ -82,9 +79,9 @@ namespace Bloodthirst.Core.TreeList
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public bool LookForKey(TKey key, out TreeLeafInfo<TKey, TElement> info)
+        public bool LookForKey(TKey key, out TreeLeafInfo<TKey, TValue> info)
         {
-            info = new TreeLeafInfo<TKey, TElement>();
+            info = new TreeLeafInfo<TKey, TValue>();
             info.Depth = -1;
             info.KeysEncountered = new HashSet<TKey>();
 
@@ -96,23 +93,10 @@ namespace Bloodthirst.Core.TreeList
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
-        public void AddElement(TElement element)
-        {
-            if (Elements == null)
-                Elements = new List<TElement>();
-
-            Elements.Add(element);
-        }
-
-        /// <summary>
-        /// Add e
-        /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
-        public void AddSubLeaf(TreeLeaf<TKey, TElement> leaf)
+        public void AddSubLeaf(TreeLeaf<TKey, TValue> leaf)
         {
             if (SubLeafs == null)
-                _SubLeafs = new List<TreeLeaf<TKey, TElement>>();
+                _SubLeafs = new List<TreeLeaf<TKey, TValue>>();
 
             leaf.Parent = this;
             _SubLeafs.Add(leaf);

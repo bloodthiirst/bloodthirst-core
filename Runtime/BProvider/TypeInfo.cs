@@ -10,7 +10,8 @@ namespace Bloodthirst.Core.ServiceProvider
         public List<Type> ConcreateSubTypes { get; set; }
         public List<Type> InterfaceTypes { get; set; }
 
-        public TreeList<Type,object> ValidTypeTree { get; set; }
+        public TreeList<Type,List<object>> InstanceTree { get; set; }
+        public TreeList<Type, object> SingletonTree { get; set; }
 
         bool IEquatable<TypeInfo>.Equals(TypeInfo other)
         {
