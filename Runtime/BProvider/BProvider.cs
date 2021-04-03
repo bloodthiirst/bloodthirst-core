@@ -54,7 +54,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.ConcreateSubTypes);
+            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
 
             return (BSingleton<TSingleton>)leaf.Value;
         }
@@ -66,7 +66,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.ConcreateSubTypes);
+            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
 
             if (leaf.Value == null)
             {
@@ -87,7 +87,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.ConcreateSubTypes);
+            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
 
             if (leaf.Value == null)
             {
@@ -114,7 +114,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.ConcreateSubTypes);
+            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
 
             if (leaf.Value == null)
             {
@@ -140,7 +140,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.ConcreateSubTypes);
+            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
 
             if (leaf.Value == null)
             {
@@ -179,7 +179,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.ConcreateSubTypes);
+            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
 
             if (leaf.Value == null)
             {
@@ -194,7 +194,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.ConcreateSubTypes);
+            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
 
             if (leaf.Value == null)
             {
@@ -266,17 +266,28 @@ namespace Bloodthirst.Core.ServiceProvider
 
             List<Type> concreatSubTypes = new List<Type>();
 
-            while (curr != typeof(object))
+            concreatSubTypes.Add(curr);
+
+            if (!isInsterface)
             {
-                concreatSubTypes.Add(curr);
                 curr = curr.BaseType;
+
+                while (curr != typeof(object))
+                {
+                    concreatSubTypes.Add(curr);
+                    curr = curr.BaseType;
+                }
+            }
+
+            else
+            {
+                concreatSubTypes.AddRange(type.GetInterfaces().ToList());
             }
 
             TypeInfo typeInfo = new TypeInfo()
             {
                 MainType = type,
-                ConcreateSubTypes = concreatSubTypes,
-                InterfaceTypes = type.GetInterfaces().ToList(),
+                TreeParentsList = concreatSubTypes,
                 InstanceTree = instanceTree,
                 SingletonTree = singletonTree
             };

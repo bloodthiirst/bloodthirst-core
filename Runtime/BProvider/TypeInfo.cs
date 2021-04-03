@@ -7,9 +7,7 @@ namespace Bloodthirst.Core.ServiceProvider
     internal struct TypeInfo : IEquatable<TypeInfo>
     {
         public Type MainType { get; set; }
-        public List<Type> ConcreateSubTypes { get; set; }
-        public List<Type> InterfaceTypes { get; set; }
-
+        public List<Type> TreeParentsList { get; set; }
         public TreeList<Type,List<object>> InstanceTree { get; set; }
         public TreeList<Type, object> SingletonTree { get; set; }
 
