@@ -48,17 +48,32 @@ namespace Bloodthirst.Core.ServiceProvider
         }
 
         #region singleton
-        public BSingleton<TSingleton> GetSingleton<TSingleton>() where TSingleton : class
+
+        public BSingleton<TSingletonType> GetSingleton<TSingletonType>() where TSingletonType : class
         {
-            Type t = typeof(TSingleton);
+            Type t = typeof(TSingletonType);
 
             TypeInfo info = GetOrCreateInfo(t);
 
             TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
 
-            return (BSingleton<TSingleton>)leaf.Value;
+            return (BSingleton<TSingletonType>)leaf.Value;
         }
 
+        public IEnumerable<TSingletonType> GetSingletons<TSingletonType>() where TSingletonType : class
+        {
+            Type t = typeof(TSingletonType);
+
+            TypeInfo info = GetOrCreateInfo(t);
+
+            foreach (List<object> e in info.InstanceTree.GetElementsRecursivly(t))
+            {
+                for (int i = 0; i < e.Count; i++)
+                {
+                    yield return (TSingletonType)e[i];
+                }
+            }
+        }
 
         public bool RegisterOrReplaceSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
@@ -173,6 +188,38 @@ namespace Bloodthirst.Core.ServiceProvider
             }
         }
 
+        public void RemoveInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
+        {
+            Type t = typeof(TInstanceType);
+
+            TypeInfo info = GetOrCreateInfo(t);
+
+            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+
+            if (leaf.Value == null)
+            {
+                return;
+            }
+
+            leaf.Value.Remove(instance);
+        }
+
+        public void RemoveInstance<TInstanceType, TInjectionType>(TInstanceType instance) where TInstanceType : class, TInjectionType
+        {
+            Type t = typeof(TInjectionType);
+
+            TypeInfo info = GetOrCreateInfo(t);
+
+            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+
+            if (leaf.Value == null)
+            {
+                return;
+            }
+
+            leaf.Value.Remove(instance);
+        }
+
         public void RegisterInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
             Type t = typeof(TInstanceType);
@@ -223,18 +270,6 @@ namespace Bloodthirst.Core.ServiceProvider
             }
 
             return info;
-        }
-
-        public void RegisterType(Type t)
-        {
-            GetOrCreateInfo(t);
-        }
-
-        public void RegisterType<T>()
-        {
-            Type t = typeof(T);
-
-            RegisterType(t);
         }
 
         /// <summary>

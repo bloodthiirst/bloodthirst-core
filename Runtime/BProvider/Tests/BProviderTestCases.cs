@@ -25,8 +25,6 @@ public class BProviderTestCases
     {
         BProvider provider = new BProvider();
 
-        provider.RegisterType<Child1Class>();
-
         provider.RegisterInstance(child1Class);
 
         IEnumerable<Child1Class> DIQuery = provider.GetInstances<Child1Class>();
@@ -41,9 +39,6 @@ public class BProviderTestCases
     public void TestSimpleAddAndGetWithTwoInstances()
     {
         BProvider provider = new BProvider();
-
-        provider.RegisterType<Child1Class>();
-        provider.RegisterType<Child2Class>();
 
         provider.RegisterInstance(child1Class);
         provider.RegisterInstance(child2Class);
@@ -67,8 +62,6 @@ public class BProviderTestCases
     public void TestSimpleClassSingleton()
     {
         BProvider provider = new BProvider();
-
-        provider.RegisterType<Child1Class>();
 
         bool firstSingletonRes = provider.RegisterSingleton(child1Class);
 
@@ -94,8 +87,6 @@ public class BProviderTestCases
     {
         BProvider provider = new BProvider();
 
-        provider.RegisterType<Child1Class>();
-
         bool firstSingletonRes = provider.RegisterSingleton<Child1Class,IChildClass>(child1Class);
 
         BSingleton<IChildClass> DIQuery1 = provider.GetSingleton<IChildClass>();
@@ -107,11 +98,8 @@ public class BProviderTestCases
         bool secondSingeton = provider.RegisterSingleton<Child1Class, IChildClass>(anotherSingleton);
 
         Assert.AreEqual(child1Class, DIQuery1.Get);
-
         Assert.IsTrue(firstSingletonRes);
-
         Assert.IsTrue(sameSingletonRes);
-
         Assert.IsFalse(secondSingeton);
     }
 }
