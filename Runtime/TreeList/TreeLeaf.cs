@@ -49,7 +49,10 @@ namespace Bloodthirst.Core.TreeList
             result = info;
             return false;
         }
-
+        /// <summary>
+        /// Get the elements of the leaf and all of the elements in the subleafs recursivly
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<TElement> TraverseAllSubElements()
         {
             if (Elements != null)

@@ -38,12 +38,12 @@ namespace Bloodthirst.Core.TreeList
         }
 
         /// <summary>
-        /// Add an element in all the list of the subkeys
+        /// get an element of a key with all the sub element in the subleafs recursively
         /// </summary>
         /// <param name="keys"></param>
         /// <param name="element"></param>
         /// <returns></returns>
-        public IEnumerable<TElement> GetElements(TKey key)
+        public IEnumerable<TElement> GetElementsRecursivly(TKey key)
         {
             if (!AllLeafKeys.Contains(key))
                 yield break;
@@ -57,12 +57,11 @@ namespace Bloodthirst.Core.TreeList
         }
 
         /// <summary>
-        /// Add an element in all the list of the subkeys
+        /// <para> Get or create a sequence of interconnected leafs using the order in the list passed</para>
         /// </summary>
         /// <param name="keys"></param>
-        /// <param name="element"></param>
-        /// <returns></returns>
-        public TreeLeaf<TKey, TElement> AddElement(IList<TKey> keys, TElement element)
+        /// <returns>The leaf associated with the first key of the list passed</returns>
+        public TreeLeaf<TKey, TElement> GetOrCreateLeaf(IList<TKey> keys)
         {
             // first key 
             TreeLeaf<TKey, TElement> firstLeaf = null;
@@ -84,12 +83,8 @@ namespace Bloodthirst.Core.TreeList
                 SubLeafs.Add(firstLeaf);
             }
 
-            firstLeaf.AddElement(element);
-
-
             TreeLeaf<TKey, TElement> previousLeaf = firstLeaf;
 
-            // look for first leaf
             TreeLeaf<TKey, TElement> currentLeaf = null;
 
             // keep navigating to the next leafs
@@ -107,6 +102,7 @@ namespace Bloodthirst.Core.TreeList
                     }
                 }
 
+                // else create it and add it
                 else
                 {
                     currentLeaf = new TreeLeaf<TKey, TElement>();
@@ -122,7 +118,23 @@ namespace Bloodthirst.Core.TreeList
                 previousLeaf = currentLeaf;
             }
 
-            return previousLeaf;
+            // return the first leaf
+            return firstLeaf;
+        }
+
+        /// <summary>
+        /// Add an element in all the list of the subkeys
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public TreeLeaf<TKey, TElement> AddElement(IList<TKey> keys, TElement element)
+        {
+            TreeLeaf<TKey, TElement> firstLeaf = GetOrCreateLeaf(keys);
+
+            firstLeaf.AddElement(element);
+
+            return firstLeaf;
         }
     }
 }

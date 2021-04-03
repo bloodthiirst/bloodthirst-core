@@ -10,7 +10,6 @@ using UnityEngine.TestTools;
 
 public class BProviderTestCases
 {
-    // A Test behaves as an ordinary method
     [Test]
     public void SimpleAddAndGetInstance()
     {
@@ -30,7 +29,6 @@ public class BProviderTestCases
 
     }
 
-    // A Test behaves as an ordinary method
     [Test]
     public void SimpleAddAndGet2Instances()
     {
@@ -55,7 +53,36 @@ public class BProviderTestCases
         Assert.AreEqual(commandManagerBehaviour, commandManagerBehaviourQuery.First());
 
         List<MonoBehaviour> monoBehaviours = provider.GetInstances<MonoBehaviour>().ToList();
+        Assert.IsTrue(monoBehaviours.Contains(sceneLoadingManager));
+        Assert.IsTrue(monoBehaviours.Contains(commandManagerBehaviour));
 
+    }
 
+    [Test]
+    public void SimpleSingleton()
+    {
+        BProvider provider = new BProvider();
+
+        SceneLoadingManager sceneLoadingManager = new GameObject().AddComponent<SceneLoadingManager>();
+
+        SceneLoadingManager sceneLoadingManager2nd = new GameObject().AddComponent<SceneLoadingManager>();
+
+        provider.RegisterType<SceneLoadingManager>();
+
+        bool firstSingletonRes = provider.RegisterSingleton(sceneLoadingManager);
+
+        SceneLoadingManager sceneLoadingManagergQuery = provider.GetSingleton<SceneLoadingManager>();
+
+        bool sameSingletonRes = provider.RegisterSingleton(sceneLoadingManager);
+
+        bool secondSingeton = provider.RegisterSingleton(sceneLoadingManager2nd);
+
+        Assert.AreEqual(sceneLoadingManager, sceneLoadingManagergQuery);
+
+        Assert.IsTrue(firstSingletonRes);
+
+        Assert.IsTrue(sameSingletonRes);
+
+        Assert.IsFalse(secondSingeton);
     }
 }
