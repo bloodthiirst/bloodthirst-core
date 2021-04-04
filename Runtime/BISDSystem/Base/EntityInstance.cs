@@ -154,6 +154,12 @@ namespace Bloodthirst.Core.BISDSystem
         public void NotifyInstanceBinded()
         {
             OnInstanceBinded?.Invoke((INSTANCE)this);
+            AfterInstanceBinded();
+        }
+
+        protected virtual void AfterInstanceBinded()
+        {
+
         }
 
         public void NotifyStateChanged()

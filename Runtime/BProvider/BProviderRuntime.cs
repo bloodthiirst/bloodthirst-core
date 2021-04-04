@@ -1,20 +1,31 @@
+using UnityEngine.Assertions;
+
 namespace Bloodthirst.Core.ServiceProvider
 {
     public class BProviderRuntime
     {
-        private static BProvider _instance;
+        private static BProvider instance;
+
+        public static void OverrideProvider(BProvider provider)
+        {
+            Assert.IsNotNull(provider);
+
+            instance = provider;
+        }
 
         public static BProvider Instance
         {
             get
             {
-                if(_instance == null)
+                if(instance == null)
                 {
-                    _instance = new BProvider();
+                    instance = new BProvider();
                 }
 
-                return _instance;
+                return instance;
             }
         }
+
+
     }
 }
