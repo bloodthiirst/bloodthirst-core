@@ -34,7 +34,7 @@ public class InputUtils : UnitySingleton<InputUtils>
     [Range(1, 5)]
     private int testCount = default;
 
-    protected override void DoSingletonPass()
+    protected override void OnSetupSingletonPass()
     {
         Initialize();
     }

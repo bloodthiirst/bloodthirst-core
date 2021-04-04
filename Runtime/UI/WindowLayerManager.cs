@@ -30,6 +30,10 @@ namespace Bloodthirst.Core.UI
 
         internal static void Add(IWindowLayer stackedWindowManager)
         {
+
+            stackedWindowManager.OnLayerUnfocused -= OnLayerUnfocused;
+            stackedWindowManager.OnLayerUnfocused += OnLayerUnfocused;
+
             stackedWindowManager.OnLayerFocused -= OnLayerFocused;
             stackedWindowManager.OnLayerFocused += OnLayerFocused;
 
@@ -38,9 +42,59 @@ namespace Bloodthirst.Core.UI
 
         internal static void Remove(IWindowLayer stackedWindowManager)
         {
+            stackedWindowManager.OnLayerUnfocused -= OnLayerUnfocused;
             stackedWindowManager.OnLayerFocused -= OnLayerFocused;
 
             _UILayers.Remove(stackedWindowManager);
+        }
+
+        /// <summary>
+        /// When a layer gets unfocused , we unfocus all of it's window and the next layer gets focused and recalculate the sorting order
+        /// </summary>
+        /// <param name="unfocused"></param>
+        private static void OnLayerUnfocused(IWindowLayer unfocused)
+        {
+            IWindowLayer found = null;
+            
+            foreach(IWindowLayer layer in _UILayers)
+            {
+                if (layer == unfocused)
+                {
+                    continue;
+                }
+
+                if(found == null)
+                {
+                    found = layer;
+                    foreach (IUIWindow win in layer.UiWindows)
+                    {
+                        if (win.IsOpen || win.RequestOpen)
+                        {
+                            win.RequestFocus = true;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (IUIWindow win in layer.UiWindows)
+                    {
+                        if (win.IsOpen || win.RequestOpen)
+                        {
+                            win.RequestUnfocus = true;
+                        }
+                    }
+                }                
+
+                layer.Refresh();
+            }
+
+            _UILayers.Remove(unfocused);
+            _UILayers.Add(unfocused);
+
+            for (int i = 0; i < _UILayers.Count; i++)
+            {
+                _UILayers[i].Canvas.sortingOrder = SortingOrderOffset + i;
+            }
         }
 
         /// <summary>

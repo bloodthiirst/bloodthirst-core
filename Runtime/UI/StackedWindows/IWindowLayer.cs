@@ -8,6 +8,7 @@ namespace Bloodthirst.Core.UI
     {
         Canvas Canvas { get; }
         event Action<IWindowLayer> OnLayerFocused;
+        event Action<IWindowLayer> OnLayerUnfocused;
         List<IUIWindow> UiWindows { get; }
         void Add<T>(T t) where T : IUIWindow;
         void Remove<T>(T t) where T : IUIWindow;

@@ -69,11 +69,11 @@ namespace Bloodthirst.Core.GameInitPass
             {
                 pass.Execute();
             }
-            foreach (ISceneInitializationPass pass in sceneInitializationPasses.OrderBy(s => s.SceneOrder))
+            foreach (ISceneInitializationPass pass in sceneInitializationPasses)
             {
                 pass.Execute();
             }
-            foreach (IPostSceneInitializationPass pass in postSceneInitializationPasses.OrderBy(s => s.SceneOrder))
+            foreach (IPostSceneInitializationPass pass in postSceneInitializationPasses)
             {
                 pass.Execute();
             }

@@ -73,10 +73,6 @@ namespace Bloodthirst.Core.SceneManager
         [SerializeField]
         private UnityEvent onPostSceneInitialization;
 
-        int IPostSceneInitializationPass.SceneOrder => sceneIndex;
-
-        int ISceneInitializationPass.SceneOrder => sceneIndex;
-
         void ISceneInitializationPass.Execute()
         {
             _sceneLoadingManager = BProviderRuntime.Instance.GetSingleton<SceneLoadingManager>();

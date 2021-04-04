@@ -7,14 +7,12 @@ namespace Bloodthirst.Core.Singleton
 {
     public abstract class UnitySingleton<T> : MonoBehaviour, ISetupSingletonPass where T : UnitySingleton<T>
     {
-
         [ShowInInspector]
         [ReadOnly]
-        protected T instance;
+        private T instance;
 
-        public T Instance
+        private T Instance
         {
-
             get
             {
                 if (instance == null)
@@ -45,10 +43,10 @@ namespace Bloodthirst.Core.Singleton
         void ISetupSingletonPass.Execute()
         {
             BProviderRuntime.Instance.RegisterSingleton(Instance);
-            DoSingletonPass();
+            OnSetupSingletonPass();
         }
 
-        protected virtual void DoSingletonPass() { }
+        protected virtual void OnSetupSingletonPass() { }
 
         private void OnEnable()
         {

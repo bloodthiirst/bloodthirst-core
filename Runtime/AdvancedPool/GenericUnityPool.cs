@@ -73,7 +73,7 @@ namespace Bloodthirst.Scripts.Core.UnityPool
 
         }
 
-        protected override void DoSingletonPass()
+        protected override void OnSetupSingletonPass()
         {
             InitializePool();
         }

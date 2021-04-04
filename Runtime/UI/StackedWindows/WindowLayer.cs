@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.Singleton;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.Core.Utils;
 using Sirenix.OdinInspector;
 using System;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.UI
 {
-    public abstract class WindowLayer<T> : UnitySingleton<T>, IWindowLayer where T : WindowLayer<T>
+    public abstract class WindowLayer<T> : UnitySingleton<T>, IWindowLayer , IPostSceneInitializationPass where T : WindowLayer<T>
     {
         [SerializeField]
         protected RectTransform container;
@@ -20,6 +21,8 @@ namespace Bloodthirst.Core.UI
 
         public event Action<IWindowLayer> OnLayerFocused;
 
+        public event Action<IWindowLayer> OnLayerUnfocused;
+
         [ShowInInspector]
         private List<IUIWindow> uiWindows = new List<IUIWindow>();
 
@@ -27,7 +30,13 @@ namespace Bloodthirst.Core.UI
 
         public List<IUIWindow> UiWindows { get => uiWindows; set => uiWindows = value; }
 
-        protected override void Awake()
+
+        void IPostSceneInitializationPass.Execute()
+        {
+            CloseAll();
+        }
+
+        protected override void OnSetupSingletonPass()
         {
             WindowLayerManager.Add(this);
         }
@@ -141,8 +150,8 @@ namespace Bloodthirst.Core.UI
                     uiWindows[i].RequestClose = true;
             }
 
+            OnLayerUnfocused?.Invoke(this);
             Refresh();
-            OnLayerFocused?.Invoke(this);
         }
 
         public void Refresh()
@@ -296,6 +305,7 @@ namespace Bloodthirst.Core.UI
                 Refresh();
             }
         }
+
     }
 
 }
