@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Systems.CameraSystem
 {
-    public class CameraManager : UnitySingleton<CameraManager>, IEnablePass
+    public class CameraManager : UnitySingleton<CameraManager>, IAwakePass
     {
 
         [ShowInInspector]
@@ -41,14 +41,23 @@ namespace Bloodthirst.Systems.CameraSystem
         private bool pause;
         public bool Pause { get => pause; set => pause = value; }
 
-        public static void RegisterCamera(ICameraController camera)
+        void IAwakePass.Execute()
         {
-            Instance.AllCameras.Add(camera);
+            DisableAllCameras();
+
+            isManagerActive = true;
+
+            PickInitialCamera();
         }
 
-        public static void RemoveCamera(ICameraController camera)
+        public void RegisterCamera(ICameraController camera)
         {
-            Instance?.AllCameras.Remove(camera);
+            AllCameras.Add(camera);
+        }
+
+        public void RemoveCamera(ICameraController camera)
+        {
+            AllCameras.Remove(camera);
         }
 
         private void DisableAllCameras()
@@ -190,17 +199,6 @@ namespace Bloodthirst.Systems.CameraSystem
 
             sceneCamera.transform.position = pos;
             sceneCamera.transform.rotation = rot;
-        }
-
-        public void DoEnablePass()
-        {
-            DisableAllCameras();
-
-            isManagerActive = true;
-
-            PickInitialCamera();
-
-
         }
     }
 }

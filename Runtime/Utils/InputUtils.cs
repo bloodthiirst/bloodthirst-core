@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class InputUtils : UnitySingleton<InputUtils>, ISingletonPass
+public class InputUtils : UnitySingleton<InputUtils>
 {
     [ShowInInspector]
     [ReadOnly]
@@ -34,7 +34,7 @@ public class InputUtils : UnitySingleton<InputUtils>, ISingletonPass
     [Range(1, 5)]
     private int testCount = default;
 
-    public void DoSingletonPass()
+    protected override void DoSingletonPass()
     {
         Initialize();
     }

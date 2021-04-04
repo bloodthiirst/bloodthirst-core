@@ -1,8 +1,9 @@
-﻿using Bloodthirst.Scripts.Core.GamePassInitiator;
+﻿using Bloodthirst.Core.Utils;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.GameInitPass
 {
@@ -10,35 +11,48 @@ namespace Bloodthirst.Core.GameInitPass
     {
         [ShowInInspector]
         [ReadOnly]
-        HashSet<IPostSceneLoadedPass> postSceneLoadedPasses;
+        List<IBeforeAllScenesInitializationPass> beforeAllScenesInitializationPasses;
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<ISingletonPass> singletonPasses;
+        List<ISceneInitializationPass> sceneInitializationPasses;
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<ICrossSceneLoadingPass> crossSceneLoadingPasses;
+        List<IPostSceneInitializationPass> postSceneInitializationPasses;
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<IInjectPass> injectPasses;
+        List<IAfterAllScenesIntializationPass> afterAllScenesIntializationPasses;
+
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<IAwakePass> awakePasses;
+        List<ISetupSingletonPass> setupSingletonPasses;
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<IStaticPass> staticPasses;
+        List<IQuerySingletonPass> querySingletonPasses;
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<IEnablePass> enablePasses;
+        List<IInjectPass> injectPasses;
 
         [ShowInInspector]
         [ReadOnly]
-        HashSet<IPostEnablePass> postEnablePasses;
+        List<IAwakePass> awakePasses;
+
+        [ShowInInspector]
+        [ReadOnly]
+        List<IPostAwakePass> postAwakePasses;
+
+        [ShowInInspector]
+        [ReadOnly]
+        List<IEnablePass> enablePasses;
+
+        [ShowInInspector]
+        [ReadOnly]
+        List<IPostEnablePass> postEnablePasses;
 
         public void OnScenesLoaded()
         {
@@ -49,82 +63,108 @@ namespace Bloodthirst.Core.GameInitPass
 
         private void ExecutePasses()
         {
-            foreach (IPostSceneLoadedPass pass in postSceneLoadedPasses)
+            #region scenes
+            
+            foreach (IBeforeAllScenesInitializationPass pass in beforeAllScenesInitializationPasses)
             {
-                pass.DoScenePass();
+                pass.Execute();
+            }
+            foreach (ISceneInitializationPass pass in sceneInitializationPasses.OrderBy(s => s.SceneOrder))
+            {
+                pass.Execute();
+            }
+            foreach (IPostSceneInitializationPass pass in postSceneInitializationPasses.OrderBy(s => s.SceneOrder))
+            {
+                pass.Execute();
             }
 
-            foreach (ISingletonPass pass in singletonPasses)
+            foreach (IAfterAllScenesIntializationPass pass in afterAllScenesIntializationPasses)
             {
-                pass.DoSingletonPass();
+                pass.Execute();
             }
-            foreach (ICrossSceneLoadingPass pass in crossSceneLoadingPasses)
+
+            #endregion
+
+            #region singletons
+
+            foreach (ISetupSingletonPass pass in setupSingletonPasses)
             {
-                pass.DoLoadPass();
+                pass.Execute();
             }
+            foreach (IQuerySingletonPass pass in querySingletonPasses)
+            {
+                pass.Execute();
+            }
+            
+            #endregion
+
             foreach (IInjectPass pass in injectPasses)
             {
-                pass.DoInjectPass();
+                pass.Execute();
             }
 
             foreach (IAwakePass pass in awakePasses)
             {
-                pass.DoAwakePass();
+                pass.Execute();
             }
 
-            foreach (IStaticPass pass in staticPasses)
+            foreach (IPostAwakePass pass in postAwakePasses)
             {
-                pass.DoStaticPass();
+                pass.Execute();
             }
 
             foreach (IEnablePass pass in enablePasses)
             {
-                pass.DoEnablePass();
+                pass.Execute();
             }
 
             foreach (IPostEnablePass pass in postEnablePasses)
             {
-                pass.DoPostEnablePass();
+                pass.Execute();
             }
         }
 
         private void QueryAllPasses()
         {
-            QueryScenes(ref postSceneLoadedPasses);
-            QueryScenes(ref singletonPasses);
-            QueryScenes(ref crossSceneLoadingPasses);
+            // scenes
+            QueryScenes(ref beforeAllScenesInitializationPasses);
+            QueryScenes(ref sceneInitializationPasses);
+            QueryScenes(ref postSceneInitializationPasses);
+            QueryScenes(ref afterAllScenesIntializationPasses);
+
+            // singletons
+            QueryScenes(ref setupSingletonPasses);
+            QueryScenes(ref querySingletonPasses);
+
+            // the rest
             QueryScenes(ref injectPasses);
             QueryScenes(ref awakePasses);
-            QueryScenes(ref staticPasses);
+            QueryScenes(ref postAwakePasses);
             QueryScenes(ref enablePasses);
             QueryScenes(ref postEnablePasses);
         }
 
-        private void QueryScenes<T>(ref HashSet<T> list) where T : IGamePass
+        private void QueryScenes<T>(ref List<T> list) where T : IGamePass
         {
-            if (list == null)
-            {
-                list = new HashSet<T>();
-            }
-            else
-            {
-                list.Clear();
-            }
+            list = CollectionsUtils.CreateOrClear(list);
 
             for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
             {
                 GameObject[] rootGameObjects = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).GetRootGameObjects();
                 foreach (GameObject rootGameObject in rootGameObjects)
                 {
-                    T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>();
-                    foreach (T childInterface in childrenInterfaces)
-                    {
-                        list.Add(childInterface);
-                    }
+                    GetComponentsOfType(list, rootGameObject);
                 }
             }
-
         }
 
+        private static void GetComponentsOfType<T>(List<T> list, GameObject rootGameObject) where T : IGamePass
+        {
+            T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>(true);
+            foreach (T childInterface in childrenInterfaces)
+            {
+                list.Add(childInterface);
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Bloodthirst.Scripts.Core.UnityPool;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
+using Bloodthirst.Scripts.Core.UnityPool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,11 +8,17 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public class EntitySpawner : MonoBehaviour
+    public class EntitySpawner : MonoBehaviour , IQuerySingletonPass
     {
+        private GenericUnityPool _genericUnityPool;
+
+        void IQuerySingletonPass.Execute()
+        {
+            _genericUnityPool = BProviderRuntime.Instance.GetSingleton<GenericUnityPool>();
+        }
         public T SpawnEntity<T>(IList<IEntityState> preloadedStates = null) where T : MonoBehaviour
         {
-            T entity = GenericUnityPool.Instance.Get<T>();
+            T entity = _genericUnityPool.Get<T>();
 
             entity = SetupEntity(entity , preloadedStates);
 
@@ -19,7 +27,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         public T SpawnEntity<T>(Predicate<T> filter , IList<IEntityState> preloadedStates = null ) where T : MonoBehaviour
         {
-            T entity = GenericUnityPool.Instance.Get(filter);
+            T entity = _genericUnityPool.Get(filter);
             entity = SetupEntity(entity , preloadedStates);
 
             return entity;
@@ -135,7 +143,8 @@ namespace Bloodthirst.Core.BISDSystem
 
             identifier.TriggerRemoved();
 
-            GenericUnityPool.Instance.Return(player);
+            _genericUnityPool.Return(player);
         }
+
     }
 }

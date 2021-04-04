@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.Pooling;
+using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Singleton;
 using Bloodthirst.Core.ThreadProcessor;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
 using Bloodthirst.Socket.BehaviourComponent;
 using Sirenix.OdinInspector;
@@ -14,7 +16,8 @@ namespace Bloodthirst.Socket.Core
     public abstract class NetworkClientEntityBase<TClient, TIdentifier> :
         UnitySingleton<NetworkClientEntityBase<TClient, TIdentifier>>,
         ISocketClientInjector<TClient, TIdentifier>,
-        INetworkInjector
+        INetworkInjector,
+        IAwakePass
 
         where TClient : SocketClient<TIdentifier>
         where TIdentifier : IComparable<TIdentifier>
@@ -66,10 +69,12 @@ namespace Bloodthirst.Socket.Core
 
         public List<IOnSocketClientConnected<TClient, TIdentifier>> OnConnectedBehaviours;
 
-        protected override void Awake()
-        {
-            base.Awake();
+        private ThreadCommandProcessor _threadCommandProcessor;
 
+        void IAwakePass.Execute()
+        {
+            _threadCommandProcessor = BProviderRuntime.Instance.GetSingleton<ThreadCommandProcessor>();
+            
             OnConnectedBehaviours = new List<IOnSocketClientConnected<TClient, TIdentifier>>();
 
             GetComponentsInChildren(OnConnectedBehaviours);
@@ -112,13 +117,11 @@ namespace Bloodthirst.Socket.Core
             SocketConfig.Instance.IsClient = true;
 
             // trigger on client connected events
-
-            ThreadCommandProcessor.Append(new ThreadCommandMainAction(InjectSocketClient));
+            _threadCommandProcessor.Append(new ThreadCommandMainAction(InjectSocketClient));
 
 
             // trigger the events hooked in the editor
-
-            ThreadCommandProcessor.Append(new ThreadCommandMainAction(OnConnectedUnityThread));
+            _threadCommandProcessor.Append(new ThreadCommandMainAction(OnConnectedUnityThread));
         }
 
         private void OnConnectedUnityThread()
@@ -144,13 +147,10 @@ namespace Bloodthirst.Socket.Core
         public void InjectSocketClient()
         {
             // set socket client
-
             InjectSocket(gameObject);
 
             // trigger on socket client connected
-
             InvokeOnConnectedBehaviours();
-
         }
 
 
@@ -182,7 +182,5 @@ namespace Bloodthirst.Socket.Core
         {
             Disconnect();
         }
-
-
     }
 }

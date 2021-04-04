@@ -39,15 +39,15 @@ namespace Bloodthirst.Core.ThreadProcessor
             }
         }
 
-        public static void Append(ISeparateThreadCommand threadCommand)
+        public void Append(ISeparateThreadCommand threadCommand)
         {
-            Instance.ThreadCommands.Add(threadCommand);
+            ThreadCommands.Add(threadCommand);
             threadCommand.Start();
         }
 
-        public static void Append(IMainThreadCommand threadCommand)
+        public void Append(IMainThreadCommand threadCommand)
         {
-            Instance.MainThreadCommand.Enqueue(threadCommand);
+            MainThreadCommand.Enqueue(threadCommand);
         }
 
         private void LateUpdate()

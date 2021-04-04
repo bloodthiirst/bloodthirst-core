@@ -1,4 +1,6 @@
 ﻿using Bloodthirst.Core.SceneManager;
+using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
 using Bloodthirst.Scripts.SocketLayer.Commands;
 using Bloodthirst.Socket.BehaviourComponent.NetworkPlayerEntity;
@@ -9,7 +11,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Socket.BehaviourComponent
 {
-    public class GUIDNetworkEntitySpawner : NetworkEntitySpawnerBase<Guid>
+    public class GUIDNetworkEntitySpawner : NetworkEntitySpawnerBase<Guid> , IAwakePass
     {
         private static bool IsServer => SocketConfig.Instance.IsServer;
 
@@ -32,6 +34,13 @@ namespace Bloodthirst.Socket.BehaviourComponent
 
         [SerializeField]
         private PrefabInstanceProviderBehaviourBase prefabInstanceProvider = null;
+
+        private CommandManager _commandManager;
+
+        void IAwakePass.Execute()
+        {
+            _commandManager = BProviderRuntime.Instance.GetSingleton<CommandManager>();
+        }
 
         public void Remove(Guid identifer)
         {
@@ -110,7 +119,7 @@ namespace Bloodthirst.Socket.BehaviourComponent
             }
 
 
-            var batch = CommandManagerBehaviour.AppendBatch<CommandBatchQueue>(this, true);
+            var batch = _commandManager.AppendBatch<CommandBatchQueue>(this, true);
 
             batch.Append(new NetworkPlayerPostSpawnInitializationCommand(networkEntity.gameObject));
 

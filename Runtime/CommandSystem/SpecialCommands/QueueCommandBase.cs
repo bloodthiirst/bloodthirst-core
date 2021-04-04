@@ -15,7 +15,7 @@ namespace Bloodthirst.System.CommandSystem
         private readonly CommandManager commandManager;
         private readonly bool failIfQueueInterrupted;
 
-        public QueueCommandBase(CommandManager commandManager = null, bool failIfQueueInterrupted = false) : base()
+        public QueueCommandBase(CommandManager commandManager , bool failIfQueueInterrupted = false) : base()
         {
             this.commandManager = commandManager;
             this.failIfQueueInterrupted = failIfQueueInterrupted;
@@ -36,14 +36,7 @@ namespace Bloodthirst.System.CommandSystem
 
         public override void OnStart()
         {
-            if (commandManager == null)
-            {
-                queue = CommandManagerBehaviour.AppendBatch<CommandBatchQueue>(this, true);
-            }
-            else
-            {
-                queue = commandManager.AppendBatch<CommandBatchQueue>(this, true);
-            }
+            queue = commandManager.AppendBatch<CommandBatchQueue>(this, true);
 
             // add the commands from AddToQueue
             while (cached.Count != 0)

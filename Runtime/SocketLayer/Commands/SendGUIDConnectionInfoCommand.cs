@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Models;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Models;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serialization;
@@ -22,6 +23,8 @@ namespace Bloodthirst.Scripts.SocketLayer.Commands
 
         private INetworkSerializer<GUIDConnectionInfo> connectionInfoSerializer;
 
+        private GUIDNetworkServerEntity _guidNetworkServerEntity;
+
         public SendGUIDConnectionInfoCommand(GUIDAndPrefabPath playerId, List<GUIDAndPrefabPath> existingPlayers, ConnectedClientSocket playerSocket)
         {
             this.playerId = playerId;
@@ -29,6 +32,7 @@ namespace Bloodthirst.Scripts.SocketLayer.Commands
             this.playerSocket = playerSocket;
             connectionInfoSerializer = SerializerProvider.Get<GUIDConnectionInfo>();
             guidSerializer = SerializerProvider.Get<Guid>();
+            _guidNetworkServerEntity = BProviderRuntime.Instance.GetSingleton<GUIDNetworkServerEntity>();
         }
 
         public override void OnStart()
@@ -38,7 +42,7 @@ namespace Bloodthirst.Scripts.SocketLayer.Commands
 
         public override void OnTick(float delta)
         {
-            List<Guid> allPlayers = GUIDNetworkServerEntity.Instance.SocketServer.GetManagedClients();
+            List<Guid> allPlayers = _guidNetworkServerEntity.SocketServer.GetManagedClients();
 
 
             GUIDConnectionInfo connectionInfo = new GUIDConnectionInfo()

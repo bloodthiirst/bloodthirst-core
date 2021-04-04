@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.BISDSystem;
+using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Singleton;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
@@ -15,7 +16,7 @@ namespace Bloodthirst.Scripts.Core.UnityPool
     /// <summary>
     /// Generic pooling system singleton used to retrieve and reuse gameobjects
     /// </summary>
-    public class GenericUnityPool : UnitySingleton<GenericUnityPool>, ISingletonPass
+    public class GenericUnityPool : UnitySingleton<GenericUnityPool>
     {
         [SerializeField]
         [Required]
@@ -70,6 +71,11 @@ namespace Bloodthirst.Scripts.Core.UnityPool
                 }
             }
 
+        }
+
+        protected override void DoSingletonPass()
+        {
+            InitializePool();
         }
 
         /// <summary>
@@ -230,38 +236,6 @@ namespace Bloodthirst.Scripts.Core.UnityPool
 
             res.Add(t);
 
-        }
-
-
-        /// <summary>
-        /// Takes a state as a parameter and returns a behaviour that has been hooked up using the DATA,STATE,INSTANCE pattern
-        /// </summary>
-        /// <typeparam name="BEHAVIOUR">Behaviour class</typeparam>
-        /// <typeparam name="INSTANCE">Instance class</typeparam>
-        /// <typeparam name="STATE">State struct</typeparam>
-        /// <param name="state"></param>
-        /// <returns>Loaded bhaviour form pool</returns>
-        public BEHAVIOUR Load<DATA, STATE, INSTANCE, BEHAVIOUR>(STATE state)
-            where DATA : EntityData
-            where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new()
-            where STATE : class, IEntityState<DATA>, new()
-            where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
-
-
-        {
-            BEHAVIOUR behaviour = Instance.Get<BEHAVIOUR>();
-
-            INSTANCE instance = new INSTANCE();
-            instance.State = state;
-
-            behaviour.Instance = instance;
-
-            return behaviour;
-        }
-
-        public void DoSingletonPass()
-        {
-            InitializePool();
         }
     }
 }

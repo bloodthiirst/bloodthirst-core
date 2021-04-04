@@ -37,13 +37,15 @@ namespace Bloodthirst.System.CommandSystem
 
         private bool isStarted;
 
+        private CommandManager _commandManger;
+
         public CommandBatchParallelQueue()
         {
             LayersList = new List<ParallelLayer>();
 
-            waitables = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this);
-            interrptables = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this);
-            nonSync = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this);
+            waitables = _commandManger.AppendBatch<CommandBatchList>(this);
+            interrptables = _commandManger.AppendBatch<CommandBatchList>(this);
+            nonSync = _commandManger.AppendBatch<CommandBatchList>(this);
 
             BatchState = BATCH_STATE.EXECUTING;
 

@@ -2,6 +2,6 @@
 {
     public interface IAwakePass : IGamePass
     {
-        void DoAwakePass();
+        void Execute();
     }
 }

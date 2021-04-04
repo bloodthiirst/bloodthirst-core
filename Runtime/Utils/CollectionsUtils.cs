@@ -70,6 +70,16 @@ namespace Bloodthirst.Core.Utils
             return instance;
         }
 
+        public static C CreateOrClear<C,T>(this C collection) where C : ICollection<T>, new()
+        {
+            if (collection == null)
+                collection = new C();
+            else
+                collection.Clear();
+
+            return collection;
+        }
+
         public static C CreateOrClear<C>(this C collection) where C : IList, new()
         {
             if (collection == null)

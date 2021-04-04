@@ -51,7 +51,7 @@ namespace Bloodthirst.Core.UI
         public abstract IEnumerator Focus();
         public abstract IEnumerator Unfocus();
 
-        public void DoAwakePass()
+        void IAwakePass.Execute()
         {
             IsOpen = false;
             IsFocused = false;

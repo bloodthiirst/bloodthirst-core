@@ -1,9 +1,11 @@
-﻿using Bloodthirst.Scripts.Core.Utils;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
+using Bloodthirst.Scripts.Core.Utils;
 using Bloodthirst.Systems.CameraSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class StaticCameraController : CameraControllerBase<StaticCameraController>
+public class StaticCameraController : CameraControllerBase<StaticCameraController>, IQuerySingletonPass
 {
     [BoxGroup("Horizontal Rotation")]
     [SerializeField]
@@ -31,14 +33,21 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
 
     private float velocityHorizontal;
 
+    private MouseUtils _mouseUtils;
+
+    void IQuerySingletonPass.Execute()
+    {
+        _mouseUtils = BProviderRuntime.Instance.GetSingleton<MouseUtils>();
+    }
+
     private void Update()
     {
         if (!isEnabled)
             return;
 
-        yRotationValue += MouseUtils.Instance.MouseDelta.x * yRotationSensitivity;
+        yRotationValue += _mouseUtils.MouseDelta.x * yRotationSensitivity;
 
-        xRotationValue -= MouseUtils.Instance.MouseDelta.y * xRotationSensitivity;
+        xRotationValue -= _mouseUtils.MouseDelta.y * xRotationSensitivity;
 
         yRotationValue %= 360;
 
@@ -65,5 +74,4 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
         position = transform.position;
         rotation = transform.rotation;
     }
-
 }

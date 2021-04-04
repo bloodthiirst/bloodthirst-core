@@ -5,21 +5,21 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
-    public abstract class PoolBehaviour<TObejct> : MonoBehaviour, IPoolBehaviour, IPostSceneLoadedPass where TObejct : Component
+    public abstract class PoolBehaviour<TObject> : MonoBehaviour, IPoolBehaviour , IBeforeAllScenesInitializationPass where TObject : Component
     {
 
-        private static readonly Type type = typeof(TObejct);
+        private static readonly Type type = typeof(TObject);
 
         [SerializeField]
         protected Transform poolContainer = null;
 
         [SerializeField]
-        protected TObejct prefab;
+        protected TObject prefab;
 
         [SerializeField]
         protected int poolCount;
 
-        public TObejct Prefab
+        public TObject Prefab
         {
             get => prefab;
             set => prefab = value;
@@ -28,20 +28,20 @@ namespace Bloodthirst.Core.AdvancedPool
         GameObject IPoolBehaviour.Prefab
         {
             get => Prefab.gameObject;
-            set => Prefab = value.GetComponent<TObejct>();
+            set => Prefab = value.GetComponent<TObject>();
         }
 
 
         int IPoolBehaviour.Count { get => poolCount; set => poolCount = value; }
 
-        private Pool<TObejct> _Pool;
-        public Pool<TObejct> Pool
+        private Pool<TObject> _Pool;
+        public Pool<TObject> Pool
         {
             get
             {
                 if (_Pool == null)
                 {
-                    _Pool = new Pool<TObejct>(poolContainer, prefab, poolCount);
+                    _Pool = new Pool<TObject>(poolContainer, prefab, poolCount);
                 }
                 return _Pool;
             }
@@ -57,12 +57,18 @@ namespace Bloodthirst.Core.AdvancedPool
         void IPoolBehaviour.Initialize()
         {
             poolContainer = transform;
-            _Pool = new Pool<TObejct>(poolContainer, prefab, poolCount);
+            _Pool = new Pool<TObject>(poolContainer, prefab, poolCount);
         }
 
-        void IPostSceneLoadedPass.DoScenePass()
+        private void InitializePool()
         {
             Pool.InitializePool();
+        }
+
+        void IBeforeAllScenesInitializationPass.Execute()
+        {
+            InitializePool();
+            Debug.Log($"[POOL LOADED] Pool initialized for prefab <{prefab.name}>");
         }
     }
 }

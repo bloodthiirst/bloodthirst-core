@@ -29,9 +29,9 @@ namespace Bloodthirst.System.CommandSystem
         /// Run the command and run it globally
         /// </summary>
         /// <param name="command"></param>
-        public static void Run(ICommandBase command)
+        public void Run(ICommandBase command)
         {
-            Instance.globalCommandBatch.Append(command, false);
+            globalCommandBatch.Append(command, false);
         }
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="owner"></param>
         /// <param name="removeWhenDone"></param>
         /// <returns></returns>
-        public static T AppendBatch<T>(object owner, bool removeWhenDone = false) where T : ICommandBatch, new()
+        public T AppendBatch<T>(object owner, bool removeWhenDone = false) where T : ICommandBatch, new()
         {
-            return Instance.commandManager.AppendBatch<T>(owner, removeWhenDone);
+            return commandManager.AppendBatch<T>(owner, removeWhenDone);
         }
 
         private void Update()

@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.Singleton;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.Singleton;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public class SceneLoadingManager : UnitySingleton<SceneLoadingManager>
+    public class SceneLoadingManager : MonoBehaviour
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport
 #endif
@@ -55,6 +56,7 @@ namespace Bloodthirst.Core.SceneManager
 
         private IEnumerator Start()
         {
+            BProviderRuntime.Instance.RegisterSingleton(this);
             yield return CrtLoadScenes();
         }
 

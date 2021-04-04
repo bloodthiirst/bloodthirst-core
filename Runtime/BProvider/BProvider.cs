@@ -165,8 +165,10 @@ namespace Bloodthirst.Core.ServiceProvider
 
             BSingleton<TInstanceType> s = (BSingleton<TInstanceType>)leaf.Value;
 
+            bool isValid = s.Value == instance;
+
             // check if it's the same instance of not
-            return s.Value == instance;
+            return isValid;
         }
 
         #endregion

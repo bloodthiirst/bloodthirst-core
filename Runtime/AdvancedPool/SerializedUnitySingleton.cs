@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 
 namespace Bloodthirst.Core.Pooling
 {
-    public class SerializedUnitySingleton<T> : SerializedMonoBehaviour, ISingletonPass where T : SerializedUnitySingleton<T>
+    public class SerializedUnitySingleton<T> : SerializedMonoBehaviour, ISetupSingletonPass where T : SerializedUnitySingleton<T>
     {
 
         protected static T instance;
@@ -21,7 +21,7 @@ namespace Bloodthirst.Core.Pooling
             }
         }
 
-        public void DoSingletonPass()
+        void ISetupSingletonPass.Execute()
         {
             if (instance == null)
             {

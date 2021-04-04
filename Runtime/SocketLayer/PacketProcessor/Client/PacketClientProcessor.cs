@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.ThreadProcessor;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Utils;
@@ -19,11 +20,15 @@ namespace Bloodthirst.Socket.PacketParser
 
         public event Action<TType, TIdentitfier> OnPacketParsedThreaded;
 
+        private ThreadCommandProcessor _threadCommandProcessor;
+
         protected PacketClientProcessor() : base(typeHash)
         {
             DataSerializer = SerializerProvider.Get<TType>();
 
             IdentifierSerializer = SerializerProvider.Get<TIdentitfier>();
+
+            _threadCommandProcessor = BProviderRuntime.Instance.GetSingleton<ThreadCommandProcessor>();
 
         }
 
@@ -55,7 +60,7 @@ namespace Bloodthirst.Socket.PacketParser
 
             if (OnPacketParsedUnityThread != null)
             {
-                ThreadCommandProcessor.Append(new ThreadCommandMainAction(() => OnPacketParsedUnityThread?.Invoke(data, from)));
+                _threadCommandProcessor.Append(new ThreadCommandMainAction(() => OnPacketParsedUnityThread?.Invoke(data, from)));
             }
 
             // trigger threaded events

@@ -11,8 +11,6 @@ namespace Bloodthirst.System.CommandSystem
 
         public ListCommandBase(CommandManager commandManager = null, bool failIfQueueInterrupted = false) : base()
         {
-
-
             this.commandManager = commandManager;
             this.failIfQueueInterrupted = failIfQueueInterrupted;
             cached = new List<CommandSettings>();
@@ -38,14 +36,7 @@ namespace Bloodthirst.System.CommandSystem
 
         public override void OnStart()
         {
-            if (commandManager == null)
-            {
-                list = CommandManagerBehaviour.AppendBatch<CommandBatchList>(this, true);
-            }
-            else
-            {
-                list = commandManager.AppendBatch<CommandBatchList>(this, true);
-            }
+            list = commandManager.AppendBatch<CommandBatchList>(this, true);
 
             // add the commands from AddToQueue
             while (cached.Count != 0)
