@@ -94,7 +94,7 @@ namespace Bloodthirst.Core.AdvancedPool
                 return;
             }
 
-            if (t.TryGetComponent(out TObject comp))
+            if (!t.TryGetComponent(out TObject comp))
             {
                 Debug.LogError($"Instance doesn't contain contain a componenet of type {typeof(TObject).Name}");
             }

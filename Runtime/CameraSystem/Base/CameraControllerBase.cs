@@ -17,14 +17,14 @@ namespace Bloodthirst.Systems.CameraSystem
         void IQuerySingletonPass.Execute()
         {
             _cameraManager = BProviderRuntime.Instance.GetSingleton<CameraManager>();
-            _cameraManager.RegisterCamera(this);
-        }
 
-        private void OnEnable()
-        {
             _cameraManager.RemoveCamera(this);
             _cameraManager.RegisterCamera(this);
+
+            OnQuerySingletonPass();
         }
+
+        protected virtual void OnQuerySingletonPass() { }
 
         private void OnDisable()
         {

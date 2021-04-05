@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
+    [RequireComponent(typeof(EntityIdentifier))]
     public class InstanceManager : MonoBehaviour, IInstanceRegisterBehaviour, IInstanceProviderBehaviour, IInstanceProvider, IEntityInstanceRegister
     {
         [ShowInInspector]

@@ -1,7 +1,8 @@
-﻿using Bloodthirst.Core.UnitySingleton;
+﻿using Bloodthirst.Core.Singleton;
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
+using System.Linq;
 
 #if UNITY_EDITOR
 using Bloodthirst.Core.AdvancedPool.Editor;
@@ -40,7 +41,36 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
             }
         }
 
-        protected override void Awake()
+        public PoolBehaviour<T> GetByPrefab<T>(GameObject prefab) where T : Component
+        {
+            IPoolBehaviour pool = AllPools.Where(p => p.Type == typeof(T)).FirstOrDefault(p => p.Prefab == prefab);
+
+            return (PoolBehaviour<T>) pool;
+        }
+
+        public IPoolBehaviour GetByPrefab(GameObject prefab)
+        {
+            IPoolBehaviour pool = AllPools.FirstOrDefault(p => p.Prefab == prefab);
+
+            return pool;
+        }
+
+        public PoolBehaviour<T> GetByType<T>() where T : Component
+        {
+            PoolBehaviour<T> pool = AllPools.FirstOrDefault(p => p.Type == typeof(T)) as PoolBehaviour<T>;
+
+            return pool;
+        }
+
+        public IEnumerable<PoolBehaviour<T>> GetAllByType<T>() where T : Component
+        {
+            return AllPools
+                .Where(p => p.Type == typeof(T))
+                .Cast<PoolBehaviour<T>>();
+        }
+
+
+        protected override void OnSetupSingletonPass()
         {
             // [LOAD_IN_LIST_START]
 

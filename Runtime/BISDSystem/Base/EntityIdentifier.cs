@@ -1,6 +1,7 @@
 ﻿using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
+using Bloodthirst.Core.AdvancedPool;
 
 namespace Bloodthirst.Core.BISDSystem
 {
@@ -9,6 +10,8 @@ namespace Bloodthirst.Core.BISDSystem
     /// <para>It is meant to be the main primary compnent that has multiple BISD instances under it to form a complete game entity</para>
     /// <para>It acts as the "parent" of the entity and it's main identitfier , it also determines the lifecycle of the entity since it is used to spawn and remove the entity from the game world</para>
     /// </summary>
+    [GeneratePool]
+    [RequireComponent(typeof(InstanceManager))]
     public class EntityIdentifier : MonoBehaviour
     {
         [SerializeField]

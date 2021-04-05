@@ -11,5 +11,7 @@ namespace Bloodthirst.Core.AdvancedPool
         int Count { get; set; }
         void Initialize();
 
+        Pool Pool { get; }
+
     }
 }

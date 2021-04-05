@@ -115,7 +115,7 @@ namespace Bloodthirst.Core.BISDSystem
 
             foreach (IInitializeInstance init in entity.GetComponentsInChildren<IInitializeInstance>())
             {
-                IEntityState lookForPreload = preloadedStates.FirstOrDefault(s => s.GetType() == init.StateType);
+                IEntityState lookForPreload = preloadedStates == null ? null : preloadedStates.FirstOrDefault(s => s.GetType() == init.StateType);
                 init.InitializeInstance(entityIdentifier , lookForPreload);
             }
 
