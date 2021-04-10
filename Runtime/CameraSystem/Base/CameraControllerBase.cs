@@ -31,7 +31,6 @@ namespace Bloodthirst.Systems.CameraSystem
             _cameraManager.RemoveCamera(this);
         }
 
-
-
+        public abstract void OnCameraControllerSelected(bool isImmidiate);
     }
 }

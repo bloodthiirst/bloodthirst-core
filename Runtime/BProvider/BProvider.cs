@@ -190,6 +190,22 @@ namespace Bloodthirst.Core.ServiceProvider
             }
         }
 
+        public void RemoveSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
+        {
+            Type t = typeof(TInstanceType);
+
+            TypeInfo info = GetOrCreateInfo(t);
+
+            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+
+            if (leaf.Value == null)
+            {
+                return;
+            }
+
+            leaf.Value = null;
+        }
+
         public void RemoveInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
             Type t = typeof(TInstanceType);

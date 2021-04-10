@@ -146,6 +146,8 @@ namespace Bloodthirst.Systems.CameraSystem
             // play the transition
             seqPosition.Play();
             seqRotation.Play();
+
+            camera.OnCameraControllerSelected(false);
         }
 
         public void ChangeCameraImmidiately(ICameraController camera)
@@ -176,6 +178,8 @@ namespace Bloodthirst.Systems.CameraSystem
             sceneCamera.transform.rotation = rotation;
 
             ActiveCamera = camera;
+
+            camera.OnCameraControllerSelected(true);
 
         }
 

@@ -74,4 +74,9 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
         position = transform.position;
         rotation = transform.rotation;
     }
+
+    public override void OnCameraControllerSelected(bool isImmidiate)
+    {
+        
+    }
 }

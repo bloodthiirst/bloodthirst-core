@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
@@ -9,42 +10,42 @@ namespace Bloodthirst.Core.BISDSystem
     public class InstanceManager : MonoBehaviour, IInstanceRegisterBehaviour, IInstanceProviderBehaviour, IInstanceProvider, IEntityInstanceRegister
     {
         [ShowInInspector]
-        private TypeLookup typeLookup;
+        private BProvider instanceProvider;
 
         public event Action<object> OnRegistered;
 
         public event Action<object> OnUnregistered;
 
-        private TypeLookup TypeLookup
+        private BProvider Provider
         {
             get
             {
-                if (typeLookup == null)
+                if (instanceProvider == null)
                 {
-                    typeLookup = new TypeLookup();
+                    instanceProvider = new BProvider();
                 }
-                return typeLookup;
+                return instanceProvider;
             }
         }
         public IEntityInstanceRegister InstanceRegister => this;
 
         public IInstanceProvider InstanceProvider => this;
 
-        public T Get<T>()
+        public T Get<T>() where T : class
         {
-            return TypeLookup.Get<T>();
+            return Provider.GetSingleton<T>().Get;
         }
 
-        public void Register<T>(T instance)
+        public void Register<T>(T instance) where T : class
         {
-            TypeLookup.Add(instance);
+            Provider.RegisterSingleton(instance);
             OnRegistered?.Invoke(instance);
 
         }
 
-        public void Unregister<T>(T instance)
+        public void Unregister<T>(T instance) where T : class
         {
-            TypeLookup.Remove(instance);
+            Provider.RemoveSingleton(instance);
             OnUnregistered?.Invoke(instance);
         }
     }

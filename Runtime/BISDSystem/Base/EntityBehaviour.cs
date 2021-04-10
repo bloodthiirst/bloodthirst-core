@@ -127,13 +127,16 @@ namespace Bloodthirst.Core.BISDSystem
         /// <para>Inject the instance either by using the exterior data or by using the serialized instance</para>
         /// <para>This should only be called by the <see cref="EntitySpawner" and injection points/></para>
         /// </summary>
-        protected virtual void InitializeInstance(EntityIdentifier entityIdentifier , IEntityState preloadState)
+        protected virtual void InitializeInstance(EntityIdentifier entityIdentifier, IEntityState preloadState)
         {
-            if(preloadState != null)
+            if (preloadState != null)
             {
+                STATE state = (STATE)preloadState;
+                state.PreloadStateFromData();
+
                 INSTANCE loaded = new INSTANCE
                 {
-                    State = (STATE)preloadState
+                    State = state
                 };
 
                 Instance = loaded;
@@ -148,6 +151,23 @@ namespace Bloodthirst.Core.BISDSystem
                 return;
             }
 
+            // in case state isn't serializable
+            if (Instance.State == null)
+            {
+                STATE state = new STATE();
+                state.Data = TagData;
+                state.PreloadStateFromData();
+
+                INSTANCE defaultInstance = new INSTANCE
+                {
+                    State = state
+                };
+
+                Instance = defaultInstance;
+                return;
+            }
+
+            Instance.State.PreloadStateFromData();
             Instance = Instance;
         }
 
@@ -185,9 +205,9 @@ namespace Bloodthirst.Core.BISDSystem
 
         Type IInitializeInstance.StateType => stateType;
 
-        void IInitializeInstance.InitializeInstance(EntityIdentifier entityIdentifier , IEntityState preloadState)
+        void IInitializeInstance.InitializeInstance(EntityIdentifier entityIdentifier, IEntityState preloadState)
         {
-            InitializeInstance(entityIdentifier , preloadState);
+            InitializeInstance(entityIdentifier, preloadState);
         }
 
         void IHasEntityInstanceRegister.InitializeEntityInstanceRegister(IEntityInstanceRegister instanceRegister)

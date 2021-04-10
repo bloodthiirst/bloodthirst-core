@@ -1,0 +1,18 @@
+{
+    "name": "com.bloodthirst.bloodthirst-core.editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e8d10fe188e9c12489f746579ada2bc4"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

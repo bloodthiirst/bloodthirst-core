@@ -8,8 +8,8 @@ namespace Bloodthirst.Core.BISDSystem
 
         event Action<object> OnUnregistered;
 
-        void Register<T>(T instance);
+        void Register<T>(T instance) where T : class;
 
-        void Unregister<T>(T instance);
+        void Unregister<T>(T instance) where T : class;
     }
 }

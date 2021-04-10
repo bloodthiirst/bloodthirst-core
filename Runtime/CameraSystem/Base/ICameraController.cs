@@ -8,5 +8,7 @@ namespace Bloodthirst.Systems.CameraSystem
 
         void ApplyTransform(out Vector3 position, out Quaternion rotation);
 
+        void OnCameraControllerSelected(bool isImmidiate);
+
     }
 }

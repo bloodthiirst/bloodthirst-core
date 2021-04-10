@@ -2,6 +2,6 @@
 {
     public interface IInstanceProvider
     {
-        T Get<T>();
+        T Get<T>() where T : class;
     }
 }

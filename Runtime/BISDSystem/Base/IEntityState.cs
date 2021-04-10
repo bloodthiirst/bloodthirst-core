@@ -8,5 +8,7 @@
     public interface IEntityState
     {
         int Id { get; set; }
+
+        void PreloadStateFromData();
     }
 }
