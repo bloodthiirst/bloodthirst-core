@@ -29,7 +29,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         #endregion
 
         #region auto-gen pools
-        private const string POOL_TEMPLATE = "Packages/com.bloodthirst.bloodthirst-core/Runtime/Editor/Pool Generator/Template.Pool.cs.txt";
+        private const string POOL_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Pool Generator/Template.Pool.cs.txt";
         private const string POOL_SCRIPTS_PATH = "Assets/Scripts/Pools";
         private const string POOL_SCENE_FOLDER_PATH = "Assets/Scenes/PoolScene";
         private const string CLASS_NAME_REPLACE_KEYWORD = "[BEHAVIOUR]";
@@ -316,7 +316,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 string relativePath = $"{POOL_SCRIPTS_PATH}/{$"{t.Name}Pool.cs"}";
                 string pathToProject = EditorUtils.PathToProject;
 
-                string scriptText = AssetDatabase.LoadAssetAtPath<TextAsset>(POOL_TEMPLATE)
+                TextAsset poolTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(POOL_TEMPLATE);
+                string scriptText = poolTemplate
                                 .text
                                 .Replace(CLASS_NAME_REPLACE_KEYWORD, t.Name)
                                 .Replace(CLASS_NAMESPACE_REPLACE_KEYWORD, t.Namespace == null ? string.Empty : $"using {t.Namespace};");

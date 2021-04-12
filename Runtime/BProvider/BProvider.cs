@@ -55,9 +55,12 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            if (info.SingletonLeaf == null)
+            {
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
 
-            return (BSingleton<TSingletonType>)leaf.Value;
+            return (BSingleton<TSingletonType>)info.SingletonLeaf.Value;
         }
 
         public IEnumerable<TSingletonType> GetSingletons<TSingletonType>() where TSingletonType : class
@@ -66,7 +69,12 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            foreach (List<object> e in info.InstanceTree.GetElementsRecursivly(t))
+            if (info.SingletonLeaf == null)
+            {
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            foreach (List<object> e in info.SingletonLeaf.TraverseAllSubElements())
             {
                 for (int i = 0; i < e.Count; i++)
                 {
@@ -81,15 +89,18 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
-
-            if (leaf.Value == null)
+            if (info.SingletonLeaf == null)
             {
-                leaf.Value = new BSingleton<TInstanceType>(instance);
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            if (info.SingletonLeaf.Value == null)
+            {
+                info.SingletonLeaf.Value = new BSingleton<TInstanceType>(instance);
                 return true;
             }
 
-            BSingleton<TInstanceType> s = (BSingleton<TInstanceType>)leaf.Value;
+            BSingleton<TInstanceType> s = (BSingleton<TInstanceType>)info.SingletonLeaf.Value;
 
             s.Value = instance;
 
@@ -102,15 +113,18 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
-
-            if (leaf.Value == null)
+            if (info.SingletonLeaf == null)
             {
-                leaf.Value = new BSingleton<ISingletonType>(instance);
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            if (info.SingletonLeaf.Value == null)
+            {
+                info.SingletonLeaf.Value = new BSingleton<ISingletonType>(instance);
                 return true;
             }
 
-            BSingleton<ISingletonType> s = (BSingleton<ISingletonType>)leaf.Value;
+            BSingleton<ISingletonType> s = (BSingleton<ISingletonType>)info.SingletonLeaf.Value;
 
             s.Value = instance;
 
@@ -129,15 +143,18 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
-
-            if (leaf.Value == null)
+            if (info.SingletonLeaf == null)
             {
-                leaf.Value = new BSingleton<ISingletonType>(instance);
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            if (info.SingletonLeaf.Value == null)
+            {
+                info.SingletonLeaf.Value = new BSingleton<ISingletonType>(instance);
                 return true;
             }
 
-            BSingleton<ISingletonType> s = (BSingleton<ISingletonType>) leaf.Value;
+            BSingleton<ISingletonType> s = (BSingleton<ISingletonType>)info.SingletonLeaf.Value;
 
             // check if it's the same instance of not
             return s.Value == (ISingletonType) instance;
@@ -155,39 +172,23 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
-
-            if (leaf.Value == null)
+            if (info.SingletonLeaf == null)
             {
-                leaf.Value = new BSingleton<TInstanceType>(instance);
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            if (info.SingletonLeaf.Value == null)
+            {
+                info.SingletonLeaf.Value = new BSingleton<TInstanceType>(instance);
                 return true;
             }
 
-            BSingleton<TInstanceType> s = (BSingleton<TInstanceType>)leaf.Value;
+            BSingleton<TInstanceType> s = (BSingleton<TInstanceType>)info.SingletonLeaf.Value;
 
             bool isValid = s.Value == instance;
 
             // check if it's the same instance of not
             return isValid;
-        }
-
-        #endregion
-
-        #region concrete instances
-
-        public IEnumerable<TInjectionType> GetInstances<TInjectionType>() where TInjectionType : class
-        {
-            Type t = typeof(TInjectionType);
-
-            TypeInfo info = GetOrCreateInfo(t);
-
-            foreach (List<object> e in info.InstanceTree.GetElementsRecursivly(t))
-            {
-                for (int i = 0; i < e.Count; i++)
-                {
-                    yield return (TInjectionType)e[i];
-                }
-            }
         }
 
         public void RemoveSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
@@ -196,15 +197,44 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, object> leaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            if (info.SingletonLeaf == null)
+            {
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
 
-            if (leaf.Value == null)
+            if (info.SingletonLeaf.Value == null)
             {
                 return;
             }
 
-            leaf.Value = null;
+            info.SingletonLeaf.Value = null;
         }
+
+
+        #endregion
+
+        #region multiple instances
+
+        public IEnumerable<TInjectionType> GetInstances<TInjectionType>() where TInjectionType : class
+        {
+            Type t = typeof(TInjectionType);
+
+            TypeInfo info = GetOrCreateInfo(t);
+
+            if (info.InstanceLeaf == null)
+            {
+                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            foreach (List<object> e in info.InstanceLeaf.TraverseAllSubElements())
+            {
+                for (int i = 0; i < e.Count; i++)
+                {
+                    yield return (TInjectionType)e[i];
+                }
+            }
+        }
+
 
         public void RemoveInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
@@ -212,14 +242,17 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+            if (info.InstanceLeaf == null)
+            {
+                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
 
-            if (leaf.Value == null)
+            if (info.InstanceLeaf.Value == null)
             {
                 return;
             }
 
-            leaf.Value.Remove(instance);
+            info.InstanceLeaf.Value.Remove(instance);
         }
 
         public void RemoveInstance<TInstanceType, TInjectionType>(TInstanceType instance) where TInstanceType : class, TInjectionType
@@ -228,14 +261,17 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+            if (info.InstanceLeaf == null)
+            {
+                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
 
-            if (leaf.Value == null)
+            if (info.InstanceLeaf.Value == null)
             {
                 return;
             }
 
-            leaf.Value.Remove(instance);
+            info.InstanceLeaf.Value.Remove(instance);
         }
 
         public void RegisterInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
@@ -244,14 +280,17 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
-
-            if (leaf.Value == null)
+            if (info.InstanceLeaf == null)
             {
-                leaf.Value = new List<object>();
+                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            leaf.Value.Add(instance);
+            if (info.InstanceLeaf.Value == null)
+            {
+                info.InstanceLeaf.Value = new List<object>();
+            }
+
+            info.InstanceLeaf.Value.Add(instance);
         }
         public void RegisterInstance<TInstanceType, TInjectionType>(TInstanceType instance) where TInstanceType : class, TInjectionType
         {
@@ -259,14 +298,19 @@ namespace Bloodthirst.Core.ServiceProvider
 
             TypeInfo info = GetOrCreateInfo(t);
 
-            TreeLeaf<Type, List<object>> leaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
-
-            if (leaf.Value == null)
+            if (info.InstanceLeaf == null)
             {
-                leaf.Value = new List<object>();
+                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            leaf.Value.Add(instance);
+            info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+
+            if (info.InstanceLeaf.Value == null)
+            {
+                info.InstanceLeaf.Value = new List<object>();
+            }
+
+            info.InstanceLeaf.Value.Add(instance);
         }
 
         #endregion

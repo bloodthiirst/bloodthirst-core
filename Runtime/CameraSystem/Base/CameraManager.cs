@@ -201,8 +201,7 @@ namespace Bloodthirst.Systems.CameraSystem
 
             ActiveCamera.ApplyTransform(out pos, out rot);
 
-            sceneCamera.transform.position = pos;
-            sceneCamera.transform.rotation = rot;
+            sceneCamera.transform.SetPositionAndRotation( pos , rot);
         }
     }
 }

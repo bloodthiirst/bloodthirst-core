@@ -68,7 +68,11 @@ namespace Bloodthirst.Core.UI
 
                 // clean up first in case its needed to clear dependencies that were linked previously
                 cachedUIs[i].CleanupUI();
+
+                cachedUIs[i].transform.SetParent(container);
+                
                 cachedUIs[i].SetupUI(inst);
+
             }
 
             // disable ununsed uis

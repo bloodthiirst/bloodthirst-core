@@ -10,8 +10,12 @@ namespace Bloodthirst.System.CommandSystem
     }
     public abstract class CommandBase<T> : ICommandBase where T : CommandBase<T>
     {
+#if UNITY_EDITOR && ODIN_INSPECTOR
+        [HideInEditorMode]
+#endif
 #if UNITY_EDITOR
-        public bool detailedInfo;
+        [SerializeField]
+        private bool detailedInfo;
 #endif
         public event Action<ICommandBase> OnCommandStart;
 
@@ -20,30 +24,34 @@ namespace Bloodthirst.System.CommandSystem
         public event Action<T> OnCommandEndSpecific;
 
         [SerializeField]
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ODIN_INSPECTOR
         [ShowIf(nameof(detailedInfo), Value = true)]
+        [HideInEditorMode]
 #endif
         private COMMAND_STATE commandState;
         public COMMAND_STATE CommandState { get => commandState; set => commandState = value; }
 
         [SerializeField]
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ODIN_INSPECTOR
         [ShowIf(nameof(detailedInfo), Value = true)]
+        [HideInEditorMode]
 #endif
         private ICommandBase fallbackCommand;
 
         public ICommandBase FallbackCommand { get => fallbackCommand; set => fallbackCommand = value; }
 
         [SerializeField]
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ODIN_INSPECTOR
         [ShowIf(nameof(detailedInfo), Value = true)]
+        [HideInEditorMode]
 #endif
         private bool isDone;
         public bool IsDone { get => isDone; }
 
         [SerializeField]
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ODIN_INSPECTOR
         [ShowIf(nameof(detailedInfo), Value = true)]
+        [HideInEditorMode]
 #endif
         private bool isStarted;
         public bool IsStarted => isStarted;

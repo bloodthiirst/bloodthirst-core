@@ -59,7 +59,7 @@ namespace Bloodthirst.Core.BISDSystem
             {
                 if (instance != null)
                 {
-                    EntityInstanceRegister.Unregister(instance);
+                    EntityInstanceRegister?.Unregister(instance);
                     InstanceRegister<INSTANCE>.Unregister(instance);
 
                     instance.BeforeEntityRemoved -= OnEntityRemove;
@@ -76,7 +76,7 @@ namespace Bloodthirst.Core.BISDSystem
 
                 instance.EntityIdentifier = EntityIdentifier;
 
-                EntityInstanceRegister.Register(instance);
+                EntityInstanceRegister?.Register(instance);
                 InstanceRegister<INSTANCE>.Register(instance);
 
                 instance.BeforeEntityRemoved -= OnEntityRemove;

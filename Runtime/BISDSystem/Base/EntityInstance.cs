@@ -33,6 +33,9 @@ namespace Bloodthirst.Core.BISDSystem
 
                 entityIdentifier = value;
 
+                if (entityIdentifier == null)
+                    return;
+
                 entityIdentifier.OnEntitySpawned -= OnEntitySpawned;
                 entityIdentifier.OnEntitySpawned += OnEntitySpawned;
 
@@ -84,7 +87,7 @@ namespace Bloodthirst.Core.BISDSystem
         /// <summary>
         /// Event to listen to instance disposal/change
         /// </summary>
-        public event Action<INSTANCE> BeforeInstanceDisposed;
+        public event Action<INSTANCE> OnInstanceDisposed;
 
         /// <summary>
         /// Event to listen to state changes
@@ -148,13 +151,19 @@ namespace Bloodthirst.Core.BISDSystem
 
         public void NotifyInstanceDisposed()
         {
-            BeforeInstanceDisposed?.Invoke((INSTANCE)this);
+            BeforeInstanceDisposed();
+            OnInstanceDisposed?.Invoke((INSTANCE)this);
         }
 
         public void NotifyInstanceBinded()
         {
             OnInstanceBinded?.Invoke((INSTANCE)this);
             AfterInstanceBinded();
+        }
+
+        protected virtual void BeforeInstanceDisposed()
+        {
+
         }
 
         protected virtual void AfterInstanceBinded()
