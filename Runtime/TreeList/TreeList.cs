@@ -35,6 +35,18 @@ namespace Bloodthirst.Core.TreeList
             return false;
         }
 
+        public IEnumerable<TreeLeaf<TKey, TValue>> GetFinalLeafs()
+        {
+            if (SubLeafs == null)
+                yield break;
+
+            foreach (TreeLeaf<TKey, TValue> l in SubLeafs)
+            {
+                if (l.SubLeafs == null || l.SubLeafs.Count == 0)
+                    yield return l;
+            }
+        }
+
         /// <summary>
         /// get an element of a key with all the sub element in the subleafs recursively
         /// </summary>
@@ -48,7 +60,7 @@ namespace Bloodthirst.Core.TreeList
 
             LookForKey(key, out TreeLeafInfo<TKey, TValue> info);
 
-            foreach(TValue s in info.TreeLeaf.TraverseAllSubElements())
+            foreach (TValue s in info.TreeLeaf.TraverseAllSubElements())
             {
                 yield return s;
             }

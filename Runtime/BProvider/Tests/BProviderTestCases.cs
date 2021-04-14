@@ -36,7 +36,74 @@ public class BProviderTestCases
     }
 
     [Test]
-    public void TestSimpleAddAndGetWithTwoInstances()
+    public void MergeProvidersInterfaceInstances()
+    {
+        BProvider provider = new BProvider();
+
+        provider.RegisterInstance<Child1Class , IChildClass>(child1Class);
+        provider.RegisterInstance<Child2Class , IChildClass>(child2Class);
+
+        BProvider copy = new BProvider().MergeWith(provider);
+
+        IEnumerable<IChildClass> DIQuery1_original = provider.GetInstances<Child1Class>();
+        IEnumerable<IChildClass> DIQuery1_copy = copy.GetInstances<Child1Class>();
+
+        CollectionAssert.AreEquivalent(DIQuery1_copy, DIQuery1_original);
+
+    }
+    [Test]
+    public void MergeProvidersClassInstances()
+    {
+        BProvider provider = new BProvider();
+
+        provider.RegisterInstance(child1Class);
+        provider.RegisterInstance(child2Class);
+
+        BProvider copy = new BProvider().MergeWith(provider);
+
+        IEnumerable<Child1Class> DIQuery1_original = provider.GetInstances<Child1Class>();
+        IEnumerable<Child2Class> DIQuery2_original = provider.GetInstances<Child2Class>();
+
+        IEnumerable<Child1Class> DIQuery1_copy = copy.GetInstances<Child1Class>();
+        IEnumerable<Child2Class> DIQuery2_copy = copy.GetInstances<Child2Class>();
+
+        CollectionAssert.AreEquivalent(DIQuery1_copy, DIQuery1_original);
+        CollectionAssert.AreEquivalent(DIQuery2_copy, DIQuery2_original);
+    }
+
+    [Test]
+    public void MergeProvidersInterfaceSingleton()
+    {
+        BProvider provider = new BProvider();
+
+        provider.RegisterSingleton<Child1Class , IChildClass>(child1Class);
+
+        BProvider copy = new BProvider().MergeWith(provider);
+
+        IChildClass DIQuery1_original = provider.GetSingleton<IChildClass>().Get;
+        IChildClass DIQuery1_copy = copy.GetSingleton<IChildClass>().Get;
+
+        Assert.AreEqual(DIQuery1_copy, DIQuery1_original);
+    }
+
+    [Test]
+    public void MergeProvidersClassSingleton()
+    {
+        BProvider provider = new BProvider();
+
+        provider.RegisterSingleton(child1Class);
+
+        BProvider copy = new BProvider().MergeWith(provider);
+
+        Child1Class DIQuery1_original = provider.GetSingleton<Child1Class>().Get;
+        Child1Class DIQuery1_copy = copy.GetSingleton<Child1Class>().Get;
+
+        Assert.AreEqual(DIQuery1_copy, DIQuery1_original);
+    }
+
+
+    [Test]
+    public void SimpleAddAndGetWithTwoInstances()
     {
         BProvider provider = new BProvider();
 
@@ -59,7 +126,7 @@ public class BProviderTestCases
     }
 
     [Test]
-    public void TestSimpleClassSingleton()
+    public void SimpleClassSingleton()
     {
         BProvider provider = new BProvider();
 
@@ -83,7 +150,7 @@ public class BProviderTestCases
     }
 
     [Test]
-    public void TestSimpleInterfaceSingleton()
+    public void SimpleInterfaceSingleton()
     {
         BProvider provider = new BProvider();
 

@@ -1,4 +1,6 @@
-﻿using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.SceneManager.DependencyInjector;
+using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
@@ -54,8 +56,28 @@ namespace Bloodthirst.Core.GameInitPass
         [ReadOnly]
         List<IPostEnablePass> postEnablePasses;
 
+        private ISceneDependencyInjector sceneDependencyInjector;
+
+        public bool executePassesOnStart;
+
+        private void Start()
+        {
+            if(executePassesOnStart)
+            {
+                OnScenesLoaded();
+            }
+        }
+
         public void OnScenesLoaded()
         {
+            sceneDependencyInjector = GetComponent<ISceneDependencyInjector>();
+
+            if(sceneDependencyInjector != null)
+            {
+                BProvider injectionProvider = sceneDependencyInjector.GetProvider();
+                BProviderRuntime.OverrideProvider(injectionProvider);
+            }
+
             QueryAllPasses();
 
             ExecutePasses();

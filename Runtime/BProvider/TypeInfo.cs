@@ -6,11 +6,33 @@ namespace Bloodthirst.Core.ServiceProvider
 {
     internal class TypeInfo
     {
-        public Type MainType { get; set; }
-        public List<Type> TreeParentsList { get; set; }
-        public TreeList<Type,List<object>> InstanceTree { get; set; }
-        public TreeLeaf<Type,List<object>> InstanceLeaf { get; set; }
-        public TreeList<Type, object> SingletonTree { get; set; }
-        public TreeLeaf<Type, object> SingletonLeaf { get; set; }
+        internal Type MainType { get; set; }
+
+        /// <summary>
+        /// <para>Contains a list of the inheritance hierarchy for the type</para>
+        /// <para>The types it the list depend of the type (Interface or class) </para>
+        /// </summary>
+        internal List<Type> TreeParentsList { get; set; }
+
+        /// <summary>
+        /// Reference to the tree cvontaining the instances
+        /// </summary>
+        internal TreeList<Type,List<object>> InstanceTree { get; set; }
+
+        /// <summary>
+        /// A cached reference to the leaf of the instances list of MainType
+        /// </summary>
+        internal TreeLeaf<Type,List<object>> InstanceLeaf { get; set; }
+
+        /// <summary>
+        /// Reference to the tree cvontaining the singletons
+        /// </summary>
+        internal TreeList<Type, object> SingletonTree { get; set; }
+
+        /// <summary>
+        /// A cached reference to the leaf of the singleton of MainType
+        /// </summary>
+        internal TreeLeaf<Type, object> SingletonLeaf { get; set; }
+
     }
 }

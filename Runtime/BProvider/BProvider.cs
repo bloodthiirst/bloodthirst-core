@@ -39,7 +39,7 @@ namespace Bloodthirst.Core.ServiceProvider
         public BProvider()
         {
             TypeToInfoHash = new Dictionary<Type, TypeInfo>();
-            
+
             ClassInstances = new TreeList<Type, List<object>>();
             ClassSingletons = new TreeList<Type, object>();
 
@@ -107,7 +107,7 @@ namespace Bloodthirst.Core.ServiceProvider
             return true;
         }
 
-        public bool RegisterOrReplaceSingleton<TInstanceType , ISingletonType>(TInstanceType instance) where ISingletonType : class where TInstanceType : ISingletonType
+        public bool RegisterOrReplaceSingleton<TInstanceType, ISingletonType>(TInstanceType instance) where ISingletonType : class where TInstanceType : ISingletonType
         {
             Type t = typeof(ISingletonType);
 
@@ -137,7 +137,7 @@ namespace Bloodthirst.Core.ServiceProvider
         /// <typeparam name="TInstanceType"></typeparam>
         /// <param name="instance"></param>
         /// <returns></returns>
-        public bool RegisterSingleton<TInstanceType , ISingletonType>(TInstanceType instance) where ISingletonType : class where TInstanceType : ISingletonType
+        public bool RegisterSingleton<TInstanceType, ISingletonType>(TInstanceType instance) where ISingletonType : class where TInstanceType : ISingletonType
         {
             Type t = typeof(ISingletonType);
 
@@ -157,7 +157,7 @@ namespace Bloodthirst.Core.ServiceProvider
             BSingleton<ISingletonType> s = (BSingleton<ISingletonType>)info.SingletonLeaf.Value;
 
             // check if it's the same instance of not
-            return s.Value == (ISingletonType) instance;
+            return s.Value == (ISingletonType)instance;
         }
 
         /// <summary>
@@ -391,7 +391,98 @@ namespace Bloodthirst.Core.ServiceProvider
 
             return typeInfo;
         }
-    }
 
-    #endregion
+        #endregion
+
+        public BProvider MergeWith(BProvider mergeWith)
+        {
+            foreach(KeyValuePair<Type, TypeInfo> kv in mergeWith.TypeToInfoHash)
+            {
+                if (TypeToInfoHash.ContainsKey(kv.Key))
+                    continue;
+
+                TypeToInfoHash.Add(kv.Key, kv.Value);
+            }
+
+            CopyTreeList(mergeWith.ClassInstances, ClassInstances);
+            CopyTreeList(mergeWith.InterfaceInstances, InterfaceInstances);
+
+            CopyTreeSingle(mergeWith.ClassSingletons, ClassSingletons);
+            CopyTreeSingle(mergeWith.InterfaceSingletons, InterfaceSingletons);
+
+            return this;
+        }
+
+        private void CopyTreeList(TreeList<Type, List<object>> src, TreeList<Type, List<object>> dest)
+        {
+            // copy classes
+            List<TreeLeaf<Type, List<object>>> finals = src.GetFinalLeafs().ToList();
+
+            foreach (TreeLeaf<Type, List<object>> f in finals)
+            {
+                List<Type> types = new List<Type>();
+
+                TreeLeaf<Type, List<object>> firstMerge = f;
+                TreeLeaf<Type, List<object>> curr = f;
+
+                while (curr != null)
+                {
+                    types.Add(curr.LeafKey);
+
+                    curr = curr.Parent;
+                }
+
+                TreeLeaf<Type, List<object>> firstThis = dest.GetOrCreateLeaf(types);
+
+                while (firstMerge.Parent != null)
+                {
+                    if (firstMerge.Value != null)
+                    {
+                        if (firstThis.Value == null)
+                        {
+                            firstThis.Value = new List<object>();
+                        }
+
+                        firstThis.Value.AddRange(firstMerge.Value);
+                    }
+
+                    firstMerge = firstMerge.Parent;
+                    firstThis = firstThis.Parent;
+                }
+            }
+        }
+
+        private void CopyTreeSingle(TreeList<Type, object> src, TreeList<Type, object> dest)
+        {
+            // copy classes
+            List<TreeLeaf<Type, object>> finals = src.GetFinalLeafs().ToList();
+
+            foreach (TreeLeaf<Type, object> f in finals)
+            {
+                List<Type> types = new List<Type>();
+
+                TreeLeaf<Type, object> firstMerge = f;
+                TreeLeaf<Type, object> curr = f;
+
+                while (curr != null)
+                {
+                    types.Add(curr.LeafKey);
+
+                    curr = curr.Parent;
+                }
+
+                TreeLeaf<Type, object> firstThis = dest.GetOrCreateLeaf(types);
+
+                while (firstMerge.Parent != null)
+                {
+                    firstThis.Value = firstMerge.Value;
+
+                    firstMerge = firstMerge.Parent;
+                    firstThis = firstThis.Parent;
+                }
+            }
+        }
+
+
+    }
 }
