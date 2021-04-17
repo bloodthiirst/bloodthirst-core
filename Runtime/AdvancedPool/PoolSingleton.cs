@@ -13,40 +13,18 @@ namespace Bloodthirst.Core.AdvancedPool
         [SerializeField]
         private int count;
 
-        private static Pool<TObejct> pool;
-        public static Pool<TObejct> Pool
+        private Pool<TObejct> pool;
+        public Pool<TObejct> Pool
         {
             get
             {
                 if (pool == null)
                 {
-                    Transform t = Instance.poolContainer;
-                    TObejct p = Instance.prefab;
-                    int cnt = Instance.count;
-                    pool = new Pool<TObejct>(t, p, cnt);
+                    TObejct p = prefab;
+                    int cnt = count;
+                    pool = new Pool<TObejct>(poolContainer, p, cnt);
                 }
                 return pool;
-            }
-        }
-
-        private static PoolSingleton<TObejct> instance;
-        private static PoolSingleton<TObejct> Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = FindObjectOfType<PoolSingleton<TObejct>>();
-                }
-                return instance;
-            }
-        }
-
-        protected void Awake()
-        {
-            if (instance == null)
-            {
-                instance = this;
             }
         }
     }

@@ -5,24 +5,31 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.Singleton
 {
-    public abstract class UnitySingleton<T> : MonoBehaviour, ISetupSingletonPass where T : UnitySingleton<T>
+    public abstract class UnitySingleton<TConcrete> : UnitySingleton<TConcrete, TConcrete> where TConcrete : UnitySingleton<TConcrete>
+    {
+
+    }
+
+    public abstract class UnitySingleton<TConcrete , TInterface> : MonoBehaviour, ISetupSingletonPass
+        where TConcrete : UnitySingleton<TConcrete , TInterface> , TInterface
+        where TInterface : class
     {
         [ShowInInspector]
         [ReadOnly]
-        private T instance;
+        private TConcrete instance;
 
-        private T Instance
+        private TConcrete Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = GetComponent<T>();
+                    instance = GetComponent<TConcrete>();
                 }
 
                 if (instance == null)
                 {
-                    instance = FindObjectOfType<T>();
+                    instance = FindObjectOfType<TConcrete>();
                 }
 
                 return instance;
@@ -34,7 +41,7 @@ namespace Bloodthirst.Core.Singleton
 
             if (instance == null)
             {
-                instance = GetComponent<T>();
+                instance = GetComponent<TConcrete>();
                 return;
             }
 
@@ -42,7 +49,7 @@ namespace Bloodthirst.Core.Singleton
 
         void ISetupSingletonPass.Execute()
         {
-            BProviderRuntime.Instance.RegisterSingleton(Instance);
+            BProviderRuntime.Instance.RegisterSingleton<TConcrete, TInterface>(Instance);
             OnSetupSingletonPass();
         }
 
@@ -52,7 +59,7 @@ namespace Bloodthirst.Core.Singleton
         {
             if (instance == null)
             {
-                instance = GetComponent<T>();
+                instance = GetComponent<TConcrete>();
                 return;
             }
         }

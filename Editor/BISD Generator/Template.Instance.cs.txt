@@ -1,4 +1,7 @@
-﻿using System;
+﻿//NAMESPACE_START
+//NAMESPACE_END
+
+using System;
 using Bloodthirst.Core.BISD.CodeGeneration;
 using Bloodthirst.Core.BISDSystem;
 using Sirenix.OdinInspector;

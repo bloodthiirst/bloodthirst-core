@@ -40,7 +40,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             nameof(BISDGeneratorOnReloadScripts)
         };
 
-        [MenuItem("Bloodthirst Tools/CoodGeneration/Refresh")]
+        [MenuItem("Bloodthirst Tools/BISD Pattern/Code Generation Refresh")]
         public static void MenuOption()
         {
             ExecuteCodeGeneration(false);

@@ -5,11 +5,12 @@ using UnityEngine;
 public class TestSceneDependencyInjector : MonoBehaviour , ISceneDependencyInjector
 {
     [SerializeField]
-    private float test;
+    private ScriptableObject scriptableObject;
+
     BProvider ISceneDependencyInjector.GetProvider()
     {
         BProvider fakeProvider = new BProvider();
-        fakeProvider.RegisterInstance<ISceneDependencyInjector>(this);
+        fakeProvider.RegisterInstance<ScriptableObject>(scriptableObject);
 
         return fakeProvider;
     }

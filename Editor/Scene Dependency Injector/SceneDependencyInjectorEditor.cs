@@ -1,5 +1,6 @@
 using Bloodthirst.Core.GameInitPass;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -21,7 +22,7 @@ namespace Bloodthirst.Core.SceneManager.DependencyInjector
         {
             List<GameObject> cache = new List<GameObject>();
 
-            Component injector = null;
+            List<Component> injectors = new List<Component>();
 
             // clean up previous objects
             if (state == PlayModeStateChange.EnteredEditMode)
@@ -42,7 +43,11 @@ namespace Bloodthirst.Core.SceneManager.DependencyInjector
                             Object.DestroyImmediate(go);
                         }
                     }
+
+                    UnityEditor.SceneManagement.EditorSceneManager.SaveScene(curr);
                 }
+
+
             }
 
             // create the dependency stuff
@@ -50,44 +55,42 @@ namespace Bloodthirst.Core.SceneManager.DependencyInjector
                 return;
 
 
-            Scene currentScene = default;
+            Scene currentScene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(0);
 
             // TODO : find a way to mix dependencies from multiple injectors
 
             // for each scene open try looking for an injector
             for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
             {
-                currentScene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
-
-                currentScene.GetRootGameObjects(cache);
+                Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
+                scene.GetRootGameObjects(cache);
 
                 foreach (GameObject go in cache)
                 {
-                    if(go.TryGetComponent(typeof(ISceneDependencyInjector) , out injector))
-                    {
-                        break;
-                    }
-                }
+                    IEnumerable<Component> injs = go.GetComponentsInChildren<ISceneDependencyInjector>().Cast<Component>();
 
-                if (injector != null)
-                    break;
+                    injectors.AddRange(injs);
+                }
             }
 
-            if (injector == null || !currentScene.IsValid())
+            if (injectors.Count == 0 || !currentScene.IsValid())
                 return;
 
             // construct the dependency object
             GameObject injectorGO = new GameObject(PER_SCENE_INJECTOR_NAME);
             GamePassInitiator init = injectorGO.AddComponent<GamePassInitiator>();
 
-            // use this in order to copy the fields too
-            UnityEditorInternal.ComponentUtility.CopyComponent(injector);
-            UnityEditorInternal.ComponentUtility.PasteComponentAsNew(injectorGO);
+            foreach (Component injector in injectors)
+            {
+                // use this in order to copy the fields too
+                UnityEditorInternal.ComponentUtility.CopyComponent(injector);
+                UnityEditorInternal.ComponentUtility.PasteComponentAsNew(injectorGO);
+            }
 
             init.executePassesOnStart = true;
 
-            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(injectorGO , currentScene);
-
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(injectorGO, currentScene);
+            UnityEditor.SceneManagement.EditorSceneManager.SaveScene(currentScene);
         }
     }
 }

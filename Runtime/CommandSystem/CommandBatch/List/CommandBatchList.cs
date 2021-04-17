@@ -10,6 +10,8 @@ namespace Bloodthirst.System.CommandSystem
         public event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
         public event Action<ICommandBatch, ICommandBase> OnCommandAdded;
 
+        public int BatchUpdateOrder { get; set; }
+
         [SerializeField]
         private List<CommandSettings> commandList;
         public List<CommandSettings> CommandsList { get => commandList; set => commandList = value; }

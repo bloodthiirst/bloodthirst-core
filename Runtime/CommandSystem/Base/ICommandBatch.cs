@@ -11,6 +11,7 @@ namespace Bloodthirst.System.CommandSystem
         event Action<ICommandBatch> OnBatchEnded;
         event Action<ICommandBatch, ICommandBase> OnCommandRemoved;
         event Action<ICommandBatch, ICommandBase> OnCommandAdded;
+        int BatchUpdateOrder { get; set; }
         BATCH_STATE BatchState { get; set; }
         object Owner { get; set; }
         void Tick(float delta);

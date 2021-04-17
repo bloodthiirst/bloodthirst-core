@@ -28,6 +28,7 @@ namespace Bloodthirst.System.CommandSystem
         [SerializeField]
         private BATCH_STATE batchState;
         public BATCH_STATE BatchState { get => batchState; set => batchState = value; }
+        public int BatchUpdateOrder { get; set; }
 
         private CommandBatchList waitables;
 

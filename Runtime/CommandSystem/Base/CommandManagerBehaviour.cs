@@ -10,19 +10,19 @@ namespace Bloodthirst.System.CommandSystem
         [ShowInInspector]
         private CommandManager commandManager;
 
-        [SerializeField]
-        private bool isActive = true;
+        [ReadOnly]
+        [ShowInInspector]
+        private bool isActive = false;
 
         public bool IsActive { get => isActive; set => isActive = value; }
 
         private CommandBatchList globalCommandBatch;
 
-        protected override void Awake()
+        protected override void OnSetupSingletonPass()
         {
-            base.Awake();
             commandManager = new CommandManager();
             globalCommandBatch = AppendBatch<CommandBatchList>(this);
-
+            isActive = true;
         }
 
         /// <summary>
@@ -53,7 +53,5 @@ namespace Bloodthirst.System.CommandSystem
 
             commandManager.Tick(Time.deltaTime);
         }
-
-
     }
 }

@@ -23,12 +23,27 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         /// <summary>
         /// The start of the part of the script to inject the auto-generated observables
         /// </summary>
-        private const string START_CONST = @"//OBSERVABLES_START";
+        private const string NAMESPACE_START_CONST = @"//NAMESPACE_START";
 
         /// <summary>
         /// The end of the part of the script to inject the auto-generated observables
         /// </summary>
-        private const string END_CONST = @"//OBSERVABLES_END";
+        private const string NAMESPACE_END_CONST = @"//NAMESPACE_END";
+
+        /// <summary>
+        /// The start of the part of the script to inject the auto-generated observables
+        /// </summary>
+        private const string PROPS_START_CONST = @"//OBSERVABLES_START";
+
+        /// <summary>
+        /// The end of the part of the script to inject the auto-generated observables
+        /// </summary>
+        private const string PROPS_END_CONST = @"//OBSERVABLES_END";
+
+        private string[] filterForNamespaces = new string[]
+        {
+            "System"
+        };
 
         public bool ShouldInject(Container<Type> TypeList, Container<TextAsset> TextList)
         {
@@ -143,31 +158,31 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             // separate the parts
 
+            /* Generate something like this
+            public event Action<PlayerInstance> OnHealthChanged;
+
+            public float HealthProp
+            {
+                get => state.health;
+                set
+                {
+                    state.health = value;
+                    OnHealthChanged?.Invoke(this);
+                }
+            }
+            */
+
             string oldScript = TextList.Instance.text;
 
-            List<Tuple<SECTION_EDGE, int, int>> sections = oldScript.StringReplaceSection(START_CONST, END_CONST);
+            #region write the properties for the observables in the state
+            List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(PROPS_START_CONST, PROPS_END_CONST);
 
             int padding = 0;
 
-            /* Generate something like this
-                    public event Action<PlayerInstance> OnHealthChanged;
-
-                    public float HealthProp
-                    {
-                        get => state.health;
-                        set
-                        {
-                            state.health = value;
-                            OnHealthChanged?.Invoke(this);
-                        }
-                    }
-
-             */
-
-            for (int i = 0; i < sections.Count - 1; i++)
+            for (int i = 0; i < propsSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = sections[i];
-                Tuple<SECTION_EDGE, int, int> end = sections[i + 1];
+                Tuple<SECTION_EDGE, int, int> start = propsSections[i];
+                Tuple<SECTION_EDGE, int, int> end = propsSections[i + 1];
 
                 // if we have correct start and end
                 // then do the replacing
@@ -217,6 +232,58 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     padding += replacementText.Length - oldTextLength;
                 }
             }
+            #endregion
+
+            #region write the properties for the observables in the state
+            List<Tuple<SECTION_EDGE, int, int>> namespaceSections = oldScript.StringReplaceSection(NAMESPACE_START_CONST, NAMESPACE_END_CONST);
+
+            padding = 0;
+
+            for (int i = 0; i < namespaceSections.Count - 1; i++)
+            {
+                Tuple<SECTION_EDGE, int, int> start = namespaceSections[i];
+                Tuple<SECTION_EDGE, int, int> end = namespaceSections[i + 1];
+
+                // if we have correct start and end
+                // then do the replacing
+                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                {
+                    StringBuilder replacementText = new StringBuilder();
+
+                    HashSet<string> namespaceAdded = new HashSet<string>();
+
+                    replacementText
+                        .Append(Environment.NewLine)
+                        .Append(Environment.NewLine);
+
+                    foreach (FieldInfo field in fields)
+                    {
+                        if (field.FieldType.Namespace == null)
+                            continue;
+
+                        if (filterForNamespaces.Contains(field.FieldType.Namespace))
+                            continue;
+
+                        if (!namespaceAdded.Add(field.FieldType.Namespace))
+                            continue;
+
+                        replacementText.Append($"using {field.FieldType.Namespace};")
+                        .Append(Environment.NewLine);
+                    }
+
+
+                    replacementText
+                    .Append(Environment.NewLine);
+
+                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+
+                    int oldTextLength = end.Item2 - start.Item3;
+
+                    padding += replacementText.Length - oldTextLength;
+                }
+            }
+            #endregion
+
 
             // save
             File.WriteAllText(AssetDatabase.GetAssetPath(TextList.Instance), oldScript);

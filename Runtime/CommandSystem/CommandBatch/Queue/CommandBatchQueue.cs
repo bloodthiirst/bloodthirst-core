@@ -33,6 +33,7 @@ namespace Bloodthirst.System.CommandSystem
         private object owner;
 
         public object Owner { get => owner; set => owner = value; }
+        public int BatchUpdateOrder { get; set; }
 
         public CommandBatchQueue()
         {

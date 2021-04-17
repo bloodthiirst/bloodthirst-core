@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using System.Linq;
+using System;
 
 #if UNITY_EDITOR
 using Bloodthirst.Core.AdvancedPool.Editor;
@@ -15,7 +16,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
     /// <para> The pools are created in the "PoolScene" , a scene that is specifically made to contain thses auto-generated pools</para>
     /// <para> The pool generation is done by the <see cref="PoolGenerator"> class</see></para>
     /// </summary>
-    public class GlobalPoolContainer : UnitySingleton<GlobalPoolContainer>
+    public class GlobalPoolContainer : UnitySingleton<GlobalPoolContainer, IGlobalPool>, IGlobalPool
     {
         #region fields for the auto-generated pools
 
@@ -69,6 +70,20 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
                 .Cast<PoolBehaviour<T>>();
         }
 
+        T IGlobalPool.Get<T>()
+        {
+            return GetByType<T>().Pool.Get();
+        }
+
+        void IGlobalPool.Return<T>(T t)
+        {
+            GetByType<T>().Pool.Return(t);
+        }
+
+        T IGlobalPool.Get<T>(Predicate<T> filter)
+        {
+            return GetByType<T>().Pool.Get<T>(filter);
+        }
 
         protected override void OnSetupSingletonPass()
         {

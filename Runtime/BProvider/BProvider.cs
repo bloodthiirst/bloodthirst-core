@@ -85,26 +85,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
         public bool RegisterOrReplaceSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
-            Type t = typeof(TInstanceType);
-
-            TypeInfo info = GetOrCreateInfo(t);
-
-            if (info.SingletonLeaf == null)
-            {
-                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
-            }
-
-            if (info.SingletonLeaf.Value == null)
-            {
-                info.SingletonLeaf.Value = new BSingleton<TInstanceType>(instance);
-                return true;
-            }
-
-            BSingleton<TInstanceType> s = (BSingleton<TInstanceType>)info.SingletonLeaf.Value;
-
-            s.Value = instance;
-
-            return true;
+            return RegisterOrReplaceSingleton<TInstanceType, TInstanceType>(instance);
         }
 
         public bool RegisterOrReplaceSingleton<TInstanceType, ISingletonType>(TInstanceType instance) where ISingletonType : class where TInstanceType : ISingletonType
@@ -168,27 +149,7 @@ namespace Bloodthirst.Core.ServiceProvider
         /// <returns></returns>
         public bool RegisterSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
-            Type t = typeof(TInstanceType);
-
-            TypeInfo info = GetOrCreateInfo(t);
-
-            if (info.SingletonLeaf == null)
-            {
-                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
-            }
-
-            if (info.SingletonLeaf.Value == null)
-            {
-                info.SingletonLeaf.Value = new BSingleton<TInstanceType>(instance);
-                return true;
-            }
-
-            BSingleton<TInstanceType> s = (BSingleton<TInstanceType>)info.SingletonLeaf.Value;
-
-            bool isValid = s.Value == instance;
-
-            // check if it's the same instance of not
-            return isValid;
+            return RegisterSingleton<TInstanceType, TInstanceType>(instance);
         }
 
         public void RemoveSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
@@ -238,21 +199,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
         public void RemoveInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
-            Type t = typeof(TInstanceType);
-
-            TypeInfo info = GetOrCreateInfo(t);
-
-            if (info.InstanceLeaf == null)
-            {
-                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
-            }
-
-            if (info.InstanceLeaf.Value == null)
-            {
-                return;
-            }
-
-            info.InstanceLeaf.Value.Remove(instance);
+            RemoveInstance<TInstanceType, TInstanceType>(instance);
         }
 
         public void RemoveInstance<TInstanceType, TInjectionType>(TInstanceType instance) where TInstanceType : class, TInjectionType
@@ -276,22 +223,9 @@ namespace Bloodthirst.Core.ServiceProvider
 
         public void RegisterInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
-            Type t = typeof(TInstanceType);
-
-            TypeInfo info = GetOrCreateInfo(t);
-
-            if (info.InstanceLeaf == null)
-            {
-                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
-            }
-
-            if (info.InstanceLeaf.Value == null)
-            {
-                info.InstanceLeaf.Value = new List<object>();
-            }
-
-            info.InstanceLeaf.Value.Add(instance);
+            RegisterInstance<TInstanceType, TInstanceType>(instance);
         }
+
         public void RegisterInstance<TInstanceType, TInjectionType>(TInstanceType instance) where TInstanceType : class, TInjectionType
         {
             Type t = typeof(TInjectionType);

@@ -1,6 +1,6 @@
-﻿using Bloodthirst.Core.ServiceProvider;
+﻿using Bloodthirst.Core.AdvancedPool.Pools;
+using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
-using Bloodthirst.Scripts.Core.UnityPool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,12 @@ namespace Bloodthirst.Core.BISDSystem
 {
     public class EntitySpawner : MonoBehaviour , IQuerySingletonPass
     {
-        private GenericUnityPool _genericUnityPool;
+        private IGlobalPool _genericUnityPool;
 
         void IQuerySingletonPass.Execute()
         {
-            _genericUnityPool = BProviderRuntime.Instance.GetSingleton<GenericUnityPool>();
+            // globalpoolcontainer is in the project asembly and not the package , so create a pool container interface
+            _genericUnityPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>().Get;
         }
         public T SpawnEntity<T>(IList<IEntityState> preloadedStates = null) where T : MonoBehaviour
         {

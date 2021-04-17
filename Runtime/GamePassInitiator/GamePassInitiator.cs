@@ -56,7 +56,7 @@ namespace Bloodthirst.Core.GameInitPass
         [ReadOnly]
         List<IPostEnablePass> postEnablePasses;
 
-        private ISceneDependencyInjector sceneDependencyInjector;
+        private List<ISceneDependencyInjector> sceneDependencyInjector = new List<ISceneDependencyInjector>();
 
         public bool executePassesOnStart;
 
@@ -70,12 +70,12 @@ namespace Bloodthirst.Core.GameInitPass
 
         public void OnScenesLoaded()
         {
-            sceneDependencyInjector = GetComponent<ISceneDependencyInjector>();
+            GetComponents(sceneDependencyInjector);
 
-            if(sceneDependencyInjector != null)
+            foreach(ISceneDependencyInjector inj in sceneDependencyInjector)
             {
-                BProvider injectionProvider = sceneDependencyInjector.GetProvider();
-                BProviderRuntime.OverrideProvider(injectionProvider);
+                BProvider injectionProvider = inj.GetProvider();
+                BProviderRuntime.Instance.MergeWith(injectionProvider);
             }
 
             QueryAllPasses();
