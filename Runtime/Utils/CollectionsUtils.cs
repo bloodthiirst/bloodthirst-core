@@ -91,6 +91,14 @@ namespace Bloodthirst.Core.Utils
         }
 
 
+        public static void ExpandeSize<T>(this List<T> list , int size)
+        {
+            while(list.Count < size)
+            {
+                list.Add(default(T));
+            }
+        }
+
         /// <summary>
         /// Copy the dictionary's content to another dictionary
         /// doesn't clear the 'to' dictionary

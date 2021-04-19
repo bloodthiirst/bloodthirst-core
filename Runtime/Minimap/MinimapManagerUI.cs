@@ -40,7 +40,7 @@ public class MinimapManagerUI : UnitySingleton<MinimapManagerUI>, IPointerClickH
         mapTex.Create();
     }
 
-    protected override void Awake()
+    protected void Awake()
     {
         IniTexture();
 

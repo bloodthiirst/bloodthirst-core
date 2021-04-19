@@ -70,6 +70,7 @@ namespace Bloodthirst.Core.BISDSystem
                 }
 
                 instance = value;
+                OnSetInstance(instance);
 
                 if (instance == null)
                     return;
@@ -83,7 +84,7 @@ namespace Bloodthirst.Core.BISDSystem
                 instance.BeforeEntityRemoved += OnEntityRemove;
                 instance.OnIsActiveChanged += OnIsActiveChanged;
 
-                OnSetInstance(instance);
+
                 instance.NotifyInstanceBinded();
 
                 instance.NotifyStateChanged();

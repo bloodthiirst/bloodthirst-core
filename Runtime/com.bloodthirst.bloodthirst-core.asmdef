@@ -1,7 +1,10 @@
 {
     "name": "com.bloodthirst.bloodthirst-core",
+    "rootNamespace": "",
     "references": [
-        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:e2481b4ad4653374689a36fad622fc23",
+        "GUID:d2bf2e739240fe441af1d7a44e1e6ce1"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

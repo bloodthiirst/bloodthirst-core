@@ -18,7 +18,7 @@ namespace Bloodthirst.Core.Tokenizer
 
         public void Tokenize(string text, List<TokenProcessorBase<TToken>> processors, List<TToken> tokens)
         {
-            tokens.CreateOrClear();
+            tokens = tokens.CreateOrClear();
             int i = 0;
             int offset;
 

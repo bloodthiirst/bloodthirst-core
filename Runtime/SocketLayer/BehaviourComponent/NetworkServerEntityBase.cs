@@ -71,10 +71,8 @@ namespace Bloodthirst.Socket.Core
         [ShowInInspector]
         private Dictionary<Type, SocketClient<TIdentifier>> ServerToServerClients;
 
-        protected override void Awake()
+        protected void Awake()
         {
-            base.Awake();
-
             OnConnectedBehaviours = new List<IOnSocketServerConnected<ManagedSocketServer<TIdentifier>, TIdentifier>>();
 
             GetComponentsInChildren(OnConnectedBehaviours);

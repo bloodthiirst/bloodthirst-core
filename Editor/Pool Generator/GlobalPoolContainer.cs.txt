@@ -4,6 +4,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using System.Linq;
 using System;
+using Bloodthirst.Core.ServiceProvider;
 
 #if UNITY_EDITOR
 using Bloodthirst.Core.AdvancedPool.Editor;

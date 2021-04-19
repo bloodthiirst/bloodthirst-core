@@ -81,8 +81,8 @@ namespace Bloodthirst.Core.AdvancedPool
             {
                 TObject inst = UnityEngine.Object.Instantiate(Prefab, PoolTransform);
                 inst.name = GetName(Prefab, i);
-                Return(inst);
-                _Pool.Add(inst);
+                inst.gameObject.SetActive(false);
+                ReturnWithoutCallbacks(inst);
             }
         }
 
@@ -198,6 +198,14 @@ namespace Bloodthirst.Core.AdvancedPool
             return obj;
         }
 
+        private void ReturnWithoutCallbacks(TObject t)
+        {
+            t.transform.SetParent(PoolTransform);
+            t.gameObject.SetActive(false);
+            _Pool.Add(t);
+            _UsedInstances.Remove(t);
+        }
+
         public void Return(TObject t)
         {
             if (t == null)
@@ -213,10 +221,7 @@ namespace Bloodthirst.Core.AdvancedPool
                 onSpawn.OnDespawn();
             }
 
-            t.transform.SetParent(PoolTransform);
-            t.gameObject.SetActive(false);
-            _Pool.Add(t);
-            _UsedInstances.Remove(t);
+            ReturnWithoutCallbacks(t);
         }
 
         protected override string GetName(Component original, int index)

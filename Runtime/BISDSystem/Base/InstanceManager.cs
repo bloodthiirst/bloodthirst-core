@@ -33,7 +33,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         public T Get<T>() where T : class
         {
-            return Provider.GetSingleton<T>().Get;
+            return Provider.GetSingleton<T>();
         }
 
         public void Register<T>(T instance) where T : class

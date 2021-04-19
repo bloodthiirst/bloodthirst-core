@@ -49,7 +49,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
         #region singleton
 
-        public BSingleton<TSingletonType> GetSingleton<TSingletonType>() where TSingletonType : class
+        public TSingletonType GetSingleton<TSingletonType>() where TSingletonType : class
         {
             Type t = typeof(TSingletonType);
 
@@ -60,7 +60,7 @@ namespace Bloodthirst.Core.ServiceProvider
                 info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            return (BSingleton<TSingletonType>)info.SingletonLeaf.Value;
+            return (TSingletonType) info.SingletonLeaf.Value;
         }
 
         public IEnumerable<TSingletonType> GetSingletons<TSingletonType>() where TSingletonType : class
@@ -105,12 +105,30 @@ namespace Bloodthirst.Core.ServiceProvider
                 return true;
             }
 
-            BSingleton<ISingletonType> s = (BSingleton<ISingletonType>)info.SingletonLeaf.Value;
-
-            s.Value = instance;
+            info.SingletonLeaf.Value = instance;
 
             return true;
         }
+
+        public bool RegisterSingleton(Type t , object instance)
+        {
+            TypeInfo info = GetOrCreateInfo(t);
+
+            if (info.SingletonLeaf == null)
+            {
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            if (info.SingletonLeaf.Value == null)
+            {
+                info.SingletonLeaf.Value = instance;
+                return true;
+            }
+
+            // check if it's the same instance of not
+            return info.SingletonLeaf.Value == instance;
+        }
+
 
         /// <summary>
         /// Register an instance 
@@ -131,14 +149,12 @@ namespace Bloodthirst.Core.ServiceProvider
 
             if (info.SingletonLeaf.Value == null)
             {
-                info.SingletonLeaf.Value = new BSingleton<ISingletonType>(instance);
+                info.SingletonLeaf.Value = instance;
                 return true;
             }
 
-            BSingleton<ISingletonType> s = (BSingleton<ISingletonType>)info.SingletonLeaf.Value;
-
             // check if it's the same instance of not
-            return s.Value == (ISingletonType)instance;
+            return info.SingletonLeaf.Value == (ISingletonType) instance;
         }
 
         /// <summary>
@@ -246,6 +262,26 @@ namespace Bloodthirst.Core.ServiceProvider
 
             info.InstanceLeaf.Value.Add(instance);
         }
+
+        public void RegisterInstance(Type t , object instance)
+        {
+            TypeInfo info = GetOrCreateInfo(t);
+
+            if (info.InstanceLeaf == null)
+            {
+                info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
+
+            if (info.InstanceLeaf.Value == null)
+            {
+                info.InstanceLeaf.Value = new List<object>();
+            }
+
+            info.InstanceLeaf.Value.Add(instance);
+        }
+
 
         #endregion
 

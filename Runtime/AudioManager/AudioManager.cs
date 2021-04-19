@@ -61,7 +61,7 @@ namespace Bloodthirst.Core.Audio
 
         private AudioSource currentAudio;
 
-        protected override void Awake()
+        protected void Awake()
         {
             Clear();
 

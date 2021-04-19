@@ -3,6 +3,7 @@ using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -62,22 +63,81 @@ namespace Bloodthirst.Core.GameInitPass
 
         private void Start()
         {
-            if(executePassesOnStart)
+            if (executePassesOnStart)
             {
                 OnScenesLoaded();
             }
         }
 
+        private BProvider QueryScriptableObjects()
+        {
+            BProvider scProvider = new BProvider();
+
+            UnityEngine.Object[] scriptables = Resources.LoadAll(string.Empty);
+
+            List<IScriptableObject> scInstances = scriptables.OfType<IScriptableObject>().ToList();
+            List<IScriptableObjectSingleton> scSingletons = scriptables.OfType<IScriptableObjectSingleton>().ToList();
+
+            // instances
+            foreach (IScriptableObject s in scInstances)
+            {
+                Type t = s.GetType();
+
+                Type[] interfaces = t.GetInterfaces();
+                Type genericType = interfaces.FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IScriptableObject<>));
+
+                if (genericType == null)
+                    continue;
+
+                if (!genericType.IsGenericType)
+                {
+                    scProvider.RegisterInstance(t, s);
+                }
+                else
+                {
+                    Type genericParam = genericType.GetGenericArguments()[0];
+                    scProvider.RegisterInstance(genericParam, s);
+                }
+            }
+
+            // singletons
+            foreach (IScriptableObjectSingleton s in scSingletons)
+            {
+                Type t = s.GetType();
+
+                Type[] interfaces = t.GetInterfaces();
+                Type genericType = interfaces.FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IScriptableObjectSingleton<>));
+
+                if (!genericType.IsGenericType)
+                {
+                    scProvider.RegisterInstance(t, s);
+                }
+                else
+                {
+                    Type genericParam = genericType.GetGenericArguments()[0];
+                    scProvider.RegisterInstance(genericParam, s);
+                }
+            }
+
+            return scProvider;
+        }
+
         public void OnScenesLoaded()
         {
+            // scriptables
+            BProvider scriptables = QueryScriptableObjects();
+            BProviderRuntime.Instance.MergeWith(scriptables);
+
+            // scene dependency for single scene stuff
             GetComponents(sceneDependencyInjector);
 
-            foreach(ISceneDependencyInjector inj in sceneDependencyInjector)
+            foreach (ISceneDependencyInjector inj in sceneDependencyInjector)
             {
                 BProvider injectionProvider = inj.GetProvider();
                 BProviderRuntime.Instance.MergeWith(injectionProvider);
             }
 
+            // query the rest
             QueryAllPasses();
 
             ExecutePasses();
@@ -86,7 +146,7 @@ namespace Bloodthirst.Core.GameInitPass
         private void ExecutePasses()
         {
             #region scenes
-            
+
             foreach (IBeforeAllScenesInitializationPass pass in beforeAllScenesInitializationPasses)
             {
                 pass.Execute();
@@ -117,7 +177,7 @@ namespace Bloodthirst.Core.GameInitPass
             {
                 pass.Execute();
             }
-            
+
             #endregion
 
             foreach (IInjectPass pass in injectPasses)

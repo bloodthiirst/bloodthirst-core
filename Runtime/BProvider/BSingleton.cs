@@ -19,6 +19,18 @@ namespace Bloodthirst.Core.ServiceProvider
             }
         }
 
+        internal object TyplessValue
+        {
+            set
+            {
+                if (val != value)
+                {
+                    val = (T)value;
+                    OnSingletonChanged?.Invoke(val);
+                }      
+            }
+        }
+
         public T Get => Value;
 
         internal BSingleton(T val)
@@ -30,5 +42,6 @@ namespace Bloodthirst.Core.ServiceProvider
         {
             return val.Value;
         }
+
     }
 }

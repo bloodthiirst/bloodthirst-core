@@ -80,8 +80,8 @@ public class BProviderTestCases
 
         BProvider copy = new BProvider().MergeWith(provider);
 
-        IChildClass DIQuery1_original = provider.GetSingleton<IChildClass>().Get;
-        IChildClass DIQuery1_copy = copy.GetSingleton<IChildClass>().Get;
+        IChildClass DIQuery1_original = provider.GetSingleton<IChildClass>();
+        IChildClass DIQuery1_copy = copy.GetSingleton<IChildClass>();
 
         Assert.AreEqual(DIQuery1_copy, DIQuery1_original);
     }
@@ -95,8 +95,8 @@ public class BProviderTestCases
 
         BProvider copy = new BProvider().MergeWith(provider);
 
-        Child1Class DIQuery1_original = provider.GetSingleton<Child1Class>().Get;
-        Child1Class DIQuery1_copy = copy.GetSingleton<Child1Class>().Get;
+        Child1Class DIQuery1_original = provider.GetSingleton<Child1Class>();
+        Child1Class DIQuery1_copy = copy.GetSingleton<Child1Class>();
 
         Assert.AreEqual(DIQuery1_copy, DIQuery1_original);
     }
@@ -132,7 +132,7 @@ public class BProviderTestCases
 
         bool firstSingletonRes = provider.RegisterSingleton(child1Class);
 
-        BSingleton<Child1Class> DIQuery1 = provider.GetSingleton<Child1Class>();
+        Child1Class DIQuery1 = provider.GetSingleton<Child1Class>();
 
         bool sameSingletonRes = provider.RegisterSingleton(child1Class);
 
@@ -140,7 +140,7 @@ public class BProviderTestCases
 
         bool secondSingeton = provider.RegisterSingleton(anotherSingleton);
 
-        Assert.AreEqual(child1Class, DIQuery1.Get);
+        Assert.AreEqual(child1Class, DIQuery1);
 
         Assert.IsTrue(firstSingletonRes);
 
@@ -156,7 +156,7 @@ public class BProviderTestCases
 
         bool firstSingletonRes = provider.RegisterSingleton<Child1Class,IChildClass>(child1Class);
 
-        BSingleton<IChildClass> DIQuery1 = provider.GetSingleton<IChildClass>();
+        IChildClass DIQuery1 = provider.GetSingleton<IChildClass>();
 
         bool sameSingletonRes = provider.RegisterSingleton(child1Class);
 
@@ -164,7 +164,7 @@ public class BProviderTestCases
 
         bool secondSingeton = provider.RegisterSingleton<Child1Class, IChildClass>(anotherSingleton);
 
-        Assert.AreEqual(child1Class, DIQuery1.Get);
+        Assert.AreEqual(child1Class, DIQuery1);
         Assert.IsTrue(firstSingletonRes);
         Assert.IsTrue(sameSingletonRes);
         Assert.IsFalse(secondSingeton);

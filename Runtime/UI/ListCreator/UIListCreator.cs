@@ -15,15 +15,20 @@ namespace Bloodthirst.Core.UI
         private IList<UI> cachedUIs;
         private Pool<UI> pool;
         private RectTransform container;
+        private int fixedUICount;
+
         public IList<UI> UIs => cachedUIs;
 
-        public UIListCreator(Pool<UI> pool, RectTransform container, IList<UI> cachedUIs = null)
+        public int FixedUICount { get => fixedUICount; set => fixedUICount = value; }
+
+        public UIListCreator(Pool<UI> pool, RectTransform container, IList<UI> cachedUIs = null , int fixedUICount = -1)
         {
             // if not list is supplied , create one on the fly
             this.cachedUIs = cachedUIs == null ? new List<UI>() : cachedUIs;
 
             this.pool = pool;
             this.container = container;
+            this.FixedUICount = fixedUICount;
         }
 
         /// <summary>
@@ -32,7 +37,7 @@ namespace Bloodthirst.Core.UI
         /// <param name="instances"></param>
         public void RefreshUI(IList<INSTANCE> instances)
         {
-            int instCount = instances.Count;
+            int instCount = fixedUICount == -1 ? instances.Count : fixedUICount;
 
             if (instCount == 0)
             {
@@ -63,7 +68,7 @@ namespace Bloodthirst.Core.UI
 
             for (int i = 0; i < instCount; i++)
             {
-                INSTANCE inst = instances[i];
+                INSTANCE inst = i < instances.Count ? instances[i] : default;
                 cachedUIs[i].gameObject.SetActive(true);
 
                 // clean up first in case its needed to clear dependencies that were linked previously

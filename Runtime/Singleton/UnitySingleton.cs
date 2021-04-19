@@ -7,7 +7,10 @@ namespace Bloodthirst.Core.Singleton
 {
     public abstract class UnitySingleton<TConcrete> : UnitySingleton<TConcrete, TConcrete> where TConcrete : UnitySingleton<TConcrete>
     {
-
+        internal override void Register()
+        {
+            BProviderRuntime.Instance.RegisterSingleton<TConcrete, TConcrete>(Instance);
+        }
     }
 
     public abstract class UnitySingleton<TConcrete , TInterface> : MonoBehaviour, ISetupSingletonPass
@@ -18,7 +21,7 @@ namespace Bloodthirst.Core.Singleton
         [ReadOnly]
         private TConcrete instance;
 
-        private TConcrete Instance
+        protected TConcrete Instance
         {
             get
             {
@@ -36,20 +39,15 @@ namespace Bloodthirst.Core.Singleton
             }
         }
 
-        protected virtual void Awake()
+        internal virtual void Register()
         {
-
-            if (instance == null)
-            {
-                instance = GetComponent<TConcrete>();
-                return;
-            }
-
+            BProviderRuntime.Instance.RegisterSingleton<TConcrete, TConcrete>(Instance);
+            BProviderRuntime.Instance.RegisterSingleton<TConcrete, TInterface>(Instance);
         }
 
         void ISetupSingletonPass.Execute()
         {
-            BProviderRuntime.Instance.RegisterSingleton<TConcrete, TInterface>(Instance);
+            Register();
             OnSetupSingletonPass();
         }
 

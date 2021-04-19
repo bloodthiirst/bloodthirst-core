@@ -15,7 +15,7 @@ namespace Bloodthirst.Core.BISDSystem
         void IQuerySingletonPass.Execute()
         {
             // globalpoolcontainer is in the project asembly and not the package , so create a pool container interface
-            _genericUnityPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>().Get;
+            _genericUnityPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>();
         }
         public T SpawnEntity<T>(IList<IEntityState> preloadedStates = null) where T : MonoBehaviour
         {
