@@ -10,7 +10,7 @@ namespace Bloodthirst.System.Quadrant
     /// A quadrant system manager that hepls group the game entities by grouping them into cubes in world space
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class QuadrantManager<T> where T : IQuadrantEntity<T>
+    public class QuadrantManager<T,TLeaf> where T : IQuadrantEntity<T> where TLeaf : QuadLeafEquatableBase<int,T,TLeaf> , new()
     {
         public event Action<T> OnEntityAdded;
 
@@ -36,13 +36,13 @@ namespace Bloodthirst.System.Quadrant
         /// <summary>
         /// Container for all the entities that need to be grouped by cube
         /// </summary>
-        private QuadTreeEquatable<int, T> quadTree;
+        private QuadTreeEquatableBase<int, T , TLeaf> quadTree;
 
-        public QuadTreeEquatable<int, T> QuadTree => quadTree;
+        public QuadTreeEquatableBase<int, T , TLeaf> QuadTree => quadTree;
 
         public QuadrantManager()
         {
-            quadTree = new QuadTreeEquatable<int, T>();
+            quadTree = new QuadTreeEquatableBase<int, T , TLeaf>();
         }
 
         public void Clear()
@@ -54,9 +54,9 @@ namespace Bloodthirst.System.Quadrant
         private void OnCubeResized()
         {
             // cache previous entities
-            List<QuadLeafEquatable<int, T>> list = new List<QuadLeafEquatable<int, T>>();
+            List<TLeaf> list = new List<TLeaf>();
 
-            foreach (QuadLeafEquatable<int, T> l in quadTree.RootLeafs)
+            foreach (TLeaf l in quadTree.RootLeafs)
             {
                 list.AddRange(l.GetAllRecursively());
             }
@@ -65,7 +65,7 @@ namespace Bloodthirst.System.Quadrant
 
             List<T> elements = list.SelectMany(l => l.Elements).ToList();
 
-            foreach (QuadLeafEquatable<int, T> l in list)
+            foreach (TLeaf l in list)
             {
                 foreach (T e in l.Elements)
                 {
@@ -82,7 +82,7 @@ namespace Bloodthirst.System.Quadrant
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        private QuadLeafEquatable<int, T> this[List<int> id]
+        private TLeaf this[List<int> id]
         {
             get
             {
@@ -103,9 +103,9 @@ namespace Bloodthirst.System.Quadrant
 
             entity.QuandrantId = id;
 
-            QuadLeafEquatable<int, T> leaf = this[id];
+            TLeaf leaf = this[id];
 
-            leaf.Elements.Add(entity);
+            leaf.Add(entity);
 
             OnEntityAdded?.Invoke(entity);
 
@@ -151,8 +151,8 @@ namespace Bloodthirst.System.Quadrant
         {
             if (id != null)
             {
-                QuadLeafEquatable<int, T> leaf = this[id];
-                leaf.Elements.Remove(entity);
+                TLeaf leaf = this[id];
+                leaf.Remove(entity);
             }
             entity.QuandrantId = null;
 

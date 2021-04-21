@@ -4,20 +4,24 @@ using System.Linq;
 
 namespace Bloodthirst.System.Quadrant
 {
-    public class QuadLeafEquatable<TKey, TElement> where TKey : IEquatable<TKey>
+    public class QuadLeafEquatableBase<TKey, TElement, TLeaf> where TKey : IEquatable<TKey> where TLeaf : QuadLeafEquatableBase<TKey, TElement, TLeaf>, new()
     {
         internal List<TKey> PreviousKeys { get; set; }
         public TKey Key { get; set; }
-        public HashSet<TElement> Elements { get; set; }
+        private HashSet<TElement> elements;
+        public IReadOnlyCollection<TElement> Elements => elements;
+        public List<TLeaf> SubLeafs { get; set; }
 
-        public List<QuadLeafEquatable<TKey, TElement>> SubLeafs { get; set; }
+        public QuadLeafEquatableBase()
+        {
+            elements = new HashSet<TElement>();
+            PreviousKeys = new List<TKey>();
+            SubLeafs = new List<TLeaf>();
+        }
 
-        public QuadLeafEquatable(TKey key)
+        public QuadLeafEquatableBase(TKey key) : base()
         {
             Key = key;
-            Elements = new HashSet<TElement>();
-            PreviousKeys = new List<TKey>();
-            SubLeafs = new List<QuadLeafEquatable<TKey, TElement>>();
         }
 
         public List<TKey> GetKeySequence()
@@ -31,25 +35,32 @@ namespace Bloodthirst.System.Quadrant
             return keySequence;
         }
 
-        public QuadLeafEquatable(TKey key, HashSet<TElement> elements)
+        public void Add(TElement element)
         {
-            Key = key;
-            Elements = elements;
-            PreviousKeys = new List<TKey>();
-            SubLeafs = new List<QuadLeafEquatable<TKey, TElement>>();
+            elements.Add(element);
+            OnElementAdded(element);
         }
+
+        public void Remove(TElement element)
+        {
+            elements.Remove(element);
+            OnElementRemoved(element);
+        }
+
+        protected virtual void OnElementAdded(TElement element) { }
+        protected virtual void OnElementRemoved(TElement element) { }
 
         /// <summary>
         /// Get all the elements recursively
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<QuadLeafEquatable<TKey, TElement>> GetAllRecursively()
+        public IEnumerable<TLeaf> GetAllRecursively()
         {
-            yield return this;
+            yield return (TLeaf)this;
 
-            foreach (QuadLeafEquatable<TKey, TElement> l in SubLeafs)
+            foreach (TLeaf l in SubLeafs)
             {
-                foreach (QuadLeafEquatable<TKey, TElement> e in l.GetAllRecursively())
+                foreach (TLeaf e in l.GetAllRecursively())
                 {
                     yield return e;
                 }
@@ -61,14 +72,14 @@ namespace Bloodthirst.System.Quadrant
         /// Get the final leafs (leafs with no sub-leafs) start with this leafs as the root
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<QuadLeafEquatable<TKey, TElement>> GetFinalLeafs()
+        public IEnumerable<TLeaf> GetFinalLeafs()
         {
             if (SubLeafs.Count == 0)
-                yield return this;
+                yield return (TLeaf)this;
 
-            foreach (QuadLeafEquatable<TKey, TElement> l in SubLeafs)
+            foreach (TLeaf l in SubLeafs)
             {
-                foreach (QuadLeafEquatable<TKey, TElement> s in l.GetFinalLeafs())
+                foreach (TLeaf s in l.GetFinalLeafs())
                 {
                     yield return s;
                 }
@@ -80,7 +91,7 @@ namespace Bloodthirst.System.Quadrant
         /// </summary>
         public void Clear()
         {
-            foreach (QuadLeafEquatable<TKey, TElement> sub in SubLeafs)
+            foreach (TLeaf sub in SubLeafs)
             {
                 sub.Clear();
             }
@@ -88,19 +99,20 @@ namespace Bloodthirst.System.Quadrant
             SubLeafs.Clear();
         }
 
-        public QuadLeafEquatable<TKey, TElement> Get(TKey key)
+        public TLeaf Get(TKey key)
         {
             return SubLeafs.FirstOrDefault(l => l.Key.Equals(key));
         }
 
-        public QuadLeafEquatable<TKey, TElement> GetOrCreate(TKey key)
+        public TLeaf GetOrCreate(TKey key)
         {
-            QuadLeafEquatable<TKey, TElement> res = SubLeafs.FirstOrDefault(l => l.Key.Equals(key));
+            TLeaf res = SubLeafs.FirstOrDefault(l => l.Key.Equals(key));
 
             if (res != null)
                 return res;
 
-            res = new QuadLeafEquatable<TKey, TElement>(key);
+            res = new TLeaf();
+            res.Key = key;
             res.PreviousKeys.AddRange(PreviousKeys);
             res.PreviousKeys.Add(Key);
             SubLeafs.Add(res);

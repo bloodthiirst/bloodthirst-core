@@ -341,7 +341,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   manager: {fileID: 534271006}
-  quandrantId: 
+  graphics: {fileID: 768595729}
+  quandrantId: 040000000000000000000000
 --- !u!4 &347686129
 Transform:
   m_ObjectHideFlags: 0
@@ -350,7 +351,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 347686127}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 142.9, y: 0, z: 237.8}
+  m_LocalPosition: {x: 472, y: 16, z: 61}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 768595730}
@@ -387,7 +388,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   manager: {fileID: 534271006}
-  quandrantId: 
+  graphics: {fileID: 251218034}
+  quandrantId: 050000000000000006000000
 --- !u!4 &528953359
 Transform:
   m_ObjectHideFlags: 0
@@ -396,7 +398,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 528953357}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 249.7, y: 0, z: 290.7}
+  m_LocalPosition: {x: 563, y: 0, z: 614}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 251218035}
@@ -413,6 +415,7 @@ GameObject:
   m_Component:
   - component: {fileID: 534271007}
   - component: {fileID: 534271006}
+  - component: {fileID: 534271008}
   m_Layer: 0
   m_Name: QuadrantSystem
   m_TagString: Untagged
@@ -432,14 +435,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65610b38d521e4f45821e062407e8ebe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gizmosOutlineColor: {r: 0, g: 0, b: 0, a: 0.3882353}
-  gizmosFillColor: {r: 0.525164, g: 0.69803923, b: 0.4, a: 0.2}
   cubeSize: {x: 100, y: 50, z: 100}
   testQuadrant: {x: 5, y: 1, z: 5}
   cachedTestQuadrant: {x: 5, y: 1, z: 5}
-  showAll: 1
-  viewDistance: 100
-  visibility: 0.785
 --- !u!4 &534271007
 Transform:
   m_ObjectHideFlags: 0
@@ -454,6 +452,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &534271008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534271005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acc150f1f52e4d443978ac098e6d0d6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 1181114794}
+  quadrantManagerBehaviour: {fileID: 534271006}
+  gizmosOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  gizmosFillColor: {r: 0.30208126, g: 0.7264151, b: 0.23642756, a: 1}
+  gizmosEmptyColor: {r: 1, g: 0, b: 0, a: 1}
+  gizmosCulledColor: {r: 0.033018887, g: 0.3956368, b: 1, a: 1}
+  showAll: 1
+  viewDistance: 0
+  visibility: 0.335
 --- !u!1 &768595729
 GameObject:
   m_ObjectHideFlags: 0
@@ -472,7 +491,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &768595730
 Transform:
   m_ObjectHideFlags: 0
@@ -625,10 +644,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1181114792}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0, y: 0.33191422, z: 0, w: 0.9433096}
+  m_LocalPosition: {x: 209, y: 33.2, z: 141}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 38.77, z: 0}
