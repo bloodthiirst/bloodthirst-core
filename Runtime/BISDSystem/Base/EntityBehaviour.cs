@@ -153,7 +153,7 @@ namespace Bloodthirst.Core.BISDSystem
             }
 
             // in case state isn't serializable
-            if (Instance.State == null)
+            if (Instance == null || Instance.State == null)
             {
                 STATE state = new STATE();
                 state.Data = TagData;

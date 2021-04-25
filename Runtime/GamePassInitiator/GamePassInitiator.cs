@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.SceneManager.DependencyInjector;
+﻿using Bloodthirst.Core.Setup;
+using Bloodthirst.Core.SceneManager.DependencyInjector;
 using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.GameInitPass
 {
-    public class GamePassInitiator : MonoBehaviour
+    public class GamePassInitiator : MonoBehaviour , IPreGameSetup , IPostGameSetup
     {
         [ShowInInspector]
         [ReadOnly]
@@ -27,7 +28,6 @@ namespace Bloodthirst.Core.GameInitPass
         [ShowInInspector]
         [ReadOnly]
         List<IAfterAllScenesIntializationPass> afterAllScenesIntializationPasses;
-
 
         [ShowInInspector]
         [ReadOnly]
@@ -57,16 +57,18 @@ namespace Bloodthirst.Core.GameInitPass
         [ReadOnly]
         List<IPostEnablePass> postEnablePasses;
 
+        private BProvider scriptables;
+
         private List<ISceneDependencyInjector> sceneDependencyInjector = new List<ISceneDependencyInjector>();
 
-        public bool executePassesOnStart;
-
-        private void Start()
+        void IPreGameSetup.Execute()
         {
-            if (executePassesOnStart)
-            {
-                OnScenesLoaded();
-            }
+            scriptables = QueryScriptableObjects();
+        }
+
+        void IPostGameSetup.Execute()
+        {
+            AfterScenesLoaded();
         }
 
         private BProvider QueryScriptableObjects()
@@ -122,10 +124,9 @@ namespace Bloodthirst.Core.GameInitPass
             return scProvider;
         }
 
-        public void OnScenesLoaded()
+        private void AfterScenesLoaded()
         {
             // scriptables
-            BProvider scriptables = QueryScriptableObjects();
             BProviderRuntime.Instance.MergeWith(scriptables);
 
             // scene dependency for single scene stuff
@@ -248,5 +249,6 @@ namespace Bloodthirst.Core.GameInitPass
                 list.Add(childInterface);
             }
         }
+
     }
 }

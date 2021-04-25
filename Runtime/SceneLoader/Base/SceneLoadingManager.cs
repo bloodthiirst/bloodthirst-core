@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.ServiceProvider;
+﻿using Bloodthirst.Core.Setup;
+using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Singleton;
 using Sirenix.OdinInspector;
 using System.Collections;
@@ -13,7 +14,7 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public class SceneLoadingManager : MonoBehaviour
+    public class SceneLoadingManager : MonoBehaviour , IPreGameSetup , IGameSetup , IPostGameSetup
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport
 #endif
@@ -26,8 +27,6 @@ namespace Bloodthirst.Core.SceneManager
             ScenesListData.Instance.LoadAllScenesAvailable();
         }
 #endif
-
-        public List<AsyncOperation> asyncOperations;
 
         public List<ISceneInstanceManager> SceneInstanceManagers
         {
@@ -46,34 +45,31 @@ namespace Bloodthirst.Core.SceneManager
         private List<ISceneInstanceManager> sceneInstanceManagers;
 
         [SerializeField]
-        public UnityEvent BeforeAllScenesLoaded;
+        public UnityEvent beforeAllScenesLoaded;
 
         [SerializeField]
-        public UnityEvent AfterAllScenesLoaded;
+        public UnityEvent afterAllScenesLoaded;
 
-        [SerializeField]
-        private bool loadInStart;
-
-        private IEnumerator Start()
+        int IGameSetup.Order => 0;
+        
+        void IPreGameSetup.Execute()
         {
+            beforeAllScenesLoaded?.Invoke();
             BProviderRuntime.Instance.RegisterSingleton(this);
-            yield return CrtLoadScenes();
         }
 
-        private IEnumerator CrtLoadScenes()
+        IEnumerable<AsyncOperation> IGameSetup.Operations()
         {
-            // start scene loading
-            LoadScene();
+            for (int i = 0; i < ScenesListData.Instance.ScenesList.Count; i++)
+            {
+                if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(i).isLoaded)
+                    yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(i, LoadSceneMode.Additive);
+            }
+        }
 
-            BeforeAllScenesLoaded?.Invoke();
-
-            // wait until all loading done
-            yield return new WaitUntil(() => asyncOperations.TrueForAll(op => op.isDone));
-
-            AfterAllScenesLoaded?.Invoke();
-
-            yield return null;
-
+        void IPostGameSetup.Execute()
+        {
+            afterAllScenesLoaded?.Invoke();
         }
 
         public void HideAllScenes()
@@ -87,20 +83,6 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        void LoadScene()
-        {
-            if (asyncOperations == null)
-                asyncOperations = new List<AsyncOperation>();
-            else
-                asyncOperations.Clear();
-
-            for (int i = 0; i < ScenesListData.Instance.ScenesList.Count; i++)
-            {
-
-                if (!UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(i).isLoaded)
-                    asyncOperations.Add(UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(i, LoadSceneMode.Additive));
-            }
-        }
     }
 
 }

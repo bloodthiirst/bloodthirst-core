@@ -1,4 +1,5 @@
 using Bloodthirst.Core.GameInitPass;
+using Bloodthirst.Core.Setup;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -79,6 +80,8 @@ namespace Bloodthirst.Core.SceneManager.DependencyInjector
             // construct the dependency object
             GameObject injectorGO = new GameObject(PER_SCENE_INJECTOR_NAME);
             GamePassInitiator init = injectorGO.AddComponent<GamePassInitiator>();
+            GameSetup gameSetup = injectorGO.AddComponent<GameSetup>();
+            gameSetup.ExecuteOnStart = true;
 
             foreach (Component injector in injectors)
             {
@@ -86,8 +89,6 @@ namespace Bloodthirst.Core.SceneManager.DependencyInjector
                 UnityEditorInternal.ComponentUtility.CopyComponent(injector);
                 UnityEditorInternal.ComponentUtility.PasteComponentAsNew(injectorGO);
             }
-
-            init.executePassesOnStart = true;
 
             UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(injectorGO, currentScene);
             UnityEditor.SceneManagement.EditorSceneManager.SaveScene(currentScene);

@@ -15,16 +15,4 @@ public class FetchFromInjectedProvider : MonoBehaviour , IAwakePass
         List<ScriptableObject> fetch = BProviderRuntime.Instance.GetInstances<ScriptableObject>().ToList();
         scriptableObject = fetch[0];
     }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

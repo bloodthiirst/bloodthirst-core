@@ -9,7 +9,6 @@ using Sirenix.OdinInspector;
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {
 	[BISDTag("[MODELNAME]" , ClassType.INSTANCE)]
-    [Serializable]
     public class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State,[MODELNAME]Instance>
     {
 		//OBSERVABLES_START

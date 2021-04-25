@@ -5,7 +5,6 @@ using UnityEngine.Assertions;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    [Serializable]
     public abstract class EntityInstance<DATA, STATE, INSTANCE> : IEntityInstance
         where DATA : EntityData
         where STATE : class, IEntityState<DATA>

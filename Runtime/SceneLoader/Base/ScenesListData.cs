@@ -26,8 +26,9 @@ namespace Bloodthirst.Core.SceneManager
 
         [OdinSerialize]
         [ListDrawerSettings(Expanded = true, AlwaysAddDefaultValue = true)]
+#if UNITY_EDITOR
         [OnValueChanged(nameof(ReorderList))]
-
+#endif
         [InfoBox("The first scene MUST contain a SceneLoadingManager", nameof(HasSceneLoadingManager), InfoMessageType = InfoMessageType.Error, VisibleIf = nameof(HasSceneLoadingManager))]
         private List<ReadOnlyString> editorList;
 

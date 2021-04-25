@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -58,4 +57,3 @@ namespace Bloodthirst.Core.Utils
         }
     }
 }
-#endif
