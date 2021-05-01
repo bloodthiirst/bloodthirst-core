@@ -22,7 +22,8 @@ namespace Bloodthirst.BDeepCopy
             CopyFactories = new List<IBCopyFactory>()
             {
                 new DictionaryCopierFactory(),
-                new ListCopierFactory()
+                new ListCopierFactory(),
+                new InterfaceCopierFactory()
             };
 
             // save types

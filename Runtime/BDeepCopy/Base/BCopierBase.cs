@@ -11,7 +11,6 @@ namespace Bloodthirst.BDeepCopy
         Type IBCopier.Type => CopierType();
 
         internal IBCopier Copier { get; }
-        public abstract IReadOnlyList<MemberInfo> CopiableMembers();
 
         object IBCopier.Copy(object t, BCopierSettings copierSettings)
         {

@@ -9,8 +9,6 @@ namespace Bloodthirst.BDeepCopy
         Type Type { get; }
 
         object Copy(object t , BCopierSettings bCopierSettings = null);
-
-        IReadOnlyList<MemberInfo> CopiableMembers();
     }
 
     internal interface IBCopierInternal : IBCopier

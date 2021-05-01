@@ -12,7 +12,7 @@ namespace Bloodthirst.BDeepCopy
 
         IBCopierInternal IBCopyFactory.GetCopier(Type t)
         {
-            return new BCopierConcreteIListType(t);
+            return new BCopierIListType(t);
         }
     }
 }

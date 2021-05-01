@@ -46,10 +46,5 @@ namespace Bloodthirst.BDeepCopy
         {
             return (T)Copier.Copy(t , bCopierSettings);
         }
-
-        public IReadOnlyList<MemberInfo> CopiableMembers()
-        {
-            return Copier.CopiableMembers();
-        }
     }
 }

@@ -2,16 +2,16 @@
 
 namespace Bloodthirst.BDeepCopy
 {
-    internal class DefaultCopierFactory : IBCopyFactory
+    internal class InterfaceCopierFactory : IBCopyFactory
     {
         bool IBCopyFactory.CanCopy(Type t)
         {
-            return true;
+            return t.IsInterface;
         }
 
         IBCopierInternal IBCopyFactory.GetCopier(Type t)
         {
-            return new BCopierComplexType(t);
+            return new BCopierInterfaceType(t);
         }
     }
 }

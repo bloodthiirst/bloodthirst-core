@@ -9,10 +9,6 @@ namespace Bloodthirst.BDeepCopy
         private static readonly Type type = typeof(string);
 
         Type IBCopier.Type => type;
-        public IReadOnlyList<MemberInfo> CopiableMembers()
-        {
-            return BCopierBase.EmptyMembers;
-        }
 
         object IBCopierInternal.Copy(object t, BCopierContext copierContext , BCopierSettings copierSettings)
         {

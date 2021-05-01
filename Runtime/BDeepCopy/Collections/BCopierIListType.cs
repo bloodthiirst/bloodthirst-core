@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Bloodthirst.BDeepCopy
 {
-    public class BCopierConcreteIListType : BCopierBase
+    public class BCopierIListType : BCopierBase
     {
         private const string CAPACITY_PARAMETER_NAME = "capacity";
 
@@ -25,7 +25,7 @@ namespace Bloodthirst.BDeepCopy
 
         private Dictionary<Type, IBCopierInternal> PotentialCopiers { get; set; }
 
-        internal BCopierConcreteIListType(Type t)
+        internal BCopierIListType(Type t)
         {
             Type = t;
 
@@ -46,11 +46,6 @@ namespace Bloodthirst.BDeepCopy
 
             // TODO : make separete copier for non-inheritable classes
             //ElementsAreConcrete = ElementType.IsAbstract || ElementType.IsInterface;
-        }
-
-        public override IReadOnlyList<MemberInfo> CopiableMembers()
-        {
-            return BCopierBase.EmptyMembers;
         }
 
         internal override object CreateEmptyCopy(object original)

@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Bloodthirst.BDeepCopy
 {
-    internal class BCopierConcreteTypeComplex : BCopierBase
+    internal class BCopierComplexType : BCopierBase
     {
         private Type Type { get; set; }
 
@@ -27,7 +27,7 @@ namespace Bloodthirst.BDeepCopy
 
         #endregion
 
-        internal BCopierConcreteTypeComplex(Type t)
+        internal BCopierComplexType(Type t)
         {
             Type = t;
 
@@ -85,11 +85,6 @@ namespace Bloodthirst.BDeepCopy
                 if (!f.Name.EndsWith("__BackingField"))
                     yield return f;
             }
-        }
-
-        public override IReadOnlyList<MemberInfo> CopiableMembers()
-        {
-            return MemberInfos;
         }
 
         internal override object CreateEmptyCopy(object original)
