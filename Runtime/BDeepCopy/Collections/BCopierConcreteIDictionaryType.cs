@@ -52,12 +52,17 @@ namespace Bloodthirst.BDeepCopy
             //ElementsAreConcrete = ElementType.IsAbstract || ElementType.IsInterface;
         }
 
+        public override IReadOnlyList<MemberInfo> CopiableMembers()
+        {
+            return BCopierBase.EmptyMembers;
+        }
+
         internal override object CreateEmptyCopy(object original)
         {
             return Constructor(((IDictionary)original).Count);
         }
 
-        internal override object Copy(object t , object instance , BCopierContext copierContext)
+        internal override object Copy(object t , object instance , BCopierContext copierContext , BCopierSettings copierSettings)
         {
             // TODO : optimize by looking for contructor with capacity first
             // DONE
@@ -85,7 +90,7 @@ namespace Bloodthirst.BDeepCopy
 
                 c = GetKeyCopier(currType);
 
-                copyKey = c.Copy(curr , copierContext);
+                copyKey = c.Copy(curr , copierContext , copierSettings);
 
                 // copy key
                 curr = vals[i];
@@ -93,7 +98,7 @@ namespace Bloodthirst.BDeepCopy
 
                 c = GetValueCopier(currType);
 
-                copyVal = c.Copy(curr , copierContext);
+                copyVal = c.Copy(curr , copierContext , copierSettings);
 
                 castedInstance.Add(copyKey , copyVal);
             }

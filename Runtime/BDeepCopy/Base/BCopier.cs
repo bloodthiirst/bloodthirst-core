@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Bloodthirst.BDeepCopy
 {
@@ -30,19 +32,24 @@ namespace Bloodthirst.BDeepCopy
             Copier = copier;
         }
 
-        object IBCopier.Copy(object t)
+        object IBCopier.Copy(object t , BCopierSettings bCopierSettings)
         {
-            return Copier.Copy(t);
+            return Copier.Copy(t , bCopierSettings);
         }
 
-        T IBCopier<T>.Copy(T t)
+        T IBCopier<T>.Copy(T t, BCopierSettings bCopierSettings = null)
         {
-            return Copy(t);
+            return Copy(t , bCopierSettings);
+        }
+        
+        public T Copy(T t , BCopierSettings bCopierSettings = null)
+        {
+            return (T)Copier.Copy(t , bCopierSettings);
         }
 
-        public T Copy(T t)
+        public IReadOnlyList<MemberInfo> CopiableMembers()
         {
-            return (T)Copier.Copy(t);
+            return Copier.CopiableMembers();
         }
     }
 }

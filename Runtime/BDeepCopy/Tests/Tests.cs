@@ -1,22 +1,27 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Bloodthirst.BDeepCopy;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
 
-public class Tests
+public class BasicTests
 {
-    [SetUpFixture]
-
     private class BClassWithRecursion
     {
         public int id;
         public int Age { get; set; }
         public string Name { get; set; }
         public BClassWithRecursion Recursion { get; set; }
+    }
+
+    private class BClassWithKeepReference
+    {
+        public int id;
+        public int Age { get; set; }
+        public string Name { get; set; }
+
+        [KeepOriginalReference]
+        public BClassWithKeepReference KeepReference { get; set; }
     }
 
     private class BClass
@@ -26,18 +31,105 @@ public class Tests
         public string Name { get; set; }
     }
 
+    private class BClassPrivate
+    {
+        private int id;
+
+        public int Id => id;
+
+        public int Age { get; private set; }
+        public string Name { get; private set; }
+
+        public BClassPrivate()
+        {
+
+        }
+        public BClassPrivate(int id, int age, string name)
+        {
+            this.id = id;
+            Age = age;
+            Name = name;
+        }
+    }
+
     private BCopier<BClass> instanceCopier;
+    private BCopier<BClassWithKeepReference> instanceKeepRefCopier;
+    private BCopier<BClassPrivate> instancePrivateCopier;
     private BCopier<BClassWithRecursion> instanceRecursionCopier;
+
     private BCopier<List<BClass>> listCopier;
     private BCopier<Dictionary<int, BClass>> dictCopier;
 
-    [OneTimeSetUp]
-    public void SetupCaching()
+    private BCopierSettings settings;
+
+    public BasicTests()
     {
         instanceCopier = BDeepCopy.GetCopier<BClass>();
         instanceRecursionCopier = BDeepCopy.GetCopier<BClassWithRecursion>();
+        instancePrivateCopier = BDeepCopy.GetCopier<BClassPrivate>();
+        instanceKeepRefCopier = BDeepCopy.GetCopier<BClassWithKeepReference>();
         listCopier = BDeepCopy.GetCopier<List<BClass>>();
         dictCopier = BDeepCopy.GetCopier<Dictionary<int, BClass>>();
+
+        settings = new BCopierSettings();
+        settings.Add(new KeepOriginalReferenceOverride());
+    }
+
+
+    [Test]
+    public void TestPrivateMembersAreNotCopied()
+    {
+        // ARRAGE
+        BClassPrivate original = new BClassPrivate(13 ,23,"Bloodthirst");
+
+        Stopwatch profile = new Stopwatch();
+
+        // ACT
+        profile.Start();
+
+        BClassPrivate copy = instancePrivateCopier.Copy(original, settings);
+
+        profile.Stop();
+
+        UnityEngine.Debug.Log($"Time for copying {nameof(BClassPrivate)} : { profile.ElapsedTicks } ticks = { profile.ElapsedMilliseconds } ms ");
+
+        // ASSERT
+        Assert.AreNotSame(original, copy);
+        Assert.AreEqual(original.Id, copy.Id);
+        Assert.AreEqual(original.Age, copy.Age);
+        Assert.AreSame(original.Name, copy.Name);
+    }
+
+    [Test]
+    public void TestKeepSameReferenceObjectCopy()
+    {
+        // ARRAGE
+        BClassWithKeepReference original = new BClassWithKeepReference()
+        {
+            id = 69,
+            Age = 23,
+            Name = "Bloodthirst"
+        };
+
+        original.KeepReference = original;
+
+        Stopwatch profile = new Stopwatch();
+
+        // ACT
+        profile.Start();
+
+        BClassWithKeepReference copy = instanceKeepRefCopier.Copy(original, settings);
+
+        profile.Stop();
+
+        UnityEngine.Debug.Log($"Time for copying {nameof(BClass)} : { profile.ElapsedTicks } ticks = { profile.ElapsedMilliseconds } ms ");
+
+        // ASSERT
+        Assert.AreNotSame(original, copy);
+        Assert.AreEqual(original.id, copy.id);
+        Assert.AreEqual(original.Age, copy.Age);
+        Assert.AreSame(original.Name, copy.Name);
+        Assert.AreSame(original.KeepReference, copy.KeepReference);
     }
 
     [Test]

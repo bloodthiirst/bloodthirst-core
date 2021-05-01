@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Bloodthirst.BDeepCopy
 {
@@ -8,14 +10,17 @@ namespace Bloodthirst.BDeepCopy
 
         Type IBCopier.Type => type;
 
-        object IBCopierInternal.Copy(object t, BCopierContext copierContext)
+        public abstract IReadOnlyList<MemberInfo> CopiableMembers();
+
+        public object Copy(object t, BCopierContext copierContext, BCopierSettings bCopierSettings)
         {
             return t;
         }
 
-        object IBCopier.Copy(object t)
+        public object Copy(object t, BCopierSettings bCopierSettings = null)
         {
             return t;
         }
+
     }
 }

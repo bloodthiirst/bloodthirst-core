@@ -11,6 +11,8 @@ namespace Bloodthirst.Core.Utils
     {
         private static List<Type> allTypes;
 
+
+
         /// <summary>
         /// Get a readonly list of all the types in every assembly
         /// </summary>
