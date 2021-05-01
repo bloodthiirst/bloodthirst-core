@@ -42,7 +42,7 @@ public class PrivateMembersTests
 
 
     [Test]
-    public void TestPrivateMembersAreNotCopied()
+    public void CopyWithPrivateMembers()
     {
         // ARRAGE
         BClassPrivate original = new BClassPrivate(13 ,23,"Bloodthirst");
