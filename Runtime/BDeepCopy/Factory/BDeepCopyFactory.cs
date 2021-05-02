@@ -21,13 +21,22 @@ namespace Bloodthirst.BDeepCopy
             // create list
             CopyFactories = new List<IBCopyFactory>()
             {
+                // array
+                new ArrayCopierFactory(),
+                
+                // dictionary
                 new DictionaryCopierFactory(),
+                
+                // list
+                new ListWithSealedElementTypeCopierFactory(),
                 new ListCopierFactory(),
+                
+                // interface
                 new InterfaceCopierFactory()
             };
 
             // save types
-            foreach(IBCopyFactory f in CopyFactories)
+            foreach (IBCopyFactory f in CopyFactories)
             {
                 FactoryTypes.Add(f.GetType());
             }
@@ -50,12 +59,12 @@ namespace Bloodthirst.BDeepCopy
 
             IEnumerable<Type> factories = Assembly.GetAssembly(typeof(BDeepCopyFactory))
                 .GetTypes()
-                .Where (t => t.IsClass)
+                .Where(t => t.IsClass)
                 .Where(t => !t.IsAbstract)
                 .Where(t => typeof(IBCopyFactory).IsAssignableFrom(t))
                 .Where(t => t != typeof(DefaultCopierFactory));
 
-            foreach(Type t in factories)
+            foreach (Type t in factories)
             {
                 if (!FactoryTypes.Contains(t))
                     throw new Exception($"The copier factory of type {t} is missing from the list");

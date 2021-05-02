@@ -14,4 +14,12 @@ namespace Bloodthirst.Core.AdvancedPool
         Pool Pool { get; }
 
     }
+
+    public interface IPoolBehaviour<T> : IPoolBehaviour where T : Component
+    {
+        Pool<T> PoolWithType { get; }
+
+        public T PrefabWithType { get; }
+
+    }
 }

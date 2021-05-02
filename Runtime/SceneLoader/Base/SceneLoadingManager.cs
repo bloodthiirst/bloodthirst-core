@@ -1,8 +1,6 @@
-﻿using Bloodthirst.Core.Setup;
-using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Core.Singleton;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.Setup;
 using Sirenix.OdinInspector;
-using System.Collections;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor.Build;

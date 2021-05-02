@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
-    public abstract class PoolBehaviour<TObject> : MonoBehaviour, IPoolBehaviour , IBeforeAllScenesInitializationPass where TObject : Component
+    public abstract class PoolBehaviour<TObject> : MonoBehaviour, IPoolBehaviour , IPoolBehaviour<TObject> , IBeforeAllScenesInitializationPass where TObject : Component
     {
 
         private static readonly Type type = typeof(TObject);
@@ -56,6 +56,10 @@ namespace Bloodthirst.Core.AdvancedPool
         string IPoolBehaviour.PrefabPath { get => prefabPath; set => prefabPath = value; }
 
         Pool IPoolBehaviour.Pool => Pool;
+
+        Pool<TObject> IPoolBehaviour<TObject>.PoolWithType => Pool;
+
+        TObject IPoolBehaviour<TObject>.PrefabWithType => Prefab;
 
         void IPoolBehaviour.Initialize()
         {

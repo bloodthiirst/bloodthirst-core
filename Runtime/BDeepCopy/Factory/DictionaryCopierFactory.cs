@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloodthirst.Core.Utils;
+using System;
 using System.Collections;
 
 namespace Bloodthirst.BDeepCopy
@@ -7,7 +8,7 @@ namespace Bloodthirst.BDeepCopy
     {
         bool IBCopyFactory.CanCopy(Type t)
         {
-            return typeof(IDictionary).IsAssignableFrom(t);
+            return TypeUtils.IsSubTypeOf(t, typeof(IDictionary));
         }
 
         IBCopierInternal IBCopyFactory.GetCopier(Type t)

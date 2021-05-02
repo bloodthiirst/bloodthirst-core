@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Core.Pooling;
-using Bloodthirst.Core.ServiceProvider;
+﻿using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Singleton;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using UnityEngine;
