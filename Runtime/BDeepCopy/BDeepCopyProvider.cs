@@ -1,3 +1,4 @@
+using Bloodthirst.Core.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,10 +12,15 @@ namespace Bloodthirst.BDeepCopy
         static BDeepCopyProvider()
         {
             Copiers = new Dictionary<Type, IBCopierInternal>();
-            UncheckedRegister(new BCopierChar());
-            UncheckedRegister(new BCopierFloat());
-            UncheckedRegister(new BCopierInt());
-            UncheckedRegister(new BCopierString());
+
+            // pre-add the primitive types copiers
+            for(int i = 0; i < TypeUtils.PrimitiveTypes.Length;i++)
+            {
+                Type curr = TypeUtils.PrimitiveTypes[i];
+                UncheckedRegister(new BCopierPureValueType(curr));
+            }
+
+            UncheckedRegister(new BCopierPureValueType(typeof(string)));
         }
 
 

@@ -1,3 +1,4 @@
+using Bloodthirst.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -11,6 +12,18 @@ namespace Bloodthirst.BDeepCopy
         Type IBCopier.Type => CopierType();
 
         internal IBCopier Copier { get; }
+
+        private Func<object> DefaultValueFunc { get; set; }
+
+        protected virtual void Initialize()
+        {
+            DefaultValueFunc = ReflectionUtils.GetDefaultValue(CopierType());
+        }
+
+        public object GetDefaultValue()
+        {
+            return DefaultValueFunc();
+        }
 
         object IBCopier.Copy(object t, BCopierSettings copierSettings)
         {
@@ -44,5 +57,7 @@ namespace Bloodthirst.BDeepCopy
         internal abstract object Copy(object t, object emptyCopy, BCopierContext copierContext , BCopierSettings copierSettings);
 
         internal abstract Type CopierType();
+
+
     }
 }

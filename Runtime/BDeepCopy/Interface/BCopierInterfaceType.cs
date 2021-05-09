@@ -49,5 +49,10 @@ namespace Bloodthirst.BDeepCopy
         {
             return ((IBCopierInternal)this).Copy(t, new BCopierContext() , bCopierSettings);
         }
+
+        object IBCopierInternal.GetDefaultValue()
+        {
+            return null;
+        }
     }
 }

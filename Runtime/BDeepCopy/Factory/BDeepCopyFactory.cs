@@ -21,6 +21,9 @@ namespace Bloodthirst.BDeepCopy
             // create list
             CopyFactories = new List<IBCopyFactory>()
             {
+                // pure value types
+                new PureValueTypeCopierFactory(),
+
                 // array
                 new ArrayCopierFactory(),
                 

@@ -28,7 +28,6 @@ public class CollectionTests
         dictCopier = BDeepCopy.GetCopier<Dictionary<int, BClass>>();
 
         settings = new BCopierSettings();
-        settings.Add(new KeepOriginalReferenceOverride());
     }
   
 

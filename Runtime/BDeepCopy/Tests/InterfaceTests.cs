@@ -33,7 +33,6 @@ public class InterfaceTests
         interfaceCopier = BDeepCopy.GetCopier<IBClass>();
 
         settings = new BCopierSettings();
-        settings.Add(new KeepOriginalReferenceOverride());
     }
 
     [Test]

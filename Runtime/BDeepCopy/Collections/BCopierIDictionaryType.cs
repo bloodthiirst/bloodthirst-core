@@ -35,8 +35,10 @@ namespace Bloodthirst.BDeepCopy
             Initialize();
         }
 
-        private void Initialize()
+        protected override void Initialize()
         {
+            base.Initialize();
+
             PotentialKeyCopiers = new Dictionary<Type, IBCopierInternal>();
             
             PotentialValueCopiers = new Dictionary<Type, IBCopierInternal>();

@@ -14,6 +14,7 @@ namespace Bloodthirst.BDeepCopy
     internal interface IBCopierInternal : IBCopier
     {
         object Copy(object t, BCopierContext copierContext , BCopierSettings bCopierSettings);
+        object GetDefaultValue();
     }
 
     public interface IBCopier<T>

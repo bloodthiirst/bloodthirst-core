@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -7,6 +8,27 @@ namespace Bloodthirst.Core.Utils
 {
     public class ReflectionUtils
     {
+
+        public static IEnumerable<MemberInfo> GetFieldsAndProperties(Type t)
+        {
+            PropertyInfo[] props = t.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+            FieldInfo[] fields = t.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+            
+            foreach (PropertyInfo p in props)
+            {
+                if (p.CanRead && p.CanWrite)
+                    yield return p;
+            }
+            
+            foreach (FieldInfo f in fields)
+            {
+                if (!f.Name.EndsWith("__BackingField"))
+                yield return f;
+            }
+        }
+
         /// <summary>
         /// Get the type of the member if it's a field or a property
         /// </summary>
@@ -33,6 +55,25 @@ namespace Bloodthirst.Core.Utils
         }
 
         #region Expression
+
+        public static Func<object> GetDefaultValue(Type type)
+        {
+            // Validate parameters.
+            if (type == null) throw new ArgumentNullException("type");
+
+            // We want an Func<object> which returns the default.
+            // Create that expression here.
+            Expression<Func<object>> e = Expression.Lambda<Func<object>>(
+                // Have to convert to object.
+                Expression.Convert(
+                    // The default value, always get what the *code* tells us.
+                    Expression.Default(type), typeof(object)
+                )
+            );
+
+            // Compile and return the value.
+            return e.Compile();
+        }
 
         /// <summary>
         /// Get a delegate that returns a new instance of type <paramref name="type"/> using it's parameterless constructor

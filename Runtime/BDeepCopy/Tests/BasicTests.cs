@@ -32,7 +32,6 @@ public class BasicTests
         instanceRecursionCopier = BDeepCopy.GetCopier<BClassWithRecursion>();
 
         settings = new BCopierSettings();
-        settings.Add(new KeepOriginalReferenceOverride());
     }
 
     [Test]

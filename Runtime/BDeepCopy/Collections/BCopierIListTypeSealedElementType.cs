@@ -34,8 +34,10 @@ namespace Bloodthirst.BDeepCopy
             Initialize();
         }
 
-        private void Initialize()
+        protected override void Initialize()
         {
+            base.Initialize();
+
             ListType = Type.GetGenericTypeDefinition();
 
             ElementType = Type.GenericTypeArguments[0];

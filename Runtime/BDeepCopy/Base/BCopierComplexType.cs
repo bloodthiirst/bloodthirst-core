@@ -23,7 +23,13 @@ namespace Bloodthirst.BDeepCopy
         private List<IBCopierInternal> Copiers { get; set; }
         private List<Func<object, object>> Getters { get; set; }
         private List<Action<object, object>> Setters { get; set; }
+
+        /// TODO : pre-cache the global overrides
+        /// if there's one , then we return its result
+        /// else we search the custom passed overrides
+        /// else we do the default copier
         private List<Dictionary<Type, CopierSettingAttribute>> BCopierOverrides { get; set; }
+        private List<List<Tuple<CopierSettingAttribute, IBCopierOverrideInternal>>> InternalBCopierOverrides { get; set; }
 
         #endregion
 
@@ -36,8 +42,10 @@ namespace Bloodthirst.BDeepCopy
             Initialize();
         }
 
-        private void Initialize()
+        protected override void Initialize()
         {
+            base.Initialize();
+
             MemberInfos = GetMembers().ToList();
 
             Constructor = ReflectionUtils.GetParameterlessConstructor(Type);
@@ -47,7 +55,12 @@ namespace Bloodthirst.BDeepCopy
             Copiers = new List<IBCopierInternal>();
             Getters = new List<Func<object, object>>();
             Setters = new List<Action<object, object>>();
+
+            // custom
             BCopierOverrides = new List<Dictionary<Type, CopierSettingAttribute>>();
+
+            // internal
+            InternalBCopierOverrides = new List<List<Tuple<CopierSettingAttribute, IBCopierOverrideInternal>>>();
 
             for (int i = 0; i < MemberCount; i++)
             {
@@ -56,15 +69,28 @@ namespace Bloodthirst.BDeepCopy
                 Setters.Add(MemberSetter(curr));
                 Copiers.Add(BDeepCopyProvider.GetOrCreate(ReflectionUtils.GetMemberType(curr)));
 
-                Dictionary<Type, CopierSettingAttribute> attrs = new Dictionary<Type, CopierSettingAttribute>();
+                Dictionary<Type, CopierSettingAttribute> customAttrs = new Dictionary<Type, CopierSettingAttribute>();
+                List<Tuple<CopierSettingAttribute, IBCopierOverrideInternal>> internalAttrs = new List<Tuple<CopierSettingAttribute, IBCopierOverrideInternal>>();
+
                 IEnumerable<CopierSettingAttribute> attrsList = curr.GetCustomAttributes<CopierSettingAttribute>(true);
 
                 foreach (CopierSettingAttribute a in attrsList)
                 {
-                    attrs.Add(a.GetType(), a);
+                    // check if internal
+                    if (BCopierSettings.TypeToCopier.TryGetValue(a.GetType(), out IBCopierOverrideInternal copier))
+                    {
+                        internalAttrs.Add(new Tuple<CopierSettingAttribute, IBCopierOverrideInternal>(a, copier));
+                    }
+
+                    // else add to custom
+                    else
+                    {
+                        customAttrs.Add(a.GetType(), a);
+                    }
                 }
 
-                BCopierOverrides.Add(attrs);
+                BCopierOverrides.Add(customAttrs);
+                InternalBCopierOverrides.Add(internalAttrs);
             }
         }
 
@@ -73,6 +99,7 @@ namespace Bloodthirst.BDeepCopy
             PropertyInfo[] props = Type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
             FieldInfo[] fields = Type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
 
             foreach (PropertyInfo p in props)
             {
@@ -96,45 +123,35 @@ namespace Bloodthirst.BDeepCopy
         {
             for (int i = 0; i < MemberCount; i++)
             {
-#if DEBUG
                 MemberInfo mem = MemberInfos[i];
-#endif
                 Func<object, object> getter = Getters[i];
-                object originalVal = getter.Invoke(t);
-
+                Action<object, object> setter = Setters[i];
                 IBCopierInternal copier = Copiers[i];
-                Dictionary<Type, CopierSettingAttribute> overrides = BCopierOverrides[i];
+                Dictionary<Type, CopierSettingAttribute> customOverrides = BCopierOverrides[i];
+                List<Tuple<CopierSettingAttribute, IBCopierOverrideInternal>> internalOverrides = InternalBCopierOverrides[i];
 
+                object originalVal = getter.Invoke(t);
                 object copy = null;
 
+                // if we found an internal override
+                // then we apply it and go next
+                if (TryInternalOverride(internalOverrides, mem, ref originalVal, copier, out copy))
+                {
+                    setter.Invoke(emptyCopy, copy);
+                    continue;
+                }
 
-                Action<object, object> setter = Setters[i];
+                // if no copier setting we use default
                 if (copierSettings == null)
                 {
                     copy = copier.Copy(originalVal, copierContext, copierSettings);
                 }
-                else
+
+                // try to check if we can apply an override
+                // if not , then we use the default copy
+                else if (!TryCustomOverride(copierSettings, mem, ref originalVal, copier, customOverrides, out copy))
                 {
-                    // look for overrides
-                    foreach (KeyValuePair<Type, CopierSettingAttribute> kv in overrides)
-                    {
-                        for (int c = 0; c < copierSettings.CopierOverrides.Count; c++)
-                        {
-                            IBCopierOverride curr = copierSettings.CopierOverrides[c];
-
-                            if (curr.AttributeType == kv.Key)
-                            {
-                                copy = curr.CopyOverride(in originalVal, MemberInfos[i], kv.Value);
-                                break;
-                            }
-                        }
-                    }
-
-                    // copy by default
-                    if (copy == null)
-                    {
-                        copy = copier.Copy(originalVal, copierContext, copierSettings);
-                    }
+                    copy = copier.Copy(originalVal, copierContext, copierSettings);
                 }
 
                 // copy from original and assign to new instance
@@ -144,10 +161,47 @@ namespace Bloodthirst.BDeepCopy
             return emptyCopy;
         }
 
+        private bool TryInternalOverride(List<Tuple<CopierSettingAttribute, IBCopierOverrideInternal>> internalOverrides, MemberInfo memberInfo, ref object originalVal, IBCopierInternal copier, out object copy)
+        {
+            // look for overrides
+            for (int i = 0; i < internalOverrides.Count; i++)
+            {
+                Tuple<CopierSettingAttribute, IBCopierOverrideInternal> t = internalOverrides[i];
+
+                copy = t.Item2.CopyOverride(originalVal, memberInfo, t.Item1, copier);
+                return true;
+            }
+
+            copy = null;
+            return false;
+        }
 
 
+        private bool TryCustomOverride(BCopierSettings copierSettings, MemberInfo memberInfo, ref object originalVal, IBCopierInternal copier, Dictionary<Type, CopierSettingAttribute> overrides, out object copy)
+        {
+            // look for overrides
+            foreach (KeyValuePair<Type, CopierSettingAttribute> kv in overrides)
+            {
+                // custom copier overrides
+                for (int c = 0; c < copierSettings.CopierOverrides.Count; c++)
+                {
+                    IBCopierOverride curr = copierSettings.CopierOverrides[c];
 
-        // returns property getter
+                    if (curr.AttributeType == kv.Key)
+                    {
+                        copy = curr.CopyOverride(in originalVal, memberInfo, kv.Value);
+                        return true;
+                    }
+                }
+            }
+
+            copy = null;
+            return false;
+        }
+
+        /// <summary>
+        /// returns property getter
+        /// </summary>
         internal Func<object, object> MemberGetter(MemberInfo memberInfo)
         {
             Func<object, object> result = null;
@@ -170,7 +224,7 @@ namespace Bloodthirst.BDeepCopy
                 FieldInfo field = (FieldInfo)memberInfo;
                 result = ReflectionUtils.EmitFieldGetter(field);
             }
-            else if(memberInfo.MemberType == MemberTypes.Property)
+            else if (memberInfo.MemberType == MemberTypes.Property)
             {
                 PropertyInfo prop = (PropertyInfo)memberInfo;
                 result = ReflectionUtils.EmitPropertyGetter(prop);
@@ -179,6 +233,11 @@ namespace Bloodthirst.BDeepCopy
             return result;
         }
 
+        /// <summary>
+        /// returns property setter
+        /// </summary>
+        /// <param name="memberInfo"></param>
+        /// <returns></returns>
         internal Action<object, object> MemberSetter(MemberInfo memberInfo)
         {
             Action<object, object> result = null;
