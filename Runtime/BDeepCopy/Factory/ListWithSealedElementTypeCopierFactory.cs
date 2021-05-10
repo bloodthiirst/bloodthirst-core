@@ -16,8 +16,6 @@ namespace Bloodthirst.BDeepCopy
             return !TypeUtils.HasSubClass(elementType);
         }
 
-
-
         IBCopierInternal IBCopyFactory.GetCopier(Type t)
         {
             return new BCopierIListTypeSealedElementType(t);

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Bloodthirst.BDeepCopy;
 using NUnit.Framework;
 
@@ -63,8 +61,6 @@ public class BasicTests
         Assert.AreSame(original.Name, copy.Name);
     }
 
-
-    // A Test behaves as an ordinary method
     [Test]
     public void CopyWithRecursion()
     {
