@@ -15,17 +15,17 @@ namespace Bloodthirst.Core.Utils
 
             FieldInfo[] fields = t.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
 
-            
+
             foreach (PropertyInfo p in props)
             {
                 if (p.CanRead && p.CanWrite)
                     yield return p;
             }
-            
+
             foreach (FieldInfo f in fields)
             {
                 if (!f.Name.EndsWith("__BackingField"))
-                yield return f;
+                    yield return f;
             }
         }
 
@@ -84,7 +84,7 @@ namespace Bloodthirst.Core.Utils
         {
             Func<object> result = Expression.Lambda<Func<object>>
             (
-                Expression.New(type)
+                Expression.Convert(Expression.New(type), typeof(object))
             )
             .Compile();
 
@@ -160,23 +160,58 @@ namespace Bloodthirst.Core.Utils
         /// </summary>
         /// <param name="memberInfo"></param>
         /// <returns></returns>
+        /// THIS IS THE ISSUE
+
         public static Action<object, object> EmitPropertySetter(PropertyInfo prop)
         {
-            string methodName = prop.ReflectedType.FullName + ".set_prop_" + prop.Name;
-            DynamicMethod getterMethod = new DynamicMethod(methodName, null, new Type[2] { typeof(object), typeof(object)}, true) ;
-            ILGenerator gen = getterMethod.GetILGenerator();
+            string methodName = prop.ReflectedType.FullName + "set_prop_" + prop.Name;
+            DynamicMethod setter = new DynamicMethod(methodName, null, new Type[2] { typeof(object), typeof(object) }, true);
+            ILGenerator gen = setter.GetILGenerator();
 
-
-
+            // load the instance to the stack
             gen.Emit(OpCodes.Ldarg_0);
-            // TODO : check if works for structs too
-            gen.Emit(OpCodes.Castclass, prop.DeclaringType);
+
+            // cast it to the proper type
+            // if struct
+            if (prop.DeclaringType.IsValueType)
+            {
+                gen.Emit(OpCodes.Unbox, prop.DeclaringType);
+            }
+
+            // if class
+            else
+            {
+                gen.Emit(OpCodes.Castclass, prop.DeclaringType);
+            }
+
+            // load the parameter to the stack
             gen.Emit(OpCodes.Ldarg_1);
+
+            // inverstigate differnec between unbox and unbox_any
+            // answer :
+            // - unbox      : gets the pointer to the struct and pushes it into the stack
+            // - unbox_any  : gets the pointer to the struct , loads the value , THEN pushes the value into the stack
+            // since we're gonna use this in the "setMethod" , we're gonna need the value and NOT the pointer
+            // so we use unbox_any
+            // ps : if the value in the stack in a reference type , then "unbox_any" acts as "castClass"
             gen.Emit(OpCodes.Unbox_Any, prop.PropertyType);
-            gen.Emit(OpCodes.Callvirt, prop.SetMethod);
+
+
+            // call the set function
+            if (prop.DeclaringType.IsValueType)
+            {
+                gen.Emit(OpCodes.Call, prop.SetMethod);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Callvirt, prop.SetMethod);
+            }
+
+
             gen.Emit(OpCodes.Ret);
 
-            Delegate del = getterMethod.CreateDelegate(typeof(Action<object, object>));
+
+            Delegate del = setter.CreateDelegate(typeof(Action<object, object>));
             Action<object, object> casted = (Action<object, object>)del;
             return casted;
         }
@@ -189,15 +224,35 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static Func<object, object> EmitPropertyGetter(PropertyInfo prop)
         {
-            string methodName = prop.ReflectedType.FullName + ".get_prop_" + prop.Name;
+            string methodName = "get_prop_" + prop.Name;
             DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(object), new Type[1] { typeof(object) }, true);
             ILGenerator gen = getterMethod.GetILGenerator();
 
+            // load the instance to the stack
             gen.Emit(OpCodes.Ldarg_0);
-            // TODO : check if works for structs too
-            gen.Emit(OpCodes.Castclass, prop.DeclaringType);
-            gen.Emit(OpCodes.Callvirt, prop.GetMethod);
-            gen.Emit(OpCodes.Box, prop.PropertyType);
+
+            // cast it to the proper type
+            // if struct
+            if (prop.DeclaringType.IsValueType)
+            {
+                gen.Emit(OpCodes.Unbox, prop.DeclaringType);
+                gen.Emit(OpCodes.Call, prop.GetMethod);
+            }
+
+            // if class
+            else
+            {
+                gen.Emit(OpCodes.Castclass, prop.DeclaringType);
+                gen.Emit(OpCodes.Callvirt, prop.GetMethod);
+            }
+
+            // the value needs to be boxed before it's returned
+            // since we return it as "object"
+            if (prop.PropertyType.IsValueType)
+            {
+                gen.Emit(OpCodes.Box, prop.PropertyType);
+            }
+
             gen.Emit(OpCodes.Ret);
 
             Delegate del = getterMethod.CreateDelegate(typeof(Func<object, object>));
@@ -213,18 +268,35 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static Func<object, object> EmitFieldGetter(FieldInfo field)
         {
-            string methodName = field.ReflectedType.FullName + ".get_field_" + field.Name;
+            string methodName = "get_prop_" + field.Name;
             DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(object), new Type[1] { typeof(object) }, true);
             ILGenerator gen = getterMethod.GetILGenerator();
 
+            // load the instance to the stack
             gen.Emit(OpCodes.Ldarg_0);
-            // TODO : check if works for structs too
-            gen.Emit(OpCodes.Castclass, field.DeclaringType);
-            gen.Emit(OpCodes.Ldfld, field);
+
+            // cast it to the proper type
+            // if struct
+            if (field.DeclaringType.IsValueType)
+            {
+                gen.Emit(OpCodes.Unbox, field.DeclaringType);
+                gen.Emit(OpCodes.Ldfld, field);
+            }
+
+            // if class
+            else
+            {
+                gen.Emit(OpCodes.Castclass, field.DeclaringType);
+                gen.Emit(OpCodes.Ldfld, field);
+            }
+
+            // the value needs to be boxed before it's returned
+            // since we return it as "object"
             if (field.FieldType.IsValueType)
             {
                 gen.Emit(OpCodes.Box, field.FieldType);
             }
+
             gen.Emit(OpCodes.Ret);
 
             Delegate del = getterMethod.CreateDelegate(typeof(Func<object, object>));
@@ -241,17 +313,54 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static Action<object, object> EmitFieldSetter(FieldInfo field)
         {
-            string methodName = field.ReflectedType.FullName + ".set_field_" + field.Name;
-            DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[2] { typeof(object), typeof(object) }, true);
-            ILGenerator gen = setterMethod.GetILGenerator();
+            string methodName = field.ReflectedType.FullName + "set_prop_" + field.Name;
+            DynamicMethod setter = new DynamicMethod(methodName, null, new Type[2] { typeof(object), typeof(object) }, true);
+            ILGenerator gen = setter.GetILGenerator();
 
+            // load the instance to the stack
             gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Castclass, field.DeclaringType);
+
+            // cast it to the proper type
+            // if struct
+            if (field.DeclaringType.IsValueType)
+            {
+                gen.Emit(OpCodes.Unbox, field.DeclaringType);
+            }
+
+            // if class
+            else
+            {
+                gen.Emit(OpCodes.Castclass, field.DeclaringType);
+            }
+
+            // load the parameter to the stack
             gen.Emit(OpCodes.Ldarg_1);
+
+            // inverstigate differnec between unbox and unbox_any
+            // answer :
+            // - unbox      : gets the pointer to the struct and pushes it into the stack
+            // - unbox_any  : gets the pointer to the struct , loads the value , THEN pushes the value into the stack
+            // since we're gonna use this in the "setMethod" , we're gonna need the value and NOT the pointer
+            // so we use unbox_any
+            // ps : if the value in the stack in a reference type , then "unbox_any" acts as "castClass"
             gen.Emit(OpCodes.Unbox_Any, field.FieldType);
-            gen.Emit(OpCodes.Stfld, field);
+
+
+            // call the set function
+            if (field.DeclaringType.IsValueType)
+            {
+                gen.Emit(OpCodes.Stfld, field);
+            }
+            else
+            {
+                gen.Emit(OpCodes.Stfld, field);
+            }
+
+
             gen.Emit(OpCodes.Ret);
-            Delegate del = setterMethod.CreateDelegate(typeof(Action<object, object>));
+
+
+            Delegate del = setter.CreateDelegate(typeof(Action<object, object>));
             Action<object, object> casted = (Action<object, object>)del;
             return casted;
         }
