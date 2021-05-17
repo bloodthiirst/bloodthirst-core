@@ -43,7 +43,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
             }
         }
 
-        public PoolBehaviour<T> GetByPrefab<T>(GameObject prefab) where T : Component
+        public IPoolBehaviour<T> GetByPrefab<T>(GameObject prefab) where T : Component
         {
             IPoolBehaviour pool = AllPools.Where(p => p.Type == typeof(T)).FirstOrDefault(p => p.Prefab == prefab);
 
@@ -57,33 +57,33 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
             return pool;
         }
 
-        public PoolBehaviour<T> GetByType<T>() where T : Component
+        public IPoolBehaviour<T> GetByType<T>() where T : Component
         {
             PoolBehaviour<T> pool = AllPools.FirstOrDefault(p => p.Type == typeof(T)) as PoolBehaviour<T>;
 
             return pool;
         }
 
-        public IEnumerable<PoolBehaviour<T>> GetAllByType<T>() where T : Component
+        public IEnumerable<IPoolBehaviour<T>> GetAllByType<T>() where T : Component
         {
             return AllPools
                 .Where(p => p.Type == typeof(T))
-                .Cast<PoolBehaviour<T>>();
+                .Cast<IPoolBehaviour<T>>();
         }
 
         T IGlobalPool.Get<T>()
         {
-            return GetByType<T>().Pool.Get();
+            return GetByType<T>().PoolWithType.Get();
         }
 
         void IGlobalPool.Return<T>(T t)
         {
-            GetByType<T>().Pool.Return(t);
+            GetByType<T>().PoolWithType.Return(t);
         }
 
         T IGlobalPool.Get<T>(Predicate<T> filter)
         {
-            return GetByType<T>().Pool.Get<T>(filter);
+            return GetByType<T>().PoolWithType.Get<T>(filter);
         }
 
         protected override void OnSetupSingletonPass()
