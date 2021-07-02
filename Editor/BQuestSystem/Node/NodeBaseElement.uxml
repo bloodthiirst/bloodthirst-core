@@ -11,7 +11,7 @@
 
         <engine:VisualElement name="NodeActive" class="node-active node-fit-content-height">
 
-            <engine:VisualElement class="node-main-column">
+            <engine:VisualElement name="NodeContent" class="node-main-column">
 
                 <!-- Title -->
                 <engine:VisualElement name="NodeHeader" class="node-title node-border node-border-title">

@@ -29,6 +29,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         #region ui elements
         private VisualElement NodeRoot { get; set; }
+        private VisualElement NodeContent => NodeRoot.Q<VisualElement>(nameof(NodeContent));
         private VisualElement NodeHeader => NodeRoot.Q<VisualElement>(nameof(NodeHeader));
         private VisualElement InputPortsContainer => NodeRoot.Q<VisualElement>(nameof(InputPortsContainer));
         private VisualElement OutputPortsContainer => NodeRoot.Q<VisualElement>(nameof(OutputPortsContainer));
@@ -49,16 +50,23 @@ namespace Bloodthirst.System.Quest.Editor
 
         private Vector2 LastMousePressPosition;
 
-        public Vector2 NodeSize 
+        public Vector2 NodeSize
         {
             get
             {
-                return new Vector2(NodeRoot.resolvedStyle.width , NodeRoot.resolvedStyle.height);
+                return new Vector2(NodeRoot.resolvedStyle.width, NodeRoot.resolvedStyle.height);
             }
             set
             {
-                NodeRoot.style.width = new StyleLength(value.x);
-                NodeRoot.style.height = new StyleLength(value.y);
+                float minWidth = NodeContent.localBound.width;
+                float minHeight = NodeContent.localBound.height;
+
+                float w = Mathf.Max(value.x, minWidth);
+                float h = Mathf.Max(value.y, minHeight);
+
+                NodeRoot.style.width = new Length(w, LengthUnit.Pixel);              
+                NodeRoot.style.height = new Length(h, LengthUnit.Pixel);
+                NodeRoot.MarkDirtyRepaint();
             }
         }
 
@@ -107,12 +115,12 @@ namespace Bloodthirst.System.Quest.Editor
 
         private IEnumerable<MemberInfo> GetMembers()
         {
-            foreach(PropertyInfo f in NodeType.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            foreach (PropertyInfo f in NodeType.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 yield return f;
             }
 
-            foreach(FieldInfo f in NodeType.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            foreach (FieldInfo f in NodeType.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
                 yield return f;
             }
@@ -373,7 +381,7 @@ namespace Bloodthirst.System.Quest.Editor
             IsNodeSelected = true;
             NodeRoot.AddToClassList(NODE_SELECTED_IN_CANVAS_USS_CLASS);
         }
-        
+
         public void DeselectInCanvas()
         {
             IsNodeSelected = false;
