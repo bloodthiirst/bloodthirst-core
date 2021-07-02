@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 
 namespace Bloodthirst.Core.TreeList
 {
-    public class TreeList<TKey, TValue> where TKey : class
+    public class TreeList<TKey, TValue>
     {
         public List<TreeLeaf<TKey, TValue>> SubLeafs { get; set; }
 
@@ -35,6 +36,12 @@ namespace Bloodthirst.Core.TreeList
             return false;
         }
 
+        public void Clear()
+        {
+            SubLeafs.Clear();
+            AllLeafKeys.Clear();
+        }
+
         public IEnumerable<TreeLeaf<TKey, TValue>> GetFinalLeafs()
         {
             if (SubLeafs == null)
@@ -43,6 +50,18 @@ namespace Bloodthirst.Core.TreeList
             foreach (TreeLeaf<TKey, TValue> l in SubLeafs)
             {
                 if (l.SubLeafs == null || l.SubLeafs.Count == 0)
+                    yield return l;
+            }
+        }
+        
+        public IEnumerable<TreeLeaf<TKey, TValue>> GetRootLeafs()
+        {
+            if (SubLeafs == null)
+                yield break;
+
+            foreach (TreeLeaf<TKey, TValue> l in SubLeafs)
+            {
+                if (l.Parent == null)
                     yield return l;
             }
         }

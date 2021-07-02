@@ -34,9 +34,10 @@ namespace Bloodthirst.Core.Setup
         public IEnumerator Setup()
         {
             // query
-            List<IGameSetup> gameSetups = new List<IGameSetup>();
 
             List<IPreGameSetup> preGameSetups = new List<IPreGameSetup>();
+
+            List<IGameSetup> gameSetups = new List<IGameSetup>();
 
             List<IPostGameSetup> postGameSetups = new List<IPostGameSetup>();
 
@@ -64,21 +65,31 @@ namespace Bloodthirst.Core.Setup
                     asyncOps.Clear();
                     asyncOps.AddRange(v.Operations().ToList());
 
-                    bool waveIsDone = false;
-                    float currentProg = 0;
-
-                    while(!waveIsDone)
+                    if (asyncOps.Count == 0)
                     {
-                        currentProg = 0;
-                        for(int i = 0; i < asyncOps.Count; i++)
+                        continue;
+                    }
+                    
+                    else
+                    {
+
+                        bool waveIsDone = false;
+                        float currentProg = 0;
+
+
+                        while (!waveIsDone)
                         {
-                            currentProg += asyncOps[i].progress / asyncOps.Count;
+                            currentProg = 0;
+                            for (int i = 0; i < asyncOps.Count; i++)
+                            {
+                                currentProg += asyncOps[i].progress / asyncOps.Count;
+                            }
+
+                            progress = currentProg;
+                            waveIsDone = progress == 1;
+
+                            yield return null;
                         }
-
-                        progress = currentProg;
-                        waveIsDone = progress == 1;
-
-                        yield return null;
                     }
                 }
             }

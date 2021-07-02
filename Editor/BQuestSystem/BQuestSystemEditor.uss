@@ -1,0 +1,20 @@
+.canvas-border {
+    border-color: gray;
+    border-width: 2px;
+}
+
+.canvas-texture
+{
+    background-color : rgb(38 36 36);
+}
+
+.canvas-overflow {
+    overflow : hidden;
+}
+
+.canvas-pos
+{
+    position : absolute;
+    left : 50%;
+    bottom : 50%;
+}

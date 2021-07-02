@@ -1,0 +1,57 @@
+.port-color {
+    background-color: black;
+}
+
+    .port-color.output {
+        left: 5px;
+        width: 15px;
+        height: auto;
+        top: 5px;
+        bottom: 5px;
+    }
+
+    .port-color.input {
+        right: 5px;
+        width: 15px;
+        height: auto;
+        top: 5px;
+        bottom: 5px;
+    }
+
+ 
+.port-container {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: 20px;
+    height: 20px;
+    flex-shrink : 0;
+}
+
+    .selected .port-selected {
+        display : flex;
+    }
+
+.port-selected {
+    position: absolute;
+    display : none;
+    width: 40px;
+    height: 40px;
+
+    opacity : 0.5;
+
+    bottom: -10px;
+    right: -10px;
+    
+    border-radius: 50%;
+}
+
+.absolute-pos {
+    position: absolute;
+}
+
+.port-bg.output {
+    background-image: url("../Resources/Port_Right.png");
+}
+.port-bg.input {
+    background-image: url("../Resources/Port_Left.png");
+}

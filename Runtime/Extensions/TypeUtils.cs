@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -194,6 +195,12 @@ namespace Bloodthirst.Core.Utils
             Type child = typeof(T);
             Type parent = typeof(K);
             return IsSubTypeOf(child, parent);
+        }
+
+        public static string GetNiceName(Type t)
+        {
+            return t.GetNiceName();
+
         }
     }
 }

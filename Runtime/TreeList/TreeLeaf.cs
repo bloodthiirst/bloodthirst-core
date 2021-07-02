@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Bloodthirst.Core.TreeList
 {
-    public class TreeLeaf<TKey, TValue> where TKey : class
+    public class TreeLeaf<TKey, TValue>
     {
         public TKey LeafKey { get; set; }
         public TValue Value { get; set; }
@@ -14,7 +15,7 @@ namespace Bloodthirst.Core.TreeList
         {
             info.Depth++;
 
-            if (LeafKey == searchKey)
+            if (LeafKey.Equals(searchKey))
             {
                 info.TreeLeaf = this;
                 result = info;

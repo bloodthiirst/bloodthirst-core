@@ -6,18 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using static Bloodthirst.Scripts.Utils.VectorUtils;
 
 namespace Bloodthirst
 {
     [RequireComponent(typeof(CanvasRenderer))]
     public class PathMeshGenerator : MonoBehaviour
     {
-        public enum UV_SMOOTHING
-        {
-            NONE,
-            INVERT,
-            LERP
-        }
 
         /// <summary>
         /// Renderer used to show the mesh

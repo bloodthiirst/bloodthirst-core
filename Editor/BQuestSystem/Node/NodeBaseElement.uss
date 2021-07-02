@@ -1,0 +1,143 @@
+.node-vars {
+    /* nodes colors */
+    --base-color: #303030;
+    --content-color: #787474;
+    /* canvas selection */
+    /* border params*/
+    --normal-border: #ffffff;
+    --selected-border: #e80000;
+    /*border params*/
+    --border-width: 3px;
+    --border-radius: 15px;
+    /* compnent selection */
+    /* border params */
+    --current-active-node-border: #26ff00;
+    --normal-active-node-border: rgb(0 0 0 / 0,00);
+    --active-node-border-radius: 20px;
+    --active-node-border-width: 5px;
+    /* resize node*/
+    --resize-node-size: 30px;
+}
+
+/* main resizable container */
+.node-container {
+    position: absolute;
+    min-width : 300px;
+    min-height : 50px;
+}
+
+.node-fit-content-height {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: auto;
+}
+
+.node-resize {
+    background-image: url("../Resources/resize-icon.png");
+    position: absolute;
+    height: var(--resize-node-size);
+    width: var(--resize-node-size);
+    right: 10px;
+    bottom: 10px;
+    -unity-background-image-tint-color: #303030;
+}
+
+.node-active {
+    border-width: var(--active-node-border-width);
+    border-color: var(--normal-active-node-border);
+    border-top-left-radius: var( --active-node-border-radius);
+    border-top-right-radius: var( --active-node-border-radius);
+    border-bottom-left-radius: var( --active-node-border-radius);
+    border-bottom-right-radius: var( --active-node-border-radius);
+    flex-grow: 1;
+}
+
+    .node-active.active {
+        border-color: var(--current-active-node-border);
+    }
+
+
+
+    .node-container.port-container {
+        display: flex;
+        flex-direction: column;
+        width : auto;
+    }
+
+        .node-container.port-container.port-input {
+            align-self: flex-start;
+        }
+
+        .node-container.port-container.port-output {
+            align-self: flex-end;
+        }
+
+.node-main-column {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+.node-container .node-title {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width : 100%;
+}
+
+.node-container > Label {
+    color: black;
+}
+
+.node-content {
+    background-color: var(--content-color);
+    display: flex;
+    align-items: flex-start;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-direction: row;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.node-background {
+    background-color: var(--base-color);
+}
+
+.node-border-title {
+    border-color: var(--normal-border);
+    border-width: var(--border-width);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+
+.node-border {
+    border-color: var(--normal-border);
+}
+
+.node-selected .node-border {
+    border-color: var(--selected-border);
+}
+
+.node-border-info {
+    border-color: var(--normal-border);
+    border-width: var(--border-width);
+    border-top-width: 0px;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+.node-info {
+    display : flex;
+    flex-direction : column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    padding: 10px;
+}

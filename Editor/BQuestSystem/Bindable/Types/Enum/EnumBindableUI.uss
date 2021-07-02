@@ -1,0 +1,12 @@
+#PopUpContainer Label {
+    min-width: 10px;
+}
+
+#PopUpContainer {
+    margin: 5px;
+}
+
+.m-0
+{
+    margin : 0px;
+}

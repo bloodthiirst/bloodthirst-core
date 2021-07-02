@@ -2,7 +2,8 @@
     "name": "com.bloodthirst.bloodthirst-core.editor",
     "rootNamespace": "",
     "references": [
-        "GUID:e8d10fe188e9c12489f746579ada2bc4"
+        "GUID:e8d10fe188e9c12489f746579ada2bc4",
+        "GUID:12e5c912b42f2454ab6e7e789904681c"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloodthirst.Core.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,10 +30,23 @@ namespace Bloodthirst.BDeepCopy
             PotentialTypeCopiers = new Dictionary<Type, IBCopierInternal>();
 
             // TODO : cache the copiers for non generic types that inherit the interface
+
+            IEnumerable<Type> types = TypeUtils.AllTypes
+                .Where(t => !t.IsAbstract)
+                .Where(t => !t.IsInterface)
+                .Where(t => TypeUtils.IsSubTypeOf(t, Type));
+
+            foreach(Type t in types)
+            {
+                PotentialTypeCopiers.Add(t, BDeepCopyProvider.CreateCopier(t));
+            }
         }
 
         object IBCopierInternal.Copy(object t, BCopierContext copierContext, BCopierSettings bCopierSettings)
         {
+            if (t == null)
+                return null;
+
             Type concrete = t.GetType();
 
             // check the copiers local cache

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:VisualElement class="port-vars port-container" name="PortRoot">
+        
+        <engine:VisualElement class="port-selected" name="PortSelected"></engine:VisualElement>
+
+        <engine:VisualElement class="port-color absolute-pos" name="PortColor" ></engine:VisualElement>
+        
+        <engine:VisualElement class="port-bg absolute-pos w-100 h-100" name="PortBG" ></engine:VisualElement>
+    
+    </engine:VisualElement>
+
+</engine:UXML>

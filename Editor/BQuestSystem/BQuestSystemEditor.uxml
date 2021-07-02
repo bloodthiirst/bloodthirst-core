@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+
+    <engine:VisualElement name="container" class="container" focusable="true">
+    
+        <editor:ObjectField label="Node Behaviour" name="NodeBehaviourPicker" />
+        <editor:ObjectField label="Node Tree Data" name="NodeTreeDataPicker" />
+
+        <engine:Button text="Save" name="SaveBtn"/>
+        <engine:Button text="Load" name="LoadBtn"/>
+        <engine:VisualElement name="NodeTypePickerContainer"></engine:VisualElement>
+        
+        <engine:VisualElement class="row m-10 canvas-border canvas-overflow canvas-texture" name="Container"  focusable="true">
+        
+            <engine:VisualElement class="canvas-pos" name="Canvas">
+            
+            </engine:VisualElement>
+
+        </engine:VisualElement>
+
+   </engine:VisualElement>
+
+</engine:UXML>

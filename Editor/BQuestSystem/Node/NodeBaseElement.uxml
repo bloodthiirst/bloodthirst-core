@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
+>
+
+    <!-- Base container-->
+    <engine:VisualElement name="NodeRoot" class="node-vars node-container node-background node-fit-content-height">
+
+        <engine:VisualElement name="NodeActive" class="node-active node-fit-content-height">
+
+            <engine:VisualElement class="node-main-column">
+
+                <!-- Title -->
+                <engine:VisualElement name="NodeHeader" class="node-title node-border node-border-title">
+                    <engine:Label text="Node Name" Name="NodeName" ></engine:Label>
+                </engine:VisualElement>
+
+
+                <!-- Node Body -->
+                <engine:VisualElement class="node-content node-border node-border-info">
+               
+
+                    <!-- Input ports -->
+                    <engine:VisualElement name="InputPortsContainer"  class="port-container port-input"></engine:VisualElement>
+        
+                    <!-- Content -->
+                    <engine:VisualElement class="node-info" name="FieldsContainer"></engine:VisualElement>
+
+                    <!-- Output ports -->
+                    <engine:VisualElement name="OutputPortsContainer" class="port-container port-output"></engine:VisualElement>
+                     
+                    <!-- Resize Node-->
+                    <engine:VisualElement name="NodeResize" class="node-resize"> </engine:VisualElement>
+
+                </engine:VisualElement>
+
+            </engine:VisualElement>
+
+        </engine:VisualElement>
+
+    </engine:VisualElement>
+
+</engine:UXML>

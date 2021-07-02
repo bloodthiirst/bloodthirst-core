@@ -22,7 +22,6 @@ public class SceneLoadHelper : EditorWindow
 
     VisualElement RowsContainer => root.Q<VisualElement>(name = nameof(RowsContainer));
 
-
     public void OnEnable()
     {
         // Each editor window contains a root VisualElement object
@@ -104,9 +103,6 @@ public class SceneLoadHelper : EditorWindow
         btn.clickable.clicked += () => { OpenAllScenes(); };
 
         row.Add(btn);
-
-
-
     }
 
     private void OpenAllScenes()

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace Bloodthirst.BDeepCopy
 {
@@ -10,7 +8,7 @@ namespace Bloodthirst.BDeepCopy
 
         private static BCopier<T> instance;
         
-        internal static BCopier<T> Instance
+        public static BCopier<T> Instance
         {   
             get
             {
