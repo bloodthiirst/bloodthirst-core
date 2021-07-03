@@ -89,10 +89,10 @@ namespace Bloodthirst.System.Quest.Editor
                 INodeType fromNode = allNodes.FirstOrDefault(n => n.NodeID == l.From);
                 INodeType toNode = allNodes.FirstOrDefault(n => n.NodeID == l.To);
 
-                IPortType fromPort = fromNode.OutputPorts[l.FromPort];
+                IPortType fromPort = fromNode.OutputPortsConst[l.FromPort];
                 fromPort.ParentNode = fromNode;
 
-                IPortType toPort = toNode.InputPorts[l.ToPort];
+                IPortType toPort = toNode.InputPortsConst[l.ToPort];
                 toPort.ParentNode = toNode;
 
                 LinkDefault link = new LinkDefault() { From = fromPort, To = toPort };

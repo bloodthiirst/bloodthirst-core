@@ -9,8 +9,10 @@ namespace Bloodthirst.System.Quest.Editor
         string Name { get; set; }
         string Description { get; set; }
 
-        List<IPortType> InputPorts { get; set; }
+        List<IPortType> InputPortsConst { get; set; }
+        List<IPortType> InputPortsVariable { get; set; }
 
-        List<IPortType> OutputPorts { get; set; }
+        List<IPortType> OutputPortsConst { get; set; }
+        List<IPortType> OutputPortsVariable { get; set; }
     }
 }

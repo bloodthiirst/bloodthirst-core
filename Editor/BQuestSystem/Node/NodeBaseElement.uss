@@ -76,7 +76,7 @@
     flex-grow: 1;
     flex-shrink: 0;
 }
-.node-title {
+.node-header {
     flex-grow: 0;
     flex-shrink: 0;
     flex-direction: row;
@@ -84,6 +84,12 @@
     justify-content: center;
     height: 40px;
     width: 100%;
+}
+
+.node-title
+{
+    flex-grow : 1;
+    align-items : center;
 }
 
 .node-container > Label {
@@ -105,7 +111,7 @@
     background-color: var(--base-color);
 }
 
-.node-border-title {
+.node-border-header {
     border-color: var(--normal-border);
     border-width: var(--border-width);
     border-top-left-radius: var(--border-radius);

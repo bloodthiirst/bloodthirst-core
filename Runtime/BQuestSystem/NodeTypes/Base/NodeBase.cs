@@ -7,12 +7,14 @@ namespace Bloodthirst.System.Quest.Editor
         public int NodeID { get; set; } = -1;
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<IPortType> InputPorts { get; set; }
-        public List<IPortType> OutputPorts { get; set; }
+        public List<IPortType> InputPortsConst { get; set; }
+        public List<IPortType> InputPortsVariable { get; set; }
+        public List<IPortType> OutputPortsConst { get; set; }
+        public List<IPortType> OutputPortsVariable { get; set; }
 
         public NodeBase()
         {
-            InputPorts = new List<IPortType>()
+            InputPortsConst = new List<IPortType>()
             {
                 new PortDefault(){ PortName ="Input 1", ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
                 new PortDefault(){ PortName ="Input 2", ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
@@ -20,12 +22,15 @@ namespace Bloodthirst.System.Quest.Editor
                 new PortDefault(){ PortName ="Input 4", ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT }
             };
 
-            OutputPorts = new List<IPortType>()
+            OutputPortsConst = new List<IPortType>()
             {
                 new PortDefault(){ PortName ="Output 1", ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT },
                 new PortDefault(){ PortName ="Output 2", ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT },
                 new PortDefault(){ PortName ="Output 3", ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT }
             };
+
+            OutputPortsVariable = new List<IPortType>();
+            InputPortsVariable = new List<IPortType>();
 
         }
     }

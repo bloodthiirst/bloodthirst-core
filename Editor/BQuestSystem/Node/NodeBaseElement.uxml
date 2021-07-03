@@ -13,9 +13,19 @@
 
             <engine:VisualElement name="NodeContent" class="node-main-column">
 
-                <!-- Title -->
-                <engine:VisualElement name="NodeHeader" class="node-title node-border node-border-title">
-                    <engine:Label text="Node Name" Name="NodeName" ></engine:Label>
+                <!-- Header -->
+                <engine:VisualElement name="NodeHeader" class="node-header node-border node-border-header">
+
+                    <engine:Button name="AddInput" text="+" class="add-port"/>
+
+                    <engine:VisualElement class="node-title">
+
+                        <engine:Label  text="Node Name" Name="NodeName" ></engine:Label>
+                    
+                    </engine:VisualElement>
+
+                    <engine:Button name="AddOutput" text="+" class="add-port"/>
+
                 </engine:VisualElement>
 
                 <!-- Node Body -->

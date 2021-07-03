@@ -9,8 +9,7 @@ namespace Bloodthirst.System.Quest.Editor
 
     [NodeMenuPath("UI Fields Test Node")]
     public class UIFieldsTestNode : NodeBase
-    {
-        
+    {     
         public int SomeInt { get; set; }
         public bool SomeBool { get; set; }
         public ScriptableObject SomeScriptableObject { get; set; }

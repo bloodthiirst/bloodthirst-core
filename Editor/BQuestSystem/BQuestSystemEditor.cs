@@ -536,16 +536,16 @@ namespace Bloodthirst.System.Quest.Editor
 
             // subscribe to ports events
 
-            for (int i = 0; i < node.Inputs.Count; i++)
+            for (int i = 0; i < node.InputsConst.Count; i++)
             {
-                node.Inputs[i].OnPortRightClicked -= HandlePortRightClick;
-                node.Inputs[i].OnPortRightClicked += HandlePortRightClick;
+                node.InputsConst[i].OnPortRightClicked -= HandlePortRightClick;
+                node.InputsConst[i].OnPortRightClicked += HandlePortRightClick;
             }
 
-            for (int i = 0; i < node.Outputs.Count; i++)
+            for (int i = 0; i < node.OutputsConst.Count; i++)
             {
-                node.Outputs[i].OnPortRightClicked -= HandlePortRightClick;
-                node.Outputs[i].OnPortRightClicked += HandlePortRightClick;
+                node.OutputsConst[i].OnPortRightClicked -= HandlePortRightClick;
+                node.OutputsConst[i].OnPortRightClicked += HandlePortRightClick;
             }
 
             if (size.HasValue)
@@ -601,14 +601,14 @@ namespace Bloodthirst.System.Quest.Editor
             Canvas.Remove(node.VisualElement);
 
             // clear links
-            for (int i = 0; i < node.Inputs.Count; i++)
+            for (int i = 0; i < node.InputsConst.Count; i++)
             {
-                node.Inputs[i].OnPortRightClicked -= HandlePortRightClick;
+                node.InputsConst[i].OnPortRightClicked -= HandlePortRightClick;
             }
 
-            for (int i = 0; i < node.Outputs.Count; i++)
+            for (int i = 0; i < node.OutputsConst.Count; i++)
             {
-                node.Outputs[i].OnPortRightClicked -= HandlePortRightClick;
+                node.OutputsConst[i].OnPortRightClicked -= HandlePortRightClick;
             }
 
             for (int i = AllLinks.Count - 1; i >= 0; i--)
@@ -708,8 +708,8 @@ namespace Bloodthirst.System.Quest.Editor
                 LinkElement curr = AllLinks[i];
                 int idFrom = curr.From.ParentNode.NodeType.NodeID;
                 int idTo = curr.To.ParentNode.NodeType.NodeID;
-                int indexPortFrom = curr.From.ParentNode.Outputs.IndexOf(curr.From);
-                int indexPortTo = curr.To.ParentNode.Inputs.IndexOf(curr.To);
+                int indexPortFrom = curr.From.ParentNode.OutputsConst.IndexOf(curr.From);
+                int indexPortTo = curr.To.ParentNode.InputsConst.IndexOf(curr.To);
                 LinkData l = new LinkData()
                 {
                     From = idFrom,
@@ -739,8 +739,8 @@ namespace Bloodthirst.System.Quest.Editor
             {
                 NodeBaseElement fromNode = AllNodes.FirstOrDefault(n => n.NodeType.NodeID == l.From);
                 NodeBaseElement toNode = AllNodes.FirstOrDefault(n => n.NodeType.NodeID == l.To);
-                PortBaseElement fromPort = fromNode.Outputs[l.FromPort];
-                PortBaseElement toPort = toNode.Inputs[l.ToPort];
+                PortBaseElement fromPort = fromNode.OutputsConst[l.FromPort];
+                PortBaseElement toPort = toNode.InputsConst[l.ToPort];
                 AddLink(fromPort, toPort);
             }
 

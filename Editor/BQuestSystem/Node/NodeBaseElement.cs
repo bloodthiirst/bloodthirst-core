@@ -38,8 +38,10 @@ namespace Bloodthirst.System.Quest.Editor
         private VisualElement NodeActive => NodeRoot.Q<VisualElement>(nameof(NodeActive));
         private VisualElement NodeResize => NodeRoot.Q<VisualElement>(nameof(NodeResize));
         public VisualElement VisualElement => NodeRoot;
-        public List<PortBaseElement> Inputs { get; }
-        public List<PortBaseElement> Outputs { get; }
+        public List<PortBaseElement> InputsConst { get; }
+        public List<PortBaseElement> InputsVariable { get; }
+        public List<PortBaseElement> OutputsConst { get; }
+        public List<PortBaseElement> OutputsVariable { get; }
         public List<IBindableUI> BindableUIs { get; }
         #endregion
         public bool IsInsideResize { get; set; }
@@ -48,9 +50,6 @@ namespace Bloodthirst.System.Quest.Editor
         public bool IsNodeSelected { get; set; }
         public bool IsNodeActive { get; set; }
         public INodeType NodeType { get; }
-
-        private Vector2 LastMousePressPosition;
-
         public Vector2 NodeSize
         {
             get
@@ -65,7 +64,7 @@ namespace Bloodthirst.System.Quest.Editor
                 float w = Mathf.Max(value.x, minWidth);
                 float h = Mathf.Max(value.y, minHeight);
 
-                NodeRoot.style.width = new Length(w, LengthUnit.Pixel);              
+                NodeRoot.style.width = new Length(w, LengthUnit.Pixel);
                 NodeRoot.style.height = new Length(h, LengthUnit.Pixel);
                 NodeRoot.MarkDirtyRepaint();
 
@@ -75,8 +74,12 @@ namespace Bloodthirst.System.Quest.Editor
 
         public NodeBaseElement(INodeType nodeType)
         {
-            Inputs = new List<PortBaseElement>();
-            Outputs = new List<PortBaseElement>();
+            InputsConst = new List<PortBaseElement>();
+            InputsVariable = new List<PortBaseElement>();
+
+            OutputsConst = new List<PortBaseElement>();
+            OutputsVariable = new List<PortBaseElement>();
+
             BindableUIs = new List<IBindableUI>();
 
             // Import UXML
@@ -167,44 +170,91 @@ namespace Bloodthirst.System.Quest.Editor
         /// <returns></returns>
         public IEnumerable<PortBaseElement> AllPorts()
         {
-            foreach (PortBaseElement n in Inputs)
+            foreach (PortBaseElement n in InputsConst)
             {
                 yield return n;
             }
 
-            foreach (PortBaseElement n in Outputs)
+            foreach (PortBaseElement n in InputsVariable)
+            {
+                yield return n;
+            }
+
+            foreach (PortBaseElement n in OutputsConst)
+            {
+                yield return n;
+            }
+
+            foreach (PortBaseElement n in OutputsVariable)
             {
                 yield return n;
             }
         }
 
-        private void AddInputPort(IPortType curr)
+        #region add input
+        private void AddConstInputPort(IPortType curr)
         {
             PortBaseElement input = new PortBaseElement(this, curr);
             InputPortsContainer.Add(input.VisualElement);
-            Inputs.Add(input);
+            InputsConst.Add(input);
+        } 
+        private void AddVariableInputPort(IPortType curr)
+        {
+            PortBaseElement input = new PortBaseElement(this, curr);
+            InputPortsContainer.Add(input.VisualElement);
+            InputsConst.Add(input);
         }
+        #endregion
 
-        private void AddOutputPort(IPortType curr)
+        #region add output
+        private void AddConstOutputPort(IPortType curr)
         {
             PortBaseElement output = new PortBaseElement(this, curr);
             OutputPortsContainer.Add(output.VisualElement);
-            Outputs.Add(output);
+            OutputsConst.Add(output);
         }
 
-        private void RemoveOutputAt(int i)
+        private void AddVariableOutputPort(IPortType curr)
         {
-            PortBaseElement curr = Outputs[i];
+            PortBaseElement output = new PortBaseElement(this, curr);
+            OutputPortsContainer.Add(output.VisualElement);
+            OutputsConst.Add(output);
+        }
+        #endregion
+
+        #region remove output
+        private void RemoveConstOutputAt(int i)
+        {
+            PortBaseElement curr = OutputsConst[i];
             OutputPortsContainer.RemoveAt(i);
-            Outputs.RemoveAt(i);
+            OutputsConst.RemoveAt(i);
         }
 
-        private void RemoveInputAt(int i)
+        private void RemoveVariableOutputAt(int i)
         {
-            PortBaseElement curr = Inputs[i];
-            InputPortsContainer.RemoveAt(i);
-            Inputs.RemoveAt(i);
+            PortBaseElement curr = OutputsConst[i];
+            OutputPortsContainer.RemoveAt(i);
+            OutputsConst.RemoveAt(i);
         }
+        #endregion
+
+        #region remove input
+        private void RemoveConstInputAt(int i)
+        {
+            PortBaseElement curr = InputsConst[i];
+            InputsConst.RemoveAt(i);
+
+            InputPortsContainer.Remove(curr.VisualElement);
+        }
+
+        private void RemoveVariableInputAt(int i)
+        {
+            PortBaseElement curr = InputsVariable[i];
+            InputsVariable.RemoveAt(i);
+
+            InputPortsContainer.Remove(curr.VisualElement);
+        }
+        #endregion
 
         public void RefreshPorts()
         {
@@ -217,29 +267,52 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void AddAllPorts()
         {
-            for (int i = 0; i < NodeType.OutputPorts.Count; i++)
+            // output
+            for (int i = 0; i < NodeType.OutputPortsConst.Count; i++)
             {
-                IPortType curr = NodeType.OutputPorts[i];
-                AddOutputPort(curr);
+                IPortType curr = NodeType.OutputPortsConst[i];
+                AddConstOutputPort(curr);
             }
 
-            for (int i = 0; i < NodeType.InputPorts.Count; i++)
+            for (int i = 0; i < NodeType.OutputPortsVariable.Count; i++)
             {
-                IPortType curr = NodeType.InputPorts[i];
-                AddInputPort(curr);
+                IPortType curr = NodeType.OutputPortsVariable[i];
+                AddVariableOutputPort(curr);
+            }
+
+            // input
+            for (int i = 0; i < NodeType.InputPortsConst.Count; i++)
+            {
+                IPortType curr = NodeType.InputPortsConst[i];
+                AddConstInputPort(curr);
+            }
+            for (int i = 0; i < NodeType.InputPortsVariable.Count; i++)
+            {
+                IPortType curr = NodeType.InputPortsVariable[i];
+                AddVariableInputPort(curr);
             }
         }
 
         private void ClearAllPorts()
         {
-            for (int i = NodeType.OutputPorts.Count - 1; i >= 0; i--)
+            // outputs
+            for (int i = NodeType.OutputPortsConst.Count - 1; i >= 0; i--)
             {
-                RemoveOutputAt(i);
+                RemoveConstOutputAt(i);
+            }
+            for (int i = NodeType.OutputPortsVariable.Count - 1; i >= 0; i--)
+            {
+                RemoveVariableOutputAt(i);
             }
 
-            for (int i = NodeType.InputPorts.Count - 1; i >= 0; i--)
+            // inputs
+            for (int i = NodeType.InputPortsConst.Count - 1; i >= 0; i--)
             {
-                RemoveInputAt(i);
+                RemoveConstInputAt(i);
+            }
+            for (int i = NodeType.InputPortsVariable.Count - 1; i >= 0; i--)
+            {
+                RemoveVariableInputAt(i);
             }
         }
 

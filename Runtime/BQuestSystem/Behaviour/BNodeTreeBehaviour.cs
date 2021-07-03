@@ -43,7 +43,7 @@ namespace Bloodthirst.System.Quest
             // create a copy of the nodes structure
             currentInstance = new List<INodeType>(treeData.BuildAllNodes());
 
-            rootNode = currentInstance.Where(n => n.InputPorts.All(p => p.LinkAttached == null)).ToList();
+            rootNode = currentInstance.Where(n => n.InputPortsConst.All(p => p.LinkAttached == null)).ToList();
         }
 
         [Button]
@@ -63,9 +63,9 @@ namespace Bloodthirst.System.Quest
             }
 
             // try to nagivate from current node to next
-            for (int i = 0; i < CurrentActiveNode.OutputPorts.Count; i++)
+            for (int i = 0; i < CurrentActiveNode.OutputPortsConst.Count; i++)
             {
-                IPortType curr = CurrentActiveNode.OutputPorts[i];
+                IPortType curr = CurrentActiveNode.OutputPortsConst[i];
 
                 if (curr.LinkAttached == null)
                     continue;
