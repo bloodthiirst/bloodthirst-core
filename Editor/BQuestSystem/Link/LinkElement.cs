@@ -9,8 +9,7 @@ namespace Bloodthirst.System.Quest.Editor
     {
         private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Link/LinkElement.uss";
         
-        public ILinkType LinkType { get; set; }
-        
+        public ILinkType LinkType { get; set; }    
         public PortBaseElement From { get; private set; }
         public PortBaseElement To { get; private set; }
         private UILinelement Root { get; set; }
@@ -43,15 +42,25 @@ namespace Bloodthirst.System.Quest.Editor
             Root.AddToClassList("link-container");
             Root.AddToClassList("unity-button");
 
-
             From.ParentNode.OnNodeMoved -= HandleNodeMoved;
             From.ParentNode.OnNodeMoved += HandleNodeMoved;
 
+            From.ParentNode.OnNodeResized -= HandleNodeResized;
+            From.ParentNode.OnNodeResized += HandleNodeResized;
+
             To.ParentNode.OnNodeMoved -= HandleNodeMoved;
             To.ParentNode.OnNodeMoved += HandleNodeMoved;
+
+            To.ParentNode.OnNodeResized -= HandleNodeResized;
+            To.ParentNode.OnNodeResized += HandleNodeResized;
         }
 
-        private void HandleNodeMoved(NodeBaseElement obj)
+        private void HandleNodeResized(NodeBaseElement node)
+        {
+            Refresh();
+        }
+
+        private void HandleNodeMoved(NodeBaseElement node)
         {
             Refresh();
         }
@@ -65,6 +74,10 @@ namespace Bloodthirst.System.Quest.Editor
         {
             From.ParentNode.OnNodeMoved -= HandleNodeMoved;
             To.ParentNode.OnNodeMoved -= HandleNodeMoved;
+
+            From.ParentNode.OnNodeResized -= HandleNodeResized;
+            To.ParentNode.OnNodeResized -= HandleNodeResized;
+
             From = null;
             To = null;
         }

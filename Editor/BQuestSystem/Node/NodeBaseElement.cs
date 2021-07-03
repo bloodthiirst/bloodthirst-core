@@ -24,6 +24,7 @@ namespace Bloodthirst.System.Quest.Editor
         public event Action<NodeBaseElement> OnNodeMoved;
         public event Action<NodeBaseElement> OnNodeStartResize;
         public event Action<NodeBaseElement> OnNodeEndResize;
+        public event Action<NodeBaseElement> OnNodeResized;
 
         #endregion
 
@@ -67,6 +68,8 @@ namespace Bloodthirst.System.Quest.Editor
                 NodeRoot.style.width = new Length(w, LengthUnit.Pixel);              
                 NodeRoot.style.height = new Length(h, LengthUnit.Pixel);
                 NodeRoot.MarkDirtyRepaint();
+
+                OnNodeResized?.Invoke(this);
             }
         }
 
@@ -100,7 +103,7 @@ namespace Bloodthirst.System.Quest.Editor
             int maxLabelLength = BindableUIs.Max(l => l.MemberInfo.Name.Length);
 
             // ratio picked
-            float fontRatio = 70 / 11f;
+            float fontRatio = 70 / 10f;
 
             float labelWidth = fontRatio * maxLabelLength;
 

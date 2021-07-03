@@ -12,7 +12,7 @@
     /* compnent selection */
     /* border params */
     --current-active-node-border: #26ff00;
-    --normal-active-node-border: rgb(0 0 0 / 0,95);
+    --normal-active-node-border: clear;
     --active-node-border-radius: 20px;
     --active-node-border-width: 5px;
     /* resize node*/
