@@ -14,17 +14,17 @@ namespace Bloodthirst.System.Quest.Editor
         {
             InputPorts = new List<IPortType>()
             {
-                new PortDefault(){ ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
-                new PortDefault(){ ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
-                new PortDefault(){ ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
-                new PortDefault(){ ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT }
+                new PortDefault(){ PortName ="Input 1", ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
+                new PortDefault(){ PortName ="Input 2", ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
+                new PortDefault(){ PortName ="Input 3", ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT },
+                new PortDefault(){ PortName ="Input 4", ParentNode = this, NodeDirection = NODE_DIRECTION.INPUT }
             };
 
             OutputPorts = new List<IPortType>()
             {
-                new PortDefault(){ ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT },
-                new PortDefault(){ ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT },
-                new PortDefault(){ ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT }
+                new PortDefault(){ PortName ="Output 1", ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT },
+                new PortDefault(){ PortName ="Output 2", ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT },
+                new PortDefault(){ PortName ="Output 3", ParentNode = this, NodeDirection = NODE_DIRECTION.OUTPUT }
             };
 
         }

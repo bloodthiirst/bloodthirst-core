@@ -7,7 +7,7 @@ namespace Bloodthirst.System.Quest.Editor
         private static Type type = typeof(T);
 
         public Type PortType => type;
-
+        public string PortName { get; set; }
         public INodeType ParentNode { get; set; }
         
         public NODE_DIRECTION NodeDirection { get; set; }

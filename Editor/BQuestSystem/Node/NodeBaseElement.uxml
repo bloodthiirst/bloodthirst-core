@@ -18,16 +18,14 @@
                     <engine:Label text="Node Name" Name="NodeName" ></engine:Label>
                 </engine:VisualElement>
 
-
                 <!-- Node Body -->
-                <engine:VisualElement class="node-content node-border node-border-info">
-               
+                <engine:VisualElement class="node-content node-border node-content-border">          
 
                     <!-- Input ports -->
                     <engine:VisualElement name="InputPortsContainer"  class="port-container port-input"></engine:VisualElement>
         
                     <!-- Content -->
-                    <engine:VisualElement class="node-info" name="FieldsContainer"></engine:VisualElement>
+                    <engine:VisualElement class="node-fields" name="FieldsContainer"></engine:VisualElement>
 
                     <!-- Output ports -->
                     <engine:VisualElement name="OutputPortsContainer" class="port-container port-output"></engine:VisualElement>

@@ -12,6 +12,8 @@ namespace Bloodthirst.System.Quest.Editor
     {
         Type PortType { get;}
 
+        string PortName { get; }
+
         object GetPortValue();
 
         NODE_DIRECTION NodeDirection { get; set; }

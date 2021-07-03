@@ -5,14 +5,24 @@
     xmlns:editor="UnityEditor.UIElements"
     xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
 >
-    <engine:VisualElement class="port-vars port-container" name="PortRoot">
-        
-        <engine:VisualElement class="port-selected" name="PortSelected"></engine:VisualElement>
+    <engine:VisualElement name="PortRoot">
 
-        <engine:VisualElement class="port-color absolute-pos" name="PortColor" ></engine:VisualElement>
+        <engine:VisualElement class="port-row">
+
+            <engine:Label class="port-name" name="PortName" text="Hello"/>
+
+            <engine:VisualElement class="port-vars port-graphics">
         
-        <engine:VisualElement class="port-bg absolute-pos w-100 h-100" name="PortBG" ></engine:VisualElement>
-    
+                <engine:VisualElement class="port-selected" name="PortSelected"></engine:VisualElement>
+
+                <engine:VisualElement class="port-color absolute-pos" name="PortColor" ></engine:VisualElement>
+        
+                <engine:VisualElement class="port-bg absolute-pos w-100 h-100" name="PortBG" ></engine:VisualElement>
+
+            </engine:VisualElement>
+
+        </engine:VisualElement>
+
     </engine:VisualElement>
 
 </engine:UXML>

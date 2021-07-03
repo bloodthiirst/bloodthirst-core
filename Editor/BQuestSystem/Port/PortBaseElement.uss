@@ -2,29 +2,54 @@
     background-color: black;
 }
 
-    .port-color.output {
-        left: 5px;
-        width: 15px;
-        height: auto;
-        top: 5px;
-        bottom: 5px;
-    }
+.output .port-color {
+    left: 5px;
+    width: 15px;
+    height: auto;
+    top: 5px;
+    bottom: 5px;
+}
 
-    .port-color.input {
-        right: 5px;
-        width: 15px;
-        height: auto;
-        top: 5px;
-        bottom: 5px;
-    }
+.input .port-color {
+    right: 5px;
+    width: 15px;
+    height: auto;
+    top: 5px;
+    bottom: 5px;
+}
 
  
-.port-container {
+.port-container
+{
+    display : flex;
+}
+
+.output .port-row {
+    flex-direction: row;
+}
+
+.input .port-row {
+    flex-direction: row-reverse;
+}
+
+.port-name {
+    align-self: center;
+}
+
+.port-graphics {
     margin-top: 15px;
     margin-bottom: 15px;
     width: 20px;
     height: 20px;
-    flex-shrink : 0;
+    flex-shrink: 0;
+}
+
+.input .port-graphics{
+    margin-right : 15px;
+}
+
+.output .port-graphics {
+    margin-left: 15px;
 }
 
     .selected .port-selected {
@@ -49,9 +74,9 @@
     position: absolute;
 }
 
-.port-bg.output {
+.output .port-bg {
     background-image: url("../Resources/Port_Right.png");
 }
-.port-bg.input {
+.input .port-bg {
     background-image: url("../Resources/Port_Left.png");
 }

@@ -6,6 +6,8 @@ namespace Bloodthirst.System.Quest.Editor
     {
         public Type PortType { get; }
 
+        public string PortName { get; set; }
+
         public INodeType ParentNode { get; set; }
         
         public NODE_DIRECTION NodeDirection { get; set; }

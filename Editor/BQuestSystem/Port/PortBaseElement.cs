@@ -18,6 +18,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         private VisualElement PortRoot { get; set; }
         private VisualElement PortColor => PortRoot.Q<VisualElement>(nameof(PortColor));
+        private Label PortName => PortRoot.Q<Label>(nameof(PortName));
         private VisualElement PortBG => PortRoot.Q<VisualElement>(nameof(PortBG));
         private VisualElement PortSelected => PortRoot.Q<VisualElement>(nameof(PortSelected));
 
@@ -58,10 +59,20 @@ namespace Bloodthirst.System.Quest.Editor
             // color
             Color = NodeEditorUtils.GetColor(portType.PortType);
 
+            // label
+            PortName.text = PortType.PortName;
+
             // add class to flip the appearance
-            string classForDirection = PortType.NodeDirection == NODE_DIRECTION.INPUT ? "input" : "output";
-            PortColor.AddToClassList(classForDirection);
-            PortBG.AddToClassList(classForDirection);
+            if (PortType.NodeDirection == NODE_DIRECTION.INPUT)
+            {
+                string classForDirection = "input";
+                PortRoot.AddToClassList(classForDirection);
+            }
+            else
+            {
+                string classForDirection = "output";
+                PortRoot.AddToClassList(classForDirection);
+            }
         }
 
         public void AfterAddToCanvas()

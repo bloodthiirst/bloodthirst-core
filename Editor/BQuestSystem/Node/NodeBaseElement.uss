@@ -12,7 +12,7 @@
     /* compnent selection */
     /* border params */
     --current-active-node-border: #26ff00;
-    --normal-active-node-border: rgb(0 0 0 / 0,00);
+    --normal-active-node-border: rgb(0 0 0 / 0,95);
     --active-node-border-radius: 20px;
     --active-node-border-width: 5px;
     /* resize node*/
@@ -22,8 +22,8 @@
 /* main resizable container */
 .node-container {
     position: absolute;
-    min-width : 300px;
-    min-height : 50px;
+    min-width: 300px;
+    min-height: 50px;
 }
 
 .node-fit-content-height {
@@ -32,6 +32,8 @@
     flex-grow: 1;
     flex-shrink: 0;
     width: auto;
+    align-content : flex-start;
+    align-items : flex-start;
 }
 
 .node-resize {
@@ -60,19 +62,12 @@
 
 
 
-    .node-container.port-container {
-        display: flex;
-        flex-direction: column;
-        width : auto;
-    }
-
-        .node-container.port-container.port-input {
-            align-self: flex-start;
-        }
-
-        .node-container.port-container.port-output {
-            align-self: flex-end;
-        }
+.port-container {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
 
 .node-main-column {
     display: flex;
@@ -81,15 +76,14 @@
     flex-grow: 1;
     flex-shrink: 0;
 }
-
-.node-container .node-title {
+.node-title {
     flex-grow: 0;
     flex-shrink: 0;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     height: 40px;
-    width : 100%;
+    width: 100%;
 }
 
 .node-container > Label {
@@ -126,7 +120,7 @@
     border-color: var(--selected-border);
 }
 
-.node-border-info {
+.node-content-border {
     border-color: var(--normal-border);
     border-width: var(--border-width);
     border-top-width: 0px;
@@ -134,10 +128,11 @@
     border-bottom-right-radius: var(--border-radius);
 }
 
-.node-info {
-    display : flex;
-    flex-direction : column;
+.node-fields {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
     flex-shrink: 0;
     padding: 10px;
+    min-width: 300px;
 }
