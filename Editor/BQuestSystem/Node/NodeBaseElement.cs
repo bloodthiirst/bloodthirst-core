@@ -25,6 +25,8 @@ namespace Bloodthirst.System.Quest.Editor
         public event Action<NodeBaseElement> OnNodeStartResize;
         public event Action<NodeBaseElement> OnNodeEndResize;
         public event Action<NodeBaseElement> OnNodeResized;
+        public event Action<NodeBaseElement> OnNodeAddInput;
+        public event Action<NodeBaseElement> OnNodeAddOutput;
 
         #endregion
 
@@ -37,6 +39,8 @@ namespace Bloodthirst.System.Quest.Editor
         private VisualElement FieldsContainer => NodeRoot.Q<VisualElement>(nameof(FieldsContainer));
         private VisualElement NodeActive => NodeRoot.Q<VisualElement>(nameof(NodeActive));
         private VisualElement NodeResize => NodeRoot.Q<VisualElement>(nameof(NodeResize));
+        private Button AddInput => NodeRoot.Q<Button>(nameof(AddInput));
+        private Button AddOutput => NodeRoot.Q<Button>(nameof(AddOutput));
         public VisualElement VisualElement => NodeRoot;
         public List<PortBaseElement> InputsConst { get; }
         public List<PortBaseElement> InputsVariable { get; }
@@ -323,6 +327,13 @@ namespace Bloodthirst.System.Quest.Editor
 
         public void AfterAddToCanvas()
         {
+            // adding
+            AddInput.clickable.clicked -= HandleAddInput;
+            AddInput.clickable.clicked += HandleAddInput;
+            
+            AddOutput.clickable.clicked -= HandleAddOutput;
+            AddOutput.clickable.clicked += HandleAddOutput;
+
             // moving
             NodeHeader.RegisterCallback<MouseDownEvent>(OnMouseDown);
             NodeHeader.RegisterCallback<MouseMoveEvent>(OnMouseMove);
@@ -342,6 +353,16 @@ namespace Bloodthirst.System.Quest.Editor
             {
                 p.AfterAddToCanvas();
             }
+        }
+
+        private void HandleAddOutput()
+        {
+            OnNodeAddInput?.Invoke(this);
+        }
+
+        private void HandleAddInput()
+        {
+            OnNodeAddOutput?.Invoke(this);
         }
 
         private void OnResizeUp(MouseUpEvent evt)
@@ -377,6 +398,8 @@ namespace Bloodthirst.System.Quest.Editor
             NodeHeader.UnregisterCallback<MouseMoveEvent>(OnMouseMove);
             NodeHeader.UnregisterCallback<MouseUpEvent>(OnMouseUp);
             NodeHeader.UnregisterCallback<MouseLeaveEvent>(OnMouseLeave);
+
+            AddInput.clickable.clicked -= HandleAddInput;
 
             NodeRoot.UnregisterCallback<ClickEvent>(OnClick);
             NodeRoot.UnregisterCallback<ContextClickEvent>(OnRightClick);

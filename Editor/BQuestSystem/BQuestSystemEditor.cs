@@ -191,8 +191,14 @@ namespace Bloodthirst.System.Quest.Editor
         public event Action<ContextClickEvent> OnCanvasMouseContextClick;
 
         public event Action<NodeBaseElement, ClickEvent> OnNodeMouseClick;
+
         public event Action<NodeBaseElement> OnNodeStartResize;
+        
         public event Action<NodeBaseElement> OnNodeEndResize;
+
+        public event Action<NodeBaseElement> OnNodeAddInput;
+
+        public event Action<NodeBaseElement> OnNodeAddOutput;
 
         public event Action<NodeBaseElement, ContextClickEvent> OnNodeMouseContextClick;
 
@@ -297,6 +303,8 @@ namespace Bloodthirst.System.Quest.Editor
                 new AddNodeAction(),
                 new RemoveNodeAction(),
                 new ResizeNodeAction(),
+                new AddPortInputAction(),
+                new AddPortOutputAction(),
 
                 // selection
                 new SelectNodeAction(),
@@ -514,6 +522,12 @@ namespace Bloodthirst.System.Quest.Editor
             node.OnNodeClicked -= OnNodeClicked;
             node.OnNodeClicked += OnNodeClicked;
 
+            node.OnNodeAddOutput -= HandleNodeAddOutput;
+            node.OnNodeAddOutput += HandleNodeAddOutput;
+
+            node.OnNodeAddInput -= HandleNodeAddInput;
+            node.OnNodeAddInput += HandleNodeAddInput;
+
             node.OnNodeStartResize -= OnNodeStartResized;
             node.OnNodeStartResize += OnNodeStartResized;
 
@@ -552,6 +566,16 @@ namespace Bloodthirst.System.Quest.Editor
             {
                 node.NodeSize = size.Value;
             }
+        }
+
+        private void HandleNodeAddInput(NodeBaseElement node)
+        {
+            OnNodeAddInput?.Invoke(node);
+        }
+
+        private void HandleNodeAddOutput(NodeBaseElement node)
+        {
+            OnNodeAddOutput?.Invoke(node);
         }
 
         private void OnNodeEndResized(NodeBaseElement node)
@@ -596,6 +620,8 @@ namespace Bloodthirst.System.Quest.Editor
             node.OnNodeStartResize -= OnNodeStartResized;
             node.OnNodeEndResize -= OnNodeEndResized;
             node.OnNodeRightClicked -= OnNodeRightClicked;
+            node.OnNodeAddInput -= HandleNodeAddInput;
+            node.OnNodeAddOutput -= HandleNodeAddOutput;
 
             node.BeforeRemoveFromCanvas();
             Canvas.Remove(node.VisualElement);

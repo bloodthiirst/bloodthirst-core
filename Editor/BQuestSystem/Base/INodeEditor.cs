@@ -44,6 +44,8 @@ namespace Bloodthirst.System.Quest.Editor
 
         event Action<NodeBaseElement> OnNodeStartResize;
         event Action<NodeBaseElement> OnNodeEndResize;
+        event Action<NodeBaseElement> OnNodeAddInput;
+        event Action<NodeBaseElement> OnNodeAddOutput;
 
         LinkElement AddLink(PortBaseElement start, PortBaseElement end);
         void AddNode(INodeType node, Vector2 worldMousePos , Vector2? size , bool worldSpace = true);
