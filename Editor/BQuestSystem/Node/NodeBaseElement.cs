@@ -13,8 +13,8 @@ namespace Bloodthirst.System.Quest.Editor
         #region consts
         private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Node/NodeBaseElement.uxml";
         private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Node/NodeBaseElement.uss";
-        private const string NODE_SELECTED_IN_CANVAS_USS_CLASS = "node-selected";
-        private const string NODE_SELECTED_ACTIVE_USS_CLASS = "active";
+        private const string NODE_IS_SELECTED_USS_CLASS = "is-selected";
+        private const string NODE_IS_ACTIVE_USS_CLASS = "is-active";
         #endregion
 
         #region events
@@ -34,6 +34,8 @@ namespace Bloodthirst.System.Quest.Editor
         private VisualElement NodeRoot { get; set; }
         private VisualElement NodeContent => NodeRoot.Q<VisualElement>(nameof(NodeContent));
         private VisualElement NodeHeader => NodeRoot.Q<VisualElement>(nameof(NodeHeader));
+        private VisualElement BorderActive => NodeRoot.Q<VisualElement>(nameof(BorderActive));
+        private VisualElement BorderSelected => NodeRoot.Q<VisualElement>(nameof(BorderSelected));
         private VisualElement InputPortsContainer => NodeRoot.Q<VisualElement>(nameof(InputPortsContainer));
         private VisualElement OutputPortsContainer => NodeRoot.Q<VisualElement>(nameof(OutputPortsContainer));
         private VisualElement FieldsContainer => NodeRoot.Q<VisualElement>(nameof(FieldsContainer));
@@ -96,6 +98,9 @@ namespace Bloodthirst.System.Quest.Editor
             NodeRoot = templateContainer.Q<VisualElement>(nameof(NodeRoot));
 
             NodeRoot.styleSheets.Add(customUss);
+
+            BorderActive.pickingMode = PickingMode.Ignore;
+            BorderSelected.pickingMode = PickingMode.Ignore;
 
             NodeType = nodeType;
 
@@ -478,25 +483,25 @@ namespace Bloodthirst.System.Quest.Editor
         public void SelectInCanvas()
         {
             IsNodeSelected = true;
-            NodeRoot.AddToClassList(NODE_SELECTED_IN_CANVAS_USS_CLASS);
+            NodeRoot.AddToClassList(NODE_IS_SELECTED_USS_CLASS);
         }
 
         public void DeselectInCanvas()
         {
             IsNodeSelected = false;
-            NodeRoot.RemoveFromClassList(NODE_SELECTED_IN_CANVAS_USS_CLASS);
+            NodeRoot.RemoveFromClassList(NODE_IS_SELECTED_USS_CLASS);
         }
 
         public void SelectActive()
         {
             IsNodeActive = true;
-            NodeActive.AddToClassList(NODE_SELECTED_ACTIVE_USS_CLASS);
+            NodeRoot.AddToClassList(NODE_IS_ACTIVE_USS_CLASS);
         }
 
         public void DeselectActive()
         {
             IsNodeActive = false;
-            NodeActive.RemoveFromClassList(NODE_SELECTED_ACTIVE_USS_CLASS);
+            NodeRoot.RemoveFromClassList(NODE_IS_ACTIVE_USS_CLASS);
         }
     }
 }
