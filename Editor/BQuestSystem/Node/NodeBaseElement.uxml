@@ -14,7 +14,7 @@
             <engine:VisualElement name="NodeContent" class="node-main-column">
 
                 <!-- Header -->
-                <engine:VisualElement name="NodeHeader" class="node-header node-border node-border-header">
+                <engine:VisualElement name="NodeHeader" class="node-header">
 
                     <engine:Button name="AddInput" text="+" class="add-port"/>
 
@@ -29,7 +29,7 @@
                 </engine:VisualElement>
 
                 <!-- Node Body -->
-                <engine:VisualElement class="node-content node-border node-content-border">          
+                <engine:VisualElement class="node-content">          
 
                     <!-- Input ports -->
                     <engine:VisualElement name="InputPortsContainer"  class="port-container port-input"></engine:VisualElement>
@@ -44,10 +44,9 @@
                     <engine:VisualElement name="NodeResize" class="node-resize"> </engine:VisualElement>
 
                 </engine:VisualElement>
-
             </engine:VisualElement>
 
-                        <engine:VisualElement name="BorderActive" class="node-active"></engine:VisualElement>
+            <engine:VisualElement name="BorderActive" class="node-active"></engine:VisualElement>
             <engine:VisualElement name="BorderSelected" class="node-selected"></engine:VisualElement>
 
     </engine:VisualElement>

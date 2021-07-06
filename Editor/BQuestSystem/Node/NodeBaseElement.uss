@@ -106,7 +106,21 @@
     justify-content: center;
     height: 40px;
     width: 100%;
+    /* border*/
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-color: var(--not-selected-border-color);
+    border-bottom-width: var(--is-selected-border-width);
 }
+.is-selected .node-header {
+    border-color: var(--is-selected-border-color);
+}
+
 
 .node-title
 {
@@ -133,16 +147,6 @@
     background-color: var(--base-color);
 }
 
-.node-border-header {
-    border-color: var(--normal-border);
-    border-width: var(--border-width);
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
-}
-
-.node-border {
-    border-color: var(--normal-border);
-}
 
 .node-selected .node-border {
     border-color: var(--selected-border);
