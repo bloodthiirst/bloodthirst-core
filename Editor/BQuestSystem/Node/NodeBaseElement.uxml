@@ -9,9 +9,8 @@
     <!-- Base container-->
     <engine:VisualElement name="NodeRoot" class="node-vars node-container node-background node-fit-content-height">
 
-
-
             <engine:VisualElement name="NodeContent" class="node-main-column">
+
 
                 <!-- Header -->
                 <engine:VisualElement name="NodeHeader" class="node-header">
@@ -39,15 +38,24 @@
 
                     <!-- Output ports -->
                     <engine:VisualElement name="OutputPortsContainer" class="port-container port-output"></engine:VisualElement>
-                     
-                    <!-- Resize Node-->
-                    <engine:VisualElement name="NodeResize" class="node-resize"> </engine:VisualElement>
+
 
                 </engine:VisualElement>
-            </engine:VisualElement>
 
+                                     
+            <!-- Resize Node-->
+            <engine:VisualElement name="NodeResize" class="node-resize-container">
+                
+                <engine:VisualElement name="NodeResize" class="node-resize"> </engine:VisualElement>
+            
+            </engine:VisualElement>
+            
+            
             <engine:VisualElement name="BorderActive" class="node-active"></engine:VisualElement>
             <engine:VisualElement name="BorderSelected" class="node-selected"></engine:VisualElement>
+
+            </engine:VisualElement>
+
 
     </engine:VisualElement>
 

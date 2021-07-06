@@ -19,8 +19,6 @@
 /* main resizable container */
 .node-container {
     position: absolute;
-    min-width: 300px;
-    min-height: 50px;
 }
 
 .node-fit-content-height {
@@ -33,15 +31,6 @@
     align-items : flex-start;
 }
 
-.node-resize {
-    background-image: url("../Resources/resize-icon.png");
-    position: absolute;
-    height: var(--resize-node-size);
-    width: var(--resize-node-size);
-    right: 10px;
-    bottom: 10px;
-    -unity-background-image-tint-color: #303030;
-}
 
 /* BORDERS */
 .node-active {
@@ -167,4 +156,23 @@
     flex-shrink: 0;
     padding: 10px;
     min-width: 300px;
+}
+
+.node-resize-container
+{
+    flex-grow : 0;
+    flex-shrink : 0;
+    width : 100%;
+    height : 60px;
+
+}
+
+.node-resize {
+    background-image: url("../Resources/resize-icon.png");
+    position: absolute;
+    height: var(--resize-node-size);
+    width: var(--resize-node-size);
+    right: 10px;
+    bottom: 10px;
+    -unity-background-image-tint-color: #303030;
 }

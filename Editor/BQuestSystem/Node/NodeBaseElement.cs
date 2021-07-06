@@ -64,18 +64,33 @@ namespace Bloodthirst.System.Quest.Editor
             }
             set
             {
-                float minWidth = NodeContent.localBound.width;
-                float minHeight = NodeContent.localBound.height;
-
-                float w = Mathf.Max(value.x, minWidth);
-                float h = Mathf.Max(value.y, minHeight);
-
-                NodeRoot.style.width = new Length(w, LengthUnit.Pixel);
-                NodeRoot.style.height = new Length(h, LengthUnit.Pixel);
-                NodeRoot.MarkDirtyRepaint();
-
-                OnNodeResized?.Invoke(this);
+                NodeContent.RegisterCallback<GeometryChangedEvent>(OnContentSizeChanged);
+                NodeRoot.style.width = new StyleLength(value.x);
+                NodeRoot.style.height = new StyleLength(value.y);
             }
+        }
+
+        private void OnContentSizeChanged(GeometryChangedEvent geometryChangedEvent)
+        {
+            NodeContent.RegisterCallback<GeometryChangedEvent>(OnContentSizeChanged);
+
+            float minWidth = NodeContent.resolvedStyle.width;
+            float minHeight = NodeContent.resolvedStyle.height;
+
+
+            float w = Mathf.Max(NodeSize.x, minWidth);
+            float h = Mathf.Max(NodeSize.y, minHeight);
+
+            Debug.Log($"new : ({NodeSize.x} , {NodeSize.y})");
+            Debug.Log($"content : ({minWidth} , {minHeight})");
+            Debug.Log($"final : ({w} , {h})");
+
+            NodeRoot.style.width = w;
+            NodeRoot.style.height = h;
+
+            NodeRoot.MarkDirtyRepaint();
+            OnNodeResized?.Invoke(this);
+
         }
 
         public NodeBaseElement(INodeType nodeType)
