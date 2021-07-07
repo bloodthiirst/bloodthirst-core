@@ -21,6 +21,22 @@ namespace Bloodthirst.System.Quest.Editor
             new UnityObjectJsonConverter()
         };
 
+        public static JsonSerializer GetNonRootSerializer()
+        {
+            return JsonSerializer.Create(new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                ObjectCreationHandling = ObjectCreationHandling.Replace,
+#if UNITY_EDITOR
+                Formatting = Formatting.Indented,
+#else
+                Formatting = Formatting.None,
+#endif
+                ContractResolver = UnityObjectResolver,
+                Converters = Converters
+            });
+        }
+
         /// <summary>
         /// Returns the settings used to serialize the node data
         /// </summary>

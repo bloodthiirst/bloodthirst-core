@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿using Newtonsoft.Json;
+using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
@@ -7,12 +8,15 @@ namespace Bloodthirst.System.Quest.Editor
     public class NodeData
     {
         [SerializeField]
+        [JsonIgnore]
         private Vector2 size;
 
+        [JsonIgnore]
         [SerializeField]
         private Vector2 position;
 
         [ShowInInspector]
+        [JsonIgnore]
         private INodeType nodeType;
 
         public Vector2 Size
@@ -37,18 +41,23 @@ namespace Bloodthirst.System.Quest.Editor
     public class LinkData
     {
         [SerializeField]
+        [JsonIgnore]
         private int from;
 
         [SerializeField]
+        [JsonIgnore]
         private int fromPort;
 
         [SerializeField]
+        [JsonIgnore]
         private int to;
 
         [SerializeField]
+        [JsonIgnore]
         private int toPort;
 
         [SerializeField]
+        [JsonIgnore]
         private ILinkType linkType;
 
         private ILinkType LinkType 

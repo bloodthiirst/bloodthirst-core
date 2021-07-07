@@ -35,9 +35,11 @@ namespace Bloodthirst.System.Quest.Editor
         private List<UnityEngine.Object> unityObjects;
 
         [ShowInInspector]
+        [JsonIgnore]
         private List<NodeData> nodes;
 
         [ShowInInspector]
+        [JsonIgnore]
         private List<LinkData> links;
 
         public List<NodeData> Nodes { get => nodes; set => nodes = value; }
@@ -48,7 +50,8 @@ namespace Bloodthirst.System.Quest.Editor
             unityObjects = unityObjects.CreateOrClear();
 
             JsonSerializerSettings settings = BQuestSystemSettings.GetSerializerSettings();
-            settings.Context = new StreamingContext(StreamingContextStates.Other, unityObjects);
+            CustomContext ctw = new CustomContext() { UnityObjects = unityObjects , Root = this };
+            settings.Context = new StreamingContext(StreamingContextStates.Other, ctw);
 
             jsonData = JsonConvert.SerializeObject(this, settings);
         }
@@ -56,7 +59,8 @@ namespace Bloodthirst.System.Quest.Editor
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             JsonSerializerSettings settings = BQuestSystemSettings.GetSerializerSettings();
-            settings.Context = new StreamingContext(StreamingContextStates.Other, unityObjects);
+            CustomContext ctx = new CustomContext() { UnityObjects = unityObjects , Root = this };
+            settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
 
             JsonConvert.PopulateObject(jsonData, this, settings);
         }
