@@ -28,7 +28,7 @@
                 </engine:VisualElement>
 
                 <!-- Node Body -->
-                <engine:VisualElement class="node-content">          
+                <engine:VisualElement class="node-content node-content-background">          
 
                     <!-- Input ports -->
                     <engine:VisualElement name="InputPortsContainer"  class="port-container port-input"></engine:VisualElement>
@@ -44,7 +44,7 @@
 
                                      
             <!-- Resize Node-->
-            <engine:VisualElement name="NodeResize" class="node-resize-container">
+            <engine:VisualElement name="NodeResize" class="node-resize-container node-content-background">
                 
                 <engine:VisualElement name="NodeResize" class="node-resize"> </engine:VisualElement>
             

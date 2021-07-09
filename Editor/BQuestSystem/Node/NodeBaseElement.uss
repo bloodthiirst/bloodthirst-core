@@ -8,8 +8,8 @@
     --is-selected-border-color: #e80000;
     --not-selected-border-color: #ffffff;
     /* active selection */
-    --is-active-border-radius: 20px;
-    --is-active-border-width: 5px;
+    --is-active-border-width: 3px;
+    --is-active-border-radius: 18px;
     --is-active-border-color: #26ff00;
     --not-active-border-color: transparent;
     /* resize node*/
@@ -17,6 +17,7 @@
 }
 
 /* main resizable container */
+
 .node-container {
     position: absolute;
 }
@@ -27,12 +28,13 @@
     flex-grow: 1;
     flex-shrink: 0;
     width: auto;
-    align-content : flex-start;
-    align-items : flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
 }
 
 
 /* BORDERS */
+
 .node-active {
     border-width: var(--is-active-border-width);
     border-color: var(--not-active-border-color);
@@ -42,10 +44,10 @@
     border-bottom-right-radius: var( --is-active-border-radius);
     display: flex;
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    top: -3px;
+    bottom: -3px;
+    left: -3px;
+    right: -3px;
 }
 
 
@@ -73,6 +75,7 @@
 }
 
 /* PORTS */
+
 .port-container {
     display: flex;
     flex-direction: column;
@@ -87,6 +90,9 @@
     flex-grow: 1;
     flex-shrink: 0;
 }
+
+/* HEADER */
+
 .node-header {
     flex-grow: 0;
     flex-shrink: 0;
@@ -95,6 +101,8 @@
     justify-content: center;
     height: 40px;
     width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
     /* border*/
     border-top-width: 0;
     border-left-width: 0;
@@ -106,23 +114,32 @@
     border-color: var(--not-selected-border-color);
     border-bottom-width: var(--is-selected-border-width);
 }
+
 .is-selected .node-header {
     border-color: var(--is-selected-border-color);
 }
 
-
-.node-title
-{
-    flex-grow : 1;
-    align-items : center;
+.node-title {
+    flex-grow: 1;
+    align-items: center;
 }
+
+/* MAIN CONTAINER */
+
+.node-background {
+    background-color: var(--base-color);
+}
+
 
 .node-container > Label {
     color: black;
 }
 
-.node-content {
+.node-content-background {
     background-color: var(--content-color);
+}
+
+.node-content {
     display: flex;
     align-items: flex-start;
     flex-grow: 1;
@@ -130,10 +147,6 @@
     flex-direction: row;
     padding-bottom: 10px;
     padding-top: 10px;
-}
-
-.node-background {
-    background-color: var(--base-color);
 }
 
 
@@ -158,13 +171,13 @@
     min-width: 300px;
 }
 
-.node-resize-container
-{
-    flex-grow : 0;
-    flex-shrink : 0;
-    width : 100%;
-    height : 60px;
 
+/* RESIZE */
+.node-resize-container {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 100%;
+    height: 60px;
 }
 
 .node-resize {

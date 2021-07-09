@@ -64,15 +64,16 @@ namespace Bloodthirst.System.Quest.Editor
             }
             set
             {
-                NodeContent.RegisterCallback<GeometryChangedEvent>(OnContentSizeChanged);
+                NodeRoot.RegisterCallback<GeometryChangedEvent>(OnContentSizeChanged);
                 NodeRoot.style.width = new StyleLength(value.x);
                 NodeRoot.style.height = new StyleLength(value.y);
+                NodeRoot.MarkDirtyRepaint();
             }
         }
 
         private void OnContentSizeChanged(GeometryChangedEvent geometryChangedEvent)
         {
-            NodeContent.RegisterCallback<GeometryChangedEvent>(OnContentSizeChanged);
+            NodeRoot.RegisterCallback<GeometryChangedEvent>(OnContentSizeChanged);
 
             float minWidth = NodeContent.resolvedStyle.width;
             float minHeight = NodeContent.resolvedStyle.height;
