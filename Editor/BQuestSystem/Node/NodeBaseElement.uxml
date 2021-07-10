@@ -7,13 +7,13 @@
 >
 
     <!-- Base container-->
-    <engine:VisualElement name="NodeRoot" class="node-vars node-container node-background node-fit-content-height">
+    <engine:VisualElement name="NodeRoot" class="node-vars node-container node-fit-content-height">
 
             <engine:VisualElement name="NodeContent" class="node-main-column">
 
 
                 <!-- Header -->
-                <engine:VisualElement name="NodeHeader" class="node-header">
+                <engine:VisualElement name="NodeHeader" class="node-header node-header-background">
 
                     <engine:Button name="AddInput" text="+" class="add-port"/>
 
