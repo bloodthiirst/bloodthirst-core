@@ -2,12 +2,12 @@
     /* nodes colors */
     --base-color: #303030;
     --content-color: #787474;
-    /* selected selection */
+    /* selected section */
     --is-selected-border-width: 3px;
     --is-selected-border-radius: 15px;
     --is-selected-border-color: #e80000;
     --not-selected-border-color: #ffffff;
-    /* active selection */
+    /* active section */
     --is-active-border-width: 3px;
     --is-active-border-radius: 18px;
     --is-active-border-color: #26ff00;
