@@ -3,49 +3,40 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:engine="UnityEngine.UIElements"
     xmlns:editor="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
->
+    xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd">
 
-    <!-- Base container-->
-    <engine:VisualElement name="NodeRoot" class="node-vars node-container node-fit-content-height">
+  <!-- Base container-->
+    <engine:VisualElement name="PortInfoRoot" class="node-container node-fit-content-height port-info-container">
 
             <engine:VisualElement name="NodeContent" class="node-main-column">
 
                 <!-- Header -->
                 <engine:VisualElement name="NodeHeader" class="node-header node-header-background">
 
-                    <engine:Button name="AddInput" text="+" class="add-port"/>
-
                     <engine:VisualElement class="node-title">
 
-                        <engine:Label  text="Node Name" Name="NodeName" ></engine:Label>
+                        <engine:Label text="Node Name" name="PortName" ></engine:Label>
                     
                     </engine:VisualElement>
 
-                    <engine:Button name="AddOutput" text="+" class="add-port"/>
-
                 </engine:VisualElement>
+
 
                 <!-- Node Body -->
                 <engine:VisualElement class="node-content node-content-background">          
 
-                    <!-- Input ports -->
-                    <engine:VisualElement name="InputPortsContainer"  class="port-container port-input"></engine:VisualElement>
-        
                     <!-- Content -->
                     <engine:VisualElement class="node-fields" name="FieldsContainer"></engine:VisualElement>
-
-                    <!-- Output ports -->
-                    <engine:VisualElement name="OutputPortsContainer" class="port-container port-output"></engine:VisualElement>
-
+                    
+                
+                    <engine:Label  class="node-fields port-no-fields-available" name="NoFieldsAvailable" text="No additional data to add to this port ..." ></engine:Label>
 
                 </engine:VisualElement>
 
-                                     
             <!-- Resize Node-->
             <engine:VisualElement class="node-resize-container node-content-background">
                 
-                <engine:VisualElement name="NodeResize" class="node-resize"> </engine:VisualElement>
+                <engine:VisualElement name="PortResize" class="node-resize"> </engine:VisualElement>
             
             </engine:VisualElement>
             

@@ -11,13 +11,15 @@
 
             <engine:Label class="port-name" name="PortName" text="Hello"/>
 
-            <engine:VisualElement class="port-vars port-graphics">
+            <engine:VisualElement class="port-graphics">
         
                 <engine:VisualElement class="port-selected" name="PortSelected"></engine:VisualElement>
 
                 <engine:VisualElement class="port-color absolute-pos" name="PortColor" ></engine:VisualElement>
         
                 <engine:VisualElement class="port-bg absolute-pos w-100 h-100" name="PortBG" ></engine:VisualElement>
+
+                <engine:VisualElement  name="PortInfoContainer"></engine:VisualElement>
 
             </engine:VisualElement>
 

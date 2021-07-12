@@ -200,6 +200,8 @@ namespace Bloodthirst.System.Quest.Editor
 
         public event Action<NodeBaseElement> OnNodeAddOutput;
 
+        public event Action<PortBaseElement> OnPortToggleInfo;
+
         public event Action<NodeBaseElement, ContextClickEvent> OnNodeMouseContextClick;
 
         public event Action<PortBaseElement, ContextClickEvent> OnPortMouseContextClick;
@@ -305,6 +307,7 @@ namespace Bloodthirst.System.Quest.Editor
                 new ResizeNodeAction(),
                 new AddPortInputAction(),
                 new AddPortOutputAction(),
+                new TogglePortInfoAction(),
 
                 // selection
                 new SelectNodeAction(),
@@ -554,12 +557,18 @@ namespace Bloodthirst.System.Quest.Editor
             {
                 node.InputsConst[i].OnPortRightClicked -= HandlePortRightClick;
                 node.InputsConst[i].OnPortRightClicked += HandlePortRightClick;
+
+                node.InputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
+                node.InputsConst[i].OnPortToggleInfoDialog += HandlePortToggle;
             }
 
             for (int i = 0; i < node.OutputsConst.Count; i++)
             {
                 node.OutputsConst[i].OnPortRightClicked -= HandlePortRightClick;
                 node.OutputsConst[i].OnPortRightClicked += HandlePortRightClick;
+
+                node.OutputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
+                node.OutputsConst[i].OnPortToggleInfoDialog += HandlePortToggle;
             }
 
             if (size.HasValue)
@@ -630,11 +639,13 @@ namespace Bloodthirst.System.Quest.Editor
             for (int i = 0; i < node.InputsConst.Count; i++)
             {
                 node.InputsConst[i].OnPortRightClicked -= HandlePortRightClick;
+                node.InputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
             }
 
             for (int i = 0; i < node.OutputsConst.Count; i++)
             {
                 node.OutputsConst[i].OnPortRightClicked -= HandlePortRightClick;
+                node.OutputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
             }
 
             for (int i = AllLinks.Count - 1; i >= 0; i--)
@@ -837,6 +848,11 @@ namespace Bloodthirst.System.Quest.Editor
         private void OnNodeClicked(NodeBaseElement node, ClickEvent evt)
         {
             OnNodeMouseClick?.Invoke(node, evt);
+        }
+
+        private void HandlePortToggle(PortBaseElement portBaseElement)
+        {
+            OnPortToggleInfo?.Invoke(portBaseElement);
         }
 
         private void OnKeyPress(KeyDownEvent evt)

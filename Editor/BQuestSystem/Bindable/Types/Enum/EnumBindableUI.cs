@@ -53,14 +53,14 @@ namespace Bloodthirst.System.Quest.Editor
         public VisualElement PopUpContainer => VisualElement.Q<VisualElement>(nameof(PopUpContainer));
         public PopupField<int> EnumPopUp { get; set; }
 
-        private INodeType node;
+        private object instance;
         private Action<object, object> Setter { get; set; }
         private Func<object, object> Getter { get; set; }
 
 
-        public void Setup(INodeType node, MemberInfo member)
+        public void Setup(object instance, MemberInfo member)
         {
-            this.node = node;
+            this.instance = instance;
             this.MemberInfo = member;
 
             // create ui
@@ -110,14 +110,14 @@ namespace Bloodthirst.System.Quest.Editor
             
             if (Getter != null)
             {
-                EnumPopUp.SetValueWithoutNotify((int)Getter(node));
+                EnumPopUp.SetValueWithoutNotify((int)Getter(instance));
             }
 
         }
 
         private void OnValueChanged(ChangeEvent<int> evt)
         {
-            Setter?.Invoke(node, evt.newValue);
+            Setter?.Invoke(instance, evt.newValue);
         }
 
         public void CleanUp()

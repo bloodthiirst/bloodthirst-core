@@ -52,14 +52,14 @@ namespace Bloodthirst.System.Quest.Editor
         public MemberInfo MemberInfo { get; set; }
         public Toggle TextUI => VisualElement.Q<Toggle>(nameof(TextUI));
 
-        private INodeType node;
+        private object instance;
         private Action<object, object> Setter { get; set; }
         private Func<object, object> Getter { get; set; }
 
 
-        public void Setup(INodeType node, MemberInfo member)
+        public void Setup(object instance, MemberInfo member)
         {
-            this.node = node;
+            this.instance = instance;
             this.MemberInfo = member;
 
             // create ui
@@ -101,14 +101,14 @@ namespace Bloodthirst.System.Quest.Editor
             
             if (Getter != null)
             {
-                TextUI.SetValueWithoutNotify((bool)Getter(node));
+                TextUI.SetValueWithoutNotify((bool)Getter(instance));
             }
 
         }
 
         private void OnTextChanged(ChangeEvent<bool> evt)
         {
-            Setter?.Invoke(node, evt.newValue);
+            Setter?.Invoke(instance, evt.newValue);
         }
 
         public void CleanUp()

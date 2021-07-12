@@ -10,21 +10,27 @@ namespace Bloodthirst.System.Quest.Editor
 
         private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Port/PortBaseElement.uxml";
         private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Port/PortBaseElement.uss";
+        private const string PORT_INFO_IS_OPEN_CLASS = "is-open";
+
+
         private Color color;
 
         public event Action<PortBaseElement, ClickEvent> OnPortClicked;
 
         public event Action<PortBaseElement, ContextClickEvent> OnPortRightClicked;
 
+        public event Action<PortBaseElement> OnPortToggleInfoDialog;
+
         private VisualElement PortRoot { get; set; }
         private VisualElement PortColor => PortRoot.Q<VisualElement>(nameof(PortColor));
         private Label PortName => PortRoot.Q<Label>(nameof(PortName));
         private VisualElement PortBG => PortRoot.Q<VisualElement>(nameof(PortBG));
         private VisualElement PortSelected => PortRoot.Q<VisualElement>(nameof(PortSelected));
-
+        private VisualElement PortInfoContainer => PortRoot.Q<VisualElement>(nameof(PortInfoContainer));
         public VisualElement VisualElement => PortRoot;
 
         public NodeBaseElement ParentNode { get; }
+        public PortInfoBaseElement PortInfo { get; }
         public LinkElement Link { get; set; }
         public IPortType PortType { get; set; }
 
@@ -38,6 +44,8 @@ namespace Bloodthirst.System.Quest.Editor
                 PortSelected.style.backgroundColor = new StyleColor(color);
             }
         }
+
+        public bool IsShowingInfo { get; private set; }
 
         public PortBaseElement( NodeBaseElement parentNode, IPortType portType)
         {
@@ -55,6 +63,12 @@ namespace Bloodthirst.System.Quest.Editor
 
             // port instance
             PortType = portType;
+
+            // info 
+
+            PortInfo = new PortInfoBaseElement(this , portType);
+
+            PortInfoContainer.Add(PortInfo.VisualElement);
 
             // color
             Color = NodeEditorUtils.GetColor(portType.PortType);
@@ -96,6 +110,12 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void OnClick(ClickEvent evt)
         {
+            
+            if (evt.target != PortName)
+                return;
+
+            OnPortToggleInfoDialog?.Invoke(this);
+
             OnPortClicked?.Invoke(this, evt);
         }
 
@@ -106,6 +126,16 @@ namespace Bloodthirst.System.Quest.Editor
         public void Deselect()
         {
             PortRoot.RemoveFromClassList("selected");
+        }
+        public void ShowInfo()
+        {
+            IsShowingInfo = true;
+            PortRoot.AddToClassList(PORT_INFO_IS_OPEN_CLASS);
+        }
+        public void HideInfo()
+        {
+            IsShowingInfo = false;
+            PortRoot.RemoveFromClassList(PORT_INFO_IS_OPEN_CLASS);
         }
 
     }

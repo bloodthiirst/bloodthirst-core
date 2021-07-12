@@ -10,7 +10,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         MemberInfo MemberInfo { get; }
 
-        void Setup(INodeType node, MemberInfo member);
+        void Setup(object instance, MemberInfo member);
         void CleanUp();
     }
 }

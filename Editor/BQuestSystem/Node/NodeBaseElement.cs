@@ -78,20 +78,14 @@ namespace Bloodthirst.System.Quest.Editor
             float minWidth = NodeContent.resolvedStyle.width;
             float minHeight = NodeContent.resolvedStyle.height;
 
-
             float w = Mathf.Max(NodeSize.x, minWidth);
             float h = Mathf.Max(NodeSize.y, minHeight);
-
-            Debug.Log($"new : ({NodeSize.x} , {NodeSize.y})");
-            Debug.Log($"content : ({minWidth} , {minHeight})");
-            Debug.Log($"final : ({w} , {h})");
-
+            
             NodeRoot.style.width = w;
             NodeRoot.style.height = h;
 
             NodeRoot.MarkDirtyRepaint();
             OnNodeResized?.Invoke(this);
-
         }
 
         public NodeBaseElement(INodeType nodeType)
@@ -127,6 +121,9 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void FixLabels()
         {
+            if (BindableUIs.Count == 0)
+                return;
+
             // max label length
             int maxLabelLength = BindableUIs.Max(l => l.MemberInfo.Name.Length);
 
