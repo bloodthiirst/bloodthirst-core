@@ -407,10 +407,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5585578351372830985, guid: a8f93e2d2d3756645b18211d4ec41408, type: 3}
-      propertyPath: treeData
-      value: 
-      objectReference: {fileID: 11400000, guid: 9c521be2bbd0e95499dca6891488b3ba, type: 2}
     - target: {fileID: 5585578351372830986, guid: a8f93e2d2d3756645b18211d4ec41408, type: 3}
       propertyPath: m_Name
       value: BQuest

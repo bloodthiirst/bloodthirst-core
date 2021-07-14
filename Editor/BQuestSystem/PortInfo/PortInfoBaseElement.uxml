@@ -23,7 +23,7 @@
 
 
                 <!-- Node Body -->
-                <engine:VisualElement class="node-content node-content-background">          
+                <engine:VisualElement class="port-content node-content-background">          
 
                     <!-- Content -->
                     <engine:VisualElement class="node-fields" name="FieldsContainer"></engine:VisualElement>
@@ -35,9 +35,9 @@
 
             <!-- Resize Node-->
             <engine:VisualElement class="node-resize-container node-content-background">
-                
-                <engine:VisualElement name="PortResize" class="node-resize"> </engine:VisualElement>
-            
+                <!--
+                 <engine:VisualElement name="PortResize" class="node-resize"> </engine:VisualElement>
+                -->
             </engine:VisualElement>
             
             

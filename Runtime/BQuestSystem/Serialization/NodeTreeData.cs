@@ -83,8 +83,11 @@ namespace Bloodthirst.System.Quest.Editor
             // copy the nodes
             foreach (NodeData n in Nodes)
             {
-                INodeType nodeType = BCopier<INodeType>.Instance.Copy(n.NodeType);
-                allNodes.Add(nodeType);
+
+                    INodeType nodeType = BCopier<INodeType>.Instance.Copy(n.NodeType);
+                    allNodes.Add(nodeType);
+
+                    
             }
 
             // link the port references

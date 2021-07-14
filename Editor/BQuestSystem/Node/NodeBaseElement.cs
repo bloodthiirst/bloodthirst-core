@@ -34,6 +34,7 @@ namespace Bloodthirst.System.Quest.Editor
         private VisualElement NodeRoot { get; set; }
         private VisualElement NodeContent => NodeRoot.Q<VisualElement>(nameof(NodeContent));
         private VisualElement NodeHeader => NodeRoot.Q<VisualElement>(nameof(NodeHeader));
+        private Label NodeName => NodeRoot.Q<Label>(nameof(NodeName));
         private VisualElement BorderActive => NodeRoot.Q<VisualElement>(nameof(BorderActive));
         private VisualElement BorderSelected => NodeRoot.Q<VisualElement>(nameof(BorderSelected));
         private VisualElement InputPortsContainer => NodeRoot.Q<VisualElement>(nameof(InputPortsContainer));
@@ -80,7 +81,7 @@ namespace Bloodthirst.System.Quest.Editor
 
             float w = Mathf.Max(NodeSize.x, minWidth);
             float h = Mathf.Max(NodeSize.y, minHeight);
-            
+
             NodeRoot.style.width = w;
             NodeRoot.style.height = h;
 
@@ -107,12 +108,17 @@ namespace Bloodthirst.System.Quest.Editor
 
             NodeRoot = templateContainer.Q<VisualElement>(nameof(NodeRoot));
 
+            
             NodeRoot.styleSheets.Add(customUss);
 
             BorderActive.pickingMode = PickingMode.Ignore;
             BorderSelected.pickingMode = PickingMode.Ignore;
 
             NodeType = nodeType;
+
+            // node name
+            NodeNameAttribute nameAttr = NodeType.GetType().GetCustomAttribute<NodeNameAttribute>();
+            NodeName.text = nameAttr == null ? NodeType.GetType().Name : nameAttr.Name;
 
             SetupFields();
 
@@ -156,12 +162,25 @@ namespace Bloodthirst.System.Quest.Editor
 
         private List<MemberInfo> ValidMembers()
         {
+            IEnumerable<MemberInfo> allInterfaceMembers = NodeType.GetType().GetInterfaces().SelectMany(i => i.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+
             IEnumerable<MemberInfo> members = GetMembers()
-                .Where(m => m.Name != "NodeID")
+
+                .Where(m =>
+                {
+                    List<MemberInfo> mem = allInterfaceMembers.Where(i => i.Name == m.Name).ToList();
+
+                    if (mem.Count == 0)
+                        return true;
+
+                    return mem.FirstOrDefault(im => im != null && im.GetCustomAttribute<IgnoreBindableAttribute>() == null) != null;
+                })
+
                 .Where(m => !m.Name.EndsWith("__BackingField"));
 
+            List<MemberInfo> lst = members.ToList();
 
-            return members.ToList();
+            return lst.ToList();
         }
 
         private void SetupFields()
@@ -219,7 +238,7 @@ namespace Bloodthirst.System.Quest.Editor
             PortBaseElement input = new PortBaseElement(this, curr);
             InputPortsContainer.Add(input.VisualElement);
             InputsConst.Add(input);
-        } 
+        }
         private void AddVariableInputPort(IPortType curr)
         {
             PortBaseElement input = new PortBaseElement(this, curr);
@@ -348,7 +367,7 @@ namespace Bloodthirst.System.Quest.Editor
             // adding
             AddInput.clickable.clicked -= HandleAddInput;
             AddInput.clickable.clicked += HandleAddInput;
-            
+
             AddOutput.clickable.clicked -= HandleAddOutput;
             AddOutput.clickable.clicked += HandleAddOutput;
 

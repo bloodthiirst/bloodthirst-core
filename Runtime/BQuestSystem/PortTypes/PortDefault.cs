@@ -3,8 +3,8 @@
 namespace Bloodthirst.System.Quest.Editor
 {
     public class PortDefault : IPortType
-    {
-        public Type PortType { get; }
+    {        
+        public Type PortType { get;}
 
         public string PortName { get; set; }
 
@@ -16,7 +16,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         public PortDefault()
         {
-            PortType = typeof(void);
+            PortType = typeof(string);
         }
 
         public virtual object GetPortValue()
@@ -24,7 +24,7 @@ namespace Bloodthirst.System.Quest.Editor
             return null;
         }
 
-        public bool CanLinkTo(IPortType otherPort)
+        public virtual bool CanLinkTo(IPortType otherPort)
         {
             // can't connect same direction nodes
             if (NodeDirection == otherPort.NodeDirection)

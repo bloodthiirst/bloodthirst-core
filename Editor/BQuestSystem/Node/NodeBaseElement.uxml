@@ -18,7 +18,7 @@
 
                     <engine:VisualElement class="node-title">
 
-                        <engine:Label  text="Node Name" Name="NodeName" ></engine:Label>
+                        <engine:Label  text="Node Name" name="NodeName" ></engine:Label>
                     
                     </engine:VisualElement>
 

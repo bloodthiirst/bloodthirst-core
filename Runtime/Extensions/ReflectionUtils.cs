@@ -87,8 +87,8 @@ namespace Bloodthirst.Core.Utils
                 Expression.Convert(Expression.New(type), typeof(object))
             )
             .Compile();
-
             return result;
+
         }
 
         /// <summary>

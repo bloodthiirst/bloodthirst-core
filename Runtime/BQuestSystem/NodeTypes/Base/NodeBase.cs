@@ -5,14 +5,12 @@ namespace Bloodthirst.System.Quest.Editor
     public abstract class NodeBase : INodeType
     {
         public int NodeID { get; set; } = -1;
-        public string Name { get; set; }
-        public string Description { get; set; }
         public List<IPortType> InputPortsConst { get; set; }
         public List<IPortType> InputPortsVariable { get; set; }
         public List<IPortType> OutputPortsConst { get; set; }
         public List<IPortType> OutputPortsVariable { get; set; }
 
-        public NodeBase()
+        protected virtual void SetupPorts()
         {
             InputPortsConst = new List<IPortType>()
             {
@@ -31,7 +29,11 @@ namespace Bloodthirst.System.Quest.Editor
 
             OutputPortsVariable = new List<IPortType>();
             InputPortsVariable = new List<IPortType>();
+        }
 
+        public NodeBase()
+        {
+            SetupPorts();
         }
     }
 }

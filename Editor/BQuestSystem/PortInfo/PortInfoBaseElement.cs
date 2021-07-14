@@ -28,7 +28,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         private List<IBindableUI> BindableUIs { get; set; }
 
-        public PortInfoBaseElement( PortBaseElement port, IPortType portType)
+        public PortInfoBaseElement(PortBaseElement port, IPortType portType)
         {
             // Import UXML
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
@@ -86,17 +86,25 @@ namespace Bloodthirst.System.Quest.Editor
 
         public List<MemberInfo> ValidMembers()
         {
-            Type[] allInterfaces = PortType.GetType().GetInterfaces();
+            IEnumerable<MemberInfo> allInterfaceMembers = PortType.GetType().GetInterfaces().SelectMany( i => i.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+
             IEnumerable<MemberInfo> members = GetMembers()
-                .Where(m => m.Name != "NodeID")
-                .Where(m => 
+
+                .Where(m =>
                     {
-                        IEnumerable<MemberInfo> mem = allInterfaces.Select(i => i.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault( im => im.Name == m.Name));
+                        List<MemberInfo> mem = allInterfaceMembers.Where(i => i.Name == m.Name).ToList();
+
+                        if (mem.Count == 0)
+                            return true;
+
                         return mem.FirstOrDefault(im => im != null && im.GetCustomAttribute<IgnoreBindableAttribute>() == null) != null;
                     })
+
                 .Where(m => !m.Name.EndsWith("__BackingField"));
 
-            return members.ToList();
+            List<MemberInfo> lst = members.ToList();
+
+            return lst;
         }
 
         private void SetupFields()
@@ -161,12 +169,12 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void OnRightClick(ContextClickEvent evt)
         {
-            
+
         }
 
         private void OnClick(ClickEvent evt)
         {
-            
+
         }
     }
 }
