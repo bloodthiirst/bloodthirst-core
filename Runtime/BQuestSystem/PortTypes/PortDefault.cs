@@ -4,7 +4,7 @@ namespace Bloodthirst.System.Quest.Editor
 {
     public class PortDefault : IPortType
     {        
-        public Type PortType { get;}
+        public Type PortType { get; protected set; }
 
         public string PortName { get; set; }
 

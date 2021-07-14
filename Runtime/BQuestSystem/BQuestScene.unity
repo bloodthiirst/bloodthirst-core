@@ -411,5 +411,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: BQuest
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5585578351372830985, guid: a8f93e2d2d3756645b18211d4ec41408, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: a8f93e2d2d3756645b18211d4ec41408, type: 3}

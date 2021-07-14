@@ -34,6 +34,9 @@ namespace Bloodthirst.BDeepCopy
                 new ListWithSealedElementTypeCopierFactory(),
                 new ListCopierFactory(),
                 
+                // type
+                new TypeCopierFactory(),
+
                 // interface
                 new InterfaceCopierFactory()
             };

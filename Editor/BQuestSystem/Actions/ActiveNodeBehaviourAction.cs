@@ -8,13 +8,13 @@ namespace Bloodthirst.System.Quest.Editor
     {
         private int? LastSelectedNodeID;
 
-        private BNodeTreeBehaviour SelectedTree;
+        private BNodeTreeBehaviourBase SelectedTree;
 
         public override void OnDisable()
         {
             if (SelectedTree != null)
             {
-                SelectedTree.OnCurrentActiveNodeChanged -= HanleActiveNodeChanged;
+                SelectedTree.OnActiveNodeChanged -= HanleActiveNodeChanged;
             }
 
             NodeEditor.OnBehaviourSelectionChanged -= HandleBehaviourChanged;
@@ -30,11 +30,11 @@ namespace Bloodthirst.System.Quest.Editor
             RefreshSelected(currentNode);
         }
 
-        private void HandleBehaviourChanged(BNodeTreeBehaviour behaviour)
+        private void HandleBehaviourChanged(BNodeTreeBehaviourBase behaviour)
         {
             if (SelectedTree != null)
             {
-                SelectedTree.OnCurrentActiveNodeChanged -= HanleActiveNodeChanged;
+                SelectedTree.OnActiveNodeChanged -= HanleActiveNodeChanged;
             }
 
             if (behaviour == null)
@@ -45,14 +45,14 @@ namespace Bloodthirst.System.Quest.Editor
             SelectedTree = behaviour;
 
             // when active node is changed
-            SelectedTree.OnCurrentActiveNodeChanged -= HanleActiveNodeChanged;
-            SelectedTree.OnCurrentActiveNodeChanged += HanleActiveNodeChanged;
+            SelectedTree.OnActiveNodeChanged -= HanleActiveNodeChanged;
+            SelectedTree.OnActiveNodeChanged += HanleActiveNodeChanged;
 
             DelesectAll();
 
-            if (behaviour.CurrentActiveNode != null)
+            if (behaviour.ActiveNode != null)
             {
-                RefreshSelected(behaviour.CurrentActiveNode);
+                RefreshSelected(behaviour.ActiveNode);
             }
         }
 

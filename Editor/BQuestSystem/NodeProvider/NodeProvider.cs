@@ -27,9 +27,12 @@ namespace Bloodthirst.System.Quest.Editor
                 .Where(t => TypeUtils.IsSubTypeOf(t, nodeBaseType))
                 .Select(t =>
                 {
-                    NodeMenuPathAttribute attr = t.GetCustomAttributes(typeof(NodeMenuPathAttribute), false).FirstOrDefault() as NodeMenuPathAttribute;
+                    NodeMenuPathAttribute pathAttr = t.GetCustomAttributes(typeof(NodeMenuPathAttribute), false).FirstOrDefault() as NodeMenuPathAttribute;
+                    NodeNameAttribute nameAttr = t.GetCustomAttributes(typeof(NodeNameAttribute), false).FirstOrDefault() as NodeNameAttribute;
 
-                    string nodePath = attr == null ? t.Name : attr.NodePath;
+                    string nodePath = pathAttr == null ? string.Empty : pathAttr.NodePath;
+                    nodePath += "/";
+                    nodePath += nameAttr == null ? t.Name : nameAttr.Name;
 
                     FactoryRecord rec = new FactoryRecord()
                     {

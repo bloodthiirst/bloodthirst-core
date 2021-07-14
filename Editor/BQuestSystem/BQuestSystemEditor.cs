@@ -92,8 +92,8 @@ namespace Bloodthirst.System.Quest.Editor
         private List<NodeBaseElement> AllNodes { get; set; }
         private List<LinkElement> AllLinks { get; set; }
 
-        private BNodeTreeBehaviour selectedTreeBehaviour;
-        private BNodeTreeBehaviour SelectedTreeBehaviour
+        private BNodeTreeBehaviourBase selectedTreeBehaviour;
+        private BNodeTreeBehaviourBase SelectedTreeBehaviour
         {
             get => selectedTreeBehaviour;
             set
@@ -116,7 +116,7 @@ namespace Bloodthirst.System.Quest.Editor
             }
         }
 
-        private BNodeTreeBehaviour SelectedTreeBehaviourForce
+        private BNodeTreeBehaviourBase SelectedTreeBehaviourForce
         {
             set
             {
@@ -206,7 +206,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         public event Action<PortBaseElement, ContextClickEvent> OnPortMouseContextClick;
 
-        public event Action<BNodeTreeBehaviour> OnBehaviourSelectionChanged;
+        public event Action<BNodeTreeBehaviourBase> OnBehaviourSelectionChanged;
 
         public event Action<NodeTreeData> OnDataSelectionChanged;
 
@@ -400,7 +400,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void RefreshObjectPickers(bool force = false)
         {
-            BNodeTreeBehaviour tree = null;
+            BNodeTreeBehaviourBase tree = null;
             NodeTreeData data = null;
 
             for (int i = 0; i < Selection.objects.Length; i++)
@@ -409,7 +409,7 @@ namespace Bloodthirst.System.Quest.Editor
 
                 if (curr is GameObject g)
                 {
-                    tree = g.GetComponent<BNodeTreeBehaviour>();
+                    tree = g.GetComponent<BNodeTreeBehaviourBase>();
                     break;
                 }
 
@@ -462,7 +462,7 @@ namespace Bloodthirst.System.Quest.Editor
             NodeBaseType = validNodeTypes[0];
 
             // data pickers
-            NodeBehaviourPicker.objectType = typeof(BNodeTreeBehaviour);
+            NodeBehaviourPicker.objectType = typeof(BNodeTreeBehaviourBase);
             NodeTreeDataPicker.objectType = typeof(NodeTreeData);
 
             // init object selection
