@@ -309,27 +309,27 @@ namespace Bloodthirst.System.Quest.Editor
         private void AddAllPorts()
         {
             // output
-            for (int i = 0; i < NodeType.OutputPortsConst.Count; i++)
+            for (int i = 0; i < NodeType.OutputPortsConst.Count(); i++)
             {
-                IPortType curr = NodeType.OutputPortsConst[i];
+                IPortType curr = NodeType.OutputPortsConst.ElementAt(i);
                 AddConstOutputPort(curr);
             }
 
-            for (int i = 0; i < NodeType.OutputPortsVariable.Count; i++)
+            for (int i = 0; i < NodeType.OutputPortsVariable.Count(); i++)
             {
-                IPortType curr = NodeType.OutputPortsVariable[i];
+                IPortType curr = NodeType.OutputPortsVariable.ElementAt(i);
                 AddVariableOutputPort(curr);
             }
 
             // input
-            for (int i = 0; i < NodeType.InputPortsConst.Count; i++)
+            for (int i = 0; i < NodeType.InputPortsConst.Count(); i++)
             {
-                IPortType curr = NodeType.InputPortsConst[i];
+                IPortType curr = NodeType.InputPortsConst.ElementAt(i);
                 AddConstInputPort(curr);
             }
-            for (int i = 0; i < NodeType.InputPortsVariable.Count; i++)
+            for (int i = 0; i < NodeType.InputPortsVariable.Count(); i++)
             {
-                IPortType curr = NodeType.InputPortsVariable[i];
+                IPortType curr = NodeType.InputPortsVariable.ElementAt(i);
                 AddVariableInputPort(curr);
             }
         }
@@ -337,21 +337,21 @@ namespace Bloodthirst.System.Quest.Editor
         private void ClearAllPorts()
         {
             // outputs
-            for (int i = NodeType.OutputPortsConst.Count - 1; i >= 0; i--)
+            for (int i = NodeType.OutputPortsConst.Count() - 1; i >= 0; i--)
             {
                 RemoveConstOutputAt(i);
             }
-            for (int i = NodeType.OutputPortsVariable.Count - 1; i >= 0; i--)
+            for (int i = NodeType.OutputPortsVariable.Count() - 1; i >= 0; i--)
             {
                 RemoveVariableOutputAt(i);
             }
 
             // inputs
-            for (int i = NodeType.InputPortsConst.Count - 1; i >= 0; i--)
+            for (int i = NodeType.InputPortsConst.Count() - 1; i >= 0; i--)
             {
                 RemoveConstInputAt(i);
             }
-            for (int i = NodeType.InputPortsVariable.Count - 1; i >= 0; i--)
+            for (int i = NodeType.InputPortsVariable.Count() - 1; i >= 0; i--)
             {
                 RemoveVariableInputAt(i);
             }

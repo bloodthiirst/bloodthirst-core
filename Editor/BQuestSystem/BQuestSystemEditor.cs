@@ -453,8 +453,11 @@ namespace Bloodthirst.System.Quest.Editor
         {
             List<Type> validNodeTypes = TypeUtils.AllTypes
                 .Where(t => t.IsAbstract)
-                .Where(t => t != typeof(INodeType))
                 .Where(t => TypeUtils.IsSubTypeOf(t, typeof(INodeType)))
+                .Where(t => t != typeof(INodeType))
+                .Where(t => t != typeof(INodeType<>))
+                .Where(t => t != typeof(NodeBase<>))
+                //.Where(t => TypeUtils.IsSubTypeOf(t, typeof(NodeBase<>).MakeGenericType(t)))
                 .ToList();
 
             NodeTypePicker = new PopupField<Type>("Node base type", validNodeTypes, 0, TypeUtils.GetNiceName, TypeUtils.GetNiceName);

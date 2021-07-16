@@ -50,7 +50,7 @@ namespace Bloodthirst.System.Quest.Editor
             unityObjects = unityObjects.CreateOrClear();
 
             JsonSerializerSettings settings = BQuestSystemSettings.GetSerializerSettings();
-            CustomContext ctw = new CustomContext() { UnityObjects = unityObjects , Root = this };
+            CustomContext ctw = new CustomContext() { UnityObjects = unityObjects, Root = this };
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctw);
 
             jsonData = JsonConvert.SerializeObject(this, settings);
@@ -59,7 +59,7 @@ namespace Bloodthirst.System.Quest.Editor
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
             JsonSerializerSettings settings = BQuestSystemSettings.GetSerializerSettings();
-            CustomContext ctx = new CustomContext() { UnityObjects = unityObjects , Root = this };
+            CustomContext ctx = new CustomContext() { UnityObjects = unityObjects, Root = this };
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
 
             JsonConvert.PopulateObject(jsonData, this, settings);
@@ -75,31 +75,31 @@ namespace Bloodthirst.System.Quest.Editor
         /// Create a copy of the node tree structure
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<INodeType> BuildAllNodes()
+        public IEnumerable<TNode> BuildAllNodes<TNode>() where TNode : INodeType<TNode> , INodeType
         {
             // get the nodes
-            List<INodeType> allNodes = new List<INodeType>();
+            List<TNode> allNodes = new List<TNode>();
 
             // copy the nodes
             foreach (NodeData n in Nodes)
             {
 
-                    INodeType nodeType = BCopier<INodeType>.Instance.Copy(n.NodeType);
-                    allNodes.Add(nodeType);
+                TNode nodeType = BCopier<TNode>.Instance.Copy((TNode)n.NodeType);
+                allNodes.Add(nodeType);
 
-                    
+
             }
 
             // link the port references
             foreach (LinkData l in Links)
             {
-                INodeType fromNode = allNodes.FirstOrDefault(n => n.NodeID == l.From);
-                INodeType toNode = allNodes.FirstOrDefault(n => n.NodeID == l.To);
+                INodeType fromNode = allNodes.FirstOrDefault(n => ((INodeType) n).NodeID == l.From);
+                INodeType toNode = allNodes.FirstOrDefault(n => ((INodeType)n).NodeID == l.To);
 
-                IPortType fromPort = fromNode.OutputPortsConst[l.FromPort];
+                IPortType fromPort = fromNode.OutputPortsConst.ElementAt(l.FromPort);
                 fromPort.ParentNode = fromNode;
 
-                IPortType toPort = toNode.InputPortsConst[l.ToPort];
+                IPortType toPort = toNode.InputPortsConst.ElementAt(l.ToPort);
                 toPort.ParentNode = toNode;
 
                 LinkDefault link = new LinkDefault() { From = fromPort, To = toPort };
@@ -108,7 +108,7 @@ namespace Bloodthirst.System.Quest.Editor
                 toPort.LinkAttached = link;
             }
 
-            foreach (INodeType n in allNodes)
+            foreach (TNode n in allNodes)
             {
                 yield return n;
             }

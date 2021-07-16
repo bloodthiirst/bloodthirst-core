@@ -51,7 +51,7 @@ namespace Bloodthirst.System.Quest
     /// Wrapper class that define a treenode behaviour with a specific node base class
     /// </summary>
     /// <typeparam name="TNodeType"></typeparam>
-    public abstract class BNodeTreeBehaviourBase<TNode> : BNodeTreeBehaviourBase where TNode : INodeType
+    public abstract class BNodeTreeBehaviourBase<TNode> : BNodeTreeBehaviourBase where TNode : INodeType<TNode> , INodeType
     {
 #if UNITY_EDITOR
         private const string TYPE_WARNING_MESSAGE = "The type of the node data needs to match the type of the tree behaviour";
@@ -63,6 +63,7 @@ namespace Bloodthirst.System.Quest
         /// </summary>
         public static Type Type => type;
 
+        public List<TNode> Roots { get; private set; }
         
         [SerializeField]
 #if UNITY_EDITOR
@@ -88,7 +89,7 @@ namespace Bloodthirst.System.Quest
                 if (EqualityComparer<TNode>.Default.Equals(activeNodeTyped, value))
                     return;
 
-                ActiveNode = value;
+                ActiveNode = (INodeType) value;
                 activeNodeTyped = value;
                 OnActiveNodeTypedChanged?.Invoke(activeNodeTyped);
             }
@@ -125,9 +126,9 @@ namespace Bloodthirst.System.Quest
         /// <returns></returns>
         public IEnumerable<TNode> RootNodesTyped()
         {
-            foreach(INodeType n in RootNodes)
+            foreach(TNode n in Roots)
             {
-                yield return (TNode)n;
+                yield return n;
             }
         }
 
@@ -137,16 +138,16 @@ namespace Bloodthirst.System.Quest
         public void ReloadTree()
         {
             // create a copy of the nodes structure
-            RootNodes = treeData
-                .BuildAllNodes()
-                .Where(n => n.InputPortsConst.All(p => p.LinkAttached == null))
+            Roots = treeData
+                .BuildAllNodes<TNode>()
+                .Where(n => ((INodeType<TNode>)n).InputPortsConst.All(p => p.LinkAttached == null))
                 .ToList();
         }
 
         [Button]
         public void ResetCurrentNode()
         {
-            ActiveNodeTyped = (TNode) RootNodes[0];
+            ActiveNodeTyped = Roots[0];
         }
 
         [Button]
@@ -160,14 +161,12 @@ namespace Bloodthirst.System.Quest
             }
 
             // try to nagivate from current node to next
-            for (int i = 0; i < ActiveNodeTyped.OutputPortsConst.Count; i++)
+            foreach (IPortType<TNode> curr in ((INodeType<TNode>)ActiveNodeTyped).OutputPortsConst)
             {
-                IPortType curr = ActiveNodeTyped.OutputPortsConst[i];
-
                 if (curr.LinkAttached == null)
                     continue;
 
-                ActiveNodeTyped = (TNode)curr.LinkAttached.To.ParentNode;
+                ActiveNodeTyped = curr.LinkAttached.To.ParentNode;
                 return;
             }
 

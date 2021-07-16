@@ -2,17 +2,25 @@
 
 namespace Bloodthirst.System.Quest.Editor
 {
-    public class PortDefault : IPortType
+    public class PortDefault<TNode> : IPortType<TNode> , IPortType where TNode : INodeType<TNode> , INodeType
     {        
         public Type PortType { get; protected set; }
 
         public string PortName { get; set; }
 
-        public INodeType ParentNode { get; set; }
+        public TNode ParentNode { get; set; }
         
         public NODE_DIRECTION NodeDirection { get; set; }
 
-        public ILinkType LinkAttached { get; set; }
+        public ILinkType<TNode> LinkAttached { get; set; }
+
+        Type IPortType.PortType => PortType;
+
+        string IPortType.PortName => PortName;
+
+        NODE_DIRECTION IPortType.NodeDirection { get => NodeDirection; set => NodeDirection = value; }
+        INodeType IPortType.ParentNode { get => ParentNode; set =>  ParentNode = (TNode) value; }
+        ILinkType IPortType.LinkAttached { get => LinkAttached; set => LinkAttached = (ILinkType<TNode>)value; }
 
         public PortDefault()
         {
@@ -24,13 +32,23 @@ namespace Bloodthirst.System.Quest.Editor
             return null;
         }
 
-        public virtual bool CanLinkTo(IPortType otherPort)
+        public virtual bool CanLinkTo(IPortType<TNode> otherPort)
         {
             // can't connect same direction nodes
             if (NodeDirection == otherPort.NodeDirection)
                 return false;
 
             return true;
+        }
+
+        object IPortType.GetPortValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IPortType.CanLinkTo(IPortType otherPort)
+        {
+            throw new NotImplementedException();
         }
     }
 }
