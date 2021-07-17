@@ -75,7 +75,7 @@ namespace Bloodthirst.System.Quest.Editor
         /// Create a copy of the node tree structure
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TNode> BuildAllNodes<TNode>() where TNode : INodeType<TNode> , INodeType
+        public IEnumerable<TNode> BuildAllNodes<TNode>() where TNode : INodeType<TNode>, INodeType
         {
             // get the nodes
             List<TNode> allNodes = new List<TNode>();
@@ -83,8 +83,25 @@ namespace Bloodthirst.System.Quest.Editor
             // copy the nodes
             foreach (NodeData n in Nodes)
             {
-
                 TNode nodeType = BCopier<TNode>.Instance.Copy((TNode)n.NodeType);
+
+                /*
+                List<IPortType<TNode>> outputTyped = (List<IPortType<TNode>>)nodeType.OutputPortsConstTyped;
+                List<IPortType> output = (List<IPortType>)nodeType.OutputPortsConst;
+
+                for(int i = 0; i< outputTyped.Count;i++)
+                {
+                    output[i] = (IPortType) outputTyped[i];
+                }
+
+                List<IPortType<TNode>> inputTyped = (List<IPortType<TNode>>)nodeType.InputPortsConstTyped;
+                List<IPortType> input = (List<IPortType>)nodeType.InputPortsConst;
+
+                for (int i = 0; i < inputTyped.Count; i++)
+                {
+                    input[i] = (IPortType) inputTyped[i];
+                }
+                */
                 allNodes.Add(nodeType);
 
 
@@ -93,16 +110,16 @@ namespace Bloodthirst.System.Quest.Editor
             // link the port references
             foreach (LinkData l in Links)
             {
-                INodeType fromNode = allNodes.FirstOrDefault(n => ((INodeType) n).NodeID == l.From);
-                INodeType toNode = allNodes.FirstOrDefault(n => ((INodeType)n).NodeID == l.To);
+                TNode fromNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.From);
+                TNode toNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.To);
 
-                IPortType fromPort = fromNode.OutputPortsConst.ElementAt(l.FromPort);
+                IPortType<TNode> fromPort = ((INodeType<TNode>)fromNode).OutputPortsConstTyped.ElementAt(l.FromPort);
                 fromPort.ParentNode = fromNode;
 
-                IPortType toPort = toNode.InputPortsConst.ElementAt(l.ToPort);
+                IPortType<TNode> toPort = ((INodeType<TNode>)toNode).InputPortsConstTyped.ElementAt(l.ToPort);
                 toPort.ParentNode = toNode;
 
-                LinkDefault link = new LinkDefault() { From = fromPort, To = toPort };
+                LinkDefault<TNode> link = new LinkDefault<TNode>() { From = fromPort, To = toPort };
 
                 fromPort.LinkAttached = link;
                 toPort.LinkAttached = link;

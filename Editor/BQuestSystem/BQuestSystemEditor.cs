@@ -35,10 +35,11 @@ namespace Bloodthirst.System.Quest.Editor
             wnd.titleContent = new GUIContent("BQuestSystemEditor");
         }
 
+        /*
         [DidReloadScripts()]
         public static void OnScriptReload()
         {
-            if (EditorWindow.HasOpenInstances<BQuestSystemEditor>())
+            if (!EditorWindow.HasOpenInstances<BQuestSystemEditor>())
                 return;
 
             BQuestSystemEditor win = GetWindow<BQuestSystemEditor>();
@@ -49,6 +50,7 @@ namespace Bloodthirst.System.Quest.Editor
             win.RefreshObjectPickers(true);
 
         }
+        */
 
         #region global params
         public bool IsInitialized { get; set; }
@@ -253,7 +255,6 @@ namespace Bloodthirst.System.Quest.Editor
             Selection.selectionChanged -= HandleObjectSelection;
 
             IsInitialized = false;
-
         }
 
         private void HandleObjectSelection()
@@ -382,9 +383,13 @@ namespace Bloodthirst.System.Quest.Editor
             // don't init with a node
             if (SelectedTreeData == null)
             {
-                DefaultNode firstNode = new DefaultNode();
+                Type defaultNodeType = TypeUtils.AllTypes.FirstOrDefault(t => t.BaseType == NodeBaseType && t.GetCustomAttributes(typeof(DefaultNodeAttribute), false) != null);
 
-                AddNode(firstNode, Vector3.zero);
+                if (defaultNodeType != null)
+                {
+                    INodeType firstNode = (INodeType) Activator.CreateInstance(defaultNodeType);
+                    AddNode(firstNode, Vector3.zero);
+                }
             }
 
             IsInitialized = true;
@@ -392,6 +397,9 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void HandlePlayModeStateChanged(PlayModeStateChange state)
         {
+            if (!HasOpenInstances<BQuestSystemEditor>())
+                return;
+
             if (state == PlayModeStateChange.EnteredEditMode || state == PlayModeStateChange.EnteredPlayMode)
             {
                 RefreshObjectPickers(true);
@@ -506,6 +514,19 @@ namespace Bloodthirst.System.Quest.Editor
 
             NodeBaseType = evt.newValue;
             NodeTypePicker.SetValueWithoutNotify(evt.newValue);
+
+
+            if (SelectedTreeData == null)
+            {
+
+                Type defaultNodeType = TypeUtils.AllTypes.FirstOrDefault(t => t.BaseType == NodeBaseType && t.GetCustomAttributes(typeof(DefaultNodeAttribute), false) != null);
+
+                if (defaultNodeType != null)
+                {
+                    INodeType firstNode = (INodeType)Activator.CreateInstance(defaultNodeType);
+                    AddNode(firstNode, Vector3.zero);
+                }
+            }
         }
 
 
@@ -611,10 +632,17 @@ namespace Bloodthirst.System.Quest.Editor
         public LinkElement AddLink(PortBaseElement from, PortBaseElement to)
         {
             // link type
-            LinkDefault linkType = new LinkDefault() { From = from.PortType, To = to.PortType };
+            Type linkType = typeof(LinkDefault<>).MakeGenericType(NodeBaseType);
+
+            ILinkType typedLink = (ILinkType) Activator.CreateInstance(linkType);
+            typedLink.From = from.PortType;
+            typedLink.To = to.PortType;
+
+            to.PortType.LinkAttached = typedLink;
+            from.PortType.LinkAttached = typedLink;
 
             // ui
-            LinkElement link = new LinkElement(linkType, from, to);
+            LinkElement link = new LinkElement(typedLink, from, to);
 
             Canvas.Add(link.VisualElement);
             AllLinks.Add(link);
@@ -777,9 +805,30 @@ namespace Bloodthirst.System.Quest.Editor
             ClearCanvas();
 
             NodeTypePicker.value = data.NodeBaseType;
+            NodeBaseType = data.NodeBaseType;
 
             foreach (NodeData n in data.Nodes)
             {
+                foreach(IPortType o in n.NodeType.InputPortsConst)
+                {
+                    o.ParentNode = n.NodeType;
+                }
+
+                foreach (IPortType o in n.NodeType.OutputPortsConst)
+                {
+                    o.ParentNode = n.NodeType;
+                }
+
+                foreach (IPortType o in n.NodeType.InputPortsVariable)
+                {
+                    o.ParentNode = n.NodeType;
+                }
+
+                foreach (IPortType o in n.NodeType.OutputPortsVariable)
+                {
+                    o.ParentNode = n.NodeType;
+                }
+
                 AddNode(n.NodeType, n.Position , n.Size , false);
             }
 

@@ -140,7 +140,7 @@ namespace Bloodthirst.System.Quest
             // create a copy of the nodes structure
             Roots = treeData
                 .BuildAllNodes<TNode>()
-                .Where(n => ((INodeType<TNode>)n).InputPortsConst.All(p => p.LinkAttached == null))
+                .Where(n => ((INodeType<TNode>)n).InputPortsConstTyped.All(p => p.LinkAttached == null))
                 .ToList();
         }
 
@@ -161,12 +161,13 @@ namespace Bloodthirst.System.Quest
             }
 
             // try to nagivate from current node to next
-            foreach (IPortType<TNode> curr in ((INodeType<TNode>)ActiveNodeTyped).OutputPortsConst)
+            IEnumerable<IPortType<TNode>> outputPortsConst = ((INodeType<TNode>)ActiveNodeTyped).OutputPortsConstTyped;
+            foreach (IPortType<TNode> curr in outputPortsConst)
             {
                 if (curr.LinkAttached == null)
                     continue;
 
-                ActiveNodeTyped = curr.LinkAttached.To.ParentNode;
+                ActiveNodeTyped = curr.LinkAttached.ToTyped.ParentNode;
                 return;
             }
 

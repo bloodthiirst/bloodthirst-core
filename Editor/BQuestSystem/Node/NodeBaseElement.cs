@@ -243,7 +243,7 @@ namespace Bloodthirst.System.Quest.Editor
         {
             PortBaseElement input = new PortBaseElement(this, curr);
             InputPortsContainer.Add(input.VisualElement);
-            InputsConst.Add(input);
+            InputsVariable.Add(input);
         }
         #endregion
 
@@ -275,7 +275,7 @@ namespace Bloodthirst.System.Quest.Editor
         {
             PortBaseElement curr = OutputsConst[i];
             OutputPortsContainer.RemoveAt(i);
-            OutputsConst.RemoveAt(i);
+            OutputsVariable.RemoveAt(i);
         }
         #endregion
 

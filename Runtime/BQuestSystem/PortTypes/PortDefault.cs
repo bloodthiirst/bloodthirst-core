@@ -14,13 +14,34 @@ namespace Bloodthirst.System.Quest.Editor
 
         public ILinkType<TNode> LinkAttached { get; set; }
 
+        #region IPortType<TNode> implementation
+        Type IPortType<TNode>.PortType => PortType;
+        string IPortType<TNode>.PortName => PortName;
+
+        NODE_DIRECTION IPortType<TNode>.NodeDirection { get => NodeDirection; set => NodeDirection = value; }
+        TNode IPortType<TNode>.ParentNode { get => ParentNode; set => ParentNode = value; }
+
+        ILinkType<TNode> IPortType<TNode>.LinkAttached 
+        { 
+            get => LinkAttached;
+            set => LinkAttached = value;
+        }
+
+        #endregion
+
+        #region IPortType implementation
         Type IPortType.PortType => PortType;
 
         string IPortType.PortName => PortName;
 
         NODE_DIRECTION IPortType.NodeDirection { get => NodeDirection; set => NodeDirection = value; }
         INodeType IPortType.ParentNode { get => ParentNode; set => ParentNode = (TNode)value; }
-        ILinkType IPortType.LinkAttached { get => LinkAttached; set => LinkAttached = (ILinkType<TNode>)value; }
+        ILinkType IPortType.LinkAttached
+        { 
+            get => LinkAttached;
+            set => LinkAttached = (ILinkType<TNode>)value;
+        }
+        #endregion
 
         public PortDefault()
         {

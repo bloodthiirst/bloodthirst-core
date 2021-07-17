@@ -34,6 +34,7 @@ namespace Bloodthirst.BDeepCopy
             IEnumerable<Type> types = TypeUtils.AllTypes
                 .Where(t => !t.IsAbstract)
                 .Where(t => !t.IsInterface)
+                .Where(t => !t.IsGenericType)
                 .Where(t => TypeUtils.IsSubTypeOf(t, Type));
 
             foreach(Type t in types)

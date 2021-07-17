@@ -6,10 +6,10 @@ namespace Bloodthirst.System.Quest.Editor
     public interface ILinkType<TNode> : ILinkType where TNode : INodeType<TNode>
     {
         [JsonIgnore]
-        IPortType<TNode> From { get; set; }
+        IPortType<TNode> FromTyped { get; set; }
 
         [JsonIgnore]
-        IPortType<TNode> To { get; set; }
+        IPortType<TNode> ToTyped { get; set; }
     }
 
     public interface ILinkType

@@ -6,7 +6,7 @@ namespace Bloodthirst.BDeepCopy
     {
         bool IBCopyFactory.CanCopy(Type t)
         {
-            return t.IsInterface;
+            return t.IsInterface || t.IsAbstract;
         }
 
         IBCopierInternal IBCopyFactory.GetCopier(Type t)

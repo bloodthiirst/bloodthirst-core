@@ -61,9 +61,11 @@ namespace Bloodthirst.Core.Utils
             // Validate parameters.
             if (type == null) throw new ArgumentNullException("type");
 
-            // We want an Func<object> which returns the default.
-            // Create that expression here.
-            Expression<Func<object>> e = Expression.Lambda<Func<object>>(
+            try
+            {
+                // We want an Func<object> which returns the default.
+                // Create that expression here.
+                Expression<Func<object>> e = Expression.Lambda<Func<object>>(
                 // Have to convert to object.
                 Expression.Convert(
                     // The default value, always get what the *code* tells us.
@@ -71,8 +73,14 @@ namespace Bloodthirst.Core.Utils
                 )
             );
 
-            // Compile and return the value.
-            return e.Compile();
+                // Compile and return the value.
+                return e.Compile();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return null;
         }
 
         /// <summary>
@@ -82,6 +90,7 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static Func<object> GetParameterlessConstructor(Type type)
         {
+
             Func<object> result = Expression.Lambda<Func<object>>
             (
                 Expression.Convert(Expression.New(type), typeof(object))

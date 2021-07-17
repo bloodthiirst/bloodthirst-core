@@ -7,11 +7,11 @@ namespace Bloodthirst.System.Quest.Editor
     {
         [IgnoreBindable]
         int NodeID { get; set; }
-        IEnumerable<IPortType<TTNode>> InputPortsConst { get; }
-        IEnumerable<IPortType<TTNode>> InputPortsVariable { get; }
+        IEnumerable<IPortType<TTNode>> InputPortsConstTyped { get; }
+        IEnumerable<IPortType<TTNode>> InputPortsVariableTyped { get; }
 
-        IEnumerable<IPortType<TTNode>> OutputPortsConst { get; }
-        IEnumerable<IPortType<TTNode>> OutputPortsVariable { get; }
+        IEnumerable<IPortType<TTNode>> OutputPortsConstTyped { get; }
+        IEnumerable<IPortType<TTNode>> OutputPortsVariableTyped { get; }
 
         void AddInputConst<TPort>(TPort input) where TPort : IPortType, IPortType<TTNode>;
         void AddOutputConst<TPort>(TPort output) where TPort : IPortType, IPortType<TTNode>;
