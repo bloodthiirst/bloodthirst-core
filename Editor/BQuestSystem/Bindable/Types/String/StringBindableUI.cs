@@ -66,6 +66,7 @@ namespace Bloodthirst.System.Quest.Editor
             VisualElement.styleSheets.Add(StyleSheet);
 
             TextUI.label = member.Name;
+            TextUI.multiline = true;
 
             // generate getter/setter
             // if property
