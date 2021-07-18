@@ -10,11 +10,15 @@ using Newtonsoft.Json;
 using Bloodthirst.Core.TreeList;
 using System.Linq;
 using UnityEditor.Callbacks;
+using Unity.EditorCoroutines.Editor;
+using System.Collections;
 
 namespace Bloodthirst.System.Quest.Editor
 {
     public class BQuestSystemEditor : EditorWindow, INodeEditor
     {
+        private static NodeTreeData RequestOpen { get; set; }
+
         /// <summary>
         /// UXML path
         /// </summary>
@@ -54,7 +58,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         #region global params
         public bool IsInitialized { get; set; }
-        public float ZoomSensitivity { get; set; } = 0.1f;
+        public float ZoomSensitivity { get; set; } = 0.01f;
         public bool InvertZoom { get; set; } = true;
         public Vector2 ZoomMinMax { get; set; }
         public Type NodeBaseType { get; set; }
@@ -139,6 +143,8 @@ namespace Bloodthirst.System.Quest.Editor
         }
 
         private NodeTreeData selectedNodeData;
+
+
         private NodeTreeData SelectedTreeData
         {
             get => selectedNodeData;
@@ -195,7 +201,7 @@ namespace Bloodthirst.System.Quest.Editor
         public event Action<NodeBaseElement, ClickEvent> OnNodeMouseClick;
 
         public event Action<NodeBaseElement> OnNodeStartResize;
-        
+
         public event Action<NodeBaseElement> OnNodeEndResize;
 
         public event Action<NodeBaseElement> OnNodeAddInput;
@@ -259,7 +265,19 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void HandleObjectSelection()
         {
-            RefreshObjectPickers();
+            BNodeTreeBehaviourBase tree = TryGetSelectedTreeBehaviour();
+            if (tree != null)
+            {
+                SelectedTreeBehaviourForce = tree;
+                return;
+            }
+
+            NodeTreeData data = TryGetSelectedTreeData();
+
+            if (data != null)
+            {
+                SelectedTreeDataForce = data;
+            }
         }
 
         private void ClearCanvas()
@@ -271,31 +289,13 @@ namespace Bloodthirst.System.Quest.Editor
             }
         }
 
-
-        private void WaitForNodeConstruction()
-        {
-            foreach (NodeBaseElement n in AllNodes)
-            {
-                if (float.IsNaN(n.VisualElement.contentRect.width))
-                    return;
-            }
-
-            EditorApplication.update -= WaitForNodeConstruction;
-
-            foreach (LinkElement l in AllLinks)
-            {
-                l.Refresh();
-            }
-        }
-
         private void Update()
         {
             if (Canvas == null)
                 return;
 
-
             Canvas.transform.scale = Vector3.one * Zoom;
-            Canvas.transform.position = PanningOffset;
+            Canvas.transform.position = PanningOffset * Zoom;
         }
 
         private void SetupCanvasActions()
@@ -320,6 +320,7 @@ namespace Bloodthirst.System.Quest.Editor
                 // view control
                 new PanCanvasAction(),
                 new ZoomCanvasAction(),
+                new ResetCanvasViewAction(),
 
                 // global
                 new BuildNodeTreeAction(),
@@ -372,6 +373,8 @@ namespace Bloodthirst.System.Quest.Editor
             Root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
             Root.styleSheets.Add(customUss);
 
+            Canvas.transform.position = Vector2.zero;
+
             Intialize();
 
             foreach (INodeEditorAction a in CanvasActions)
@@ -379,20 +382,51 @@ namespace Bloodthirst.System.Quest.Editor
                 a.OnEnable();
             }
 
-            // if data is already loaded
-            // don't init with a node
-            if (SelectedTreeData == null)
-            {
-                Type defaultNodeType = TypeUtils.AllTypes.FirstOrDefault(t => t.BaseType == NodeBaseType && t.GetCustomAttributes(typeof(DefaultNodeAttribute), false) != null);
-
-                if (defaultNodeType != null)
-                {
-                    INodeType firstNode = (INodeType) Activator.CreateInstance(defaultNodeType);
-                    AddNode(firstNode, Vector3.zero);
-                }
-            }
+            // Handle load data on startup
+            StartupLoadData();
 
             IsInitialized = true;
+        }
+
+        private void StartupLoadData()
+        {
+            // if we opened by clicking on an asset
+            if (RequestOpen != null)
+            {
+                SelectedTreeDataForce = RequestOpen;
+                return;
+            }
+
+            // try reloading the selected object
+            BNodeTreeBehaviourBase tree = TryGetSelectedTreeBehaviour();
+
+            if (tree != null)
+            {
+                SelectedTreeBehaviourForce = tree;
+                return;
+            }
+
+            NodeTreeData data = TryGetSelectedTreeData();
+
+            if (data != null)
+            {
+                SelectedTreeDataForce = data;
+                return;
+            }
+
+            // else init with a default node node
+            InitWithDefaultNode();
+        }
+
+        private void InitWithDefaultNode()
+        {
+            Type defaultNodeType = TypeUtils.AllTypes.FirstOrDefault(t => t.BaseType == NodeBaseType && t.GetCustomAttributes(typeof(DefaultNodeAttribute), false) != null);
+
+            if (defaultNodeType != null)
+            {
+                INodeType firstNode = (INodeType)Activator.CreateInstance(defaultNodeType);
+                AddNode(firstNode, Vector3.zero);
+            }
         }
 
         private void HandlePlayModeStateChanged(PlayModeStateChange state)
@@ -400,16 +434,31 @@ namespace Bloodthirst.System.Quest.Editor
             if (!HasOpenInstances<BQuestSystemEditor>())
                 return;
 
+            // try reloading the selected object on play mode changed
             if (state == PlayModeStateChange.EnteredEditMode || state == PlayModeStateChange.EnteredPlayMode)
             {
-                RefreshObjectPickers(true);
+                BNodeTreeBehaviourBase tree = TryGetSelectedTreeBehaviour();
+                if (tree != null)
+                {
+                    SelectedTreeBehaviourForce = tree;
+                    return;
+                }
+
+                NodeTreeData data = TryGetSelectedTreeData();
+
+                if (data != null)
+                {
+                    SelectedTreeDataForce = data;
+                }
             }
         }
 
-        private void RefreshObjectPickers(bool force = false)
+
+
+
+        private BNodeTreeBehaviourBase TryGetSelectedTreeBehaviour()
         {
             BNodeTreeBehaviourBase tree = null;
-            NodeTreeData data = null;
 
             for (int i = 0; i < Selection.objects.Length; i++)
             {
@@ -420,6 +469,19 @@ namespace Bloodthirst.System.Quest.Editor
                     tree = g.GetComponent<BNodeTreeBehaviourBase>();
                     break;
                 }
+            }
+
+            return tree;
+        }
+
+
+        private NodeTreeData TryGetSelectedTreeData()
+        {
+            NodeTreeData data = null;
+
+            for (int i = 0; i < Selection.objects.Length; i++)
+            {
+                UnityEngine.Object curr = Selection.objects[i];
 
                 if (curr is NodeTreeData d)
                 {
@@ -428,45 +490,19 @@ namespace Bloodthirst.System.Quest.Editor
                 }
             }
 
-            // if behaviour is selected
-            // we set it and exit
-            if (!force)
-            {
-                SelectedTreeBehaviour = tree;
-            }
-            else
-            {
-                SelectedTreeBehaviourForce = tree;
-            }
-
-            if (tree != null)
-            {
-                return;
-            }
-
-            // if no behaviour is selected
-            // go to the data
-
-            if (!force)
-            {
-                SelectedTreeData = data;
-            }
-            else
-            {
-                SelectedTreeDataForce = data;
-            }
+            return data;
         }
 
         private void Intialize()
         {
             List<Type> validNodeTypes = TypeUtils.AllTypes
                 .Where(t => t.IsAbstract)
-                
+
                 .Where(t => TypeUtils.IsSubTypeOf(t, typeof(INodeType)))
                 .Where(t => t != typeof(INodeType))
                 .Where(t => t != typeof(INodeType<>))
                 .Where(t => t != typeof(NodeBase<>))
-                
+
                 //.Where(t => t.BaseType == typeof(NodeBase<>).MakeGenericType(t))
                 .ToList();
 
@@ -478,8 +514,6 @@ namespace Bloodthirst.System.Quest.Editor
             NodeBehaviourPicker.objectType = typeof(BNodeTreeBehaviourBase);
             NodeTreeDataPicker.objectType = typeof(NodeTreeData);
 
-            // init object selection
-            RefreshObjectPickers(true);
 
             /*
             NodeBehaviourPicker.SetEnabled(false);
@@ -506,27 +540,12 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void HandleNodeTypeChanged(ChangeEvent<Type> evt)
         {
-            for (int i = AllNodes.Count - 1; i >= 0; i--)
-            {
-                NodeBaseElement n = AllNodes[i];
-                RemoveNode(n);
-            }
+            ClearCanvas();
 
             NodeBaseType = evt.newValue;
             NodeTypePicker.SetValueWithoutNotify(evt.newValue);
 
-
-            if (SelectedTreeData == null)
-            {
-
-                Type defaultNodeType = TypeUtils.AllTypes.FirstOrDefault(t => t.BaseType == NodeBaseType && t.GetCustomAttributes(typeof(DefaultNodeAttribute), false) != null);
-
-                if (defaultNodeType != null)
-                {
-                    INodeType firstNode = (INodeType)Activator.CreateInstance(defaultNodeType);
-                    AddNode(firstNode, Vector3.zero);
-                }
-            }
+            InitWithDefaultNode();
         }
 
 
@@ -634,7 +653,7 @@ namespace Bloodthirst.System.Quest.Editor
             // link type
             Type linkType = typeof(LinkDefault<>).MakeGenericType(NodeBaseType);
 
-            ILinkType typedLink = (ILinkType) Activator.CreateInstance(linkType);
+            ILinkType typedLink = (ILinkType)Activator.CreateInstance(linkType);
             typedLink.From = from.PortType;
             typedLink.To = to.PortType;
 
@@ -719,8 +738,15 @@ namespace Bloodthirst.System.Quest.Editor
             if (obj == null)
                 return false;
 
-            GetWindow<BQuestSystemEditor>().SelectedTreeData = data;
-
+            if (HasOpenInstances<BQuestSystemEditor>())
+            {
+                GetWindow<BQuestSystemEditor>().SelectedTreeData = data;
+            }
+            else
+            {
+                RequestOpen = data;
+                GetWindow<BQuestSystemEditor>();
+            }
             return true;
         }
         public bool Save()
@@ -802,14 +828,26 @@ namespace Bloodthirst.System.Quest.Editor
 
         public void Load(NodeTreeData data)
         {
+            EditorCoroutineUtility.StartCoroutine(CrtLoad(data), this);
+        }
+
+        private IEnumerator CrtLoad(NodeTreeData data)
+        {
             ClearCanvas();
 
-            NodeTypePicker.value = data.NodeBaseType;
+            NodeTypePicker.SetValueWithoutNotify(data.NodeBaseType);
             NodeBaseType = data.NodeBaseType;
 
+            // wait for canvas construction
+            while (float.IsNaN(Canvas.contentRect.width))
+            {
+                yield return null;
+            }
+
+            // create nodes
             foreach (NodeData n in data.Nodes)
             {
-                foreach(IPortType o in n.NodeType.InputPortsConst)
+                foreach (IPortType o in n.NodeType.InputPortsConst)
                 {
                     o.ParentNode = n.NodeType;
                 }
@@ -829,9 +867,10 @@ namespace Bloodthirst.System.Quest.Editor
                     o.ParentNode = n.NodeType;
                 }
 
-                AddNode(n.NodeType, n.Position , n.Size , false);
+                AddNode(n.NodeType, n.Position, n.Size, false);
             }
 
+            // create link
             foreach (LinkData l in data.Links)
             {
                 NodeBaseElement fromNode = AllNodes.FirstOrDefault(n => n.NodeType.NodeID == l.From);
@@ -841,8 +880,38 @@ namespace Bloodthirst.System.Quest.Editor
                 AddLink(fromPort, toPort);
             }
 
-            EditorApplication.update += WaitForNodeConstruction;
+            Zoom = 1;
+
+            Vector2 p = Vector2.zero;
+
+            foreach(NodeData n in data.Nodes)
+            {
+                p += n.Position;
+            }
+
+            p /= data.Nodes.Count;
+
+            PanningOffset = -p;
+
+            // wait for node reconstruction
+            while (true)
+            {
+                foreach (NodeBaseElement n in AllNodes)
+                {
+                    if (float.IsNaN(n.VisualElement.contentRect.width))
+                        yield return null;
+                }
+
+                break;
+            }
+
+            // refresh links
+            foreach (LinkElement l in AllLinks)
+            {
+                l.Refresh();
+            }
         }
+
         #endregion
 
 
@@ -897,7 +966,7 @@ namespace Bloodthirst.System.Quest.Editor
             if (loadAsset == null)
                 return;
 
-            Load(loadAsset);
+            SelectedTreeDataForce = loadAsset;
         }
 
         private void HandleSaveClicked()

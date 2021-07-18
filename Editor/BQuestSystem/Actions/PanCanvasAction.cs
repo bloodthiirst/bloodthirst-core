@@ -65,7 +65,7 @@ namespace Bloodthirst.System.Quest.Editor
             if (!IsDragging)
                 return;
 
-            NodeEditor.PanningOffset += evt.mouseDelta;
+            NodeEditor.PanningOffset += evt.mouseDelta / NodeEditor.Zoom;
 
             // stops the click from affecting child elements
             evt.StopPropagation();
