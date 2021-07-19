@@ -229,6 +229,8 @@ namespace Bloodthirst.System.Quest.Editor
         public event Action<MouseMoveEvent> OnCanvasMouseMove;
         private List<INodeEditorAction> CanvasActions { get; set; }
 
+        public Vector2 CanvasSize => Container.localBound.size;
+
         private void OnDisable()
         {
             if (!IsInitialized)
@@ -416,6 +418,24 @@ namespace Bloodthirst.System.Quest.Editor
 
             // else init with a default node node
             InitWithDefaultNode();
+
+            EditorCoroutineUtility.StartCoroutine(CrtCenterCanvasView(), this);
+        }
+
+        private IEnumerator CrtCenterCanvasView()
+        {
+            while (true)
+            {
+                foreach (NodeBaseElement n in AllNodes)
+                {
+                    if (float.IsNaN(n.VisualElement.contentRect.width))
+                        yield return null;
+                }
+
+                break;
+            }
+
+            new ResetCanvasViewAction() { NodeEditor = this }.Execute();
         }
 
         private void InitWithDefaultNode()
@@ -880,18 +900,7 @@ namespace Bloodthirst.System.Quest.Editor
                 AddLink(fromPort, toPort);
             }
 
-            Zoom = 1;
 
-            Vector2 p = Vector2.zero;
-
-            foreach(NodeData n in data.Nodes)
-            {
-                p += n.Position;
-            }
-
-            p /= data.Nodes.Count;
-
-            PanningOffset = -p;
 
             // wait for node reconstruction
             while (true)
@@ -910,6 +919,8 @@ namespace Bloodthirst.System.Quest.Editor
             {
                 l.Refresh();
             }
+
+            new ResetCanvasViewAction() { NodeEditor = this }.Execute();
         }
 
         #endregion
