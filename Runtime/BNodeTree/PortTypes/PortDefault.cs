@@ -16,7 +16,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         #region IPortType<TNode> implementation
         Type IPortType<TNode>.PortType => PortType;
-        string IPortType<TNode>.PortName => PortName;
+        string IPortType<TNode>.PortName { get => PortName; set => PortName = value; }
 
         NODE_DIRECTION IPortType<TNode>.NodeDirection { get => NodeDirection; set => NodeDirection = value; }
         TNode IPortType<TNode>.ParentNode { get => ParentNode; set => ParentNode = value; }
@@ -32,7 +32,7 @@ namespace Bloodthirst.System.Quest.Editor
         #region IPortType implementation
         Type IPortType.PortType => PortType;
 
-        string IPortType.PortName => PortName;
+        string IPortType.PortName { get => PortName; set => PortName = value; }
 
         NODE_DIRECTION IPortType.NodeDirection { get => NodeDirection; set => NodeDirection = value; }
         INodeType IPortType.ParentNode { get => ParentNode; set => ParentNode = (TNode)value; }

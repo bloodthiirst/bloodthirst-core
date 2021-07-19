@@ -14,7 +14,7 @@ namespace Bloodthirst.System.Quest.Editor
         Type PortType { get;}
 
         [IgnoreBindable]
-        string PortName { get; }
+        string PortName { get; set; }
         [IgnoreBindable]
         NODE_DIRECTION NodeDirection { get; set; }
 
@@ -34,10 +34,10 @@ namespace Bloodthirst.System.Quest.Editor
     public interface IPortType
     {
         [IgnoreBindable]
-        Type PortType { get; }
+        Type PortType { get;  }
 
         [IgnoreBindable]
-        string PortName { get; }
+        string PortName { get; set; }
         [IgnoreBindable]
         NODE_DIRECTION NodeDirection { get; set; }
 

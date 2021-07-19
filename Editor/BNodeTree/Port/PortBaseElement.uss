@@ -26,10 +26,12 @@
 
 .output .port-row {
     flex-direction: row;
+    align-self: flex-end;
 }
 
 .input .port-row {
     flex-direction: row-reverse;
+    align-self: flex-start;
 }
 
 .port-name {
