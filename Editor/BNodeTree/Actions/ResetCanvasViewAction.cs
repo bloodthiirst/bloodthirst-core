@@ -52,7 +52,8 @@ namespace Bloodthirst.System.Quest.Editor
             float yRatio = canvasSize.y / totalHeight;
 
             // set zoom with some padding
-            NodeEditor.Zoom = Mathf.Min(wRatio, yRatio) * 0.8f;
+            float appropriateZoom = Mathf.Min(wRatio, yRatio) * 0.8f;
+            NodeEditor.Zoom = Mathf.Min(1, appropriateZoom);
         }
 
         private void HandleKeyDown(KeyDownEvent evt)

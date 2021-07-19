@@ -1,5 +1,5 @@
 ﻿using Bloodthirst.Scripts.Utils;
-using System;
+using Bloodthirst.System.Quest.Editor;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -14,7 +14,7 @@ public class UILinelement : VisualElement
     VisualElement to;
     Vector2 toLocal;
 
-    private const string ARROW_TEXTURE = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Resources/ArrowDirection.png";
+    private const string ARROW_TEXTURE = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Resources/ArrowDirection.png";
 
     private Texture2D arrowTexture;
 

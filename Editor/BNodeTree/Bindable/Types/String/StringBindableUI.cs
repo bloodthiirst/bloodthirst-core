@@ -6,16 +6,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.System.Quest.Editor
 {
-    public class UnityObjectBindableUI : IBindableUI
+    public class StringBindableUI : IBindableUI
     {
-        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Bindable/Types/UnityObject/UnityObjectBindableUI.uss";
+        private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Bindable/Types/String/StringBindableUI.uss";
 
-        private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Bindable/Types/UnityObject/UnityObjectBindableUI.uxml";
+        private const string UXML_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Bindable/Types/String/StringBindableUI.uxml";
       
 
         private static StyleSheet styleSheet;
@@ -50,7 +49,7 @@ namespace Bloodthirst.System.Quest.Editor
         }
         public VisualElement VisualElement { get; set; }
         public MemberInfo MemberInfo { get; set; }
-        public ObjectField TextUI => VisualElement.Q<ObjectField>(nameof(TextUI));
+        public TextField TextUI => VisualElement.Q<TextField>(nameof(TextUI));
 
         private object instance;
         private Action<object, object> Setter { get; set; }
@@ -67,7 +66,7 @@ namespace Bloodthirst.System.Quest.Editor
             VisualElement.styleSheets.Add(StyleSheet);
 
             TextUI.label = member.Name;
-            TextUI.objectType = ReflectionUtils.GetMemberType(member);
+            TextUI.multiline = true;
 
             // generate getter/setter
             // if property
@@ -102,12 +101,12 @@ namespace Bloodthirst.System.Quest.Editor
             
             if (Getter != null)
             {
-                TextUI.SetValueWithoutNotify((UnityEngine.Object)Getter(instance));
+                TextUI.SetValueWithoutNotify((string)Getter(instance));
             }
 
         }
 
-        private void OnTextChanged(ChangeEvent<UnityEngine.Object> evt)
+        private void OnTextChanged(ChangeEvent<string> evt)
         {
             Setter?.Invoke(instance, evt.newValue);
         }

@@ -8,8 +8,8 @@ namespace Bloodthirst.System.Quest.Editor
     public class PortBaseElement
     {
 
-        private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Port/PortBaseElement.uxml";
-        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Port/PortBaseElement.uss";
+        private const string UXML_PATH =  BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Port/PortBaseElement.uxml";
+        private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Port/PortBaseElement.uss";
         private const string PORT_INFO_IS_OPEN_CLASS = "is-open";
 
 
@@ -71,7 +71,7 @@ namespace Bloodthirst.System.Quest.Editor
             PortInfoContainer.Add(PortInfo.VisualElement);
 
             // color
-            Color = NodeEditorUtils.GetColor(portType.PortType);
+            Color = BNodeTreeEditorUtils.GetColor(portType.PortType);
 
             // label
             PortName.text = PortType.PortName;

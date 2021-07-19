@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System;
 using UnityEditor.UIElements;
 using Bloodthirst.Core.Utils;
-using Newtonsoft.Json;
-using Bloodthirst.Core.TreeList;
 using System.Linq;
 using UnityEditor.Callbacks;
 using Unity.EditorCoroutines.Editor;
@@ -15,28 +13,29 @@ using System.Collections;
 
 namespace Bloodthirst.System.Quest.Editor
 {
-    public class BQuestSystemEditor : EditorWindow, INodeEditor
+    public class BNodeTreeEditor : EditorWindow, INodeEditor
     {
         private static NodeTreeData RequestOpen { get; set; }
 
         /// <summary>
         /// UXML path
         /// </summary>
-        private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/BQuestSystemEditor.uxml";
+        private const string UXML_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/BNodeTreeEditor.uxml";
 
         /// <summary>
         /// USS path
         /// </summary>
-        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/BQuestSystemEditor.uss";
+        private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/BNodeTreeEditor.uss";
+
         private const int MAX_NODE_ID = 100;
         private float zoom = 1;
 
 
-        [MenuItem("Bloodthirst Tools/BQuestSystemEditor")]
+        [MenuItem("Bloodthirst Tools/BNodeTreeEditor")]
         public static void OpenWindow()
         {
-            BQuestSystemEditor wnd = GetWindow<BQuestSystemEditor>();
-            wnd.titleContent = new GUIContent("BQuestSystemEditor");
+            BNodeTreeEditor wnd = GetWindow<BNodeTreeEditor>();
+            wnd.titleContent = new GUIContent("BNodeTreeEditor");
         }
 
         /*
@@ -451,7 +450,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void HandlePlayModeStateChanged(PlayModeStateChange state)
         {
-            if (!HasOpenInstances<BQuestSystemEditor>())
+            if (!HasOpenInstances<BNodeTreeEditor>())
                 return;
 
             // try reloading the selected object on play mode changed
@@ -758,14 +757,14 @@ namespace Bloodthirst.System.Quest.Editor
             if (obj == null)
                 return false;
 
-            if (HasOpenInstances<BQuestSystemEditor>())
+            if (HasOpenInstances<BNodeTreeEditor>())
             {
-                GetWindow<BQuestSystemEditor>().SelectedTreeData = data;
+                GetWindow<BNodeTreeEditor>().SelectedTreeData = data;
             }
             else
             {
                 RequestOpen = data;
-                GetWindow<BQuestSystemEditor>();
+                GetWindow<BNodeTreeEditor>();
             }
             return true;
         }

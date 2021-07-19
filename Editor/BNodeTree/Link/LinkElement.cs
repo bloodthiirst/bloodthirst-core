@@ -7,7 +7,7 @@ namespace Bloodthirst.System.Quest.Editor
 {
     public class LinkElement
     {
-        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Link/LinkElement.uss";
+        private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Link/LinkElement.uss";
         
         public ILinkType LinkType { get; set; }    
         public PortBaseElement From { get; private set; }

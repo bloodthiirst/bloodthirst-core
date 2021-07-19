@@ -13,9 +13,9 @@ namespace Bloodthirst.System.Quest.Editor
 {
     public class IntBindableUI : IBindableUI
     {
-        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Bindable/Types/Int/IntBindableUI.uss";
+        private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Bindable/Types/Int/IntBindableUI.uss";
 
-        private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Bindable/Types/Int/IntBindableUI.uxml";
+        private const string UXML_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Bindable/Types/Int/IntBindableUI.uxml";
       
 
         private static StyleSheet styleSheet;

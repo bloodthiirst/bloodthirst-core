@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Bloodthirst.System.Quest.Editor
 {
-    internal static class NodeEditorUtils
+    internal static class BNodeTreeEditorUtils
     {
+        public const string EDITOR_BASE_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BNodeTree";
+
         /// <summary>
         /// Color returned when nothing is returned
         /// </summary>
@@ -47,7 +47,7 @@ namespace Bloodthirst.System.Quest.Editor
             return nothingColor;
         }
 
-        static NodeEditorUtils()
+        static BNodeTreeEditorUtils()
         {
             typeToColor = new Dictionary<Type, Color>()
             {

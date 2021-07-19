@@ -10,8 +10,8 @@ namespace Bloodthirst.System.Quest.Editor
 {
     public class PortInfoBaseElement
     {
-        private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/PortInfo/PortInfoBaseElement.uxml";
-        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/PortInfo/PortInfoBaseElement.uss";
+        private const string UXML_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/PortInfo/PortInfoBaseElement.uxml";
+        private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/PortInfo/PortInfoBaseElement.uss";
 
         private VisualElement PortInfoRoot { get; set; }
         public VisualElement VisualElement => PortInfoRoot;

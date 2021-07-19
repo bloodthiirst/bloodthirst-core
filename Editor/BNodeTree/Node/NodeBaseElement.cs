@@ -11,8 +11,8 @@ namespace Bloodthirst.System.Quest.Editor
     public class NodeBaseElement
     {
         #region consts
-        private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Node/NodeBaseElement.uxml";
-        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BQuestSystem/Node/NodeBaseElement.uss";
+        private const string UXML_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Node/NodeBaseElement.uxml";
+        private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Node/NodeBaseElement.uss";
         private const string NODE_IS_SELECTED_USS_CLASS = "is-selected";
         private const string NODE_IS_ACTIVE_USS_CLASS = "is-active";
         #endregion
