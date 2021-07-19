@@ -19,6 +19,36 @@ namespace Bloodthirst.System.Quest.Editor
         IEnumerable<IPortType> INodeType.InputPortsVariable => InputsVariable;
         IEnumerable<IPortType> INodeType.OutputPortsConst => OutputsConst;
         IEnumerable<IPortType> INodeType.OutputPortsVariable => OutputsVariable;
+        void INodeType.AddInput<TPort>(TPort input)
+        {
+            ((IPortType)input).ParentNode = this;
+            ((IPortType)input).NodeDirection = NODE_DIRECTION.INPUT;
+
+            InputsVariable.Add(input);
+        }
+        void INodeType.AddOutput<TPort>(TPort output)
+        {
+            ((IPortType)output).ParentNode = this;
+            ((IPortType)output).NodeDirection = NODE_DIRECTION.OUTPUT;
+
+            OutputsVariable.Add(output);
+        }
+
+        void INodeType.AddInputConst<TPort>(TPort input)
+        {
+            ((IPortType)input).ParentNode = this;
+            ((IPortType)input).NodeDirection = NODE_DIRECTION.INPUT;
+
+            InputsConst.Add(input);
+        }
+        void INodeType.AddOutputConst<TPort>(TPort output)
+        {
+            ((IPortType)output).ParentNode = this;
+            ((IPortType)output).NodeDirection = NODE_DIRECTION.OUTPUT;
+
+            OutputsConst.Add(output);
+        }
+
         #endregion
 
         #region INodeType<NodeBase> implementation
@@ -31,9 +61,30 @@ namespace Bloodthirst.System.Quest.Editor
         IEnumerable<IPortType<T>> INodeType<T>.OutputPortsConstTyped => OutputsConst.Cast<IPortType<T>>();
 
         IEnumerable<IPortType<T>> INodeType<T>.OutputPortsVariableTyped => OutputsVariable.Cast<IPortType<T>>();
+
+        void INodeType<T>.AddInput<TPort>(TPort input)
+        {
+            AddInput(input);
+        }
+        void INodeType<T>.AddOutput<TPort>(TPort output)
+        {
+            AddOutput(output);
+        }
+
+        void INodeType<T>.AddInputConst<TPort>(TPort input)
+        {
+            AddInputConst(input);
+        }
+        void INodeType<T>.AddOutputConst<TPort>(TPort output)
+        {
+            AddOutputConst(output);
+        }
+
         #endregion
 
         protected virtual void SetupPorts() { }
+
+
 
         public void AddInput<TPort>(TPort input) where TPort : IPortType, IPortType<T>
         {
@@ -65,6 +116,8 @@ namespace Bloodthirst.System.Quest.Editor
 
             OutputsConst.Add(output);
         }
+
+
 
         public NodeBase()
         {

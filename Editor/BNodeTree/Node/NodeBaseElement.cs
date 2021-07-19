@@ -51,6 +51,7 @@ namespace Bloodthirst.System.Quest.Editor
         public List<PortBaseElement> OutputsVariable { get; }
         public List<IBindableUI> BindableUIs { get; }
         #endregion
+
         public bool IsInsideResize { get; set; }
         public bool CanResize { get; set; }
         public bool CanDrag { get; set; }
@@ -239,11 +240,13 @@ namespace Bloodthirst.System.Quest.Editor
             InputPortsContainer.Add(input.VisualElement);
             InputsConst.Add(input);
         }
-        private void AddVariableInputPort(IPortType curr)
+        public void AddVariableInputPort(IPortType curr)
         {
+            NodeType.AddInput(curr);
             PortBaseElement input = new PortBaseElement(this, curr);
             InputPortsContainer.Add(input.VisualElement);
             InputsVariable.Add(input);
+            
         }
         #endregion
 
@@ -255,11 +258,12 @@ namespace Bloodthirst.System.Quest.Editor
             OutputsConst.Add(output);
         }
 
-        private void AddVariableOutputPort(IPortType curr)
+        public void AddVariableOutputPort(IPortType curr)
         {
+            NodeType.AddOutput(curr);
             PortBaseElement output = new PortBaseElement(this, curr);
             OutputPortsContainer.Add(output.VisualElement);
-            OutputsConst.Add(output);
+            OutputsVariable.Add(output);
         }
         #endregion
 
@@ -394,12 +398,12 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void HandleAddOutput()
         {
-            OnNodeAddInput?.Invoke(this);
+            OnNodeAddOutput?.Invoke(this);
         }
 
         private void HandleAddInput()
         {
-            OnNodeAddOutput?.Invoke(this);
+            OnNodeAddInput?.Invoke(this);
         }
 
         private void OnResizeUp(MouseUpEvent evt)

@@ -49,7 +49,7 @@ namespace Bloodthirst.System.Quest.Editor
         {
             unityObjects = unityObjects.CreateOrClear();
 
-            JsonSerializerSettings settings = BQuestSystemSettings.GetSerializerSettings();
+            JsonSerializerSettings settings = BNodeTreeSettings.GetSerializerSettings();
             CustomContext ctw = new CustomContext() { UnityObjects = unityObjects, Root = this };
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctw);
 
@@ -58,7 +58,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
-            JsonSerializerSettings settings = BQuestSystemSettings.GetSerializerSettings();
+            JsonSerializerSettings settings = BNodeTreeSettings.GetSerializerSettings();
             CustomContext ctx = new CustomContext() { UnityObjects = unityObjects, Root = this };
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
 

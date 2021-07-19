@@ -29,5 +29,10 @@ namespace Bloodthirst.System.Quest.Editor
 
         IEnumerable<IPortType> OutputPortsConst { get; }
         IEnumerable<IPortType> OutputPortsVariable { get; }
+
+        void AddInputConst<TPort>(TPort input) where TPort : IPortType;
+        void AddOutputConst<TPort>(TPort output) where TPort : IPortType;
+        void AddInput<TPort>(TPort input) where TPort : IPortType;
+        void AddOutput<TPort>(TPort input) where TPort : IPortType;
     }
 }

@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace Bloodthirst.System.Quest.Editor
 {
-    public partial class BQuestSystemSettings
+    public class BNodeTreeSettings
     {
         /// <summary>
         /// Resolver used to skip some unity specific fields
