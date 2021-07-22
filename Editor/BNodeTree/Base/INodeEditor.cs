@@ -39,7 +39,7 @@ namespace Bloodthirst.System.Quest.Editor
         event Action<MouseMoveEvent> OnCanvasMouseMove;
         event Action<KeyDownEvent> OnWindowKeyPressed;
         event Action<PortBaseElement, ContextClickEvent> OnPortMouseContextClick;
-        event Action<BNodeTreeBehaviourBase> OnBehaviourSelectionChanged;
+        event Action<IBNodeTreeBehaviour> OnBehaviourSelectionChanged;
         event Action<NodeTreeData> OnDataSelectionChanged;
 
         event Action<NodeBaseElement> OnNodeStartResize;

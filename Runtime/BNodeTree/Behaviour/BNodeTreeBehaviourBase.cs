@@ -11,7 +11,7 @@ namespace Bloodthirst.System.Quest
     /// <summary>
     /// Base class for all the typed treenode behaviours
     /// </summary>
-   public abstract class BNodeTreeBehaviourBase : MonoBehaviour
+   public abstract class BNodeTreeBehaviourBase : MonoBehaviour , IBNodeTreeBehaviour
     {
         /// <summary>
         /// the data asset of the treenode

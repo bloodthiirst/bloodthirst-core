@@ -97,47 +97,23 @@ namespace Bloodthirst.System.Quest.Editor
         private List<NodeBaseElement> AllNodes { get; set; }
         private List<LinkElement> AllLinks { get; set; }
 
-        private BNodeTreeBehaviourBase selectedTreeBehaviour;
-        private BNodeTreeBehaviourBase SelectedTreeBehaviour
+        private IBNodeTreeBehaviour selectedTreeBehaviour;
+        private IBNodeTreeBehaviour SelectedTreeBehaviour
         {
             get => selectedTreeBehaviour;
             set
             {
-                // refresh ui first
-                NodeBehaviourPicker.value = value;
-
-                // if behaviour didn't change
-                if (selectedTreeBehaviour == value)
-                    return;
-
-                selectedTreeBehaviour = value;
-
-                if (selectedTreeBehaviour != null)
-                {
-                    SelectedTreeData = selectedTreeBehaviour.TreeData;
-                }
-
-                OnBehaviourSelectionChanged?.Invoke(selectedTreeBehaviour);
+                EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeBehaviour(value), this);
             }
         }
 
-        private BNodeTreeBehaviourBase SelectedTreeBehaviourForce
+
+
+        private IBNodeTreeBehaviour SelectedTreeBehaviourForce
         {
             set
             {
-                // refresh ui first
-                NodeBehaviourPicker.value = value;
-
-                selectedTreeBehaviour = value;
-
-                // change the selected data
-
-                if (selectedTreeBehaviour != null)
-                {
-                    SelectedTreeDataForce = selectedTreeBehaviour.TreeData;
-                }
-
-                OnBehaviourSelectionChanged?.Invoke(selectedTreeBehaviour);
+                EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeBehaviourForce(value), this);
             }
         }
 
@@ -149,16 +125,7 @@ namespace Bloodthirst.System.Quest.Editor
             get => selectedNodeData;
             set
             {
-                // refresh ui first
-                NodeTreeDataPicker.value = value;
-
-                // if behaviour didn't change
-                if (selectedNodeData == value)
-                {
-                    return;
-                }
-
-                SelectedTreeDataForce = value;
+                EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeData(value), this);
 
             }
         }
@@ -167,19 +134,98 @@ namespace Bloodthirst.System.Quest.Editor
         {
             set
             {
-                // refresh ui first
-                NodeTreeDataPicker.value = value;
-
-                selectedNodeData = value;
-
-                if (selectedNodeData != null)
-                {
-                    Load(selectedNodeData);
-                }
-
-                OnDataSelectionChanged?.Invoke(selectedNodeData);
+                EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeDataForce(value), this);
             }
         }
+
+        #region crt setters
+        private IEnumerator CrtSetSelectedTreeDataForce(NodeTreeData value)
+        {
+            // refresh ui first
+            NodeTreeDataPicker.value = value;
+
+            selectedNodeData = value;
+
+            if (selectedNodeData != null)
+            {
+                yield return CrtLoad(selectedNodeData);
+            }
+
+            yield return CrtTriggerSelectTreeDataChanged();
+        }
+
+        private IEnumerator CrtSetSelectedTreeData(NodeTreeData value)
+        {
+            // refresh ui first
+            NodeTreeDataPicker.value = value;
+
+            if (selectedNodeData == value)
+                yield break;
+
+            selectedNodeData = value;
+
+            if (selectedNodeData != null)
+            {
+                yield return CrtLoad(selectedNodeData);
+            }
+
+            yield return CrtTriggerSelectTreeDataChanged();
+        }
+
+        private IEnumerator CrtTriggerSelectTreeDataChanged()
+        {
+            OnDataSelectionChanged?.Invoke(selectedNodeData);
+            yield break;
+        }
+
+        private IEnumerator CrtSetSelectedTreeBehaviourForce(IBNodeTreeBehaviour value)
+        {
+            // refresh ui first
+            NodeBehaviourPicker.value = (UnityEngine.Object)value;
+
+            selectedTreeBehaviour = value;
+
+            // change the selected data
+
+            if (selectedTreeBehaviour != null)
+            {
+                yield return CrtSetSelectedTreeDataForce(selectedTreeBehaviour.TreeData);
+            }
+
+            // wait for total nodes execution
+            yield return CrtTriggerSelectTreeBehaviourChanged();
+        }
+
+        private IEnumerator CrtSetSelectedTreeBehaviour(IBNodeTreeBehaviour value)
+        {
+            // refresh ui first
+            NodeBehaviourPicker.value = (UnityEngine.Object)value;
+
+            if (selectedTreeBehaviour == value)
+            {
+                yield break;
+            }
+
+            selectedTreeBehaviour = value;
+
+            // change the selected data
+
+            if (selectedTreeBehaviour != null)
+            {
+                yield return CrtSetSelectedTreeData(selectedTreeBehaviour.TreeData);
+            }
+
+            // wait for total nodes execution
+            yield return CrtTriggerSelectTreeBehaviourChanged();
+        }
+
+
+        private IEnumerator CrtTriggerSelectTreeBehaviourChanged()
+        {
+            OnBehaviourSelectionChanged?.Invoke(selectedTreeBehaviour);
+            yield break;
+        }
+        #endregion
 
         Type INodeEditor.NodeBaseType => NodeBaseType;
         HashSet<NodeBaseElement> INodeEditor.SelectedNodes => SelectedNodes;
@@ -213,7 +259,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         public event Action<PortBaseElement, ContextClickEvent> OnPortMouseContextClick;
 
-        public event Action<BNodeTreeBehaviourBase> OnBehaviourSelectionChanged;
+        public event Action<IBNodeTreeBehaviour> OnBehaviourSelectionChanged;
 
         public event Action<NodeTreeData> OnDataSelectionChanged;
 
@@ -266,10 +312,10 @@ namespace Bloodthirst.System.Quest.Editor
 
         private void HandleObjectSelection()
         {
-            BNodeTreeBehaviourBase tree = TryGetSelectedTreeBehaviour();
+            IBNodeTreeBehaviour tree = TryGetSelectedTreeBehaviour();
             if (tree != null)
             {
-                SelectedTreeBehaviourForce = tree;
+                SelectedTreeBehaviour = tree;
                 return;
             }
 
@@ -277,7 +323,7 @@ namespace Bloodthirst.System.Quest.Editor
 
             if (data != null)
             {
-                SelectedTreeDataForce = data;
+                SelectedTreeData = data;
             }
         }
 
@@ -384,35 +430,39 @@ namespace Bloodthirst.System.Quest.Editor
             }
 
             // Handle load data on startup
-            StartupLoadData();
+            EditorCoroutineUtility.StartCoroutine(StartupLoadData(), this);
 
             IsInitialized = true;
         }
 
-        private void StartupLoadData()
+        private IEnumerator StartupLoadData()
         {
+
+            yield return CrtWaitCanvasLoad();
+
             // if we opened by clicking on an asset
             if (RequestOpen != null)
             {
-                SelectedTreeDataForce = RequestOpen;
-                return;
+                EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeDataForce(RequestOpen), this);
+                yield break;
             }
 
             // try reloading the selected object
-            BNodeTreeBehaviourBase tree = TryGetSelectedTreeBehaviour();
+            IBNodeTreeBehaviour tree = TryGetSelectedTreeBehaviour();
 
+            // todo : make the setters trigger a coroutine too
             if (tree != null)
             {
-                SelectedTreeBehaviourForce = tree;
-                return;
+                EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeBehaviourForce(tree), this);
+                yield break;
             }
 
             NodeTreeData data = TryGetSelectedTreeData();
 
             if (data != null)
             {
-                SelectedTreeDataForce = data;
-                return;
+                EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeDataForce(data), this);
+                yield break;
             }
 
             // else init with a default node node
@@ -456,7 +506,7 @@ namespace Bloodthirst.System.Quest.Editor
             // try reloading the selected object on play mode changed
             if (state == PlayModeStateChange.EnteredEditMode || state == PlayModeStateChange.EnteredPlayMode)
             {
-                BNodeTreeBehaviourBase tree = TryGetSelectedTreeBehaviour();
+                IBNodeTreeBehaviour tree = TryGetSelectedTreeBehaviour();
                 if (tree != null)
                 {
                     SelectedTreeBehaviourForce = tree;
@@ -475,9 +525,9 @@ namespace Bloodthirst.System.Quest.Editor
 
 
 
-        private BNodeTreeBehaviourBase TryGetSelectedTreeBehaviour()
+        private IBNodeTreeBehaviour TryGetSelectedTreeBehaviour()
         {
-            BNodeTreeBehaviourBase tree = null;
+            IBNodeTreeBehaviour tree = null;
 
             for (int i = 0; i < Selection.objects.Length; i++)
             {
@@ -485,7 +535,7 @@ namespace Bloodthirst.System.Quest.Editor
 
                 if (curr is GameObject g)
                 {
-                    tree = g.GetComponent<BNodeTreeBehaviourBase>();
+                    tree = g.GetComponent<IBNodeTreeBehaviour>();
                     break;
                 }
             }
@@ -850,6 +900,18 @@ namespace Bloodthirst.System.Quest.Editor
             EditorCoroutineUtility.StartCoroutine(CrtLoad(data), this);
         }
 
+        private IEnumerator CrtWaitCanvasLoad()
+        {
+
+            // wait for canvas construction
+            while (Canvas == null || float.IsNaN(Canvas.contentRect.width))
+            {
+                yield return null;
+            }
+
+            yield break;
+        }
+
         private IEnumerator CrtLoad(NodeTreeData data)
         {
             ClearCanvas();
@@ -857,11 +919,8 @@ namespace Bloodthirst.System.Quest.Editor
             NodeTypePicker.SetValueWithoutNotify(data.NodeBaseType);
             NodeBaseType = data.NodeBaseType;
 
-            // wait for canvas construction
-            while (float.IsNaN(Canvas.contentRect.width))
-            {
-                yield return null;
-            }
+
+            yield return CrtWaitCanvasLoad();
 
             // create nodes
             foreach (NodeData n in data.Nodes)

@@ -9,7 +9,6 @@ namespace Bloodthirst.System.Quest
     public interface IBNodeTreeBehaviour
     {
         NodeTreeData TreeData { get; }
-
         INodeType ActiveNode { get; }
 
         /// <summary>

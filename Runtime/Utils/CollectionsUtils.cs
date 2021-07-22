@@ -11,6 +11,25 @@ namespace Bloodthirst.Core.Utils
     public static class CollectionsUtils
     {
 
+        /// <summary>
+        /// Used to combine coroutines
+        /// </summary>
+        /// <param name="curr"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static IEnumerator Combine(this IEnumerator curr , IEnumerator other)
+        {
+            while(curr.MoveNext())
+            {
+                yield return curr.Current;
+            }
+
+            while (other.MoveNext())
+            {
+                yield return other.Current;
+            }
+        }
+
         public static bool IsSame<T>(this IList<T> a, IList<T> b) where T : IEquatable<T>
         {
             if (a == b)

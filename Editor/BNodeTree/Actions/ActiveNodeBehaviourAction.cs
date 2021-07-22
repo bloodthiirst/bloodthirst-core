@@ -8,7 +8,7 @@ namespace Bloodthirst.System.Quest.Editor
     {
         private int? LastSelectedNodeID;
 
-        private BNodeTreeBehaviourBase SelectedTree;
+        private IBNodeTreeBehaviour SelectedTree;
 
         public override void OnDisable()
         {
@@ -30,7 +30,7 @@ namespace Bloodthirst.System.Quest.Editor
             RefreshSelected(currentNode);
         }
 
-        private void HandleBehaviourChanged(BNodeTreeBehaviourBase behaviour)
+        private void HandleBehaviourChanged(IBNodeTreeBehaviour behaviour)
         {
             if (SelectedTree != null)
             {
@@ -56,6 +56,7 @@ namespace Bloodthirst.System.Quest.Editor
             }
         }
 
+
         private void DelesectAll()
         {
             // clean up
@@ -79,6 +80,12 @@ namespace Bloodthirst.System.Quest.Editor
                 {
                     oldNode.DeselectActive();
                 }
+            }
+
+            if(currentNode == null)
+            {
+                LastSelectedNodeID = null;
+                return;
             }
 
             // select current node
