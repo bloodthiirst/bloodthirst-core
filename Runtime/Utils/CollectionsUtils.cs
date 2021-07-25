@@ -11,6 +11,22 @@ namespace Bloodthirst.Core.Utils
     public static class CollectionsUtils
     {
 
+
+        /// <summary>
+        /// Collection case to linq
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collectionBase"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> CollectionToLinq<T>(this CollectionBase collectionBase)
+        {
+            foreach (object i in collectionBase)
+            {
+                yield return (T)i;
+            }
+        }
+
+
         /// <summary>
         /// Used to combine coroutines
         /// </summary>

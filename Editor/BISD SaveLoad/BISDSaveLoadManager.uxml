@@ -12,12 +12,6 @@
             <engine:Button text="Select Path" name="selectPathBtn" style="width : 75px"/>
         </engine:VisualElement>
 
-
-        <engine:VisualElement class="row">
-            <engine:TextField label="Asset filename" name="gameDataNameTxt" class="flex-grow"/>
-        </engine:VisualElement>
-
-        
         <engine:VisualElement class="row">
             <engine:TextField label="Title" name="titleTxt" class="flex-grow"/>
         </engine:VisualElement>

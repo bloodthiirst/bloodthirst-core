@@ -37,7 +37,7 @@ namespace Bloodthirst.Editor.Commands
         }
 
         [Button]
-        public static void TestCommand()
+        private static void TestCommand()
         {
             CommandBatchList b = AppendBatch<CommandBatchList>(new object(), true, 0);
             b.Append(new TimedCommandBase(1f, "Editor Cmd Test"));

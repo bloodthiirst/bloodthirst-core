@@ -10,6 +10,7 @@ using System.Linq;
 using UnityEditor.Callbacks;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
+using Sirenix.Utilities;
 
 namespace Bloodthirst.System.Quest.Editor
 {
@@ -574,6 +575,13 @@ namespace Bloodthirst.System.Quest.Editor
 
                 //.Where(t => t.BaseType == typeof(NodeBase<>).MakeGenericType(t))
                 .ToList();
+
+            if (validNodeTypes.Count == 0)
+            {
+                Debug.LogError($"You need to have atleast one class that inherits from {typeof(NodeBase<>).GetNiceName() } in order to be able to use the node editor");
+                Close();
+                return;
+            }
 
             NodeTypePicker = new PopupField<Type>("Node base type", validNodeTypes, 0, TypeUtils.GetNiceName, TypeUtils.GetNiceName);
             NodeTypePickerContainer.Add(NodeTypePicker);

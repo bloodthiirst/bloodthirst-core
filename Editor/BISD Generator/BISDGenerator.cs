@@ -17,6 +17,8 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private const string DATA_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.Data.cs.txt";
 
+        private const string GAME_DATA_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.GameData.cs.txt";
+
         private const string UXML_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/BISDGenerator.uxml";
 
         private const string USS_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/BISDGenerator.uss";
@@ -76,8 +78,8 @@ namespace Bloodthirst.Core.BISD.Editor
         /// <returns></returns>
         public static string GetSelectedPathOrFallback()
         {
-            string path = "Assets";
 
+            string path = "Assets";
             foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
             {
                 path = AssetDatabase.GetAssetPath(obj);
@@ -87,6 +89,8 @@ namespace Bloodthirst.Core.BISD.Editor
                     break;
                 }
             }
+
+            
             return path;
         }
 
@@ -118,11 +122,13 @@ namespace Bloodthirst.Core.BISD.Editor
             File.WriteAllText(finalPath + "Instance.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(INSTANCE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
             File.WriteAllText(finalPath + "State.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
             File.WriteAllText(finalPath + "Data.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
+            File.WriteAllText(finalPath + "GameData.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(GAME_DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
 
             AssetDatabase.ImportAsset(relativePath + "Behaviour.cs");
             AssetDatabase.ImportAsset(relativePath + "Instance.cs");
             AssetDatabase.ImportAsset(relativePath + "State.cs");
             AssetDatabase.ImportAsset(relativePath + "Data.cs");
+            AssetDatabase.ImportAsset(relativePath + "GameData.cs");
 
             AssetDatabase.SaveAssets();
 

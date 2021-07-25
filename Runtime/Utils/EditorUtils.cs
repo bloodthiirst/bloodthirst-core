@@ -63,7 +63,12 @@ namespace Bloodthirst.Core.Utils
             for (int i = 0; i < guids.Length; i++)
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+
+                if (!assetPath.EndsWith(".cs"))
+                    continue;
+
                 TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+
                 if (asset != null)
                 {
                     assets.Add(asset);

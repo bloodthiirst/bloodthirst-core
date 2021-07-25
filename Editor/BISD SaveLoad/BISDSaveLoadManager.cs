@@ -30,8 +30,6 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private TextField selectPathTxt => Root.Q<TextField>(nameof(selectPathTxt));
 
-        private TextField gameDataNameTxt => Root.Q<TextField>(nameof(gameDataNameTxt));
-
         private TextField titleTxt => Root.Q<TextField>(nameof(titleTxt));
 
         private Button createAssetBtn => Root.Q<Button>(nameof(createAssetBtn));
@@ -49,9 +47,6 @@ namespace Bloodthirst.Core.BISD.Editor
 
             createAssetBtn.clickable.clicked -= OnCreateAssetClicked;
             createAssetBtn.clickable.clicked += OnCreateAssetClicked;
-
-            gameDataNameTxt.UnregisterValueChangedCallback(OnAssetNameChanged);
-            gameDataNameTxt.RegisterValueChangedCallback(OnAssetNameChanged);
 
             OnSettingsChanged -= OnSettingsChangedTriggered;
             OnSettingsChanged += OnSettingsChangedTriggered;
@@ -80,9 +75,6 @@ namespace Bloodthirst.Core.BISD.Editor
             if (selectPathTxt.value == string.Empty)
                 return false;
 
-            if (gameDataNameTxt.value == string.Empty)
-                return false;
-
             if (EditorApplication.isPaused || EditorApplication.isPlaying)
                 return true;
 
@@ -102,14 +94,23 @@ namespace Bloodthirst.Core.BISD.Editor
 
             data.States = EntityManager.GetAllEntityStates();
 
-            AssetDatabase.CreateAsset(data, selectPathTxt.value + "/" + gameDataNameTxt.value + ".asset");
+            AssetDatabase.CreateAsset(data, selectPathTxt.value);
+
+            BISDGameStateData created = AssetDatabase.LoadAssetAtPath<BISDGameStateData>(selectPathTxt.value);
+
+            ProjectWindowUtil.ShowCreatedAsset(created);
+
+
         }
 
         private void OnSelectPathClicked()
         {
-            string path = EditorUtility.OpenFolderPanel("Select path to save the asset", "Assets", "GameData Save");
+            string path = EditorUtility.SaveFilePanel("Select path to save the asset", "Assets", "GameData Save" , "asset");
 
-            selectPathTxt.value = path.Substring(EditorUtils.PathToProject.Length);            
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            selectPathTxt.value = FileUtil.GetProjectRelativePath(path);            
 
             OnSettingsChanged?.Invoke();
         }

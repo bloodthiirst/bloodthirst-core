@@ -1,5 +1,9 @@
 ﻿using Bloodthirst.Core.Consts;
 using Bloodthirst.Core.Utils;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CSharp;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -9,6 +13,13 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.BISD.CodeGeneration
 {
+    public class BISDInfo
+    {
+        public string ModelName { get; set; }
+        public Type TypeRef { get; set; }
+        public TextAsset TextAsset { get; set; }
+    }
+
     public class BISDGeneratorOnReloadScripts
     {
         /// <summary>
@@ -40,10 +51,16 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             nameof(BISDGeneratorOnReloadScripts)
         };
 
-        [MenuItem("Bloodthirst Tools/BISD Pattern/Code Generation Refresh")]
+        [MenuItem("Bloodthirst Tools/BISD Pattern/Code Generation Refresh (COMPLETE REFRESH - EXPECT A FREEZE")]
         public static void MenuOption()
         {
             ExecuteCodeGeneration(false);
+        }
+
+        [MenuItem("Bloodthirst Tools/BISD Pattern/Code Generation Refresh (LAZY MODE - LESS EXPENSIVE)")]
+        public static void MenuOptionLazy()
+        {
+            ExecuteCodeGeneration(true);
         }
 
         [UnityEditor.Callbacks.DidReloadScripts(BloodthirstCoreConsts.BISD_OBSERVABLE_GENERATOR)]
@@ -52,7 +69,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 
-            ExecuteCodeGeneration();
+           // ExecuteCodeGeneration();
         }
 
         private static void ExecuteCodeGeneration(bool lazyGeneration = true)
@@ -64,44 +81,176 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             };
 
             // get models info
-            Dictionary<string, Container<Type>> TypeList = null;
-            Dictionary<string, Container<TextAsset>> TextList = null;
+            Dictionary<string, Container> TypeList = null;
 
-            ExtractBISDInfo(ref TypeList, ref TextList);
+            ExtractBISDInfo(ref TypeList);
 
             string[] models = TypeList.Keys.ToArray();
+
+            bool dirty = false;
+
+            int affctedModels = 0;
 
             // run thorugh the models to apply the changes
             foreach (string model in models)
             {
-                Container<Type> typeList = TypeList[model];
+                Container typeInfo = TypeList[model];
 
-                Container<TextAsset> textList = TextList[model];
+                bool modeldirty = false;
 
                 foreach (ICodeGenerator generator in codeGenerators)
                 {
-                    if (!lazyGeneration || (generator.ShouldInject(typeList, textList) && lazyGeneration))
+                    if (!lazyGeneration || generator.ShouldInject(typeInfo) )
                     {
-                        generator.InjectGeneratedCode(typeList, textList);
+                        dirty = true;
+                        modeldirty = true;
+                        generator.InjectGeneratedCode(typeInfo);
                     }
                 }
+
+                if(modeldirty)
+                {
+                    affctedModels++;
+                }
             }
+
+            Debug.Log($"BISD affected models : {affctedModels}");
+
+            if (!dirty)
+                return;
+
 
             // save the changes
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
         }
 
-
         /// <summary>
         /// Extracts info about the classes that follow the BISD pattern
         /// </summary>
         /// <param name="TypeList"></param>
         /// <param name="TextList"></param>
-        private static void ExtractBISDInfo(ref Dictionary<string, Container<Type>> TypeList, ref Dictionary<string, Container<TextAsset>> TextList)
+        private static void ExtractBISDInfo(ref Dictionary<string, Container> TypeList)
         {
             IReadOnlyList<Type> allTypes = TypeUtils.AllTypes;
 
+            TypeList = new Dictionary<string, Container>();
+
+            CSharpCodeProvider provider = new CSharpCodeProvider();
+
+            Dictionary<TextAsset, Type> fileToType = new Dictionary<TextAsset, Type>();
+
+            foreach (TextAsset txt in EditorUtils.FindTextAssets())
+            {
+                string relativePath = AssetDatabase.GetAssetPath(txt);
+
+                string systemPath = EditorUtils.PathToProject + relativePath;
+
+                SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(txt.text);
+
+                CompilationUnitSyntax root = syntaxTree.GetRoot() as CompilationUnitSyntax;
+
+                List<ClassDeclarationSyntax> classesList = new List<ClassDeclarationSyntax>();
+
+                // get classes inside namespaces
+                root.Members.OfType<NamespaceDeclarationSyntax>().ForEach(n => classesList.AddRange(n.Members.OfType<ClassDeclarationSyntax>()));
+
+                // get classes in file directly
+                root.Members.OfType<ClassDeclarationSyntax>().ForEach(c => classesList.Add(c));
+
+                foreach (ClassDeclarationSyntax c in classesList)
+                {
+                    AttributeSyntax attrib = c.AttributeLists.SelectMany(att => att.Attributes).FirstOrDefault(a => a.Name.ToString() == nameof(BISDTag));
+
+                    if (attrib == null)
+                        continue;
+
+                    string modelName = default;
+
+                    string modelEnum = default;
+
+                    // try get model name
+                    {
+                        AttributeArgumentSyntax attrArgName = attrib.ArgumentList.Arguments[0];
+
+                        SyntaxKind syntaxKind = attrArgName.Expression?.Kind() ?? SyntaxKind.None;
+                        if (syntaxKind == SyntaxKind.StringLiteralExpression)
+                        {
+                            LiteralExpressionSyntax modelNameSyntax = attrArgName.Expression as LiteralExpressionSyntax;
+                            modelName = modelNameSyntax.Token.ValueText;
+                        }
+                    }
+
+                    // try get model TYPE
+                    {
+                        AttributeArgumentSyntax attrArgType = attrib.ArgumentList.Arguments[1];
+
+                        SyntaxKind syntaxKind = attrArgType.Expression?.Kind() ?? SyntaxKind.None;
+                        if (syntaxKind == SyntaxKind.SimpleMemberAccessExpression)
+                        {
+                            MemberAccessExpressionSyntax modelNameSyntax = attrArgType.Expression as MemberAccessExpressionSyntax;
+                            IdentifierNameSyntax enumSyntax = modelNameSyntax.Expression as IdentifierNameSyntax;
+
+                            // enum type as string
+                            string enumName = enumSyntax.Identifier.ValueText;
+
+                            // enum value as string
+                            modelEnum = modelNameSyntax.Name.Identifier.ValueText;
+                        }
+                    }
+
+
+                    if(!TypeList.TryGetValue(modelName , out Container val))
+                    {
+                        val = new Container();
+                        val.ModelName = modelName;
+                        TypeList.Add(modelName, val);
+                    }
+
+                    switch (modelEnum)
+                    {
+                        case nameof(ClassType.BEHAVIOUR):
+                            {
+                                val.Behaviour.ModelName = modelName;
+                                val.Behaviour.TextAsset = txt;
+                                val.Behaviour.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}Behaviour");
+                                break;
+                            }
+                        case nameof(ClassType.DATA):
+                            {
+                                val.Data.ModelName = modelName;
+                                val.Data.TextAsset = txt;
+                                val.Data.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}Data");
+                                break;
+                            }
+                        case nameof(ClassType.GAME_DATA):
+                            {
+                                val.GameData.ModelName = modelName;
+                                val.GameData.TextAsset = txt;
+                                val.GameData.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}GameData");
+                                break;
+                            }
+                        case nameof(ClassType.INSTANCE):
+                            {
+                                val.Instance.ModelName = modelName;
+                                val.Instance.TextAsset = txt;
+                                val.Instance.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}Instance");
+                                break;
+                            }
+                        case nameof(ClassType.STATE):
+                            {
+                                val.State.ModelName = modelName;
+                                val.State.TextAsset = txt;
+                                val.State.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}State");
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            /*
             // find all the scripts that contain the BISDTag
             // which means the scripts that need to be treated
             List<TextAsset> textAssets = EditorUtils.FindTextAssets()
@@ -109,139 +258,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 .Where(t => !t.name.EndsWith(".cs"))
                 .Where(t => t.text.Contains(nameof(BISDTag)))
                 .ToList();
-
-            // key : model name
-            // value : types of => behaviour , instance , state , data
-            TypeList = new Dictionary<string, Container<Type>>();
-
-            // key : model name
-            // value : text files of => behaviour , instance , state , data
-            TextList = new Dictionary<string, Container<TextAsset>>();
-
-            foreach (TextAsset text in textAssets)
-            {
-                // local vars
-
-                Container<Type> tupleType = null;
-
-                Container<TextAsset> tupleText = null;
-
-
-                string model = null;
-
-                // start comparing
-
-                if (text.name.EndsWith(BEHAVIOUR_FILE_ENDING))
-                {
-                    model = text.name.Remove(text.name.Length - 9);
-
-                    // type
-                    if (!TypeList.TryGetValue(model, out tupleType))
-                    {
-                        tupleType = new Container<Type>();
-                        TypeList.Add(model, tupleType);
-                    }
-
-                    Type behaviour = allTypes.FirstOrDefault(t => t.Name.Equals(text.name));
-
-                    tupleType.Behaviour = behaviour;
-
-                    // text
-
-                    if (!TextList.TryGetValue(model, out tupleText))
-                    {
-                        tupleText = new Container<TextAsset>();
-                        TextList.Add(model, tupleText);
-                    }
-
-                    tupleText.Behaviour = text;
-                }
-
-                if (text.name.EndsWith(INSTANCE_FILE_ENDING))
-                {
-                    model = text.name.Remove(text.name.Length - 8);
-
-
-                    // type
-                    if (!TypeList.TryGetValue(model, out tupleType))
-                    {
-                        tupleType = new Container<Type>();
-                        TypeList.Add(model, tupleType);
-                    }
-
-                    Type instance = allTypes.FirstOrDefault(t => t.Name.Equals(text.name));
-
-                    tupleType.Instance = instance;
-
-                    // text
-
-                    if (!TextList.TryGetValue(model, out tupleText))
-                    {
-                        tupleText = new Container<TextAsset>();
-                        TextList.Add(model, tupleText);
-                    }
-
-                    tupleText.Instance = text;
-                }
-
-                if (text.name.EndsWith(STATE_FILE_ENDING))
-                {
-                    model = text.name.Remove(text.name.Length - 5);
-
-
-                    // type
-                    if (!TypeList.TryGetValue(model, out tupleType))
-                    {
-                        tupleType = new Container<Type>();
-                        TypeList.Add(model, tupleType);
-                    }
-
-                    Type state = allTypes.FirstOrDefault(t => t.Name.Equals(text.name));
-
-                    tupleType.State = state;
-
-                    // text
-
-                    if (!TextList.TryGetValue(model, out tupleText))
-                    {
-                        tupleText = new Container<TextAsset>();
-                        TextList.Add(model, tupleText);
-                    }
-
-                    tupleText.State = text;
-
-                }
-                if (text.name.EndsWith(DATA_FILE_ENDING))
-                {
-                    model = text.name.Remove(text.name.Length - 4);
-
-
-                    // type
-                    if (!TypeList.TryGetValue(model, out tupleType))
-                    {
-                        tupleType = new Container<Type>();
-                        TypeList.Add(model, tupleType);
-                    }
-
-                    Type data = allTypes.FirstOrDefault(t => t.Name.Equals(text.name));
-
-                    tupleType.Data = data;
-
-                    // text
-
-                    if (!TextList.TryGetValue(model, out tupleText))
-                    {
-                        tupleText = new Container<TextAsset>();
-                        TextList.Add(model, tupleText);
-                    }
-
-                    tupleText.Data = text;
-                }
-
-                tupleType.ModelName = model;
-                tupleText.ModelName = model;
-
-            }
+            */
         }
 
 

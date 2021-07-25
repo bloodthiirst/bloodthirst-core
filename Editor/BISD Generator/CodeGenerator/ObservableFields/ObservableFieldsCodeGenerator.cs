@@ -45,19 +45,19 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             "System"
         };
 
-        public bool ShouldInject(Container<Type> TypeList, Container<TextAsset> TextList)
+        public bool ShouldInject(Container typeInfo)
         {
             bool mustRegenerate = false;
 
             // fields of state
-            FieldInfo[] fields = GetObseravableFields(TypeList);
+            FieldInfo[] fields = GetObseravableFields(typeInfo);
 
             // instance vars
-            PropertyInfo[] props = GetObservableProps(TypeList);
+            PropertyInfo[] props = GetObservableProps(typeInfo);
 
             // events
-            EventInfo[] events = GetObservableEvents(TypeList);
-            MethodInfo[] methods = GetObservableMethods(TypeList);
+            EventInfo[] events = GetObservableEvents(typeInfo);
+            MethodInfo[] methods = GetObservableMethods(typeInfo);
 
             // check if we need to regenerate the code
 
@@ -124,35 +124,35 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             return mustRegenerate;
         }
 
-        private static MethodInfo[] GetObservableMethods(Container<Type> TypeList)
+        private static MethodInfo[] GetObservableMethods(Container typeInfo)
         {
             //observers
-            return TypeList.Instance
+            return typeInfo.Instance.TypeRef
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
         }
-        private static PropertyInfo[] GetObservableProps(Container<Type> TypeList)
+        private static PropertyInfo[] GetObservableProps(Container typeInfo)
         {
             //observers
-            return TypeList.Instance
+            return typeInfo.Instance.TypeRef
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
         }
 
-        private static EventInfo[] GetObservableEvents(Container<Type> TypeList)
+        private static EventInfo[] GetObservableEvents(Container typeInfo)
         {
             //observers
-            return TypeList.Instance
+            return typeInfo.Instance.TypeRef
                 .GetEvents(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
         }
 
-        public void InjectGeneratedCode(Container<Type> TypeList, Container<TextAsset> TextList)
+        public void InjectGeneratedCode(Container typeInfo)
         {
-            FieldInfo[] fields = GetObseravableFields(TypeList);
+            FieldInfo[] fields = GetObseravableFields(typeInfo);
 
             // do the generation
 
@@ -172,7 +172,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             }
             */
 
-            string oldScript = TextList.Instance.text;
+            string oldScript = typeInfo.Instance.TextAsset.text;
 
             #region write the properties for the observables in the state
             List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(PROPS_START_CONST, PROPS_END_CONST);
@@ -203,7 +203,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     {
                         string templateText = AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_PROPERTY_TEMPALTE).text;
 
-                        templateText = templateText.Replace("[INSTANCE_TYPE]", TypeList.Instance.Name);
+                        templateText = templateText.Replace("[INSTANCE_TYPE]", typeInfo.Instance.TypeRef.Name);
 
                         templateText = templateText.Replace("[FIELD_NICE_NAME]", FieldFormatedName(field));
 
@@ -286,19 +286,19 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
 
             // save
-            File.WriteAllText(AssetDatabase.GetAssetPath(TextList.Instance), oldScript);
+            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.Instance.TextAsset), oldScript);
 
             // set dirty
-            EditorUtility.SetDirty(TextList.Instance);
+            EditorUtility.SetDirty(typeInfo.Instance.TextAsset);
 
             //
-            Debug.Log($"Type regenerated [{ TypeList.ModelName }]");
+            Debug.Log($"model type affected [{ typeInfo.ModelName }]");
         }
 
-        private static FieldInfo[] GetObseravableFields(Container<Type> TypeList)
+        private static FieldInfo[] GetObseravableFields(Container TypeList)
         {
             // fields
-            return TypeList.State
+            return TypeList.State.TypeRef
                 .GetFields(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => !f.Name.Equals("data"))
                 .Where(f => !f.Name.Equals("id"))

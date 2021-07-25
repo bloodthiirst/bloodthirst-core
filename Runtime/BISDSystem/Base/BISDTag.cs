@@ -7,7 +7,8 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         BEHAVIOUR,
         INSTANCE,
         STATE,
-        DATA
+        DATA,
+        GAME_DATA
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = true, AllowMultiple = false)]

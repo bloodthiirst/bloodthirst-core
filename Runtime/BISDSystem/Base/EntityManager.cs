@@ -95,6 +95,9 @@ namespace Bloodthirst.Core.BISDSystem
             {
                 foreach (IEntityInstance ins in set)
                 {
+                    // if doesn't have id , then we don't save it
+                    if (ins.EntityIdentifier == null)
+                        continue;
 
                     PrefabIDPair key = new PrefabIDPair() { Id = ins.EntityIdentifier.Id, PrefabRefernece = ins.EntityIdentifier.PrefabReferenceData.PrefabReference };
 
