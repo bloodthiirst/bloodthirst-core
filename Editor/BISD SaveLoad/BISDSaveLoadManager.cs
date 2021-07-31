@@ -92,7 +92,7 @@ namespace Bloodthirst.Core.BISD.Editor
 
             data.Title = titleTxt.value;
 
-            data.States = EntityManager.GetAllEntityStates();
+            data.GameDatas = EntityManager.GetAllEntityStates();
 
             AssetDatabase.CreateAsset(data, selectPathTxt.value);
 

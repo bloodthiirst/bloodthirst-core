@@ -1,0 +1,6 @@
+﻿			save.[SAVE_FIELD_NAME] = new List<int>();
+
+	 	 	for(int i = 0; i < state.[STATE_FIELD_NAME].Count; i++)
+	 	 	{
+	 	 	 	save.[SAVE_FIELD_NAME].Add( state.[STATE_FIELD_NAME][i].EntityIdentifier.Id );
+	 	 	} 

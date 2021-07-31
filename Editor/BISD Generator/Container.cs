@@ -8,5 +8,6 @@
         public BISDInfo State { get; set; } = new BISDInfo();
         public BISDInfo Data { get; set; } = new BISDInfo();
         public BISDInfo GameData { get; set; } = new BISDInfo();
+        public BISDInfo LoadSaveHandler { get; set; } = new BISDInfo();
     }
 }

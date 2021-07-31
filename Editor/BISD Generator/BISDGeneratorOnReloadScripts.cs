@@ -77,7 +77,9 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             // code generators
             List<ICodeGenerator> codeGenerators = new List<ICodeGenerator>()
             {
-                new ObservableFieldsCodeGenerator()
+                new ObservableFieldsCodeGenerator(),
+                new GameStateCodeGenerator(),
+                new LoadSaveHandlerCodeGenerator()
             };
 
             // get models info
@@ -244,21 +246,18 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                                 val.State.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}State");
                                 break;
                             }
+                        case nameof(ClassType.LOAD_SAVE_HANDLER):
+                            {
+                                val.LoadSaveHandler.ModelName = modelName;
+                                val.LoadSaveHandler.TextAsset = txt;
+                                val.LoadSaveHandler.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}LoadSaveHandler");
+                                break;
+                            }
                         default:
                             break;
                     }
                 }
             }
-
-            /*
-            // find all the scripts that contain the BISDTag
-            // which means the scripts that need to be treated
-            List<TextAsset> textAssets = EditorUtils.FindTextAssets()
-                .Where(t => !filterFiles.Contains(t.name))
-                .Where(t => !t.name.EndsWith(".cs"))
-                .Where(t => t.text.Contains(nameof(BISDTag)))
-                .ToList();
-            */
         }
 
 

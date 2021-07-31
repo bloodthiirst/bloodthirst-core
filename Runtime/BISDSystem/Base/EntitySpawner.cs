@@ -49,9 +49,9 @@ namespace Bloodthirst.Core.BISDSystem
             return entity;
         }
 
-        public void LoadGameState(BISDGameStateData gameData)
+        public List<EntityIdentifier> LoadGameState(BISDGameStateData gameData)
         {
-            EntityManager.Load(gameData, this);
+            return EntityManager.Load(gameData, this);
         }
 
         public BEHAVIOUR AddBehaviour<BEHAVIOUR, INSTANCE, STATE, DATA>(MonoBehaviour entity) where DATA : EntityData where STATE : class, IEntityState<DATA> , new() where INSTANCE : EntityInstance<DATA, STATE, INSTANCE> , new() where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE> 

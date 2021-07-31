@@ -18,7 +18,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         /// <summary>
         /// Path to the template text file
         /// </summary>
-        private const string STATE_PROPERTY_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/Template.StateProperty.cs.txt";
+        private const string STATE_PROPERTY_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/ObservableFields/Template.StateProperty.cs.txt";
 
         /// <summary>
         /// The start of the part of the script to inject the auto-generated observables
@@ -234,7 +234,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             }
             #endregion
 
-            #region write the properties for the observables in the state
+            #region write the namspaces for the observables in the state
             List<Tuple<SECTION_EDGE, int, int>> namespaceSections = oldScript.StringReplaceSection(NAMESPACE_START_CONST, NAMESPACE_END_CONST);
 
             padding = 0;

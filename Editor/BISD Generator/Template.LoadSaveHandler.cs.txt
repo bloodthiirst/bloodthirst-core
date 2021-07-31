@@ -1,0 +1,26 @@
+﻿using Bloodthirst.Core.BISD.CodeGeneration;
+using Bloodthirst.Core.BISDSystem;
+using System;
+using System.Collections.Generic;
+
+namespace Assets.Scripts.Game.[MODELNAME]Model
+{
+    [BISDTag("[MODELNAME]" , ClassType.LOAD_SAVE_HANDLER)]
+    [Serializable]
+    public class [MODELNAME]LoadSaveHandlerBase : EntityLoadSaveHandlerBase<[MODELNAME]GameData, [MODELNAME]State>
+    {
+        public override [MODELNAME]GameData GetSave([MODELNAME]State state, SavingContext context)
+        {
+            //GET_SAVE_START
+            return null;
+            //GET_SAVE_END
+        }
+
+        public override [MODELNAME]State GetState([MODELNAME]GameData save, LoadingContext context)
+        {
+            //GET_STATE_START
+            return null;
+            //GET_STATE_END
+        }
+    }
+}

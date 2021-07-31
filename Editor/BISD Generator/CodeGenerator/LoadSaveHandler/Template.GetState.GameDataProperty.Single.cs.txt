@@ -1,0 +1,1 @@
+﻿	 		state.[STATE_FIELD_NAME] = context.GetInstance<[INSTANCE_TYPE]>(save.[SAVE_FIELD_NAME]);

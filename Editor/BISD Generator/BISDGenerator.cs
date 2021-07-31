@@ -19,6 +19,8 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private const string GAME_DATA_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.GameData.cs.txt";
 
+        private const string LOAD_SAVE_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.LoadSaveHandler.cs.txt";
+
         private const string UXML_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/BISDGenerator.uxml";
 
         private const string USS_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/BISDGenerator.uss";
@@ -123,12 +125,14 @@ namespace Bloodthirst.Core.BISD.Editor
             File.WriteAllText(finalPath + "State.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
             File.WriteAllText(finalPath + "Data.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
             File.WriteAllText(finalPath + "GameData.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(GAME_DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
+            File.WriteAllText(finalPath + "LoadSaveHandler.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(LOAD_SAVE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
 
             AssetDatabase.ImportAsset(relativePath + "Behaviour.cs");
             AssetDatabase.ImportAsset(relativePath + "Instance.cs");
             AssetDatabase.ImportAsset(relativePath + "State.cs");
             AssetDatabase.ImportAsset(relativePath + "Data.cs");
             AssetDatabase.ImportAsset(relativePath + "GameData.cs");
+            AssetDatabase.ImportAsset(relativePath + "LoadSaveHandler.cs");
 
             AssetDatabase.SaveAssets();
 

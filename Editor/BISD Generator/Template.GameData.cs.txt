@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Core.BISD.CodeGeneration;
 using Bloodthirst.Core.BISDSystem;
 using System;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {
@@ -8,5 +9,7 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
     [Serializable]
     public class [MODELNAME]GameData : IEntityGameData<[MODELNAME]State>
     {
+        //GAMEDATA_START
+		//GAMEDATA_END
     }
 }
