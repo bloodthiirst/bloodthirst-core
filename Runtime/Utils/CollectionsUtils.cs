@@ -33,9 +33,9 @@ namespace Bloodthirst.Core.Utils
         /// <param name="curr"></param>
         /// <param name="other"></param>
         /// <returns></returns>
-        public static IEnumerator Combine(this IEnumerator curr , IEnumerator other)
+        public static IEnumerator Combine(this IEnumerator curr, IEnumerator other)
         {
-            while(curr.MoveNext())
+            while (curr.MoveNext())
             {
                 yield return curr.Current;
             }
@@ -92,6 +92,18 @@ namespace Bloodthirst.Core.Utils
             }
         }
 
+        public static V GetOrCreateValue<K, V>(this IDictionary<K, V> dict, K key) where V : new()
+        {
+            if (!dict.TryGetValue(key, out V val))
+            {
+                val = new V();
+                dict.Add(key, val);
+                return val;
+            }
+
+            return val;
+        }
+
         public static bool Has<T>(this IEnumerable<T> list, Predicate<T> filter)
         {
             return list.FirstOrDefault(t => filter(t)) != null;
@@ -105,7 +117,7 @@ namespace Bloodthirst.Core.Utils
             return instance;
         }
 
-        public static C CreateOrClear<C,T>(this C collection) where C : ICollection<T>, new()
+        public static C CreateOrClear<C, T>(this C collection) where C : ICollection<T>, new()
         {
             if (collection == null)
                 collection = new C();
@@ -126,9 +138,9 @@ namespace Bloodthirst.Core.Utils
         }
 
 
-        public static void ExpandeSize<T>(this List<T> list , int size)
+        public static void ExpandeSize<T>(this List<T> list, int size)
         {
-            while(list.Count < size)
+            while (list.Count < size)
             {
                 list.Add(default(T));
             }

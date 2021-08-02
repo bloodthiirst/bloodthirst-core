@@ -22,5 +22,11 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
             return null;
             //GET_STATE_END
         }
+
+        public override void LinkReferences([MODELNAME]GameData save, [MODELNAME]State state, LoadingContext context)
+        {
+			//LINK_REFS_START
+			//LINK_REFS_END
+		}
     }
 }

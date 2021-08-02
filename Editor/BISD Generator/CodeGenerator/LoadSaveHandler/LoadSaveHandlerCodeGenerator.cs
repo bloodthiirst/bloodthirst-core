@@ -19,8 +19,12 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
     {
         private const string GET_STATE_START = "//GET_STATE_START";
         private const string GET_STATE_END = "//GET_STATE_END";
+
         private const string GET_SAVE_START = "//GET_SAVE_START";
         private const string GET_SAVE_END = "//GET_SAVE_END";
+        
+        private const string LINK_REFS_START = "//LINK_REFS_START";
+        private const string LINK_REFS_END = "//LINK_REFS_END";
 
 
 
@@ -80,7 +84,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         }
 
-        private string GenerateGetStateFields(Container typeInfo, List<MemberInfo> fields, string oldScript)
+        private string GenerateGetStateFields(Container typeInfo, List<MemberInfo> members, string oldScript)
         {
             #region write the properties for the get state
             List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(GET_STATE_START, GET_STATE_END);
@@ -111,7 +115,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                         .Append(Environment.NewLine);
 
                     // assign fields
-                    foreach (MemberInfo mem in fields)
+                    foreach (MemberInfo mem in members)
                     {
                         string templateText = string.Empty;
                         templateText = CopyFieldGetState(mem, typeInfo);
@@ -142,13 +146,65 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 }
             }
             #endregion
+
+            #region write the properties for the get state referenced instances
+            List<Tuple<SECTION_EDGE, int, int>> refsSections = oldScript.StringReplaceSection(LINK_REFS_START, LINK_REFS_END);
+
+            padding = 0;
+
+            for (int i = 0; i < refsSections.Count - 1; i++)
+            {
+                Tuple<SECTION_EDGE, int, int> start = refsSections[i];
+                Tuple<SECTION_EDGE, int, int> end = refsSections[i + 1];
+
+                // if we have correct start and end
+                // then do the replacing
+                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                {
+                    StringBuilder replacementText = new StringBuilder();
+
+                    replacementText.Append(Environment.NewLine);
+                    replacementText.Append(Environment.NewLine);
+
+                    replacementText.Append("\t").Append("\t").Append("\t")
+                        .Append("#region auto-generated get referenecs save code")
+                        .Append(Environment.NewLine);
+
+                    // assign fields
+                    foreach (MemberInfo mem in members)
+                    {
+                        string templateText = string.Empty;
+                        templateText = CopyFieldRefGetSave(mem, typeInfo);
+
+                        replacementText.Append(templateText)
+                        .Append(Environment.NewLine);
+                    }
+
+                    replacementText.Append("\t").Append("\t").Append("\t").Append("#endregion")
+                        .Append(Environment.NewLine);
+
+                    replacementText
+                    .Append(Environment.NewLine)
+                    .Append("\t")
+                    .Append("\t")
+                    .Append("\t");
+
+                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+
+                    int oldTextLength = end.Item2 - start.Item3;
+
+                    padding += replacementText.Length - oldTextLength;
+                }
+            }
+            #endregion
+
             return oldScript;
         }
 
         private static string GenerateGetSaveFields(Container typeInfo, List<MemberInfo> members, string oldScript)
         {
 
-            #region write the properties for the get state
+            #region write the properties for the get state for pure values
             List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(GET_SAVE_START, GET_SAVE_END);
 
             int padding = 0;
@@ -180,7 +236,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     foreach (MemberInfo mem in members)
                     {
                         string templateText = string.Empty;
-                        templateText = CopyFieldGetSave(mem , typeInfo);
+                        templateText = CopyFieldValueGetSave(mem , typeInfo);
 
                         replacementText.Append(templateText)
                         .Append(Environment.NewLine);
@@ -208,10 +264,10 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 }
             }
             #endregion
+
             return oldScript;
         }
-
-        private static string CopyFieldGetSave(MemberInfo mem, Container typeInfo)
+        private static string CopyFieldValueGetSave(MemberInfo mem, Container typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()
@@ -246,7 +302,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
 
             // single entity ref
-            else if (TypeUtils.IsSubTypeOf( ReflectionUtils.GetMemberType(mem), typeof(IEntityInstance)))
+            else if (TypeUtils.IsSubTypeOf(ReflectionUtils.GetMemberType(mem), typeof(IEntityInstance)))
             {
                 string templateText = AssetDatabase.LoadAssetAtPath<TextAsset>(GET_SAVE_FIELD_SINGLE_TEMPLATE).text;
                 templateText = templateText.Replace(STATE_FIELD_NAME, mem.Name);
@@ -264,7 +320,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 return templateText;
             }
         }
-        private static string CopyFieldGetState(MemberInfo mem, Container typeInfo)
+        private static string CopyFieldRefGetSave(MemberInfo mem, Container typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()
@@ -300,13 +356,55 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
 
             // single entity ref
-            else if (TypeUtils.IsSubTypeOf(ReflectionUtils.GetMemberType(mem), typeof(IEntityInstance)))
+            else if (TypeUtils.IsSubTypeOf( ReflectionUtils.GetMemberType(mem), typeof(IEntityInstance)))
             {
                 string templateText = AssetDatabase.LoadAssetAtPath<TextAsset>(GET_STATE_FIELD_SINGLE_TEMPLATE).text;
                 templateText = templateText.Replace(STATE_FIELD_NAME, mem.Name);
                 templateText = templateText.Replace(SAVE_FIELD_NAME, $"{mem.Name}_Id");
                 templateText = templateText.Replace(INSTANCE_TYPE, $"{interfaces[0].Name}");
+
                 return templateText;
+            }
+
+            // other data
+            {
+                return string.Empty;
+            }
+        }
+        private static string CopyFieldGetState(MemberInfo mem, Container typeInfo)
+        {
+            List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
+                .GetInterfaces()
+                .Where(i => i.IsGenericType)
+                .Where(i =>
+                {
+                    Type t = i.GetGenericTypeDefinition();
+                    return
+                    t == typeof(IList<>) ||
+                    t == typeof(ISet<>);
+                })
+                .Select(i =>
+                {
+                    Type genArg = i.GetGenericArguments()[0];
+                    Type[] types = genArg.GetInterfaces();
+                    Type isInstance = types.Contains(typeof(IEntityInstance)) ? genArg : null;
+
+                    return isInstance;
+                })
+                .Where(i => i != null)
+                .ToList();
+
+            // many entity ref
+            if (interfaces.Count != 0)
+            {
+                return string.Empty;
+            }
+
+
+            // single entity ref
+            else if (TypeUtils.IsSubTypeOf(ReflectionUtils.GetMemberType(mem), typeof(IEntityInstance)))
+            {
+                return string.Empty;
             }
 
             // other data
@@ -318,14 +416,5 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 return templateText;
             }
         }
-
-        private static string FieldFormatedName(FieldInfo field)
-        {
-            StringBuilder sb = new StringBuilder(field.GetNiceName());
-            sb[0] = Char.ToUpper(sb[0]);
-            return sb.ToString();
-        }
-
-
     }
 }
