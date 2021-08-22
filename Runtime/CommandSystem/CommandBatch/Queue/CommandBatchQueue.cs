@@ -79,6 +79,12 @@ namespace Bloodthirst.System.CommandSystem
                 cmd.Command.Start();
             }
 
+            // todo : check if it's done in start before going to the tick
+            if(cmd.Command.IsDone)
+            {
+                return;
+            }
+
             // execute the commands on tick
             cmd.Command.OnTick(delta);
         }

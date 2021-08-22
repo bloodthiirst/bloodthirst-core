@@ -1,46 +1,55 @@
+using Bloodthirst.Core.BISD.CodeGeneration;
+using Bloodthirst.Core.BISD.Editor.Commands;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
+using Bloodthirst.Editor.Commands;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.UIElements;
+using ICodeGenerator = Bloodthirst.Core.BISD.CodeGeneration.ICodeGenerator;
 
 namespace Bloodthirst.Core.BISD.Editor
 {
     public class BISDGenerator : EditorWindow
     {
-        private const string BEHAVIOUR_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.Behaviour.cs.txt";
 
-        private const string INSTANCE_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.Instance.cs.txt";
-
-        private const string STATE_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.State.cs.txt";
-
-        private const string DATA_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.Data.cs.txt";
-
-        private const string GAME_DATA_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.GameData.cs.txt";
-
-        private const string LOAD_SAVE_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.LoadSaveHandler.cs.txt";
 
         private const string UXML_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/BISDGenerator.uxml";
 
+        private const string UXML_INFO_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/BISDInfo.uxml";
+
         private const string USS_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/BISDGenerator.uss";
 
-        private const string REPLACE_KEYWORD = "[MODELNAME]";
 
-        [MenuItem("Bloodthirst Tools/BISDGenerator")]
+        [MenuItem("Bloodthirst Tools/BISD Pattern/BISD Generator")]
         public static void ShowWindow()
         {
             BISDGenerator wnd = GetWindow<BISDGenerator>();
-            wnd.titleContent = new GUIContent("BISDGenerator");
+            wnd.titleContent = new GUIContent("BISD Generator");
         }
 
-        [MenuItem("Assets/BISD Generator")]
+        [MenuItem("Assets/Create/BISD Generator")]
         public static void AssetMenu()
         {
             ShowWindow();
         }
 
+        [DidReloadScripts]
+        private static void OnReload()
+        {
+            if (!HasOpenInstances<BISDGenerator>())
+                return;
+
+            GetWindow<BISDGenerator>().Refresh();
+        }
+
         public Button GenerateBtn => rootVisualElement.Q<Button>(name = "GenerateBtn");
+        public VisualElement BISDList => rootVisualElement.Q<VisualElement>(name = "BISDList");
 
         public TextField ModelName => rootVisualElement.Q<TextField>(name = "ModelName");
 
@@ -53,14 +62,17 @@ namespace Bloodthirst.Core.BISD.Editor
 
             // Import UXML
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
-            VisualElement labelFromUXML = visualTree.CloneTree();
-            root.Add(labelFromUXML);
+            VisualElement template = visualTree.CloneTree();
+            root.Add(template);
+
+            template.AddToClassList("w-100");
+            template.AddToClassList("h-100");
 
             // A stylesheet can be added to a VisualElement.
             // The style will be applied to the VisualElement and all of its children.
             StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(USS_PATH);
             root.styleSheets.Add(styleSheet);
-
+            root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
             SetupElements();
         }
 
@@ -72,6 +84,75 @@ namespace Bloodthirst.Core.BISD.Editor
             //generate btn
             GenerateBtn.clickable.clicked += OnGenerateBtnClicked;
             GenerateBtn.SetEnabled(false);
+
+            ScrollView scroll = new ScrollView(ScrollViewMode.Vertical);
+
+            BISDList.Clear();
+            BISDList.Add(scroll);
+
+            // TODO : do this on other thread
+            // code generators
+            List<ICodeGenerator> codeGenerators = new List<ICodeGenerator>()
+            {
+                new ObservableFieldsCodeGenerator(),
+                new GameStateCodeGenerator(),
+                new LoadSaveHandlerCodeGenerator()
+            };
+
+            ExtractBISDInfoCommand cmd = new ExtractBISDInfoCommand();
+
+            // get models info
+            Dictionary<string, BISDInfoContainer> typeList = CommandManagerEditor.Run(cmd);
+
+            
+            string[] models = typeList.Keys.ToArray();
+
+            bool dirty = false;
+
+            int affctedModels = 0;
+
+            // run thorugh the models to apply the changes
+            foreach (string model in models)
+            {
+                BISDInfoContainer typeInfo = typeList[model];
+
+                bool modeldirty = false;
+
+                foreach (ICodeGenerator generator in codeGenerators)
+                {
+                    if (generator.ShouldInject(typeInfo))
+                    {
+                        dirty = true;
+                        modeldirty = true;
+                        generator.InjectGeneratedCode(typeInfo);
+                    }
+                }
+
+                if (modeldirty)
+                {
+                    affctedModels++;
+                }
+            }
+
+            Debug.Log($"BISD affected models : {affctedModels}");
+
+            if (!dirty)
+                return;
+
+
+            // save the changes
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+
+            for (int i = 0; i< 5; i++)
+            {
+                VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_INFO_PATH);
+                VisualElement template = visualTree.CloneTree().Children().First();
+
+                scroll.Add(template);
+            }
+
+            Refresh();
         }
 
         /// <summary>
@@ -81,19 +162,19 @@ namespace Bloodthirst.Core.BISD.Editor
         public static string GetSelectedPathOrFallback()
         {
 
-            string path = "Assets";
-            foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+            string defaultPath = EditorUtils.CurrentProjectWindowPath();
+            
+            foreach (Object obj in Selection.GetFiltered(typeof(Object), SelectionMode.Assets))
             {
-                path = AssetDatabase.GetAssetPath(obj);
+                var path = AssetDatabase.GetAssetPath(obj);
                 if (!string.IsNullOrEmpty(path) && File.Exists(path))
                 {
-                    path = Path.GetDirectoryName(path);
-                    break;
+                    return path = Path.GetDirectoryName(path);
                 }
             }
 
-            
-            return path;
+
+            return defaultPath;
         }
 
         private void OnGenerateBtnClicked()
@@ -109,55 +190,38 @@ namespace Bloodthirst.Core.BISD.Editor
 
             string folderGUID = AssetDatabase.CreateFolder(currentFolder, FolderName);
 
-            string relativePath = AssetDatabase.GUIDToAssetPath(folderGUID)
-                        + "/"
-                        + modelName;
+            string relativePath = AssetDatabase.GUIDToAssetPath(folderGUID) + "/";
 
-            string finalPath = EditorUtils.PathToProject
-                             + relativePath;
-
-
-
-            Debug.Log(finalPath);
-
-            File.WriteAllText(finalPath + "Behaviour.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(BEHAVIOUR_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            File.WriteAllText(finalPath + "Instance.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(INSTANCE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            File.WriteAllText(finalPath + "State.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            File.WriteAllText(finalPath + "Data.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            File.WriteAllText(finalPath + "GameData.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(GAME_DATA_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-            File.WriteAllText(finalPath + "LoadSaveHandler.cs", AssetDatabase.LoadAssetAtPath<TextAsset>(LOAD_SAVE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName));
-
-            AssetDatabase.ImportAsset(relativePath + "Behaviour.cs");
-            AssetDatabase.ImportAsset(relativePath + "Instance.cs");
-            AssetDatabase.ImportAsset(relativePath + "State.cs");
-            AssetDatabase.ImportAsset(relativePath + "Data.cs");
-            AssetDatabase.ImportAsset(relativePath + "GameData.cs");
-            AssetDatabase.ImportAsset(relativePath + "LoadSaveHandler.cs");
-
-            AssetDatabase.SaveAssets();
-
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            CommandManagerEditor.Run(new CreateBehaviourFileCommand(modelName, relativePath));
+            CommandManagerEditor.Run(new CreateInstanceFileCommand(modelName, relativePath));
+            CommandManagerEditor.Run(new CreateStateFileCommand(modelName, relativePath));
+            CommandManagerEditor.Run(new CreateDataFileCommand(modelName, relativePath));
+            CommandManagerEditor.Run(new CreateGameDataFileCommand(modelName, relativePath));
+            CommandManagerEditor.Run(new CreateLoadSaveHandlerFileCommand(modelName, relativePath));
         }
 
         private void OnModelNameChanged(ChangeEvent<string> evt)
         {
-            if (string.IsNullOrEmpty(evt.newValue) || string.IsNullOrWhiteSpace(evt.newValue))
+            Refresh();
+        }
+
+        private void Refresh()
+        {
+            if (string.IsNullOrEmpty(ModelName.text) || string.IsNullOrWhiteSpace(ModelName.text))
             {
                 GenerateBtn.SetEnabled(false);
-                PathPreview.text = "(Invalid)";
+                PathPreview.text = "(Invalid Model Name)";
             }
             else
             {
                 GenerateBtn.SetEnabled(true);
 
 
-                string FolderName = evt.newValue + "Model";
+                string FolderName = ModelName.text + "Model";
 
                 string relativePath = GetSelectedPathOrFallback()
                             + "/"
-                            + FolderName
-                            + "/"
-                            + evt.newValue;
+                            + FolderName;
 
                 PathPreview.text = relativePath;
 

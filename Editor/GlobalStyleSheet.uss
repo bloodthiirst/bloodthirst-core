@@ -39,6 +39,11 @@
     flex-grow: 1;
 }
 
+.col {
+    display: flex;
+    flex-direction: column;
+}
+
 .border {
     border-color: gray;
     border-width: 2px;

@@ -19,12 +19,12 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private const string START_TERM_CONST = "//GAMEDATA_START";
         private const string END_TERM_CONST = "//GAMEDATA_END";
 
-        public bool ShouldInject(Container container)
+        public bool ShouldInject(BISDInfoContainer container)
         {
             return container.GameData.ModelName != null;
         }
 
-        private List<MemberInfo> GetSaveableMembers(Container typeInfo)
+        private List<MemberInfo> GetSaveableMembers(BISDInfoContainer typeInfo)
         {
             List<MemberInfo> f = new List<MemberInfo>();
 
@@ -37,7 +37,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             return f;
         }
 
-        public void InjectGeneratedCode(Container typeInfo)
+        public void InjectGeneratedCode(BISDInfoContainer typeInfo)
         {
             if (!ShouldInject(typeInfo))
                 return;

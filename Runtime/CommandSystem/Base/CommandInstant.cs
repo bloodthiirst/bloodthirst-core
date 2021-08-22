@@ -4,11 +4,18 @@ using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
-    public enum COMMAND_STATE
+    public interface ICommandInstant : ICommandBase
     {
-        WATING, EXECUTING, SUCCESS, FAILED, INTERRUPTED
+        void Execute();
     }
-    public abstract class CommandBase<T> : ICommandBase where T : CommandBase<T>
+
+    public interface ICommandInstant<TResult> : ICommandInstant
+    {
+        TResult GetResult();
+    }
+
+
+    public abstract class CommandInstant<T> : ICommandBase , ICommandInstant where T : CommandInstant<T>
     {
 #if UNITY_EDITOR && ODIN_INSPECTOR
         [HideInEditorMode]
@@ -59,12 +66,17 @@ namespace Bloodthirst.System.CommandSystem
         /// <summary>
         /// Executed on command start , defined in command and used by ICommandBatch
         /// </summary>
-        public virtual void OnStart() { }
+        private void ExecuteInternal()
+        {
+            Execute();
+        }
 
-        /// <summary>
-        /// Executed on every frame of the commands lifetime , defined in command and used by ICommandBatch
-        /// </summary>
-        public virtual void OnTick(float delta) { }
+        void ICommandInstant.Execute()
+        {
+            Execute();
+        }
+
+        protected abstract void Execute();
 
         /// <summary>
         /// Executed when the command ends with the status of success , defined in command and triggered automatically
@@ -72,21 +84,11 @@ namespace Bloodthirst.System.CommandSystem
         public virtual void OnSuccess() { }
 
         /// <summary>
-        /// Executed when the command ends with the status of failed , defined in command and triggered automatically
-        /// </summary>
-        public virtual void OnFailed() { }
-
-        /// <summary>
-        /// Executed when the command ends with the status of interrupted , defined in command and triggered automatically
-        /// </summary>
-        public virtual void OnInterrupt() { }
-
-        /// <summary>
         /// Executed when the command ends regardless of the status , defined in command and triggered automatically
         /// </summary>
         public virtual void OnEnd() { }
 
-        public CommandBase()
+        public CommandInstant()
         {
             isStarted = false;
             isDone = false;
@@ -131,8 +133,9 @@ namespace Bloodthirst.System.CommandSystem
         {
             CommandState = COMMAND_STATE.EXECUTING;
             isStarted = true;
-            OnStart();
             OnCommandStart?.Invoke(this);
+            ExecuteInternal();
+            Success();
         }
 
         /// <summary>
@@ -159,63 +162,44 @@ namespace Bloodthirst.System.CommandSystem
         }
 
         /// <summary>
-        /// Ends the command with status of FAILED
-        /// </summary>
-        public void Fail()
-        {
-            CommandState = COMMAND_STATE.FAILED;
-            OnFailed();
-            End();
-        }
-
-        /// <summary>
-        /// Ends the command with status of INTERRUPTED
-        /// </summary>
-        public void Interrupt()
-        {
-            // if is done
-            // then there's nothing to interrupt
-            if (isDone)
-            {
-                return;
-            }
-            // if not started
-            // then just set it to done 
-            // no need to trigger other events
-            if (!IsStarted)
-            {
-                isDone = true;
-                return;
-            }
-
-            OnInterrupt();
-
-            CommandState = COMMAND_STATE.INTERRUPTED;
-
-            End();
-        }
-
-        /// <summary>
         /// Ends the command with NO status and reset it to start over
         /// </summary>
         public void Reset()
         {
-            // end first to trigger the events if some other command need them
-            End();
-
             // reset the parameters
             isDone = false;
             isStarted = false;
             CommandState = COMMAND_STATE.EXECUTING;
         }
+
+        public void OnStart()
+        {
+        }
+
+        public void OnTick(float delta)
+        {
+        }
+
+        public void Interrupt()
+        {
+        }
         #endregion
 
     }
-    public abstract class CommandBase<T,TResult> : CommandBase<T> , IResult<TResult> where T : CommandBase<T,TResult>
+    public abstract class CommandInstant<T,TResult> : CommandInstant<T> , IResult<TResult> , ICommandInstant<TResult> where T : CommandInstant<T,TResult>
     {
         public bool IsReady => CommandState == COMMAND_STATE.SUCCESS; 
         public TResult Result { get; protected set; }
+        protected abstract TResult GetResult();
 
+        TResult ICommandInstant<TResult>.GetResult()
+        {
+            return GetResult();
+        }    
 
+        protected override void Execute()
+        {
+            Result = GetResult();
+        }
     }
 }

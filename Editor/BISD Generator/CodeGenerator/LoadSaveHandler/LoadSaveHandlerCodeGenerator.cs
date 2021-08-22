@@ -46,12 +46,12 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private const string SAVE_FIELD_NAME = "[SAVE_FIELD_NAME]";
         private const string INSTANCE_TYPE = "[INSTANCE_TYPE]";
 
-        public bool ShouldInject(Container container)
+        public bool ShouldInject(BISDInfoContainer container)
         {
             return container.LoadSaveHandler.ModelName != null;
         }
 
-        private List<MemberInfo> GetStateFields(Container typeInfo)
+        private List<MemberInfo> GetStateFields(BISDInfoContainer typeInfo)
         {
             List<MemberInfo> f = new List<MemberInfo>();
 
@@ -64,7 +64,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             return f;
         }
 
-        public void InjectGeneratedCode(Container typeInfo)
+        public void InjectGeneratedCode(BISDInfoContainer typeInfo)
         {
             if (!ShouldInject(typeInfo))
                 return;
@@ -84,7 +84,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         }
 
-        private string GenerateGetStateFields(Container typeInfo, List<MemberInfo> members, string oldScript)
+        private string GenerateGetStateFields(BISDInfoContainer typeInfo, List<MemberInfo> members, string oldScript)
         {
             #region write the properties for the get state
             List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(GET_STATE_START, GET_STATE_END);
@@ -201,7 +201,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             return oldScript;
         }
 
-        private static string GenerateGetSaveFields(Container typeInfo, List<MemberInfo> members, string oldScript)
+        private static string GenerateGetSaveFields(BISDInfoContainer typeInfo, List<MemberInfo> members, string oldScript)
         {
 
             #region write the properties for the get state for pure values
@@ -267,7 +267,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             return oldScript;
         }
-        private static string CopyFieldValueGetSave(MemberInfo mem, Container typeInfo)
+        private static string CopyFieldValueGetSave(MemberInfo mem, BISDInfoContainer typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()
@@ -320,7 +320,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 return templateText;
             }
         }
-        private static string CopyFieldRefGetSave(MemberInfo mem, Container typeInfo)
+        private static string CopyFieldRefGetSave(MemberInfo mem, BISDInfoContainer typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()
@@ -371,7 +371,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 return string.Empty;
             }
         }
-        private static string CopyFieldGetState(MemberInfo mem, Container typeInfo)
+        private static string CopyFieldGetState(MemberInfo mem, BISDInfoContainer typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()

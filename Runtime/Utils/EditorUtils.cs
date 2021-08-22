@@ -1,7 +1,9 @@
 ﻿#if UNITY_EDITOR
 using Bloodthirst.Scripts.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,6 +14,17 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class EditorUtils
     {
+
+        public static string CurrentProjectWindowPath()
+        {
+            Type projectWindowUtilType = typeof(ProjectWindowUtil);
+            MethodInfo getActiveFolderPath = projectWindowUtilType.GetMethod("GetActiveFolderPath", BindingFlags.Static | BindingFlags.NonPublic);
+            object obj = getActiveFolderPath.Invoke(null, new object[0]);
+            string pathToCurrentFolder = obj.ToString();
+
+            return pathToCurrentFolder;
+        }
+
         /// <summary>
         /// <para>Create a folder based on path</para>
         /// <para>example : "Assets/Resources/Foo/Bar"</para>

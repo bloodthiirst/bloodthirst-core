@@ -12,18 +12,9 @@ xsi:schemaLocation="
 "
 >
 
-  <engine:Label text="-Type the name of model to generate :"/>
-  <engine:Label text="-Path preview : "/>
-  <engine:Label name="PathPreview" />
-  <engine:TextField name="ModelName"></engine:TextField>
-  
-  <engine:Button text="Generate Model" name="GenerateBtn"/>
-  
-  <!-- START LIST OF ALL MODELS IN THE PROJECT -->
-  <engine:VisualElement name="BISDList" class="class-vars bisd-list">
-
-
+  <engine:VisualElement class="bisd-container col">
+    <engine:Label text="Model name : "/>
+    <engine:Label text="Model name : "/>
   </engine:VisualElement>
-  <!-- END -->
 
 </engine:UXML>

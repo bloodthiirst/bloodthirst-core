@@ -45,7 +45,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             "System"
         };
 
-        public bool ShouldInject(Container typeInfo)
+        public bool ShouldInject(BISDInfoContainer typeInfo)
         {
             bool mustRegenerate = false;
 
@@ -124,7 +124,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             return mustRegenerate;
         }
 
-        private static MethodInfo[] GetObservableMethods(Container typeInfo)
+        private static MethodInfo[] GetObservableMethods(BISDInfoContainer typeInfo)
         {
             //observers
             return typeInfo.Instance.TypeRef
@@ -132,7 +132,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
         }
-        private static PropertyInfo[] GetObservableProps(Container typeInfo)
+        private static PropertyInfo[] GetObservableProps(BISDInfoContainer typeInfo)
         {
             //observers
             return typeInfo.Instance.TypeRef
@@ -141,7 +141,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 .ToArray();
         }
 
-        private static EventInfo[] GetObservableEvents(Container typeInfo)
+        private static EventInfo[] GetObservableEvents(BISDInfoContainer typeInfo)
         {
             //observers
             return typeInfo.Instance.TypeRef
@@ -150,7 +150,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 .ToArray();
         }
 
-        public void InjectGeneratedCode(Container typeInfo)
+        public void InjectGeneratedCode(BISDInfoContainer typeInfo)
         {
             FieldInfo[] fields = GetObseravableFields(typeInfo);
 
@@ -295,7 +295,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             Debug.Log($"model type affected [{ typeInfo.ModelName }]");
         }
 
-        private static FieldInfo[] GetObseravableFields(Container TypeList)
+        private static FieldInfo[] GetObseravableFields(BISDInfoContainer TypeList)
         {
             // fields
             return TypeList.State.TypeRef
