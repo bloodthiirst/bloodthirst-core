@@ -34,7 +34,7 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        public virtual void PreloadStateFromData()
+        public virtual void InitDefaultState()
         {
 
         }

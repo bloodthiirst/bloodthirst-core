@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
@@ -6,16 +7,29 @@ namespace Bloodthirst.Core.BISDSystem
     public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour,
         IInitializeIdentifier,
         IInitializeInstance,
+
         IHasEntityInstanceRegister,
         IHasEntityInstanceProvider,
+
         IBehaviour,
-        IPostEntityLoaded
+        IBehaviourInstance<INSTANCE>,
+        IBehaviourState<STATE>,
+        IBehaviourData<DATA>,
+        
+        IBehaviourInstance,
+        IBehaviourState,
+        IBehaviourData,
+
+        IPostEntitiesLoaded
+
         where DATA : EntityData
         where STATE : class, IEntityState<DATA>, new()
         where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new()
     {
 
         private readonly Type stateType = typeof(STATE);
+        private readonly Type instanceType = typeof(INSTANCE);
+        private readonly Type dataType = typeof(DATA);
 
         /// <summary>
         /// The parent entity containing this behaviour
@@ -46,7 +60,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         public DATA TagData => tagData;
 
-        [SerializeField]
+        [ShowInInspector]
         protected INSTANCE instance = default;
 
         public INSTANCE Instance
@@ -133,7 +147,7 @@ namespace Bloodthirst.Core.BISDSystem
             if (preloadState != null)
             {
                 STATE state = (STATE)preloadState;
-                state.PreloadStateFromData();
+                state.InitDefaultState();
 
                 INSTANCE loaded = new INSTANCE
                 {
@@ -157,7 +171,7 @@ namespace Bloodthirst.Core.BISDSystem
             {
                 STATE state = new STATE();
                 state.Data = TagData;
-                state.PreloadStateFromData();
+                state.InitDefaultState();
 
                 INSTANCE defaultInstance = new INSTANCE
                 {
@@ -168,7 +182,7 @@ namespace Bloodthirst.Core.BISDSystem
                 return;
             }
 
-            Instance.State.PreloadStateFromData();
+            Instance.State.InitDefaultState();
             Instance = Instance;
         }
 
@@ -201,8 +215,18 @@ namespace Bloodthirst.Core.BISDSystem
         /// </summary>
         protected virtual void PostEntityLoaded() { }
 
-        #region interface implementations
-        IEntityInstance IBehaviour.Instance => Instance;
+        #region BISD interface implementation
+        Type IBehaviourInstance.Type => instanceType;
+        Type IBehaviourState.Type => stateType;
+        Type IBehaviourData.Type => dataType;
+
+        IEntityInstance IBehaviourInstance.Instance => Instance;
+        IEntityState IBehaviourState.State => State;
+        EntityData IBehaviourData.Data => Data;
+
+        #endregion
+
+        #region initialization interface implementations
 
         Type IInitializeInstance.StateType => stateType;
 
@@ -216,7 +240,7 @@ namespace Bloodthirst.Core.BISDSystem
             EntityInstanceRegister = instanceRegister;
         }
 
-        void IHasEntityInstanceProvider.InitializeEntityInstanceProvider(IInstanceProvider instanceProvider)
+        void IHasEntityInstanceProvider.InitializeEntityInstanceProvider(IEntityInstanceProvider instanceProvider)
         {
             Instance.InstanceProvider = instanceProvider;
         }
@@ -226,7 +250,7 @@ namespace Bloodthirst.Core.BISDSystem
             EntityIdentifier = entityIdentifier;
         }
 
-        void IPostEntityLoaded.PostEntityLoaded()
+        void IPostEntitiesLoaded.PostEntitiesLoaded()
         {
             PostEntityLoaded();
         }

@@ -13,13 +13,13 @@ namespace Bloodthirst.Editor.Commands
 
         private static double lastTime;
 
-        private static CommandBatchList instantBatch;
+        private static CommandBatchList globalBatch;
 
         static CommandManagerEditor()
         {
             commandManager = new CommandManager();
 
-            instantBatch = commandManager.AppendBatch<CommandBatchList>(null);
+            globalBatch = commandManager.AppendBatch<CommandBatchList>(null);
 
             lastTime = EditorApplication.timeSinceStartup;
 
@@ -41,12 +41,17 @@ namespace Bloodthirst.Editor.Commands
            return commandManager.AppendBatch<TBatch>(owner, removeWhenDone, updateOrder);
         }
 
-        public static void Run(ICommandInstant cmd)
+        public static void Run(ICommandBase cmd)
+        {
+            globalBatch.Append(cmd);
+        }
+
+        public static void RunInstant(ICommandInstant cmd)
         {
             cmd.Execute();
         }
 
-        public static T Run<T>(ICommandInstant<T> cmd)
+        public static T RunInstant<T>(ICommandInstant<T> cmd)
         {
             return cmd.GetResult();
         }

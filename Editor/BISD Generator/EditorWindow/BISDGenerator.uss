@@ -1,0 +1,118 @@
+.class-vars
+{
+	--border-color : #9e9e9e;
+	--bottom-bar-color : #282828;
+}
+
+.model-name-txt
+{
+	height : 50px;
+}
+.bottom-bar
+{
+	align-content : flex-end;
+	height : 40px;
+	border-top-color : var(--border-color);
+	border-top-width : 1px;
+
+	background-color : var(--bottom-bar-color);
+}
+
+.bisd-list
+{
+	padding : 10px 10px 0px 10px;
+	flex-grow : 1;
+	flex-shrink : 1;
+	overflow : scroll;
+	flex-basis : 100%;
+}
+
+.bisd-container
+{
+	border-radius : 10px;
+	border-bottom-color : var(--border-color);
+	border-top-color : var(--border-color);
+	border-right-color : var(--border-color);
+	border-left-color : var(--border-color);
+
+	border-bottom-width : 3px;
+	border-top-width : 3px;
+	border-left-width : 3px;
+	border-right-width : 3px;
+
+	padding : 5px;
+
+	margin-top : 5px;
+	margin-bottom : 5px;
+
+	display : flex;
+	flex-direction : column;	
+	align-items : stretch;
+	flex-grow : 1;
+	flex-shrink : 1;
+}
+
+.column-container
+{
+
+}
+
+.loading-text
+{
+	-unity-text-align : middle-left;
+	margin-left : 10px;
+}
+
+/* BISM INSTANCE INFO*/
+
+.assetsColumn
+{
+	display : flex;
+	flex-direction : column;	
+	align-items : stretch;
+	flex-grow : 1;
+	flex-shrink : 0;
+}
+
+.assetsRow
+{
+	display : flex;
+	flex-direction : row;	
+	align-items : stretch;
+	flex-grow : 1;
+	flex-shrink : 0;
+}
+
+.isDirty
+{
+	margin-left : 10px;
+	margin-right : 10px;
+}
+
+.file-state-icon
+{
+	width : 24px;
+	height : 24px;
+	align-self: center;
+}
+
+.is-up-to-date
+{
+	background-image: url("project:/Packages/com.bloodthirst.bloodthirst-core/Editor/Icons/outline_check_black_24dp.png");
+}
+
+.is-dirty
+{
+	background-image: url("project:/Packages/com.bloodthirst.bloodthirst-core/Editor/Icons/outline_info_black_24dp.png");
+}
+
+.assetObjectField
+{
+	width : 350px;
+}
+
+.modelTitle
+{
+	font-size : 20px;
+}
+

@@ -63,7 +63,7 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        public IInstanceProvider InstanceProvider { get; set; }
+        public IEntityInstanceProvider InstanceProvider { get; set; }
 
 
         public event Action<INSTANCE> OnIsActiveChanged;

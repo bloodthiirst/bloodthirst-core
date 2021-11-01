@@ -8,7 +8,7 @@
         public BISDInfo Instance { get; set; }
         public BISDInfo State { get; set; }
         public BISDInfo Data { get; set; }
-        public BISDInfo GameData { get; set; }
-        public BISDInfo LoadSaveHandler { get; set; }
+        public BISDInfo GameSave { get; set; }
+        public BISDInfo GameSaveHandler { get; set; }
     }
 }

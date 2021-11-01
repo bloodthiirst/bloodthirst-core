@@ -1,8 +1,5 @@
-﻿using Bloodthirst.Core.BISDSystem;
-using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Core.Singleton;
+﻿using Bloodthirst.Core.Singleton;
 using Bloodthirst.Core.Utils;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.Core.Utils;
 using Sirenix.OdinInspector;
 using System;

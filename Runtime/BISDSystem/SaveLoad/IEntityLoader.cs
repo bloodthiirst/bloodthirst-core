@@ -3,7 +3,9 @@ using System;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public interface IEntityLoader<TSave, TState> : IEntityLoader where TState : IEntityState where TSave : IEntityGameData<TState>
+    public interface IEntityLoader<TSave, TState> : IEntityLoader 
+        where TState : IEntityState 
+        where TSave : IEntityGameSave<TState>
     {
         TState GetState(TSave save, LoadingContext context);
         void LinkReferences(TSave save, TState state, LoadingContext context);
@@ -13,7 +15,7 @@ namespace Bloodthirst.Core.BISDSystem
     {
         Type From { get; }
         Type To { get; }
-        IEntityState GetState(IEntityGameData save, LoadingContext context);
-        void LinkReferences(IEntityGameData save , IEntityState state, LoadingContext context);
+        IEntityState GetState(IEntityGameSave save, LoadingContext context);
+        void LinkReferences(IEntityGameSave save , IEntityState state, LoadingContext context);
     }
 }

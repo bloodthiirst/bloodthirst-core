@@ -21,7 +21,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         public bool ShouldInject(BISDInfoContainer container)
         {
-            return container.GameData.ModelName != null;
+            return container.GameSave.ModelName != null;
         }
 
         private List<MemberInfo> GetSaveableMembers(BISDInfoContainer typeInfo)
@@ -44,7 +44,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             List<MemberInfo> members = GetSaveableMembers(typeInfo);
 
-            string oldScript = typeInfo.GameData.TextAsset.text;
+            string oldScript = typeInfo.GameSave.TextAsset.text;
 
             #region write the properties for the observables in the state
             List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(START_TERM_CONST, END_TERM_CONST);
@@ -100,10 +100,10 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             #endregion
 
             // save
-            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.GameData.TextAsset), oldScript);
+            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.GameSave.TextAsset), oldScript);
 
             // set dirty
-            EditorUtility.SetDirty(typeInfo.GameData.TextAsset);
+            EditorUtility.SetDirty(typeInfo.GameSave.TextAsset);
 
         }
 

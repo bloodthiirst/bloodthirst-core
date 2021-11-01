@@ -11,7 +11,7 @@ namespace Bloodthirst.Core.BISDSystem
     /// <para>It acts as the "parent" of the entity and it's main identitfier , it also determines the lifecycle of the entity since it is used to spawn and remove the entity from the game world</para>
     /// </summary>
     [GeneratePool]
-    [RequireComponent(typeof(InstanceManager))]
+    [RequireComponent(typeof(EntityInstanceManager))]
     public class EntityIdentifier : MonoBehaviour
     {
         [SerializeField]
@@ -23,17 +23,17 @@ namespace Bloodthirst.Core.BISDSystem
             set
             {
                 id = value;
-                ChangeEntityID(id);
+                HandleIdChanged(id);
             }
         }
 
-        private void ChangeEntityID(int identifier)
+        private void HandleIdChanged(int identifier)
         {
-            IBehaviour[] all = GetComponentsInChildren<IBehaviour>(true);
+            IBehaviourInstance[] all = GetComponentsInChildren<IBehaviourInstance>(true);
 
             for (int i = 0; i < all.Length; i++)
             {
-                IBehaviour curr = all[i];
+                IBehaviourInstance curr = all[i];
 
                 IEntityState state =  curr.Instance.State;
 

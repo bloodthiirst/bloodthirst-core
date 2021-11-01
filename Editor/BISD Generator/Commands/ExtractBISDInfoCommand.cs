@@ -33,7 +33,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
         /// </summary>
         /// <param name="TypeList"></param>
         /// <param name="TextList"></param>
-        private static Dictionary<string, BISDInfoContainer> ExtractBISDInfo()
+        private Dictionary<string, BISDInfoContainer> ExtractBISDInfo()
         {
             Dictionary<string, BISDInfoContainer> typeList = new Dictionary<string, BISDInfoContainer>();
 
@@ -45,7 +45,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 
             Dictionary<TextAsset, Type> fileToType = new Dictionary<TextAsset, Type>();
 
-            foreach (TextAsset txt in EditorUtils.FindTextAssets())
+            foreach (TextAsset txt in EditorUtils.FindScriptAssets())
             {
                 string relativePath = AssetDatabase.GetAssetPath(txt);
 
@@ -138,13 +138,13 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                                 val.Data.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}Data");
                                 break;
                             }
-                        case nameof(ClassType.GAME_DATA):
+                        case nameof(ClassType.GAME_SAVE):
                             {
-                                val.GameData = new BISDInfo() { Container = val };
+                                val.GameSave = new BISDInfo() { Container = val };
 
-                                val.GameData.ModelName = modelName;
-                                val.GameData.TextAsset = txt;
-                                val.GameData.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}GameData");
+                                val.GameSave.ModelName = modelName;
+                                val.GameSave.TextAsset = txt;
+                                val.GameSave.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}GameSave");
                                 break;
                             }
                         case nameof(ClassType.INSTANCE):
@@ -165,13 +165,13 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                                 val.State.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}State");
                                 break;
                             }
-                        case nameof(ClassType.LOAD_SAVE_HANDLER):
+                        case nameof(ClassType.GAME_SAVE_HANDLER):
                             {
-                                val.LoadSaveHandler = new BISDInfo() { Container = val };
+                                val.GameSaveHandler = new BISDInfo() { Container = val };
 
-                                val.LoadSaveHandler.ModelName = modelName;
-                                val.LoadSaveHandler.TextAsset = txt;
-                                val.LoadSaveHandler.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}LoadSaveHandler");
+                                val.GameSaveHandler.ModelName = modelName;
+                                val.GameSaveHandler.TextAsset = txt;
+                                val.GameSaveHandler.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}GameSaveHandler");
                                 break;
                             }
                         default:

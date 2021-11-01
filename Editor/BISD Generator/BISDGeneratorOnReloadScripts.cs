@@ -73,7 +73,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 
-           // ExecuteCodeGeneration();
+            // ExecuteCodeGeneration();
         }
 
         private static void ExecuteCodeGeneration(bool lazyGeneration = true)
@@ -82,41 +82,34 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             List<ICodeGenerator> codeGenerators = new List<ICodeGenerator>()
             {
                 new ObservableFieldsCodeGenerator(),
-                new GameStateCodeGenerator(),
-                new LoadSaveHandlerCodeGenerator()
+                new GameSaveCodeGenerator(),
+                new GameSaveHandlerCodeGenerator()
             };
 
             ExtractBISDInfoCommand cmd = new ExtractBISDInfoCommand();
 
-            CommandManagerEditor.Run(cmd);
+            CommandManagerEditor.RunInstant(cmd);
 
             // get models info
-            Dictionary<string, BISDInfoContainer> typeList = cmd.Result; 
-
-            string[] models = typeList.Keys.ToArray();
+            Dictionary<string, BISDInfoContainer> typeList = cmd.Result;
 
             bool dirty = false;
 
             int affctedModels = 0;
 
             // run thorugh the models to apply the changes
-            foreach (string model in models)
+            foreach (BISDInfoContainer t in typeList.Values)
             {
-                BISDInfoContainer typeInfo = typeList[model];
-
                 bool modeldirty = false;
 
                 foreach (ICodeGenerator generator in codeGenerators)
                 {
-                    if (!lazyGeneration || generator.ShouldInject(typeInfo) )
-                    {
-                        dirty = true;
-                        modeldirty = true;
-                        generator.InjectGeneratedCode(typeInfo);
-                    }
+                    modeldirty = modeldirty || CommandManagerEditor.RunInstant(new CommandExecuteCodeGenerator(t, generator, lazyGeneration));
+
+                    dirty = dirty || modeldirty;
                 }
 
-                if(modeldirty)
+                if (modeldirty)
                 {
                     affctedModels++;
                 }

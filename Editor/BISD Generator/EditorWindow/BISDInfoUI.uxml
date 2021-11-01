@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+
+  <engine:VisualElement class="bisd-container col">
+    
+    <engine:Label name="ModelName" class="modelTitle"/>
+    <engine:Button name="ModelFolder"/>
+    
+     <engine:VisualElement class="assetsRow">
+
+        <engine:VisualElement class="assetsColumn">
+        
+            <engine:VisualElement class="assetsRow">
+                <editor:ObjectField label="Behaviour" name="BehaviourAsset" class="assetObjectField"/>
+                <engine:Button text="Regenerate" name="BehaviourRegenerate"/>
+            </engine:VisualElement>
+
+            <engine:VisualElement class="assetsRow">
+                <editor:ObjectField label="Instance" name="InstanceAsset" class="assetObjectField"/>
+                <engine:Button text="Regenerate" name="InstanceRegenerate"/>
+            </engine:VisualElement>
+
+            <engine:VisualElement class="assetsRow">
+                <editor:ObjectField label="State" name="StateAsset" class="assetObjectField"/>
+                <engine:Button text="Regenerate" name="StateRegenerate"/>
+            </engine:VisualElement>
+
+            <engine:VisualElement class="assetsRow">
+                <editor:ObjectField label="Data" name="DataAsset" class="assetObjectField"/>
+                <engine:Button text="Regenerate" name="DataRegenerate"/>
+            </engine:VisualElement>
+
+            <engine:VisualElement class="assetsRow">
+                <editor:ObjectField label="GameSave" name="GameSaveAsset" class="assetObjectField"/>
+                <engine:Button text="Regenerate" name="GameDataRegenerate"/>
+            </engine:VisualElement>
+    
+            <engine:VisualElement class="assetsRow">
+                <editor:ObjectField label="GameSave-Handler" name="GameSaveHandlerAsset" class="assetObjectField"/>
+                <engine:Button text="Regenerate" name="LoadSaveHandlerRegenerate" />
+            </engine:VisualElement>
+
+        </engine:VisualElement>
+
+        <engine:VisualElement class="assetsColumn">
+            <engine:Label text="Code generation operations :" class="modelTitle"/>
+            <engine:VisualElement class="assetsColumn" name="CodeGeneratorList">
+
+            </engine:VisualElement>
+        </engine:VisualElement>
+
+   </engine:VisualElement>
+  </engine:VisualElement>
+
+</engine:UXML>

@@ -1,6 +1,7 @@
 using Bloodthirst.Core.Consts;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
+using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -107,25 +108,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         [DidReloadScripts(BloodthirstCoreConsts.POOL_GENERATOR)]
         public static void OnDidReloadScripts()
         {
-            /*
-            // TODO : skip trigger when exiting play mode too
-            // do that for every DidReloadScripts call
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                return;
 
-            bool isRelinking = CanRelink();
-
-            if (!isRelinking)
-            {
-                Clean();
-                Create();
-                return;
-            }
-            else
-            {
-                BootstrapGameObjectsInScene();
-            }
-            */
         }
 
         private static bool CanRelink()
@@ -157,7 +140,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 return false;
             }
 
-            //create it if it's not found
+            // create it if it's not found
             // return since the SceneManager script generation will trigger domain reload
             if (!HasPoolScene())
             {
@@ -291,7 +274,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             // generate the scripts
             foreach (Type t in PoolableTypes)
             {
-                TextAsset poolScript = EditorUtils.FindTextAssets().FirstOrDefault(p => p.name.Equals($"{t.Name}Pool"));
+                TextAsset poolScript = EditorUtils.FindScriptAssets().FirstOrDefault(p => p.GetClass().Name.Equals($"{t.Name}Pool"));
 
                 // pool class already exists
                 if (poolScript == null)
@@ -307,7 +290,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             // generate the scripts
             foreach (Type t in PoolableTypes)
             {
-                TextAsset poolScript = EditorUtils.FindTextAssets().FirstOrDefault(p => p.name.Equals($"{t.Name}Pool"));
+                TextAsset poolScript = EditorUtils.FindScriptAssets().FirstOrDefault(p => p.GetClass().Name.Equals($"{t.Name}Pool"));
 
                 // pool class already exists
                 if (poolScript != null)
@@ -340,7 +323,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static bool HasGlobalPool()
         {
-            return EditorUtils.FindTextAssets().FirstOrDefault(p => p.name.Equals("GlobalPoolContainer")) != null;
+            return EditorUtils.FindScriptAssets().FirstOrDefault(p => p.GetClass().Name.Equals("GlobalPoolContainer")) != null;
         }
 
         /// <summary>
@@ -531,14 +514,14 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             string oldScript = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
 
             // fields section
-            List<Tuple<StringExtensions.SECTION_EDGE, int, int>> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
+            List<Tuple<Utils.StringExtensions.SECTION_EDGE, int, int>> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
 
             int padding = 0;
 
             for (int i = 0; i < fieldsSections.Count - 1; i++)
             {
-                Tuple<StringExtensions.SECTION_EDGE, int, int> start = fieldsSections[i];
-                Tuple<StringExtensions.SECTION_EDGE, int, int> end = fieldsSections[i + 1];
+                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> start = fieldsSections[i];
+                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> end = fieldsSections[i + 1];
                 // if we have correct start and end
                 // then do the replacing
                 if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
@@ -586,7 +569,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 }
             }
 
-            List<Tuple<StringExtensions.SECTION_EDGE, int, int>> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
+            List<Tuple<Utils.StringExtensions.SECTION_EDGE, int, int>> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
 
             // awake section
 
@@ -594,8 +577,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             for (int i = 0; i < awakeInitSections.Count - 1; i++)
             {
-                Tuple<StringExtensions.SECTION_EDGE, int, int> start = awakeInitSections[i];
-                Tuple<StringExtensions.SECTION_EDGE, int, int> end = awakeInitSections[i + 1];
+                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> start = awakeInitSections[i];
+                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> end = awakeInitSections[i + 1];
                 // if we have correct start and end
                 // then do the replacing
                 if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
@@ -679,22 +662,20 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         /// <returns></returns>
         private static List<Type> GetPoolableTypes()
         {
-            List<TextAsset> poolableScripts = EditorUtils.FindTextAssets()
+            List<MonoScript> poolableScripts = EditorUtils.FindScriptAssets()
                             .Where(t => !filterFiles.Contains(t.name))
-                            .Where(t => t.text.Contains(nameof(GeneratePool)))
+                            .Where(t => t.GetClass().GetCustomAttribute(typeof(GeneratePool)) != null)
                             .ToList();
 
             List<Type> validTypes = new List<Type>();
 
-            foreach (TextAsset file in poolableScripts)
+            foreach (MonoScript file in poolableScripts)
             {
-                string className = file.name;
-
-                Type type = TypeUtils.AllTypes.FirstOrDefault(t => t.Name.Equals(className));
+                Type type = file.GetClass();
 
                 if (type == null)
                 {
-                    Debug.LogError($"Couldn't find type named {className} in the assembly");
+                    Debug.LogError($"Couldn't find type named {type.GetNiceName()} in the assembly");
                     continue;
                 }
 

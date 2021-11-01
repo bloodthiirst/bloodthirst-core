@@ -1,0 +1,15 @@
+﻿using Bloodthirst.Core.BISD.CodeGeneration;
+using Bloodthirst.Core.BISDSystem;
+using System;
+using System.Collections.Generic;
+
+namespace Assets.Scripts.Game.[MODELNAME]Model
+{
+    [BISDTag("[MODELNAME]" , ClassType.GAME_SAVE)]
+    [Serializable]
+    public class [MODELNAME]GameSave : IEntityGameSave<[MODELNAME]State>
+    {
+        //GAMEDATA_START
+		//GAMEDATA_END
+    }
+}

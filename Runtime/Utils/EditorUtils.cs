@@ -69,18 +69,15 @@ namespace Bloodthirst.Core.Utils
         /// Get all the text assets in the project , this includes scripts
         /// </summary>
         /// <returns></returns>
-        public static List<TextAsset> FindTextAssets()
+        public static List<MonoScript> FindScriptAssets()
         {
-            List<TextAsset> assets = new List<TextAsset>();
-            string[] guids = AssetDatabase.FindAssets("t:TextAsset");
+            List<MonoScript> assets = new List<MonoScript>();
+            string[] guids = AssetDatabase.FindAssets("t:MonoScript");
             for (int i = 0; i < guids.Length; i++)
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
 
-                if (!assetPath.EndsWith(".cs"))
-                    continue;
-
-                TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+                MonoScript asset = AssetDatabase.LoadAssetAtPath<MonoScript>(assetPath);
 
                 if (asset != null)
                 {

@@ -48,7 +48,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         public bool ShouldInject(BISDInfoContainer container)
         {
-            return container.LoadSaveHandler.ModelName != null;
+            return container.GameSaveHandler.ModelName != null;
         }
 
         private List<MemberInfo> GetStateFields(BISDInfoContainer typeInfo)
@@ -71,16 +71,16 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
             List<MemberInfo> fields = GetStateFields(typeInfo);
 
-            string oldScript = typeInfo.LoadSaveHandler.TextAsset.text;
+            string oldScript = typeInfo.GameSaveHandler.TextAsset.text;
 
             oldScript = GenerateGetSaveFields(typeInfo, fields, oldScript);
             oldScript = GenerateGetStateFields(typeInfo, fields, oldScript);
 
             // save
-            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.LoadSaveHandler.TextAsset), oldScript);
+            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.GameSaveHandler.TextAsset), oldScript);
 
             // set dirty
-            EditorUtility.SetDirty(typeInfo.LoadSaveHandler.TextAsset);
+            EditorUtility.SetDirty(typeInfo.GameSaveHandler.TextAsset);
 
         }
 
@@ -229,7 +229,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
                     // new instance
                     replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append($"{typeInfo.GameData.TypeRef.Name} save = new {typeInfo.GameData.TypeRef.Name}();")
+                        .Append($"{typeInfo.GameSave.TypeRef.Name} save = new {typeInfo.GameSave.TypeRef.Name}();")
                         .Append(Environment.NewLine);
 
                     // assign fields

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+
+xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+xsi:schemaLocation="
+                        UnityEngine.UIElements ../../../../UIElementsSchema/UnityEngine.UIElements.xsd
+                        UnityEditor.UIElements ../../../../UIElementsSchema/UnityEditor.UIElements.xsd
+                        UnityEditor.PackageManager.UI ../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
+"
+>
+
+    <engine:VisualElement class="assetsRow">
+        <engine:Label name="CodeGenerationName" style="-unity-text-align : middle-left;"/>
+        <engine:VisualElement name="IsDirty" class="file-state-icon is-up-to-date" />
+        <engine:Toggle text="Selected" name="Selected"/>
+        <engine:Toggle text="Use lazy mode" name="UseLazyMode"/>
+    </engine:VisualElement>
+
+</engine:UXML>

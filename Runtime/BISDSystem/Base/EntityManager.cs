@@ -67,9 +67,9 @@ namespace Bloodthirst.Core.BISDSystem
         }
 
         [Button]
-        public static Dictionary<PrefabIDPair, List<IEntityGameData>> GetAllEntityStates()
+        public static Dictionary<PrefabIDPair, List<IEntityGameSave>> GetAllEntityStates()
         {
-            Dictionary<PrefabIDPair, List<IEntityGameData>> saveData = new Dictionary<PrefabIDPair, List<IEntityGameData>>();
+            Dictionary<PrefabIDPair, List<IEntityGameSave>> saveData = new Dictionary<PrefabIDPair, List<IEntityGameSave>>();
 
             SavingContext context = new SavingContext();
 
@@ -84,14 +84,14 @@ namespace Bloodthirst.Core.BISDSystem
                     PrefabIDPair key = new PrefabIDPair() { Id = ins.EntityIdentifier.Id, PrefabRefernece = ins.EntityIdentifier.PrefabReferenceData.PrefabReference };
 
 
-                    if (!saveData.TryGetValue(key, out List<IEntityGameData> gameStates))
+                    if (!saveData.TryGetValue(key, out List<IEntityGameSave> gameStates))
                     {
-                        gameStates = new List<IEntityGameData>();
+                        gameStates = new List<IEntityGameSave>();
                         saveData.Add(key, gameStates);
                     }
 
                     IEntitySaver saver = Savers.FirstOrDefault(s => s.From == ins.StateType);
-                    IEntityGameData gameData = saver.GetSave(ins.State, context);
+                    IEntityGameSave gameData = saver.GetSave(ins.State, context);
                     gameStates.Add(gameData);
                 }
             }
@@ -111,7 +111,7 @@ namespace Bloodthirst.Core.BISDSystem
         public class LoadingInfo
         {
             public IEntityLoader Loader { get; set; }
-            public IEntityGameData GameData { get; set; }
+            public IEntityGameSave GameData { get; set; }
             public IEntityState State { get; set; }
             public IEntityInstance Instance { get; set; }
         }
@@ -125,7 +125,7 @@ namespace Bloodthirst.Core.BISDSystem
             Dictionary<PrefabIDPair, List<LoadingInfo>> loadingInfo = new Dictionary<PrefabIDPair, List<LoadingInfo>>();
 
             // for each entity
-            foreach (KeyValuePair<PrefabIDPair, List<IEntityGameData>> kv in gameData.GameDatas)
+            foreach (KeyValuePair<PrefabIDPair, List<IEntityGameSave>> kv in gameData.GameDatas)
             {
 
                 List<LoadingInfo> loadingPerInstance = new List<LoadingInfo>();
@@ -134,7 +134,7 @@ namespace Bloodthirst.Core.BISDSystem
                 EntityIdentifier prefabId = kv.Key.PrefabRefernece.GetComponent<EntityIdentifier>();
 
                 // copy the saved gameStates
-                List<IEntityGameData> gameDatasForEntity = kv.Value.ToList();
+                List<IEntityGameSave> gameSavesForEntity = kv.Value.ToList();
 
                 // states to inject into the instance
                 List<IEntityState> statesForInstance = new List<IEntityState>();
@@ -144,7 +144,7 @@ namespace Bloodthirst.Core.BISDSystem
                 // get the loader
                 // get the gameData
                 // get the state
-                foreach (IEntityGameData g in gameDatasForEntity)
+                foreach (IEntityGameSave g in gameSavesForEntity)
                 {
                     LoadingInfo loading = new LoadingInfo();
 
@@ -167,10 +167,10 @@ namespace Bloodthirst.Core.BISDSystem
                 // spawn the entity with the preloaded state
                 EntityIdentifier loadedEntity = spawner.SpawnEntity<EntityIdentifier>(e => e.EntityType == prefabId.EntityType, statesForInstance);
 
-                IBehaviour[] bismBehaviours = loadedEntity.GetComponentsInChildren<IBehaviour>();
+                IBehaviourInstance[] bismBehaviours = loadedEntity.GetComponentsInChildren<IBehaviourInstance>();
 
                 /// assing states to instances
-                foreach (IBehaviour bisdBehaviour in bismBehaviours)
+                foreach (IBehaviourInstance bisdBehaviour in bismBehaviours)
                 {
                     LoadingInfo loading = loadingPerInstance.FirstOrDefault(i => i.State.GetType() == bisdBehaviour.Instance.StateType);
 
@@ -193,15 +193,16 @@ namespace Bloodthirst.Core.BISDSystem
                 }
             }
 
+            // after all entities are loaded
             if (withPostLoad)
             {
                 foreach (EntityIdentifier s in spawned)
                 {
-                    IPostEntityLoaded[] postLoads = s.GetComponentsInChildren<IPostEntityLoaded>(true);
+                    IPostEntitiesLoaded[] postLoads = s.GetComponentsInChildren<IPostEntitiesLoaded>(true);
 
-                    foreach (IPostEntityLoaded p in postLoads)
+                    foreach (IPostEntitiesLoaded p in postLoads)
                     {
-                        p.PostEntityLoaded();
+                        p.PostEntitiesLoaded();
                     }
                 }
             }
