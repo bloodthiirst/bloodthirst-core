@@ -30,7 +30,7 @@ namespace Bloodthirst.System.Quest.Editor
         public event Action<NodeBaseElement> OnRequestNodeAddInput;
         public event Action<NodeBaseElement> OnRequestNodeAddOutput;
 
-        public event Action<NodeBaseElement , PortBaseElement> OnNodePortAdded;
+        public event Action<NodeBaseElement, PortBaseElement> OnNodePortAdded;
 
         #endregion
 
@@ -51,10 +51,6 @@ namespace Bloodthirst.System.Quest.Editor
         public VisualElement VisualElement => NodeRoot;
 
         public List<PortBaseElement> Ports { get; }
-        public List<PortBaseElement> InputsConst { get; }
-        public List<PortBaseElement> InputsVariable { get; }
-        public List<PortBaseElement> OutputsConst { get; }
-        public List<PortBaseElement> OutputsVariable { get; }
         public List<IBindableUI> BindableUIs { get; }
         #endregion
 
@@ -100,13 +96,6 @@ namespace Bloodthirst.System.Quest.Editor
         {
             // all
             Ports = new List<PortBaseElement>();
-            // inputs
-            InputsConst = new List<PortBaseElement>();
-            InputsVariable = new List<PortBaseElement>();
-
-            // outputs
-            OutputsConst = new List<PortBaseElement>();
-            OutputsVariable = new List<PortBaseElement>();
 
             // ui feilds
             BindableUIs = new List<IBindableUI>();
@@ -226,40 +215,12 @@ namespace Bloodthirst.System.Quest.Editor
             }
         }
 
-        /// <summary>
-        /// Get all input and output ports
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<PortBaseElement> AllPorts()
-        {
-            foreach (PortBaseElement n in InputsConst)
-            {
-                yield return n;
-            }
-
-            foreach (PortBaseElement n in InputsVariable)
-            {
-                yield return n;
-            }
-
-            foreach (PortBaseElement n in OutputsConst)
-            {
-                yield return n;
-            }
-
-            foreach (PortBaseElement n in OutputsVariable)
-            {
-                yield return n;
-            }
-        }
-
         #region add input
         private void AddConstInputPort(IPortType curr)
         {
             PortBaseElement input = new PortBaseElement(this, curr);
             InputPortsContainer.Add(input.VisualElement);
 
-            InputsConst.Add(input);
             Ports.Add(input);
 
             input.AfterAddToCanvas();
@@ -269,8 +230,7 @@ namespace Bloodthirst.System.Quest.Editor
         {
             PortBaseElement input = new PortBaseElement(this, curr);
             InputPortsContainer.Add(input.VisualElement);
-            
-            InputsVariable.Add(input);
+
             Ports.Add(input);
 
             input.AfterAddToCanvas();
@@ -284,10 +244,9 @@ namespace Bloodthirst.System.Quest.Editor
         {
             PortBaseElement output = new PortBaseElement(this, port);
             OutputPortsContainer.Add(output.VisualElement);
-            
-            OutputsConst.Add(output);
+
             Ports.Add(output);
-            
+
             OnNodePortAdded?.Invoke(this, output);
         }
 
@@ -295,8 +254,7 @@ namespace Bloodthirst.System.Quest.Editor
         {
             PortBaseElement output = new PortBaseElement(this, port);
             OutputPortsContainer.Add(output.VisualElement);
-            
-            OutputsVariable.Add(output);
+
             Ports.Add(output);
 
             output.AfterAddToCanvas();
@@ -307,7 +265,7 @@ namespace Bloodthirst.System.Quest.Editor
         #region remove output
         private void RemoveConstOutputPort(IPortType port)
         {
-            PortBaseElement curr = OutputsConst.FirstOrDefault(p => p.PortType == port);
+            PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
 
             if (curr == null)
             {
@@ -315,22 +273,20 @@ namespace Bloodthirst.System.Quest.Editor
             }
             curr.BeforeRemoveFromCanvas();
             OutputPortsContainer.Remove(curr.VisualElement);
-            OutputsConst.Remove(curr);
             Ports.Remove(curr);
         }
 
         private void RemoveVariableOutputPort(IPortType port)
         {
-            PortBaseElement curr = OutputsVariable.FirstOrDefault(p => p.PortType == port);
+            PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
 
-            if(curr == null)
+            if (curr == null)
             {
                 throw new Exception("Port not found when trying to remove");
             }
 
             curr.BeforeRemoveFromCanvas();
             OutputPortsContainer.Remove(curr.VisualElement);
-            OutputsVariable.Remove(curr);
             Ports.Remove(curr);
         }
         #endregion
@@ -338,7 +294,7 @@ namespace Bloodthirst.System.Quest.Editor
         #region remove input
         private void RemoveConstInputPort(IPortType port)
         {
-            PortBaseElement curr = InputsConst.FirstOrDefault(p => p.PortType == port);
+            PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
 
             if (curr == null)
             {
@@ -347,13 +303,12 @@ namespace Bloodthirst.System.Quest.Editor
 
             curr.BeforeRemoveFromCanvas();
             InputPortsContainer.Remove(curr.VisualElement);
-            InputsConst.Remove(curr);
             Ports.Remove(curr);
         }
 
         private void RemoveVariableInputPort(IPortType port)
         {
-            PortBaseElement curr = InputsVariable.FirstOrDefault(p => p.PortType == port);
+            PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
 
             if (curr == null)
             {
@@ -362,7 +317,6 @@ namespace Bloodthirst.System.Quest.Editor
 
             curr.BeforeRemoveFromCanvas();
 
-            InputsVariable.Remove(curr);
             Ports.Remove(curr);
 
             InputPortsContainer.Remove(curr.VisualElement);
@@ -381,22 +335,30 @@ namespace Bloodthirst.System.Quest.Editor
         private void AddAllPorts()
         {
             // input ports
-            foreach(IPortType p in NodeType.GetPorts(PORT_DIRECTION.INPUT , PORT_TYPE.CONST))
+            foreach (IPortType p in NodeType.Ports)
             {
-                AddConstInputPort(p);
-            }
-            foreach (IPortType p in NodeType.GetPorts(PORT_DIRECTION.INPUT , PORT_TYPE.VARIABLE))
-            {
-                AddVariableInputPort(p);
-            }
-            // output ports 
-            foreach (IPortType p in NodeType.GetPorts(PORT_DIRECTION.OUTPUT , PORT_TYPE.CONST))
-            {
-                AddConstOutputPort(p);
-            }
-            foreach (IPortType p in NodeType.GetPorts(PORT_DIRECTION.OUTPUT , PORT_TYPE.VARIABLE))
-            {
-                AddVariableOutputPort(p);
+
+                if ((p.PortDirection == PORT_DIRECTION.INPUT && p.PortType == PORT_TYPE.CONST))
+                {
+                    AddConstInputPort(p);
+                    continue;
+                }
+                if ((p.PortDirection == PORT_DIRECTION.INPUT && p.PortType == PORT_TYPE.VARIABLE))
+                {
+                    AddVariableInputPort(p);
+                    continue;
+                }
+                // output ports 
+                if ((p.PortDirection == PORT_DIRECTION.OUTPUT && p.PortType == PORT_TYPE.CONST))
+                {
+                    AddConstOutputPort(p);
+                    continue;
+                }
+                if ((p.PortDirection == PORT_DIRECTION.OUTPUT && p.PortType == PORT_TYPE.VARIABLE))
+                {
+                    AddVariableOutputPort(p);
+                    continue;
+                }
             }
         }
 
@@ -429,6 +391,11 @@ namespace Bloodthirst.System.Quest.Editor
 
         public void AfterAddToCanvas()
         {
+            // node events
+
+            NodeType.OnPortAdded -= HandleAddPort;
+            NodeType.OnPortAdded += HandleAddPort;
+
             // adding ports
             AddInput.clickable.clicked -= HandleAddInput;
             AddInput.clickable.clicked += HandleAddInput;
@@ -453,9 +420,32 @@ namespace Bloodthirst.System.Quest.Editor
             NodeResize.RegisterCallback<MouseUpEvent>(OnResizeUp);
 
             // sub ports
-            foreach (PortBaseElement p in AllPorts())
+            foreach (PortBaseElement p in Ports)
             {
                 p.AfterAddToCanvas();
+            }
+        }
+
+        private void HandleAddPort(IPortType port)
+        {
+            if (port.PortDirection == PORT_DIRECTION.INPUT && port.PortType == PORT_TYPE.CONST)
+            {
+                AddConstInputPort(port);
+            }
+
+            if (port.PortDirection == PORT_DIRECTION.INPUT && port.PortType == PORT_TYPE.VARIABLE)
+            {
+                AddVariableInputPort(port);
+            }
+
+            if (port.PortDirection == PORT_DIRECTION.OUTPUT && port.PortType == PORT_TYPE.CONST)
+            {
+                AddConstOutputPort(port);
+            }
+
+            if (port.PortDirection == PORT_DIRECTION.OUTPUT && port.PortType == PORT_TYPE.VARIABLE)
+            {
+                AddVariableOutputPort(port);
             }
         }
 
@@ -497,6 +487,8 @@ namespace Bloodthirst.System.Quest.Editor
 
         public void BeforeRemoveFromCanvas()
         {
+            // node events
+            NodeType.OnPortAdded -= HandleAddPort;
             // moving
             NodeHeader.UnregisterCallback<MouseDownEvent>(OnMouseDown);
             NodeHeader.UnregisterCallback<MouseMoveEvent>(OnMouseMove);
@@ -514,7 +506,7 @@ namespace Bloodthirst.System.Quest.Editor
             NodeResize.UnregisterCallback<MouseDownEvent>(OnResizeDown, TrickleDown.NoTrickleDown);
             NodeResize.UnregisterCallback<MouseUpEvent>(OnResizeUp, TrickleDown.NoTrickleDown);
 
-            foreach (PortBaseElement p in AllPorts())
+            foreach (PortBaseElement p in Ports)
             {
                 p.BeforeRemoveFromCanvas();
             }

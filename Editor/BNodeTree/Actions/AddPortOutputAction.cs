@@ -7,20 +7,24 @@ namespace Bloodthirst.System.Quest.Editor
     {
         public override void OnDisable()
         {
-            NodeEditor.OnNodeAddOutput -= HandleNodeAddInput;
+            NodeEditor.OnNodeAddOutput -= HandleNodeAddOutput;
         }
         public override void OnEnable()
         {
-            NodeEditor.OnNodeAddOutput -= HandleNodeAddInput;
-            NodeEditor.OnNodeAddOutput += HandleNodeAddInput;
+            NodeEditor.OnNodeAddOutput -= HandleNodeAddOutput;
+            NodeEditor.OnNodeAddOutput += HandleNodeAddOutput;
         }
 
-        private void HandleNodeAddInput(NodeBaseElement node)
+        private void HandleNodeAddOutput(NodeBaseElement node)
         {
             Type defaultPortType = typeof(PortDefault<>).MakeGenericType(NodeEditor.NodeBaseType);
+
             IPortType defaultPort = (IPortType) Activator.CreateInstance(defaultPortType);
-            defaultPort.PortName = "New Output";
-            node.AddVariableOutputPort(defaultPort);
+            defaultPort.PortDirection = PORT_DIRECTION.OUTPUT;
+            defaultPort.PortType = PORT_TYPE.VARIABLE;
+            defaultPort.PortName = "Output";
+
+            node.NodeType.AddPort(defaultPort, defaultPort.PortDirection, defaultPort.PortType);
         }
     }
 }

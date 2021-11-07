@@ -691,22 +691,13 @@ namespace Bloodthirst.System.Quest.Editor
         {
             // subscribe to ports events
 
-            for (int i = 0; i < node.InputsConst.Count; i++)
+            for (int i = 0; i < node.Ports.Count; i++)
             {
-                node.InputsConst[i].OnPortRightClicked -= HandlePortRightClick;
-                node.InputsConst[i].OnPortRightClicked += HandlePortRightClick;
+                node.Ports[i].OnPortRightClicked -= HandlePortRightClick;
+                node.Ports[i].OnPortRightClicked += HandlePortRightClick;
 
-                node.InputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
-                node.InputsConst[i].OnPortToggleInfoDialog += HandlePortToggle;
-            }
-
-            for (int i = 0; i < node.OutputsConst.Count; i++)
-            {
-                node.OutputsConst[i].OnPortRightClicked -= HandlePortRightClick;
-                node.OutputsConst[i].OnPortRightClicked += HandlePortRightClick;
-
-                node.OutputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
-                node.OutputsConst[i].OnPortToggleInfoDialog += HandlePortToggle;
+                node.Ports[i].OnPortToggleInfoDialog -= HandlePortToggle;
+                node.Ports[i].OnPortToggleInfoDialog += HandlePortToggle;
             }
         }
 
@@ -780,17 +771,10 @@ namespace Bloodthirst.System.Quest.Editor
             node.BeforeRemoveFromCanvas();
             Canvas.Remove(node.VisualElement);
 
-            // clear links
-            for (int i = 0; i < node.InputsConst.Count; i++)
+            for (int i = 0; i < node.Ports.Count; i++)
             {
-                node.InputsConst[i].OnPortRightClicked -= HandlePortRightClick;
-                node.InputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
-            }
-
-            for (int i = 0; i < node.OutputsConst.Count; i++)
-            {
-                node.OutputsConst[i].OnPortRightClicked -= HandlePortRightClick;
-                node.OutputsConst[i].OnPortToggleInfoDialog -= HandlePortToggle;
+                node.Ports[i].OnPortRightClicked -= HandlePortRightClick;
+                node.Ports[i].OnPortToggleInfoDialog -= HandlePortToggle;
             }
 
             for (int i = AllLinks.Count - 1; i >= 0; i--)
