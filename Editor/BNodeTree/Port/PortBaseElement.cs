@@ -71,13 +71,13 @@ namespace Bloodthirst.System.Quest.Editor
             PortInfoContainer.Add(PortInfo.VisualElement);
 
             // color
-            Color = BNodeTreeEditorUtils.GetColor(portType.PortType);
+            Color = BNodeTreeEditorUtils.GetColor(portType.PortValueType);
 
             // label
             PortName.text = PortType.PortName;
 
             // add class to flip the appearance
-            if (PortType.NodeDirection == NODE_DIRECTION.INPUT)
+            if (PortType.PortDirection == PORT_DIRECTION.INPUT)
             {
                 string classForDirection = "input";
                 PortRoot.AddToClassList(classForDirection);

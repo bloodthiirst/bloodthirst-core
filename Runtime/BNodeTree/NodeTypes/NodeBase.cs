@@ -1,4 +1,5 @@
 ﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,47 +7,29 @@ namespace Bloodthirst.System.Quest.Editor
 {
     public abstract class NodeBase<T> : INodeType<T>, INodeType where T : NodeBase<T>
     {
-        public int NodeID { get; set; } = -1;
+        public event Action<IPortType<T>> OnPortAddedTyped;
 
-        public List<IPortType> InputsConst { get; set; }
-        public List<IPortType> InputsVariable { get; set; }
-        public List<IPortType> OutputsConst { get; set; }
-        public List<IPortType> OutputsVariable { get; set; }
+        public event Action<IPortType<T>> OnPortRemovedTyped;
+
+        public event Action<IPortType> OnPortAdded;
+
+        public event Action<IPortType> OnPortRemoved;
+
+        public int NodeID { get; set; } = -1;
+        public List<IPortType> Ports { get; set; }
 
         #region INodeType implementation
         int INodeType.NodeID { get => NodeID; set => NodeID = value; }
-        IEnumerable<IPortType> INodeType.InputPortsConst => InputsConst;
-        IEnumerable<IPortType> INodeType.InputPortsVariable => InputsVariable;
-        IEnumerable<IPortType> INodeType.OutputPortsConst => OutputsConst;
-        IEnumerable<IPortType> INodeType.OutputPortsVariable => OutputsVariable;
-        void INodeType.AddInput<TPort>(TPort input)
-        {
-            ((IPortType)input).ParentNode = this;
-            ((IPortType)input).NodeDirection = NODE_DIRECTION.INPUT;
+        IReadOnlyList<IPortType> INodeType.Ports => Ports;
 
-            InputsVariable.Add(input);
-        }
-        void INodeType.AddOutput<TPort>(TPort output)
+        void INodeType.AddPort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type)
         {
-            ((IPortType)output).ParentNode = this;
-            ((IPortType)output).NodeDirection = NODE_DIRECTION.OUTPUT;
-
-            OutputsVariable.Add(output);
+            AddPortInternal(port, direction, type);
         }
 
-        void INodeType.AddInputConst<TPort>(TPort input)
+        void INodeType.RemovePort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type)
         {
-            ((IPortType)input).ParentNode = this;
-            ((IPortType)input).NodeDirection = NODE_DIRECTION.INPUT;
-
-            InputsConst.Add(input);
-        }
-        void INodeType.AddOutputConst<TPort>(TPort output)
-        {
-            ((IPortType)output).ParentNode = this;
-            ((IPortType)output).NodeDirection = NODE_DIRECTION.OUTPUT;
-
-            OutputsConst.Add(output);
+            RemovePortInternal(port, direction, type);
         }
 
         #endregion
@@ -54,79 +37,61 @@ namespace Bloodthirst.System.Quest.Editor
         #region INodeType<NodeBase> implementation
         int INodeType<T>.NodeID { get => NodeID; set => NodeID = value; }
 
-        IEnumerable<IPortType<T>> INodeType<T>.InputPortsConstTyped => InputsConst.Cast<IPortType<T>>();
+        IReadOnlyList<IPortType> INodeType<T>.Ports => Ports;
 
-        IEnumerable<IPortType<T>> INodeType<T>.InputPortsVariableTyped => InputsVariable.Cast<IPortType<T>>();
-
-        IEnumerable<IPortType<T>> INodeType<T>.OutputPortsConstTyped => OutputsConst.Cast<IPortType<T>>();
-
-        IEnumerable<IPortType<T>> INodeType<T>.OutputPortsVariableTyped => OutputsVariable.Cast<IPortType<T>>();
-
-        void INodeType<T>.AddInput<TPort>(TPort input)
+        void INodeType<T>.AddPort<TPort>(TPort input, PORT_DIRECTION direction, PORT_TYPE type)
         {
-            AddInput(input);
-        }
-        void INodeType<T>.AddOutput<TPort>(TPort output)
-        {
-            AddOutput(output);
+            AddPort(input, direction, type);
         }
 
-        void INodeType<T>.AddInputConst<TPort>(TPort input)
+        void INodeType<T>.RemovePort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type)
         {
-            AddInputConst(input);
-        }
-        void INodeType<T>.AddOutputConst<TPort>(TPort output)
-        {
-            AddOutputConst(output);
+            RemovePort(port, direction, type);
         }
 
         #endregion
 
-        protected virtual void SetupPorts() { }
-
-
-
-        public void AddInput<TPort>(TPort input) where TPort : IPortType, IPortType<T>
-        {
-            ((IPortType)input).ParentNode = this;
-            ((IPortType)input).NodeDirection = NODE_DIRECTION.INPUT;
-
-            InputsVariable.Add(input);
-        }
-
-        public void AddOutput<TPort>(TPort output) where TPort : IPortType, IPortType<T>
-        {
-            ((IPortType)output).ParentNode = this;
-            ((IPortType)output).NodeDirection = NODE_DIRECTION.OUTPUT;
-
-            OutputsVariable.Add(output);
-        }
-        public void AddInputConst<TPort>(TPort input) where TPort : IPortType, IPortType<T>
-        {
-            ((IPortType)input).ParentNode = this;
-            ((IPortType)input).NodeDirection = NODE_DIRECTION.INPUT;
-
-            InputsConst.Add(input);
-        }
-
-        public void AddOutputConst<TPort>(TPort output) where TPort : IPortType, IPortType<T>
-        {
-            ((IPortType)output).ParentNode = this;
-            ((IPortType)output).NodeDirection = NODE_DIRECTION.OUTPUT;
-
-            OutputsConst.Add(output);
-        }
-
-
-
         public NodeBase()
         {
-            InputsConst = new List<IPortType>();
-            OutputsConst = new List<IPortType>();
-            OutputsVariable = new List<IPortType>();
-            InputsVariable = new List<IPortType>();
+            Ports = new List<IPortType>();
 
             SetupPorts();
+        }
+
+        /// <summary>
+        /// Method used to add and assemble all the ports of the node
+        /// </summary>
+        protected virtual void SetupPorts() { }
+
+        public void AddPort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type) where TPort : IPortType, IPortType<T>
+        {
+            AddPortInternal(port, direction, type);
+        }
+
+        public void RemovePort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type) where TPort : IPortType, IPortType<T>
+        {
+            RemovePortInternal(port, direction, type);
+        }
+
+        private void AddPortInternal(IPortType port, PORT_DIRECTION direction, PORT_TYPE type)
+        {
+            port.ParentNode = this;
+            port.PortDirection = direction;
+            port.PortType = type;
+
+            Ports.Add(port);
+
+            OnPortAdded?.Invoke(port);
+            OnPortAddedTyped?.Invoke(port as IPortType<T>);
+        }
+
+        private void RemovePortInternal(IPortType port, PORT_DIRECTION direction, PORT_TYPE type)
+        {
+            if (!Ports.Remove(port))
+                return;
+
+            OnPortRemoved?.Invoke(port) ;
+            OnPortRemovedTyped?.Invoke(port as IPortType<T>);
         }
     }
 }

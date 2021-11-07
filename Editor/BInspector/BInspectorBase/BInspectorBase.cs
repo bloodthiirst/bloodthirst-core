@@ -1,3 +1,4 @@
+using Bloodthirst.JsonUnityObject;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -6,19 +7,17 @@ using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
 {
-    [CustomEditor(typeof(BInspectorBehaviour) , true)]
-    public class BInspectorBase : UnityEditor.Editor
+    [CustomEditor(typeof(JsonMonoBehaviour) , true)]
+    public class JsonMonoBehaviourEdtior : UnityEditor.Editor
     {
         private void OnEnable()
         {
             
         }
 
-        public override void OnInspectorGUI()
+        public override VisualElement CreateInspectorGUI()
         {
-            base.OnInspectorGUI();
-            var mb = target as MonoBehaviour;
-
+            return base.CreateInspectorGUI();
         }
     }
 }

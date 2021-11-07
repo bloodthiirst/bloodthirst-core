@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace Bloodthirst.JsonUnityObject
 {
@@ -10,6 +10,7 @@ namespace Bloodthirst.JsonUnityObject
     {
         private const string HIDE_FLAG_FIELD = "hideFlags";
         private const string NAME_FIELD = "name";
+        private const string GAMEOBJECT_FIELD = "gameObject";
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
@@ -19,7 +20,7 @@ namespace Bloodthirst.JsonUnityObject
             {
                 foreach (JsonProperty property in properties)
                 {
-                    if (property.PropertyName.Equals(NAME_FIELD) || property.PropertyName.Equals(HIDE_FLAG_FIELD))
+                    if ( JsonUnityObjectSettings.MonoBehaviourIgnorableMembers.Contains(property.PropertyName))
                         property.Ignored = true;
 
                 }

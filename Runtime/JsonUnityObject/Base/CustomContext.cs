@@ -8,6 +8,5 @@ namespace Bloodthirst.JsonUnityObject
     public class CustomContext
     {
         public List<UnityEngine.Object> UnityObjects { get; set; }
-        public object Root { get; set; }
     }
 }

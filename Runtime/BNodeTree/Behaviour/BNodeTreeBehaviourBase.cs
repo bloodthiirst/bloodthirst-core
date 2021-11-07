@@ -138,9 +138,10 @@ namespace Bloodthirst.System.Quest
         public void ReloadTree()
         {
             // create a copy of the nodes structure
+            // the root is the node that nothing attached to it as input
             Roots = treeData
                 .BuildAllNodes<TNode>()
-                .Where(n => ((INodeType<TNode>)n).InputPortsConstTyped.All(p => p.LinkAttached == null))
+                .Where(n => ((INodeType)n).GetPorts(PORT_DIRECTION.INPUT).All(p => p.LinkAttached == null))
                 .ToList();
         }
 
@@ -161,7 +162,8 @@ namespace Bloodthirst.System.Quest
             }
 
             // try to nagivate from current node to next
-            IEnumerable<IPortType<TNode>> outputPortsConst = ((INodeType<TNode>)ActiveNodeTyped).OutputPortsConstTyped;
+            IEnumerable<IPortType<TNode>> outputPortsConst = ActiveNodeTyped.GetPorts(PORT_DIRECTION.OUTPUT).Cast<IPortType<TNode>>();
+
             foreach (IPortType<TNode> curr in outputPortsConst)
             {
                 if (curr.LinkAttached == null)

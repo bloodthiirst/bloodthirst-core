@@ -49,24 +49,31 @@ namespace Bloodthirst.System.Quest.Editor
                 TNode nodeType = BCopier<TNode>.Instance.Copy((TNode)n.NodeType);
 
                 allNodes.Add(nodeType);
-
-
             }
 
             // link the port references
             foreach (LinkData l in Links)
             {
-                TNode fromNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.From);
-                TNode toNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.To);
+                // get the 2 nodes linked
+                TNode fromNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.FromNodeIndex);
+                TNode toNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.ToNodeIndex);
 
-                IPortType<TNode> fromPort = ((INodeType<TNode>)fromNode).OutputPortsConstTyped.ElementAt(l.FromPort);
+                // get the ports of the nodes linked
+                IPortType<TNode> fromPort = (IPortType<TNode>)((INodeType) fromNode).Ports[l.FromPortIndex];
+                IPortType<TNode> toPort = (IPortType<TNode>)((INodeType)toNode).Ports[l.ToPortIndex];
+
+                // assign nodes as parents of the ports
                 fromPort.ParentNode = fromNode;
-
-                IPortType<TNode> toPort = ((INodeType<TNode>)toNode).InputPortsConstTyped.ElementAt(l.ToPort);
                 toPort.ParentNode = toNode;
 
-                LinkDefault<TNode> link = new LinkDefault<TNode>() { From = fromPort, To = toPort };
+                // create the link
+                LinkDefault<TNode> link = new LinkDefault<TNode>()
+                { 
+                    From = fromPort,
+                    To = toPort 
+                };
 
+                // attach the link
                 fromPort.LinkAttached = link;
                 toPort.LinkAttached = link;
             }

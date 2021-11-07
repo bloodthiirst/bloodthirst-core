@@ -7,6 +7,7 @@ namespace Bloodthirst.System.Quest.Editor
 {
     public class NodeData
     {
+        [Title("Canvas UI info")]
         [SerializeField]
         [JsonIgnore]
         private Vector2 size;
@@ -15,6 +16,7 @@ namespace Bloodthirst.System.Quest.Editor
         [SerializeField]
         private Vector2 position;
 
+        [Title("Node Data")]
         [ShowInInspector]
         [JsonIgnore]
         private INodeType nodeType;
@@ -40,25 +42,75 @@ namespace Bloodthirst.System.Quest.Editor
 
     public class LinkData
     {
+#if UNITY_EDITOR && ODIN_INSPECTOR
+
+        const string H_GROUP = "H_GROUP";
+        const string V_FROM_GROUP = "H_GROUP/V_FROM_GROUP";
+        const string V_TO_GROUP = "H_GROUP/V_TO_GROUP";
+#endif
+
+        #region from
+        [Title("From")]
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
         [JsonIgnore]
-        private int from;
+        private int fromNodeIndex;
 
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
         [JsonIgnore]
-        private int fromPort;
+        private int fromPortIndex;
 
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
         [JsonIgnore]
-        private int to;
+        private PORT_DIRECTION fromPortDirection;
 
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
         [JsonIgnore]
-        private int toPort;
+        private PORT_TYPE fromPortType;
 
+        #endregion
+
+        #region to
+        [Title("To")]
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_TO_GROUP)]
+        [SerializeField]
+        [JsonIgnore]
+        private int toNodeIndex;
+
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_TO_GROUP)]
+        [SerializeField]
+        [JsonIgnore]
+        private int toPortIndex;
+
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_TO_GROUP)]
+        [SerializeField]
+        [JsonIgnore]
+        private PORT_DIRECTION toPortDirection;
+
+        [HorizontalGroup(H_GROUP)]
+        [VerticalGroup(V_TO_GROUP)]
+        [SerializeField]
+        [JsonIgnore]
+        private PORT_TYPE toPortType;
+
+        #endregion
+
+        [Title("Link Data")]
         [SerializeField]
         [JsonIgnore]
         private ILinkType linkType;
+
+        #region accessors
 
         private ILinkType LinkType 
         { 
@@ -66,29 +118,53 @@ namespace Bloodthirst.System.Quest.Editor
             set => linkType = value;
         }
 
-        public int From
+        public int FromNodeIndex
         {
-            get => from;
-            set => from = value;
+            get => fromNodeIndex;
+            set => fromNodeIndex = value;
         }
 
-        public int FromPort
+        public int FromPortIndex
         {
-            get => fromPort;
-            set => fromPort = value;
-
+            get => fromPortIndex;
+            set => fromPortIndex = value;
         }
 
-        public int To
+        public int ToNodeIndex
         {
-            get => to;
-            set => to = value;
+            get => toNodeIndex;
+            set => toNodeIndex = value;
         }
 
-        public int ToPort
+        public int ToPortIndex
         {
-            get => toPort;
-            set => toPort = value;
+            get => toPortIndex;
+            set => toPortIndex = value;
         }
+        public PORT_DIRECTION FromPortDirection
+        { 
+            get => fromPortDirection;
+            set => fromPortDirection = value;
+        }
+        
+        public PORT_TYPE FromPortType
+        { 
+            get => fromPortType;
+            set => fromPortType = value;
+        }
+        
+        public PORT_DIRECTION ToPortDirection
+        {
+            get => toPortDirection;
+            set => toPortDirection = value;
+        }
+
+        public PORT_TYPE ToPortType
+        { 
+            get => toPortType;
+            set => toPortType = value;
+        }
+
+        #endregion
     }
 }

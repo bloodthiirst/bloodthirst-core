@@ -19,7 +19,7 @@ namespace Bloodthirst.System.Quest.Editor
         {
             Type defaultPortType = typeof(PortDefault<>).MakeGenericType(NodeEditor.NodeBaseType);
             IPortType defaultPort = (IPortType)Activator.CreateInstance(defaultPortType);
-            defaultPort.PortName = "New Output";
+            defaultPort.PortName = "New Input";
             node.AddVariableInputPort(defaultPort);
         }
     }

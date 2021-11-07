@@ -2,22 +2,18 @@
 
 namespace Bloodthirst.System.Quest.Editor
 {
-    public abstract class PortWithType<T ,TNode> : IPortType<TNode> where TNode : INodeType<TNode>
+    public abstract class PortWithType<T,TNode> : IPortType<TNode> where TNode : INodeType<TNode>
     {
         private static Type type = typeof(T);
 
-        public Type PortType => type;
+        public Type PortValueType => type;
         public string PortName { get; set; }
         public TNode ParentNode { get; set; }
-        
-        public NODE_DIRECTION NodeDirection { get; set; }
-
+        public PORT_DIRECTION PortDirection { get; set; }
+        public PORT_TYPE PortType { get; set; }
         public ILinkType<TNode> LinkAttached { get; set; }
 
-        public PortWithType()
-        {
-
-        }
+        public PortWithType() { }
 
         public object GetPortValue()
         {
@@ -29,7 +25,7 @@ namespace Bloodthirst.System.Quest.Editor
         public bool CanLinkTo(IPortType<TNode> otherPort)
         {
             // can't connect same direction nodes
-            if (NodeDirection == otherPort.NodeDirection)
+            if (PortDirection == otherPort.PortDirection)
                 return false;
 
             return true;

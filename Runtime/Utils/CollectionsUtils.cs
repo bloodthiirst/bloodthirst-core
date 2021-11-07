@@ -78,6 +78,22 @@ namespace Bloodthirst.Core.Utils
         }
 
         /// <summary>
+        /// Index of for ReadOnlyList
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static int IndexOf<T>(this IReadOnlyList<T> list, T item)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Equals(item)) return i;
+            }
+            return -1;
+        }
+
+        /// <summary>
         /// Add a new key-value pair to the dictionary if the key doesnt exist
         /// </summary>
         /// <typeparam name="K">TKey</typeparam>

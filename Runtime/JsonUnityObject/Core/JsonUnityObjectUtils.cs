@@ -20,8 +20,7 @@ namespace Bloodthirst.JsonUnityObject
 
             CustomContext ctx = new CustomContext()
             {
-                UnityObjects = unityRefsList,
-                Root = unityObjectThis
+                UnityObjects = unityRefsList
             };
 
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
@@ -41,8 +40,7 @@ namespace Bloodthirst.JsonUnityObject
 
             CustomContext ctx = new CustomContext()
             {
-                UnityObjects = unityRefsList,
-                Root = unityObjectThis
+                UnityObjects = unityRefsList
             };
 
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);

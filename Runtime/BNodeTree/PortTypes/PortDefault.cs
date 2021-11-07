@@ -1,24 +1,24 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace Bloodthirst.System.Quest.Editor
 {
     public class PortDefault<TNode> : IPortType<TNode>, IPortType where TNode : INodeType<TNode>, INodeType
     {
-        public Type PortType { get; protected set; }
-
+        #region PortDefault<TNode> implementation
+        public Type PortValueType { get; protected set; }
         public string PortName { get; set; }
-
-        public TNode ParentNode { get; set; }
-
-        public NODE_DIRECTION NodeDirection { get; set; }
-
-        public ILinkType<TNode> LinkAttached { get; set; }
+        internal TNode ParentNode { get; set; }
+        public PORT_DIRECTION PortDirection { get; set; }
+        internal PORT_TYPE PortType { get; set; }
+        public ILinkType<TNode> LinkAttached { get; internal set; }
+        #endregion
 
         #region IPortType<TNode> implementation
-        Type IPortType<TNode>.PortType => PortType;
+        Type IPortType<TNode>.PortValueType => PortValueType;
         string IPortType<TNode>.PortName { get => PortName; set => PortName = value; }
-
-        NODE_DIRECTION IPortType<TNode>.NodeDirection { get => NodeDirection; set => NodeDirection = value; }
+        PORT_TYPE IPortType<TNode>.PortType { get => PortType; set => PortType = value; }
+        PORT_DIRECTION IPortType<TNode>.PortDirection { get => PortDirection; set => PortDirection = value; }
         TNode IPortType<TNode>.ParentNode { get => ParentNode; set => ParentNode = value; }
 
         ILinkType<TNode> IPortType<TNode>.LinkAttached 
@@ -30,11 +30,11 @@ namespace Bloodthirst.System.Quest.Editor
         #endregion
 
         #region IPortType implementation
-        Type IPortType.PortType => PortType;
+        Type IPortType.PortValueType => PortValueType;
 
         string IPortType.PortName { get => PortName; set => PortName = value; }
-
-        NODE_DIRECTION IPortType.NodeDirection { get => NodeDirection; set => NodeDirection = value; }
+        PORT_TYPE IPortType.PortType { get => PortType; set => PortType = value; }
+        PORT_DIRECTION IPortType.PortDirection { get => PortDirection; set => PortDirection = value; }
         INodeType IPortType.ParentNode { get => ParentNode; set => ParentNode = (TNode)value; }
         ILinkType IPortType.LinkAttached
         { 
@@ -45,7 +45,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         public PortDefault()
         {
-            PortType = typeof(string);
+            PortValueType = typeof(string);
         }
 
         public virtual object GetPortValue()
@@ -56,7 +56,7 @@ namespace Bloodthirst.System.Quest.Editor
         public virtual bool CanLinkTo(IPortType<TNode> otherPort)
         {
             // can't connect same direction nodes
-            if (NodeDirection == otherPort.NodeDirection)
+            if (PortDirection == otherPort.PortDirection)
                 return false;
 
             return true;

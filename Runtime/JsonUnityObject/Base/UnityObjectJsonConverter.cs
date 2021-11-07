@@ -2,13 +2,16 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace Bloodthirst.JsonUnityObject
 {
 
     public class UnityObjectJsonConverter : JsonConverter
     {
+
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             CustomContext ctx = serializer.Context.Context as CustomContext;
@@ -35,7 +38,7 @@ namespace Bloodthirst.JsonUnityObject
                     // we have to redo the check here since we are doing everything manually
                     
                     // so we ignore these fields since unity doesn't want us touching them during serialization
-                    if (m.Name.Equals("name") || m.Name.Equals("hideFlags"))
+                    if (JsonUnityObjectSettings.MonoBehaviourIgnorableMembers.Contains(m.Name))
                         continue;
 
                     // we skip ignoratble members manually too

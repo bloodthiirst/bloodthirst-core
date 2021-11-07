@@ -3,20 +3,31 @@ using System;
 
 namespace Bloodthirst.System.Quest.Editor
 {
-    public enum NODE_DIRECTION
+    public enum PORT_DIRECTION
     {
         INPUT, OUTPUT
+    }
+
+    public enum PORT_TYPE
+    {
+        VARIABLE, CONST
     }
 
     public interface IPortType<TNode> where TNode : INodeType<TNode>
     {
         [IgnoreBindable]
-        Type PortType { get;}
+        Type PortValueType { get;}
 
         [IgnoreBindable]
         string PortName { get; set; }
+
         [IgnoreBindable]
-        NODE_DIRECTION NodeDirection { get; set; }
+        [JsonProperty]
+        PORT_DIRECTION PortDirection { get; set; }
+
+        [IgnoreBindable]
+        [JsonProperty]
+        PORT_TYPE PortType { get; set; }
 
         object GetPortValue();
 
@@ -34,12 +45,16 @@ namespace Bloodthirst.System.Quest.Editor
     public interface IPortType
     {
         [IgnoreBindable]
-        Type PortType { get;  }
+        Type PortValueType { get;  }
 
         [IgnoreBindable]
         string PortName { get; set; }
+
         [IgnoreBindable]
-        NODE_DIRECTION NodeDirection { get; set; }
+        PORT_DIRECTION PortDirection { get; set; }
+
+        [IgnoreBindable]
+        PORT_TYPE PortType { get; set; }
 
         object GetPortValue();
         [JsonIgnore]

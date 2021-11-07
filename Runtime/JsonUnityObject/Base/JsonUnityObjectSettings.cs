@@ -1,17 +1,45 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace Bloodthirst.JsonUnityObject
 {
     [InitializeOnLoad]
-    public class JsonUnityObjectSettings
+    public static class JsonUnityObjectSettings
     {
-        private static JsonSerializerSettings Settings;
-        static JsonUnityObjectSettings()
+
+        private static List<string> monoBehaviourIgnorableMembers = new List<string>()
         {
-            Settings = GetSerializerSettings();
-        }
+            "rigidbody",
+            "rigidbody2D",
+            "camera",
+            "light",
+            "animation",
+            "renderer",
+            "constantForce",
+            "audio",
+            "networkView",
+            "collider",
+            "collider2D",
+            "hingeJoint",
+            "particleSystem",
+            "hideFlags",
+            "name",
+            "useGUILayout",
+            "runInEditMode",
+            "enabled",
+            "gameObject",
+            "allowPrefabModeInPlayMode",
+            "isActiveAndEnabled",
+            "transform",
+            "tag"
+        };
+
+        public static IReadOnlyList<string> MonoBehaviourIgnorableMembers => monoBehaviourIgnorableMembers;
+
+        public static readonly JsonSerializerSettings settings = GetSerializerSettings();
 
         /// <summary>
         /// Resolver used to skip some unity specific fields

@@ -30,9 +30,13 @@ namespace Bloodthirst.System.Quest.Editor
             PendingLinkingPort.Deselect();
 
             if (PendingLinkingPort == rightClickedPort)
+            {
+                PendingLinkingPort = null;
                 return;
-            
+            }
 
+            if (rightClickedPort.ParentNode == PendingLinkingPort.ParentNode)
+                return;
 
             if (!rightClickedPort.PortType.CanLinkTo(PendingLinkingPort.PortType))
                 return;
@@ -40,10 +44,7 @@ namespace Bloodthirst.System.Quest.Editor
             if (!PendingLinkingPort.PortType.CanLinkTo(rightClickedPort.PortType))
                 return;
 
-            if (rightClickedPort.PortType.NodeDirection != NODE_DIRECTION.INPUT)
-                return;
-
-            if (PendingLinkingPort.PortType.NodeDirection != NODE_DIRECTION.OUTPUT)
+            if (rightClickedPort.PortType.PortDirection == PendingLinkingPort.PortType.PortDirection)
                 return;
 
             NodeEditor.AddLink(PendingLinkingPort, rightClickedPort);

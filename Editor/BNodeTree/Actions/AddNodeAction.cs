@@ -22,7 +22,9 @@ namespace Bloodthirst.System.Quest.Editor
         {
             NodeCreationData data = (NodeCreationData)menuItem;
 
-            NodeEditor.AddNode(data.NodeCreationInfo.NodeCreator() , data.MousePosition , null);
+            INodeType node = data.NodeCreationInfo.NodeCreator();
+
+            NodeEditor.AddNode(node, data.MousePosition , null);
         }
 
         private struct NodeCreationData

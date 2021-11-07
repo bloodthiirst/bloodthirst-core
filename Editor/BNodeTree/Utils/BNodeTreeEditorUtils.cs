@@ -60,6 +60,23 @@ namespace Bloodthirst.System.Quest.Editor
             };
         }
 
+        public static IReadOnlyList<PortBaseElement> GetPortsUI(this NodeBaseElement nodeType, PORT_DIRECTION direction, PORT_TYPE type)
+        {
+            if (direction == PORT_DIRECTION.INPUT && type == PORT_TYPE.CONST)
+            {
+                return nodeType.InputsConst;
+            }
+            else if (direction == PORT_DIRECTION.INPUT && type == PORT_TYPE.VARIABLE)
+            {
+                return nodeType.InputsVariable;
+            }
+            else if (direction == PORT_DIRECTION.OUTPUT && type == PORT_TYPE.CONST)
+            {
+                return nodeType.OutputsConst;
+            }
+
+            return nodeType.OutputsVariable;
+        }
 
     }
 }
