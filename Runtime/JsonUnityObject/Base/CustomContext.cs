@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace Bloodthirst.JsonUnityObject
 {
-    public class CustomContext
+    public struct CustomContext
     {
         public List<UnityEngine.Object> UnityObjects { get; set; }
     }

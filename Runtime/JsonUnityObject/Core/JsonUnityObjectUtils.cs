@@ -16,7 +16,7 @@ namespace Bloodthirst.JsonUnityObject
         /// <param name="unityRefsList"></param>
         public static void DeserializeUnityObject(string jsonString, UnityEngine.Object unityObjectThis, List<UnityEngine.Object> unityRefsList)
         {
-            JsonSerializerSettings settings = JsonUnityObjectSettings.GetSerializerSettings();
+            JsonSerializerSettings settings = JsonUnityObjectSettings.GetSettings();
 
             CustomContext ctx = new CustomContext()
             {
@@ -26,6 +26,8 @@ namespace Bloodthirst.JsonUnityObject
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
 
             JsonConvert.PopulateObject(jsonString, unityObjectThis, settings);
+
+            JsonUnityObjectSettings.ReturnSettings(settings);
         }
 
         /// <summary>
@@ -36,7 +38,7 @@ namespace Bloodthirst.JsonUnityObject
         {
             unityRefsList = unityRefsList.CreateOrClear();
 
-            JsonSerializerSettings settings = JsonUnityObjectSettings.GetSerializerSettings();
+            JsonSerializerSettings settings = JsonUnityObjectSettings.GetSettings();
 
             CustomContext ctx = new CustomContext()
             {
@@ -45,7 +47,11 @@ namespace Bloodthirst.JsonUnityObject
 
             settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
 
-            return JsonConvert.SerializeObject(unityObjectThis, settings);
+            string res = JsonConvert.SerializeObject(unityObjectThis, settings);
+
+            JsonUnityObjectSettings.ReturnSettings(settings);
+
+            return res;
         }
     }
 }

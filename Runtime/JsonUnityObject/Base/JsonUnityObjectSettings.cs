@@ -9,6 +9,7 @@ namespace Bloodthirst.JsonUnityObject
     [InitializeOnLoad]
     public static class JsonUnityObjectSettings
     {
+        private static Queue<JsonSerializerSettings> pooledSettings = new Queue<JsonSerializerSettings>();
 
         private static List<string> monoBehaviourIgnorableMembers = new List<string>()
         {
@@ -36,10 +37,7 @@ namespace Bloodthirst.JsonUnityObject
             "transform",
             "tag"
         };
-
         public static IReadOnlyList<string> MonoBehaviourIgnorableMembers => monoBehaviourIgnorableMembers;
-
-        public static readonly JsonSerializerSettings settings = GetSerializerSettings();
 
         /// <summary>
         /// Resolver used to skip some unity specific fields
@@ -59,7 +57,7 @@ namespace Bloodthirst.JsonUnityObject
         /// Returns the settings used to serialize the node data
         /// </summary>
         /// <returns></returns>
-        public static JsonSerializerSettings GetSerializerSettings()
+        private static JsonSerializerSettings CreateSerializerSettings()
         {
             return new JsonSerializerSettings()
             {
@@ -73,6 +71,21 @@ namespace Bloodthirst.JsonUnityObject
                 ContractResolver = UnityObjectResolver,
                 Converters = Converters
             };
+        }
+
+        public static JsonSerializerSettings GetSettings()
+        {
+            if(pooledSettings.Count == 0)
+            {
+                return CreateSerializerSettings();
+            }
+
+            return pooledSettings.Dequeue();
+        }
+
+        public static void ReturnSettings(JsonSerializerSettings settings)
+        {
+            pooledSettings.Enqueue(settings);
         }
     }
 }

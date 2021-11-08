@@ -8,10 +8,6 @@ namespace Bloodthirst.JsonUnityObject
 {
     public class UnityObjectContractResolver : DefaultContractResolver
     {
-        private const string HIDE_FLAG_FIELD = "hideFlags";
-        private const string NAME_FIELD = "name";
-        private const string GAMEOBJECT_FIELD = "gameObject";
-
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
             IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);

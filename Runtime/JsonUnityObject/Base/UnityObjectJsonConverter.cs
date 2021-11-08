@@ -14,7 +14,7 @@ namespace Bloodthirst.JsonUnityObject
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            CustomContext ctx = serializer.Context.Context as CustomContext;
+            CustomContext ctx = (CustomContext) serializer.Context.Context;
 
             // if we are at the root of the object
             // that means that we need to draw as a normal json body and not with the ID
@@ -132,7 +132,7 @@ namespace Bloodthirst.JsonUnityObject
             long id = (long)reader.Value;
 
             // get the list from the context
-            CustomContext ctx = serializer.Context.Context as CustomContext;
+            CustomContext ctx = (CustomContext) serializer.Context.Context;
 
             // and fetch the unity object using the index
             UnityEngine.Object asset = ctx.UnityObjects[(int)id];
