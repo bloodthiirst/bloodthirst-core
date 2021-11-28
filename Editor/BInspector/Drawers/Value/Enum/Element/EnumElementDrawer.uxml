@@ -1,0 +1,7 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+
+	<ui:VisualElement>
+		<ui:Label name="EnumNameLabel" />
+	</ui:VisualElement>
+
+</UXML>

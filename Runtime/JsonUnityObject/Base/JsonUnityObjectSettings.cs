@@ -1,17 +1,21 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEditor;
-using UnityEngine;
 
 namespace Bloodthirst.JsonUnityObject
 {
     [InitializeOnLoad]
     public static class JsonUnityObjectSettings
     {
+        /// <summary>
+        /// Pool to recycle settings instances to minimize GC when serializing
+        /// </summary>
         private static Queue<JsonSerializerSettings> pooledSettings = new Queue<JsonSerializerSettings>();
 
-        private static List<string> monoBehaviourIgnorableMembers = new List<string>()
+        /// <summary>
+        /// List of members to ignore when serializing
+        /// </summary>
+        private static readonly List<string> monoBehaviourIgnorableMembers = new List<string>()
         {
             "rigidbody",
             "rigidbody2D",
@@ -37,6 +41,10 @@ namespace Bloodthirst.JsonUnityObject
             "transform",
             "tag"
         };
+
+        /// <summary>
+        /// ReadOnlyList of members to ignore when serializing
+        /// </summary>
         public static IReadOnlyList<string> MonoBehaviourIgnorableMembers => monoBehaviourIgnorableMembers;
 
         /// <summary>
@@ -73,6 +81,10 @@ namespace Bloodthirst.JsonUnityObject
             };
         }
 
+        /// <summary>
+        /// Get a pooled instance of the serialization settings
+        /// </summary>
+        /// <returns></returns>
         public static JsonSerializerSettings GetSettings()
         {
             if(pooledSettings.Count == 0)
@@ -83,6 +95,10 @@ namespace Bloodthirst.JsonUnityObject
             return pooledSettings.Dequeue();
         }
 
+        /// <summary>
+        /// Return the instance of the serialization settings
+        /// </summary>
+        /// <param name="settings"></param>
         public static void ReturnSettings(JsonSerializerSettings settings)
         {
             pooledSettings.Enqueue(settings);

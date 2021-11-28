@@ -1,0 +1,13 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement>
+
+
+		<!-- INSPECTOR UI CONTAINER -->
+		<ui:VisualElement name="MainContentContainer" class="MainContentContainer" />
+		
+		<!-- DROPDOWN CONTAINER -->
+		<ui:VisualElement name="DropdownContainer" class="DropdownContainer" />
+
+
+	</ui:VisualElement>
+</UXML>

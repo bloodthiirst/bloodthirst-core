@@ -6,59 +6,119 @@ namespace Bloodthirst.System.Quadrant
 {
     public class QuadTree<TKey, TElement>
     {
-        private List<QuadLeaf<TKey, TElement>> rootLeafs { get; set; }
-
-        public IReadOnlyList<QuadLeaf<TKey, TElement>> RootLeafs => rootLeafs;
+        public QuadLeaf<TKey, TElement> rootLeaf { get; private set; }
 
         public QuadTree()
         {
-            rootLeafs = new List<QuadLeaf<TKey, TElement>>();
+            rootLeaf = new QuadLeaf<TKey, TElement>(default);
         }
 
         public void Clear()
         {
-            foreach (QuadLeaf<TKey, TElement> l in rootLeafs)
-            {
-                l.Clear();
-            }
-
-            rootLeafs.Clear();
+            rootLeaf.Clear();
         }
 
-
-        public HashSet<QuadLeaf<TKey, TElement>> GetFinalLeafs()
+        public List<QuadLeaf<TKey, TElement>> GetFinalLeafs()
         {
-            HashSet<QuadLeaf<TKey, TElement>> lst = new HashSet<QuadLeaf<TKey, TElement>>();
+            List<QuadLeaf<TKey, TElement>> lst = new List<QuadLeaf<TKey, TElement>>();
 
-            foreach (QuadLeaf<TKey, TElement> rootLeaf in RootLeafs)
+            if (rootLeaf.SubLeafs.Count == 0)
+                return lst;
+
+            foreach (QuadLeaf<TKey, TElement> s in rootLeaf.SubLeafs)
             {
-                foreach (QuadLeaf<TKey, TElement> s in rootLeaf.GetFinalLeafs())
-                {
-                    lst.Add(s);
-                }
+                lst.AddRange(s.GetFinalLeafs());
             }
 
             return lst;
         }
 
-        public QuadLeaf<TKey, TElement> Traverse(List<TKey> keys)
+        /// <summary>
+        /// <para>Traverse the quad tree using the keys passed</para>
+        /// <para>If a key is not found along the traversal then it gets created</para>
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <returns>returns the last leaf corresponding to the last key</returns>
+        public QuadLeaf<TKey, TElement> Get(IEnumerable<TKey> keys)
         {
-            QuadLeaf<TKey, TElement> current = rootLeafs.FirstOrDefault(l => l.Key.Equals(keys[0]));
+            QuadLeaf<TKey, TElement> current = rootLeaf;
 
-            // add the entry leaf if it doesn't exist
-            if (current == null)
+            // skip first and keep running down the tree
+            foreach (TKey k in keys)
             {
-                current = new QuadLeaf<TKey, TElement>(keys[0]);
-                rootLeafs.Add(current);
+                current = current.Get(k);
+
+                if (current == null)
+                    return null;
             }
 
-            for (int i = 1; i < keys.Count; i++)
-            {
-                current = current.GetOrCreate(keys[i]);
-            }
-
+            // return the last leaf
             return current;
         }
 
+        /// <summary>
+        /// <para>Traverse the quad tree using the keys passed</para>
+        /// <para>If a key is not found along the traversal then it gets created</para>
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <returns>returns the last leaf corresponding to the last key</returns>
+        public QuadLeaf<TKey, TElement> GetOrCreate(IEnumerable<TKey> keys)
+        {
+            QuadLeaf<TKey, TElement> current = rootLeaf;
+
+            // skip first and keep running down the tree
+            foreach (TKey k in keys)
+            {
+                current = current.GetOrCreate(k);
+            }
+
+            // return the last leaf
+            return current;
+        }
+
+        /// <summary>
+        /// <para>Traverse the quad tree using the keys passed</para>
+        /// <para>If a key is not found along the traversal then it gets created</para>
+        /// </summary>
+        /// <param name="keys">List of keys to traverse</param>
+        /// <returns>Returns all the values found along the way in order</returns>
+        public List<QuadLeaf<TKey, TElement>> GetOrCreateWithPath(IEnumerable<TKey> keys)
+        {
+            List<QuadLeaf<TKey, TElement>> path = new List<QuadLeaf<TKey, TElement>>();
+
+            QuadLeaf<TKey, TElement> current = rootLeaf;
+
+            // skip first and keep running down the tree while traking the leafs
+            foreach (TKey k in keys)
+            {
+                current = current.GetOrCreate(k);
+                path.Add(current);
+            }
+
+            // return the path
+            return path;
+        }
+
+        public void Remove(IEnumerable<TKey> keys)
+        {
+            // if keys are empty then exist
+            if (keys.Count() == 0)
+                return;
+
+            QuadLeaf<TKey, TElement> current = rootLeaf;
+
+            // keep going down the tree until we find the key we want
+            // we exist if a key is not found
+            foreach (TKey k in keys)
+            {
+                current = current.Get(k);
+
+                if (current == null)
+                    return;
+            }
+
+            // the node
+            current.Clear();
+        }
     }
 }

@@ -1,0 +1,31 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement class="unity-base-field__input unity-object-field__input dict-column">
+
+		<!-- ADD ELEMENT -->
+		<ui:VisualElement class="dict-tab-style dict-column">
+			<ui:VisualElement name="AddKeyContainer" />
+			<ui:VisualElement name="AddValueContainer" />
+			<ui:Button name="AddElementBtn" text="Add" />
+		</ui:VisualElement>
+		
+		<!-- HEADER -->
+		<ui:VisualElement name="header" class="dict-column">
+			<ui:VisualElement class="dict-element">
+
+				<ui:VisualElement class="dict-tab dict-tab-style">
+					<ui:Label text="Keys"/>
+				</ui:VisualElement>
+
+				<ui:VisualElement class="dict-tab dict-tab-style">
+					<ui:Label text="Values"/>
+				</ui:VisualElement>
+
+			</ui:VisualElement>
+		</ui:VisualElement>
+		
+
+		<!-- ELEMENT -->
+		<ui:VisualElement name="ElementsContainer" class="dict-column"/>
+
+	</ui:VisualElement>
+</UXML>

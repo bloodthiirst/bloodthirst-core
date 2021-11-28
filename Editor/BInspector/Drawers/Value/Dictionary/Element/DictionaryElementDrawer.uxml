@@ -1,0 +1,14 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+
+	<!-- ELEMENT -->
+	<ui:VisualElement class="dict-element">
+
+		<!-- KEY -->
+		<ui:VisualElement name="KeyContainer" class="dict-tab dict-tab-style"/>
+		
+		<!-- VALUE -->
+		<ui:VisualElement name="ValueContainer" class="dict-tab dict-tab-style" />
+
+	</ui:VisualElement>
+
+</UXML>

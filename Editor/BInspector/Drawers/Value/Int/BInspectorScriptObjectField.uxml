@@ -1,0 +1,14 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+
+  <ui:VisualElement class="unity-base-field unity-object-field input-disabled">
+    <ui:Label text="Script" class="unity-text-element unity-label unity-base-field__label unity-object-field__label" />
+    <ui:VisualElement class="unity-base-field__input unity-object-field__input">
+      <ui:VisualElement name="ScriptSelectionZone" class="unity-object-field-display unity-object-field__object">
+        <ui:Image name="ScriptIconImage" class="unity-image unity-object-field-display__icon" />
+        <ui:Label name="ScriptNameLabel" class="unity-text-element unity-label unity-object-field-display__label" />
+      </ui:VisualElement>
+      <ui:VisualElement class="unity-object-field__selector" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+
+</UXML>

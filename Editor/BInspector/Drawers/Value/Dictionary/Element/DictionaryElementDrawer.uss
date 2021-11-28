@@ -1,0 +1,16 @@
+.dict-element
+{
+	flex-direction : row;
+}
+.dict-tab
+{
+	flex-grow : 1;
+	flex-basis : 1;
+}
+
+.dict-tab-style
+{
+	border-width : 1px;
+	border-color : gray;
+	padding : 3px;
+}

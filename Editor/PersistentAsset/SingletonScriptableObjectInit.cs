@@ -17,25 +17,28 @@ namespace Bloodthirst.Core.PersistantAsset
 
 #if UNITY_EDITOR
 
+        [MenuItem("Bloodthirst Tools/ScriptableObjectSingletons/Refresh")]
+        public static void OpenFromMenu()
+        {
 
+        }
+        
         [DidReloadScripts(BloodthirstCoreConsts.SINGLETONS_CREATION_CHECK)]
         public static void OnDidReloadScripts()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 
+            ReloadSingletons();
+
+        }
+
+        private static void ReloadSingletons()
+        {
             // get singleton types
-
-            List<Type> validTypes = TypeUtils.AllTypes
-                .Where(t => t.IsClass)
-                .Where(t => !t.IsGenericType)
-                .Where(t => t.GetInterfaces().Contains(typeof(ISingletonScriptableObject)))
-                .ToList();
-
-
+            List<Type> validTypes = GetSingletonTypes();
 
             // check
-
             foreach (Type type in validTypes)
             {
                 PropertyInfo pathProp = type.GetProperty("AssetPath", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
@@ -48,7 +51,12 @@ namespace Bloodthirst.Core.PersistantAsset
 
                 // all instances available with the same type
 
-                UnityEngine.Object[] allResources = Resources.LoadAll(string.Empty, type);
+                //UnityEngine.Object[] allResources = Resources.LoadAll(string.Empty, type);
+                UnityEngine.Object[] allResources = AssetDatabase
+                    .FindAssets($"t:{type.Name}")
+                    .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
+                    .Select(path => AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path))
+                    .ToArray();
 
                 ScriptableObject so = null;
 
@@ -152,7 +160,6 @@ namespace Bloodthirst.Core.PersistantAsset
             EditorApplication.playModeStateChanged += EditorApplicationPlayModeStateChanged;
 
             Debug.Log("[ Persistant Assets successfully initialized ]");
-
         }
 
         /// <summary>
@@ -163,11 +170,7 @@ namespace Bloodthirst.Core.PersistantAsset
         {
             // get singleton types
 
-            List<Type> validTypes = TypeUtils.AllTypes
-                .Where(t => t.IsClass)
-                .Where(t => !t.IsGenericType)
-                .Where(t => t.GetInterfaces().Contains(typeof(ISingletonScriptableObject)))
-                .ToList();
+            List<Type> validTypes = GetSingletonTypes();
 
             // check
 
@@ -190,6 +193,15 @@ namespace Bloodthirst.Core.PersistantAsset
                 }
 
             }
+        }
+
+        private static List<Type> GetSingletonTypes()
+        {
+            return TypeUtils.AllTypes
+                            .Where(t => t.IsClass)
+                            .Where(t => !t.IsGenericType)
+                            .Where(t => t.GetInterfaces().Contains(typeof(ISingletonScriptableObject)))
+                            .ToList();
         }
 
         private static void EditorApplicationPlayModeStateChanged(PlayModeStateChange obj)

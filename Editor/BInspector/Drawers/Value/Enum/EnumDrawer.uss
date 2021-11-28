@@ -1,0 +1,34 @@
+.input-disabled
+{
+	opacity : 0.5;
+}
+
+.SelectionListContainer {
+	top: 100%;
+	left: 0px;
+	position: absolute;
+	width: 100%;
+	height: 10px;
+
+}
+.SelectionList
+{
+	position : absolute;
+	width : 100%;
+	height : 150px;
+	background-color : rgb(128, 128, 128);
+}
+
+.w-100
+{
+	width : 100%;
+}
+
+.expand-btn
+{
+	width : 17px;
+}
+
+.expand-icon {
+	background-image: url("project:/Packages/com.bloodthirst.bloodthirst-core/Editor/Icons/sharp_expand_more_black_24dp.png");
+}
