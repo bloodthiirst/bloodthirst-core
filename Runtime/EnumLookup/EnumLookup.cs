@@ -13,7 +13,7 @@ namespace Bloodthirst.Core.EnumLookup
 
         private static readonly Array EnumValues = Enum.GetValues(type);
 
-        private static readonly int EnumCount = EnumValues.Length;
+        public static readonly int EnumCount = EnumValues.Length;
 
         private List<TElement> elements = new List<TElement>(EnumCount);
 
