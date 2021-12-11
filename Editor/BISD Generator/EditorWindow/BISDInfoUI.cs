@@ -29,6 +29,7 @@ namespace Bloodthirst.Core.BISD.Editor
         private ObjectField BehaviourAsset => VisualElement.Q<ObjectField>(nameof(BehaviourAsset));
         private VisualElement CodeGeneratorList => VisualElement.Q<VisualElement>(nameof(CodeGeneratorList));
         private ObjectField InstanceAsset => VisualElement.Q<ObjectField>(nameof(InstanceAsset));
+        private ObjectField InstancePartialAsset => VisualElement.Q<ObjectField>(nameof(InstancePartialAsset));
         private ObjectField StateAsset => VisualElement.Q<ObjectField>(nameof(StateAsset));
         private ObjectField DataAsset => VisualElement.Q<ObjectField>(nameof(DataAsset));
         private ObjectField GameSaveAsset => VisualElement.Q<ObjectField>(nameof(GameSaveAsset));
@@ -37,6 +38,7 @@ namespace Bloodthirst.Core.BISD.Editor
         #region regenrate btns
         private Button BehaviourRegenerate => VisualElement.Q<Button>(nameof(BehaviourRegenerate));
         private Button InstanceRegenerate => VisualElement.Q<Button>(nameof(InstanceRegenerate));
+        private Button InstancePartialRegenerate => VisualElement.Q<Button>(nameof(InstancePartialRegenerate));
         private Button StateRegenerate => VisualElement.Q<Button>(nameof(StateRegenerate));
         private Button DataRegenerate => VisualElement.Q<Button>(nameof(DataRegenerate));
         private Button GameDataRegenerate => VisualElement.Q<Button>(nameof(GameDataRegenerate));
@@ -72,13 +74,15 @@ namespace Bloodthirst.Core.BISD.Editor
 
             BehaviourAsset.objectType = typeof(TextAsset);
             InstanceAsset.objectType = typeof(TextAsset);
+            InstancePartialAsset.objectType = typeof(TextAsset);
             StateAsset.objectType = typeof(TextAsset);
             DataAsset.objectType = typeof(TextAsset);
             GameSaveAsset.objectType = typeof(TextAsset);
             GameSaveHandlerAsset.objectType = typeof(TextAsset);
 
             BehaviourAsset.value = infoContainer?.Behaviour?.TextAsset;
-            InstanceAsset.value = infoContainer?.Instance?.TextAsset;
+            InstanceAsset.value = infoContainer?.InstanceMain?.TextAsset;
+            InstancePartialAsset.value = infoContainer?.InstancePartial?.TextAsset;
             StateAsset.value = infoContainer?.State?.TextAsset;
             DataAsset.value = infoContainer?.Data?.TextAsset;
             GameSaveAsset.value = infoContainer?.GameSave?.TextAsset;
@@ -86,6 +90,7 @@ namespace Bloodthirst.Core.BISD.Editor
 
             BehaviourRegenerate.clickable.clicked += HandleGenerateBehaviour;
             InstanceRegenerate.clickable.clicked += HandleGenerateInstance;
+            InstancePartialRegenerate.clickable.clicked += HandleGenerateInstancePartial;
             StateRegenerate.clickable.clicked += HandleGenerateState;
             DataRegenerate.clickable.clicked += HandleGenerateData;
             GameDataRegenerate.clickable.clicked += HandleGenerateGameData;
@@ -142,6 +147,12 @@ namespace Bloodthirst.Core.BISD.Editor
         {
             CommandManagerEditor.RunInstant(new CreateInstanceFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
         }
+
+        private void HandleGenerateInstancePartial()
+        {
+            CommandManagerEditor.RunInstant(new CreateInstancePartialFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+        }
+
 
         private void HandleGenerateState()
         {

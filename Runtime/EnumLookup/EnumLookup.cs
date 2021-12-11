@@ -25,9 +25,14 @@ namespace Bloodthirst.Core.EnumLookup
             }
         }
         public TElement this[TEnum index] => elements[ (int) ((object)index) ];
-        public void Set(TElement index , TElement val)
+        public void Set(TEnum index , TElement val)
         {
             elements[(int)((object)index)] = val;
+        }
+
+        public void Set(int index, TElement val)
+        {
+            elements[index] = val;
         }
         public int Count => EnumCount;
         public TElement this[int index] => elements[index];

@@ -127,7 +127,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private static MethodInfo[] GetObservableMethods(BISDInfoContainer typeInfo)
         {
             //observers
-            return typeInfo.Instance.TypeRef
+            return typeInfo.InstanceMain.TypeRef
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
@@ -135,7 +135,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private static PropertyInfo[] GetObservableProps(BISDInfoContainer typeInfo)
         {
             //observers
-            return typeInfo.Instance.TypeRef
+            return typeInfo.InstanceMain.TypeRef
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
@@ -144,7 +144,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private static EventInfo[] GetObservableEvents(BISDInfoContainer typeInfo)
         {
             //observers
-            return typeInfo.Instance.TypeRef
+            return typeInfo.InstanceMain.TypeRef
                 .GetEvents(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
@@ -172,12 +172,14 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             }
             */
 
-            string oldScript = typeInfo.Instance.TextAsset.text;
+            string oldScript = typeInfo.InstancePartial.TextAsset.text;
 
             #region write the properties for the observables in the state
             List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(PROPS_START_CONST, PROPS_END_CONST);
 
             int padding = 0;
+
+            string propertyTemplateText = AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_PROPERTY_TEMPALTE).text;
 
             for (int i = 0; i < propsSections.Count - 1; i++)
             {
@@ -201,9 +203,9 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
                     foreach (FieldInfo field in fields)
                     {
-                        string templateText = AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_PROPERTY_TEMPALTE).text;
+                        string templateText = propertyTemplateText;
 
-                        templateText = templateText.Replace("[INSTANCE_TYPE]", typeInfo.Instance.TypeRef.Name);
+                        templateText = templateText.Replace("[INSTANCE_TYPE]", typeInfo.InstanceMain.TypeRef.Name);
 
                         templateText = templateText.Replace("[FIELD_NICE_NAME]", FieldFormatedName(field));
 
@@ -286,10 +288,10 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
 
             // save
-            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.Instance.TextAsset), oldScript);
+            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.InstancePartial.TextAsset), oldScript);
 
             // set dirty
-            EditorUtility.SetDirty(typeInfo.Instance.TextAsset);
+            EditorUtility.SetDirty(typeInfo.InstancePartial.TextAsset);
 
             //
             Debug.Log($"model type affected [{ typeInfo.ModelName }]");

@@ -369,6 +369,7 @@ namespace Bloodthirst.Core.BISD.Editor
 
             CommandManagerEditor.RunInstant(new CreateBehaviourFileCommand(modelName, relativePath));
             CommandManagerEditor.RunInstant(new CreateInstanceFileCommand(modelName, relativePath));
+            CommandManagerEditor.RunInstant(new CreateInstancePartialFileCommand(modelName, relativePath));
             CommandManagerEditor.RunInstant(new CreateStateFileCommand(modelName, relativePath));
             CommandManagerEditor.RunInstant(new CreateDataFileCommand(modelName, relativePath));
             CommandManagerEditor.RunInstant(new CreateGameSaveFileCommand(modelName, relativePath));

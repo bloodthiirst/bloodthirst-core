@@ -147,13 +147,13 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                                 val.GameSave.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}GameSave");
                                 break;
                             }
-                        case nameof(ClassType.INSTANCE):
+                        case nameof(ClassType.INSTANCE_MAIN):
                             {
-                                val.Instance = new BISDInfo() { Container = val };
+                                val.InstanceMain = new BISDInfo() { Container = val };
 
-                                val.Instance.ModelName = modelName;
-                                val.Instance.TextAsset = txt;
-                                val.Instance.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}Instance");
+                                val.InstanceMain.ModelName = modelName;
+                                val.InstanceMain.TextAsset = txt;
+                                val.InstanceMain.TypeRef = allTypes.FirstOrDefault(t => t.Name == $"{modelName}Instance");
                                 break;
                             }
                         case nameof(ClassType.STATE):

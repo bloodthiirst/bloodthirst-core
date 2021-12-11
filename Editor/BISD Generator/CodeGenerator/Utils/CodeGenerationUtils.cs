@@ -10,7 +10,6 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 {
     public static class CodeGenerationUtils
     {
-
         public static void GenerateGameDataInfoFromStateField(MemberInfo mem, out string name, out Type type)
         {
             Type memTyp = ReflectionUtils.GetMemberType(mem);

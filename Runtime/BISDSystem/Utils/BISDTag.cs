@@ -5,14 +5,15 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
     public enum ClassType
     {
         BEHAVIOUR,
-        INSTANCE,
+        INSTANCE_MAIN,
+        INSTANCE_PARTIAL,
         STATE,
         DATA,
         GAME_SAVE,
         GAME_SAVE_HANDLER
     }
 
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = true, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = true, AllowMultiple = true)]
     public class BISDTag : Attribute
     {
         public string ModelName;

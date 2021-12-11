@@ -3,6 +3,7 @@ using Bloodthirst.System.Quadrant;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace Bloodthirst.Core.Collections
 {
@@ -13,50 +14,70 @@ namespace Bloodthirst.Core.Collections
     /// <typeparam name="TEnum"></typeparam>
     public struct SieveFilter<TEntity, TEnum> where TEnum : Enum
     {
-        private List<TEntity> entities;
-        private HashSet<TEnum> enums;
-        private EnumSieve<TEntity, TEnum> targetSieve;
+        private List<TEntity> _entities;
+        private HashSet<TEnum> _flags;
+        private EnumSieve<TEntity, TEnum> _targetSieve;
 
         internal SieveFilter(EnumSieve<TEntity, TEnum> targetSieve)
         {
-            this.targetSieve = targetSieve;
-            entities = new List<TEntity>();
-            enums = new HashSet<TEnum>();
-
+            this._targetSieve = targetSieve;
+            _entities = new List<TEntity>();
+            _flags = new HashSet<TEnum>();
         }
 
-        internal SieveFilter<TEntity, TEnum> Start(TEnum flag)
+        public SieveFilter<TEntity, TEnum> AddConstraint(TEnum flag)
         {
-            List<TEntity> flagEntities = targetSieve.enumToSieveBucket[flag];
-
-            enums.Add(flag);
-            entities.AddRange(flagEntities);
-
+            _flags.Add(flag);
             return this;
         }
 
-        public SieveFilter<TEntity, TEnum> Append(TEnum flag)
+        public SieveFilter<TEntity, TEnum> AddConstraints(IEnumerable<TEnum> flafs)
         {
-            if (!enums.Add(flag))
-                return this;
-
-            Predicate<TEntity> condition = targetSieve.enumToCondition[flag];
-
-            for(int i = entities.Count - 1; i >= 0; i--)
+            foreach (TEnum f in flafs)
             {
-                if( !condition(entities[i]))
+                _flags.Add(f);
+            }
+            return this;
+        }
+
+        public void Search()
+        {
+            TEnum minBucket = _flags.First();
+            int minCount = _targetSieve.enumToSieveBucket[minBucket].Count;
+
+            IEnumerable<TEnum> firstSkipped = _flags.Skip(1);
+            foreach (TEnum f in firstSkipped)
+            {
+                int curr = _targetSieve.enumToSieveBucket[f].Count;
+                if (curr < minCount)
                 {
-                    entities.RemoveAt(i);
+                    minBucket = f;
+                    minCount = curr;
                 }
             }
 
-            return this;
+            // start with the smallest list that fits a condition
+            _entities.Clear();
+            _entities.AddRange(_targetSieve.enumToSieveBucket[minBucket]);
+
+            // start filtering according to the rest of the conditions
+            for (int i = _entities.Count - 1; i >= 0; i--)
+            {
+                foreach (TEnum f in firstSkipped)
+                {
+                    Predicate<TEntity> condition = _targetSieve.enumToCondition[f];
+                    if (!condition(_entities[i]))
+                    {
+                        _entities.RemoveAt(i);
+                    }
+                }
+            }
         }
 
-        public IReadOnlyList<TEntity> GetResult()
+        public IEnumerable<TEntity> GetResult()
         {
-            return entities;
+            return _entities;
         }
-            
+
     }
 }

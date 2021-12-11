@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bloodthirst.Core.Collections
 {
-    public class Sieve<TEntity , TEnum> where TEnum : Enum
+    public class TreeSieve<TEntity , TEnum> where TEnum : Enum
     {
         internal QuadTree<TEnum , List<TEntity>> quadTree;
 
@@ -15,7 +15,7 @@ namespace Bloodthirst.Core.Collections
 
         internal Dictionary<TEnum, Predicate<TEntity>> sieveConditions;
 
-        public Sieve()
+        public TreeSieve()
         {
             quadTree = new QuadTree<TEnum, List<TEntity>>();
             flatDictionary = new Dictionary<TEnum, List<TEntity>>();

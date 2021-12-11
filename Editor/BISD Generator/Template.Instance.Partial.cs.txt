@@ -8,17 +8,10 @@ using Sirenix.OdinInspector;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {
-	[BISDTag("[MODELNAME]" , ClassType.INSTANCE_MAIN)]
+    [BISDTag("[MODELNAME]" , ClassType.INSTANCE_PARTIAL)]
     public partial class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State,[MODELNAME]Instance>
     {
-		public [MODELNAME]Instance() 
-		{
-
-		}
-
-		public [MODELNAME]Instance([MODELNAME]State state) : base()
-		{
-			State = state;	
-		}
+		//OBSERVABLES_START
+		//OBSERVABLES_END
     }
 }

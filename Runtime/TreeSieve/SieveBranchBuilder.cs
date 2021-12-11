@@ -16,11 +16,11 @@ namespace Bloodthirst.Core.Collections
         private List<TEnum> keys;
         private List<Predicate<TEntity>> predicates;
 
-        private Sieve<TEntity, TEnum> targetSieve;
+        private TreeSieve<TEntity, TEnum> targetSieve;
 
         public IReadOnlyDictionary<TEnum, Predicate<TEntity>> CurrentBranch => CurrentBranch;
 
-        internal SieveBranchBuilder(Sieve<TEntity, TEnum> targetSieve)
+        internal SieveBranchBuilder(TreeSieve<TEntity, TEnum> targetSieve)
         {
             this.targetSieve = targetSieve;
             keys = new List<TEnum>();

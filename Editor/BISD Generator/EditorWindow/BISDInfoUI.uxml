@@ -32,6 +32,11 @@ xsi:schemaLocation="
             </engine:VisualElement>
 
             <engine:VisualElement class="assetsRow">
+                <editor:ObjectField label="Instance Partial" name="InstancePartialAsset" class="assetObjectField"/>
+                <engine:Button text="Regenerate" name="InstancePartialRegenerate"/>
+            </engine:VisualElement>
+
+            <engine:VisualElement class="assetsRow">
                 <editor:ObjectField label="State" name="StateAsset" class="assetObjectField"/>
                 <engine:Button text="Regenerate" name="StateRegenerate"/>
             </engine:VisualElement>
