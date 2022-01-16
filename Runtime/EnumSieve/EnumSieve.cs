@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.EnumLookup;
 using Bloodthirst.System.Quadrant;
 using System;
+using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Bloodthirst.Core.Collections
 {
-    public class EnumSieve<TEntity, TEnum> where TEnum : Enum
+    public class EnumSieve<TEntity, TEnum> : IReadOnlyList<TEntity> where TEnum : Enum
     {
         private static EnumLookup<TEnum, int> enumToMask = new EnumLookup<TEnum, int>();
 
@@ -18,38 +20,34 @@ namespace Bloodthirst.Core.Collections
 
         internal List<TEntity> allEntities = new List<TEntity>();
 
-        public static int GetMask(IEnumerable<TEnum> flags)
-        {
-            int mask = 0;
+        public Action<TEntity> OnEntityAdded;
+        public Action<TEntity,int> OnEntityAddedWithMask;
 
-            foreach (TEnum f in flags)
-            {
-                mask &= enumToMask[f];
-            }
-
-            return mask;
-        }
+        public Action<TEntity> OnEntityRemoved;
+        public Action<TEntity,int> OnEntityRemovedWithMask;
 
         public EnumSieve()
         {
             // convert the enum to bit mask
-            for (int i = 0; i < EnumLookup<TEnum, int>.EnumCount; i++)
+            for (int i = 0; i < EnumUtils<TEnum>.EnumCount; i++)
             {
-                enumToMask.Set(i , 1 << i);
-                enumToSieveBucket.Set(i, new List<TEntity>());
+                enumToMask[i] = 1 << i;
+                enumToSieveBucket[i] = new List<TEntity>();
             }
         }
 
         public void SetCondition(TEnum flag , Predicate<TEntity> condition)
         {
-            enumToCondition.Set(flag, condition);
+            enumToCondition[flag] = condition;
         }
 
         public void Add(TEntity entity)
         {
             allEntities.Add(entity);
 
-            for (int i = 0; i < enumToSieveBucket.Count; i++)
+            int mask = 0;
+
+            for (int i = 0; i < EnumUtils<TEnum>.EnumCount; i++)
             {
                 // check the condition of the sieve
                 if (!enumToCondition[i](entity))
@@ -57,12 +55,18 @@ namespace Bloodthirst.Core.Collections
 
                 // add the entity to the sieve bucket
                 enumToSieveBucket[i].Add(entity);
+                mask = mask & enumToMask[i];
             }
+
+            OnEntityAdded?.Invoke(entity);
+            OnEntityAddedWithMask?.Invoke(entity, mask);
         }
 
         public void Remove(TEntity entity)
         {
             allEntities.Remove(entity);
+
+            int mask = 0;
 
             for (int i = 0; i < enumToMask.Count; i++)
             {
@@ -72,13 +76,32 @@ namespace Bloodthirst.Core.Collections
 
                 // add the entity to the sieve bucket
                 enumToSieveBucket[i].Remove(entity);
+                mask = mask & enumToMask[i];
             }
+
+            OnEntityRemoved?.Invoke(entity);
+            OnEntityRemovedWithMask?.Invoke(entity, mask);
         }
         public SieveFilter<TEntity, TEnum> GetFilter()
         {
             SieveFilter<TEntity, TEnum> filter = new SieveFilter<TEntity, TEnum>(this);
             return filter;
         }
+
+        #region IReadOnlyList implementation
+        public int Count => allEntities.Count;
+
+        public TEntity this[int index] => allEntities[index];
+        public IEnumerator<TEntity> GetEnumerator()
+        {
+            return allEntities.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return allEntities.GetEnumerator();
+        }
+        #endregion
 
     }
 }

@@ -7,35 +7,48 @@ using System.Threading.Tasks;
 
 namespace Bloodthirst.Core.EnumLookup
 {
-    public class EnumLookup<TEnum,TElement> : IReadOnlyList<TElement> where TEnum : Enum
+    public class EnumLookup<TEnum, TElement> : IReadOnlyList<TElement> where TEnum : Enum
     {
-        private static readonly Type type = typeof(TEnum);
-
-        private static readonly Array EnumValues = Enum.GetValues(type);
-
-        public static readonly int EnumCount = EnumValues.Length;
-
-        private List<TElement> elements = new List<TElement>(EnumCount);
+        private List<TElement> elements;
 
         public EnumLookup()
         {
-            for(int i = 0; i < EnumCount; i++)
+            elements = new List<TElement>(EnumUtils<TEnum>.EnumCount);
+
+            for(int i = 0; i < EnumUtils<TEnum>.EnumCount; i++)
             {
-                elements.Add(default(TElement));
+                elements[i] = default;
             }
         }
-        public TElement this[TEnum index] => elements[ (int) ((object)index) ];
-        public void Set(TEnum index , TElement val)
+        public TElement this[TEnum index]
         {
-            elements[(int)((object)index)] = val;
+            get
+            {
+                return elements[EnumUtils<TEnum>.GetIndex(index)];
+            }
+            set
+            {
+                elements[EnumUtils<TEnum>.GetIndex(index)] = value;
+            }
+        }
+
+        public TElement this[int index]
+        {
+            get
+            {
+                return elements[index];
+            }
+            set
+            {
+                elements[index] = value;
+            }
         }
 
         public void Set(int index, TElement val)
         {
             elements[index] = val;
         }
-        public int Count => EnumCount;
-        public TElement this[int index] => elements[index];
+        public int Count => EnumUtils<TEnum>.EnumCount;
         public IEnumerator<TElement> GetEnumerator() => elements.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => elements.GetEnumerator();
     }

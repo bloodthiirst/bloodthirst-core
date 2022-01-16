@@ -15,7 +15,7 @@ namespace Bloodthirst.Core.BISDSystem
         IBehaviourInstance<INSTANCE>,
         IBehaviourState<STATE>,
         IBehaviourData<DATA>,
-        
+
         IBehaviourInstance,
         IBehaviourState,
         IBehaviourData,
@@ -84,12 +84,15 @@ namespace Bloodthirst.Core.BISDSystem
                 }
 
                 instance = value;
-                OnSetInstance(instance);
 
                 if (instance == null)
+                {
+                    OnSetInstance(instance);
                     return;
+                }
 
                 instance.EntityIdentifier = EntityIdentifier;
+                OnSetInstance(instance);
 
                 EntityInstanceRegister?.Register(instance);
                 InstanceRegister<INSTANCE>.Register(instance);
@@ -140,10 +143,11 @@ namespace Bloodthirst.Core.BISDSystem
 
         /// <summary>
         /// <para>Inject the instance either by using the exterior data or by using the serialized instance</para>
-        /// <para>This should only be called by the <see cref="EntitySpawner" and injection points/></para>
+        /// <para>This should only be called by the <see cref="EntitySpawner"/> and injection points</para>
         /// </summary>
         protected virtual void InitializeInstance(EntityIdentifier entityIdentifier, IEntityState preloadState)
         {
+            // try loading from preload
             if (preloadState != null)
             {
                 STATE state = (STATE)preloadState;
@@ -158,6 +162,7 @@ namespace Bloodthirst.Core.BISDSystem
                 return;
             }
 
+            // try loading from injector
             IInstanceInjector<INSTANCE> injector = GetComponentInChildren<IInstanceInjector<INSTANCE>>();
 
             if (injector != null)
@@ -166,8 +171,9 @@ namespace Bloodthirst.Core.BISDSystem
                 return;
             }
 
-            // in case state isn't serializable
-            if (Instance == null || Instance.State == null)
+            // in case state or istance isn't serializable
+            // create new ones
+            if (Instance == null)
             {
                 STATE state = new STATE();
                 state.Data = TagData;
@@ -179,6 +185,18 @@ namespace Bloodthirst.Core.BISDSystem
                 };
 
                 Instance = defaultInstance;
+                return;
+            }
+
+            if(State == null)
+            {
+                STATE state = new STATE();
+                state.Data = TagData;
+                state.InitDefaultState();
+
+                Instance.State = state;
+
+                Instance = Instance;
                 return;
             }
 

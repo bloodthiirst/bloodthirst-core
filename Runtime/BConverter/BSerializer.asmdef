@@ -1,0 +1,16 @@
+{
+    "name": "BSerializer",
+    "rootNamespace": "",
+    "references": [
+        "GUID:12e5c912b42f2454ab6e7e789904681c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

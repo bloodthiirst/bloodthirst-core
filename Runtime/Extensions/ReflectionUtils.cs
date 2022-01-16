@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -8,6 +10,76 @@ namespace Bloodthirst.Core.Utils
 {
     public class ReflectionUtils
     {
+
+        /// <summary>
+        /// Recrsively goes through the objects to check for unused terms
+        /// </summary>
+        /// <param name="rootObject"></param>
+        /// <param name="instance"></param>
+        /// <param name="scannedObjs"></param>
+        /// <param name="terms"></param>
+        private static void RecursiveGetMissingTerms(object rootObject, object instance, HashSet<object> scannedObjs, List<FieldInstancePair> result, Func<object, FieldInfo, bool> fieldFilter)
+        {
+            // if we already scanned the instance
+            // then we leave
+            if (!scannedObjs.Add(instance))
+                return;
+
+            List<FieldInfo> allFields = instance.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).ToList();
+
+            List<FieldInfo> leafFields = new List<FieldInfo>();
+
+            // filter fields
+            foreach (FieldInfo f in allFields)
+            {
+                if(fieldFilter(instance , f))
+                {
+                    result.Add(new FieldInstancePair() { Field = f , Instance= instance , RootInstance = rootObject });
+                }
+                else
+                {
+                    leafFields.Add(f);
+                }
+            }
+
+            // recursivly go into the rest of the fields
+            foreach (FieldInfo f in leafFields)
+            {
+                Type t = f.FieldType;
+
+                if (t.IsPrimitive || t == typeof(decimal) || t == typeof(string))
+                {
+                    continue;
+                }
+
+                object fieldValue = f.GetValue(instance);
+
+                if (fieldValue == null)
+                    continue;
+
+                RecursiveGetMissingTerms(rootObject, fieldValue, scannedObjs, result , fieldFilter);
+            }
+        }
+
+        public struct FieldInstancePair
+        {
+            public object RootInstance { get; set; }
+            public object Instance { get; set; }
+            public FieldInfo Field { get; set; }
+        }
+
+        private static List<FieldInstancePair> SelectFields(List<object> objects, Func<object ,FieldInfo, bool> fieldFilter )
+        {
+            HashSet<object> scannedObjs = new HashSet<object>();
+            List<FieldInstancePair> res = new List<FieldInstancePair>();
+
+            foreach (object o in objects)
+            {
+                RecursiveGetMissingTerms(o, o, scannedObjs, res , fieldFilter);
+            }
+
+            return res;
+        }
 
         public static IEnumerable<MemberInfo> GetFieldsAndProperties(Type t)
         {

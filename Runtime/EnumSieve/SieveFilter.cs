@@ -31,9 +31,9 @@ namespace Bloodthirst.Core.Collections
             return this;
         }
 
-        public SieveFilter<TEntity, TEnum> AddConstraints(IEnumerable<TEnum> flafs)
+        public SieveFilter<TEntity, TEnum> AddConstraints(IEnumerable<TEnum> flags)
         {
-            foreach (TEnum f in flafs)
+            foreach (TEnum f in flags)
             {
                 _flags.Add(f);
             }
@@ -42,6 +42,7 @@ namespace Bloodthirst.Core.Collections
 
         public void Search()
         {
+            // find the smallest sieve bucket to start with
             TEnum minBucket = _flags.First();
             int minCount = _targetSieve.enumToSieveBucket[minBucket].Count;
 
