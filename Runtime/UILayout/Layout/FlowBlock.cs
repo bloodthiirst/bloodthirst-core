@@ -7,41 +7,31 @@ namespace Bloodthirst.Core.UILayout
 {
     public class FlowBlock : IFlow
     {
-        public void Flow(ILayoutBox layoutBox, FlowContext context)
-        {
-            List<ILayoutBox> contentSubLayouts = FlowContentLayouts(layoutBox, context).ToList();
-
-            FlowHeight(layoutBox, context);
-
-            FlowWidth(layoutBox, context);
-
-            FlowPlacement(layoutBox, context);
-        }
-
-        private IEnumerable<ILayoutBox> FlowContentLayouts(ILayoutBox layoutBox, FlowContext context)
-        {
-            foreach (ILayoutBox childLayout in layoutBox.ChildLayouts)
-            {
-                bool preFlowWidth = childLayout.LayoutStyle.Width.KeywordValue == UnitKeyword.Content && childLayout.LayoutStyle.Width.UnitType == UnitType.KEYWORD;
-                bool preFlowHeight = childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.Content && childLayout.LayoutStyle.Height.UnitType == UnitType.KEYWORD;
-
-                bool flowChildren = preFlowHeight || preFlowWidth;
-
-                if (!flowChildren)
-                    continue;
-
-                FlowLayoutEntry.Flow(childLayout, context);
-
-                yield return childLayout;
-            }
-        }
-
-
         public void FlowHeight(ILayoutBox layoutBox, FlowContext context)
         {
-            // width section
+            // height section
             List<ILayoutBox> autoHeightBoxes = new List<ILayoutBox>();
+
+            //recursing list
+            List<ILayoutBox> recursiveLayouts = new List<ILayoutBox>();
+
             float accumulatedHeight = 0;
+
+            foreach (ILayoutBox childLayout in layoutBox.ChildLayouts)
+            {
+                bool preFlowHeight = childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.Content && childLayout.LayoutStyle.Height.UnitType == UnitType.KEYWORD;
+
+                if (!preFlowHeight)
+                {
+                    recursiveLayouts.Add(childLayout);
+                    continue;
+                }
+
+                FlowLayoutEntry.FlowHeight(childLayout, context);
+
+                accumulatedHeight += childLayout.Rect.height;
+            }
+
 
             for (int i = 0; i < layoutBox.ChildLayouts.Count; i++)
             {
@@ -93,7 +83,11 @@ namespace Bloodthirst.Core.UILayout
             if (layoutBox.LayoutStyle.Height.UnitType == UnitType.KEYWORD && layoutBox.LayoutStyle.Height.KeywordValue == UnitKeyword.Content)
             {
                 layoutBox.Rect.height = layoutBox.GetChildrenHeightSum();
-                return;
+            }
+
+            foreach (ILayoutBox c in recursiveLayouts)
+            {
+                FlowLayoutEntry.FlowHeight(c, context);
             }
         }
         public void FlowWidth(ILayoutBox layoutBox, FlowContext context)
@@ -164,7 +158,11 @@ namespace Bloodthirst.Core.UILayout
             if (layoutBox.LayoutStyle.Width.UnitType == UnitType.KEYWORD && layoutBox.LayoutStyle.Width.KeywordValue == UnitKeyword.Content)
             {
                 layoutBox.Rect.width = layoutBox.GetChildrenWidthSum();
-                return;
+            }
+
+            foreach (ILayoutBox c in layoutBox.ChildLayouts)
+            {
+                FlowLayoutEntry.FlowWidth(c, context);
             }
         }
 
@@ -185,7 +183,7 @@ namespace Bloodthirst.Core.UILayout
 
                 if (!context.LayoutsWithFlowApplied.Contains(c))
                 {
-                    FlowLayoutEntry.Flow(c, context);
+                    FlowLayoutEntry.FlowPlacement(c, context);
                     c.PostFlow();
                 }
 

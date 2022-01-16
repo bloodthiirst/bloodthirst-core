@@ -7,49 +7,28 @@ namespace Bloodthirst.Core.UILayout
 {
     public class FlowInline : IFlow
     {
-        public void Flow(ILayoutBox layoutBox, FlowContext context)
-        {
-            List<ILayoutBox> contentSubLayouts = FlowContentLayouts(layoutBox, context).ToList();
-
-            FlowWidth(layoutBox, context);
-
-            FlowHeight(layoutBox, context);
-
-            FlowPlacement(layoutBox, context);
-        }
-
-
-        private IEnumerable<ILayoutBox> FlowContentLayouts(ILayoutBox layoutBox, FlowContext context)
-        {
-            foreach (ILayoutBox childLayout in layoutBox.ChildLayouts)
-            {
-                bool preFlowWidth = childLayout.LayoutStyle.Width.KeywordValue == UnitKeyword.Content && childLayout.LayoutStyle.Width.UnitType == UnitType.KEYWORD;
-                bool preFlowHeight = childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.Content && childLayout.LayoutStyle.Height.UnitType == UnitType.KEYWORD;
-
-                bool flowChildren = preFlowHeight || preFlowWidth;
-
-                if (!flowChildren)
-                    continue;
-
-                FlowLayoutEntry.Flow(childLayout, context);
-
-                yield return childLayout;
-            }
-        }
-
         public void FlowWidth(ILayoutBox layoutBox, FlowContext context)
         {
-
             // width section
             List<ILayoutBox> autoWidthBoxes = new List<ILayoutBox>();
             float accumulatedWidth = 0;
 
-            foreach (ILayoutBox l in layoutBox.ChildLayouts)
+            //recursing list
+            List<ILayoutBox> recursiveLayouts = new List<ILayoutBox>();
+
+            foreach (ILayoutBox childLayout in layoutBox.ChildLayouts)
             {
-                if (context.LayoutsWithFlowApplied.Contains(l))
+                bool preFlowWidth = childLayout.LayoutStyle.Width.KeywordValue == UnitKeyword.Content && childLayout.LayoutStyle.Width.UnitType == UnitType.KEYWORD;
+
+                if (!preFlowWidth)
                 {
-                    accumulatedWidth += l.Rect.width;
+                    recursiveLayouts.Add(childLayout);
+                    continue;
                 }
+
+                FlowLayoutEntry.FlowWidth(childLayout, context);
+
+                accumulatedWidth += childLayout.Rect.width;
             }
 
             for (int i = 0; i < layoutBox.ChildLayouts.Count; i++)
@@ -102,13 +81,16 @@ namespace Bloodthirst.Core.UILayout
             if (layoutBox.LayoutStyle.Width.UnitType == UnitType.KEYWORD && layoutBox.LayoutStyle.Width.KeywordValue == UnitKeyword.Content)
             {
                 layoutBox.Rect.width = layoutBox.GetChildrenWidthSum();
-                return;
+            }
+
+            foreach(ILayoutBox c in recursiveLayouts)
+            {
+                FlowLayoutEntry.FlowWidth(c, context);
             }
         }
+
         public void FlowHeight(ILayoutBox layoutBox, FlowContext context)
         {
-
-
             // height section
             List<ILayoutBox> autoHeightBoxes = new List<ILayoutBox>();
             float maxHeight = layoutBox.Rect.height;
@@ -175,7 +157,11 @@ namespace Bloodthirst.Core.UILayout
             if (layoutBox.LayoutStyle.Height.UnitType == UnitType.KEYWORD && layoutBox.LayoutStyle.Height.KeywordValue == UnitKeyword.Content)
             {
                 layoutBox.Rect.height = layoutBox.GetChildrenHeightSum();
-                return;
+            }
+
+            foreach (ILayoutBox c in layoutBox.ChildLayouts)
+            {
+                FlowLayoutEntry.FlowHeight(c, context);
             }
         }
 
@@ -196,7 +182,7 @@ namespace Bloodthirst.Core.UILayout
 
                 if (!context.LayoutsWithFlowApplied.Contains(c))
                 {
-                    FlowLayoutEntry.Flow(c, context);
+                    FlowLayoutEntry.FlowPlacement(c, context);
                     c.PostFlow();
                 }
 
