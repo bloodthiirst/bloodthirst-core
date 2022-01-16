@@ -11,11 +11,11 @@ namespace Bloodthirst.Core.UILayout
         {
             List<ILayoutBox> contentSubLayouts = FlowContentLayouts(layoutBox, context).ToList();
 
-            CalculateWidth(layoutBox, context);
+            FlowWidth(layoutBox, context);
 
-            CalculateHeight(layoutBox, context);
+            FlowHeight(layoutBox, context);
 
-            CalculatePlacement(layoutBox, context);
+            FlowPlacement(layoutBox, context);
         }
 
 
@@ -37,7 +37,7 @@ namespace Bloodthirst.Core.UILayout
             }
         }
 
-        public void CalculateWidth(ILayoutBox layoutBox, FlowContext context)
+        public void FlowWidth(ILayoutBox layoutBox, FlowContext context)
         {
 
             // width section
@@ -105,7 +105,7 @@ namespace Bloodthirst.Core.UILayout
                 return;
             }
         }
-        public void CalculateHeight(ILayoutBox layoutBox, FlowContext context)
+        public void FlowHeight(ILayoutBox layoutBox, FlowContext context)
         {
 
 
@@ -179,7 +179,7 @@ namespace Bloodthirst.Core.UILayout
             }
         }
 
-        public void CalculatePlacement(ILayoutBox layoutBox, FlowContext context)
+        public void FlowPlacement(ILayoutBox layoutBox, FlowContext context)
         {
             float childOffsetX = 0;
 

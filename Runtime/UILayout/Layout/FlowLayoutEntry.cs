@@ -23,7 +23,15 @@ namespace Bloodthirst.Core.UILayout
         {
             FlowContext ctx = new FlowContext();
             ctx.LayoutsWithFlowApplied.Add(layoutBoxRoot);
-            flowBlock.Flow(layoutBoxRoot, ctx);
+
+            ctx.LayoutsWithFlowApplied.Clear();
+            flowBlock.FlowWidth(layoutBoxRoot, ctx);
+
+            ctx.LayoutsWithFlowApplied.Clear();
+            flowBlock.FlowHeight(layoutBoxRoot, ctx);
+
+            ctx.LayoutsWithFlowApplied.Clear();
+            flowBlock.FlowPlacement(layoutBoxRoot, ctx);
         }
 
         public static void Flow(ILayoutBox layoutBox, FlowContext context)
@@ -39,7 +47,7 @@ namespace Bloodthirst.Core.UILayout
             int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
 
             context.LayoutsWithFlowApplied.Add(layoutBox);
-            flowEnumLookup[layoutIndex].CalculateHeight(layoutBox, context);
+            flowEnumLookup[layoutIndex].FlowHeight(layoutBox, context);
         }
 
         public static void FlowHeight(ILayoutBox layoutBox, FlowContext context)
@@ -47,7 +55,7 @@ namespace Bloodthirst.Core.UILayout
             int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
 
             context.LayoutsWithFlowApplied.Add(layoutBox);
-            flowEnumLookup[layoutIndex].CalculateHeight(layoutBox, context);
+            flowEnumLookup[layoutIndex].FlowHeight(layoutBox, context);
         }
 
         public static void FlowPlacement(ILayoutBox layoutBox, FlowContext context)
@@ -55,7 +63,7 @@ namespace Bloodthirst.Core.UILayout
             int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
 
             context.LayoutsWithFlowApplied.Add(layoutBox);
-            flowEnumLookup[layoutIndex].CalculatePlacement(layoutBox, context);
+            flowEnumLookup[layoutIndex].FlowPlacement(layoutBox, context);
         }
     }
 }
