@@ -170,6 +170,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 2
@@ -178,38 +181,77 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
+--- !u!1 &56621392
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 56621393}
+  - component: {fileID: 56621394}
+  m_Layer: 0
+  m_Name: Auto
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &56621393
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56621392}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 987827031}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &56621394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56621392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ebf4df3df88d7747ab2149c6fd8cf71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layoutStyle:
+    displayType:
+      displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
+    width:
+      unitType: 2
+      keywordValue: 1
+      unitValue: 100
+    height:
+      unitType: 2
+      keywordValue: 3
+      unitValue: 100
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &354838418
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,6 +298,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -264,38 +309,13 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &389638528
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,6 +364,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 1
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -352,38 +375,13 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &400531699
 GameObject:
   m_ObjectHideFlags: 0
@@ -416,46 +414,24 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 1
       keywordValue: 0
-      unitValue: 1059
+      unitValue: 653
     height:
       unitType: 1
       keywordValue: 0
-      unitValue: 623
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+      unitValue: 600
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
   screenOutline: {r: 0.041583054, g: 0.7830189, b: 0, a: 1}
   layoutOutline: {r: 1, g: 1, b: 1, a: 1}
   cam: {fileID: 2014672156}
@@ -472,6 +448,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 1049938866}
   - {fileID: 987827031}
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -616,6 +593,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -624,38 +604,13 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &642480045
 GameObject:
   m_ObjectHideFlags: 0
@@ -702,6 +657,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -710,38 +668,13 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &896059372
 GameObject:
   m_ObjectHideFlags: 0
@@ -788,6 +721,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -796,38 +732,13 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &987827030
 GameObject:
   m_ObjectHideFlags: 0
@@ -859,8 +770,9 @@ Transform:
   - {fileID: 354838419}
   - {fileID: 24483147}
   - {fileID: 642480046}
+  - {fileID: 56621393}
   m_Father: {fileID: 400531701}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &987827032
 MonoBehaviour:
@@ -877,6 +789,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -885,38 +800,77 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
+--- !u!1 &1049938865
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1049938866}
+  - component: {fileID: 1049938867}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1049938866
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049938865}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400531701}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1049938867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049938865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ebf4df3df88d7747ab2149c6fd8cf71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layoutStyle:
+    displayType:
+      displayKeyword: 0
+    positionType:
+      positionKeyword: 2
+      positionValue: {x: 114.7, y: 30.98}
+    width:
+      unitType: 1
       keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+      unitValue: 200
+    height:
+      unitType: 2
+      keywordValue: 3
+      unitValue: 100.07
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &1211628575
 GameObject:
   m_ObjectHideFlags: 0
@@ -963,6 +917,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -971,38 +928,13 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &1439729997
 GameObject:
   m_ObjectHideFlags: 0
@@ -1052,46 +984,24 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 1
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 1
       keywordValue: 1
-      unitValue: 500
+      unitValue: 226.8
     height:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &1815086208
 GameObject:
   m_ObjectHideFlags: 0
@@ -1138,6 +1048,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -1146,38 +1059,13 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0
 --- !u!1 &2014672154
 GameObject:
   m_ObjectHideFlags: 0
@@ -1307,6 +1195,9 @@ MonoBehaviour:
   layoutStyle:
     displayType:
       displayKeyword: 0
+    positionType:
+      positionKeyword: 0
+      positionValue: {x: 0, y: 0}
     width:
       unitType: 2
       keywordValue: 1
@@ -1315,35 +1206,10 @@ MonoBehaviour:
       unitType: 2
       keywordValue: 1
       unitValue: 0
-    paddingLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    paddingBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginLeft:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginTop:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginRight:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
-    marginBottom:
-      unitType: 0
-      keywordValue: 0
-      unitValue: 0
+    pivot:
+      x:
+        unitType: 0
+        unitValue: 0
+      y:
+        unitType: 0
+        unitValue: 0

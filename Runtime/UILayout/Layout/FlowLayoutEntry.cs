@@ -22,39 +22,65 @@ namespace Bloodthirst.Core.UILayout
         public static void FlowRoot(ILayoutBox layoutBoxRoot)
         {
             FlowContext ctx = new FlowContext();
-            ctx.LayoutsWithFlowApplied.Add(layoutBoxRoot);
 
-            ctx.LayoutsWithFlowApplied.Clear();
+            ctx.FlowWidthCache.Add(layoutBoxRoot);
             flowBlock.FlowWidth(layoutBoxRoot, ctx);
 
-            ctx.LayoutsWithFlowApplied.Clear();
+            ctx.FlowHeightCache.Add(layoutBoxRoot);
             flowBlock.FlowHeight(layoutBoxRoot, ctx);
 
-            ctx.LayoutsWithFlowApplied.Clear();
+            ctx.FlowPlacementCache.Add(layoutBoxRoot);
             flowBlock.FlowPlacement(layoutBoxRoot, ctx);
+
+            PostFlowRecursive(layoutBoxRoot);
+        }
+
+        private static void PostFlowRecursive(ILayoutBox layoutBox)
+        {
+            layoutBox.PostFlow();
+
+            foreach(ILayoutBox c in layoutBox.ChildLayouts)
+            {
+                PostFlowRecursive(c);
+            }
         }
 
         public static void FlowWidth(ILayoutBox layoutBox, FlowContext context)
         {
-            int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
+            if (layoutBox == null)
+                return;
 
-            context.LayoutsWithFlowApplied.Add(layoutBox);
+            if (!context.FlowWidthCache.Add(layoutBox))
+                return;
+
+            int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
+            
             flowEnumLookup[layoutIndex].FlowWidth(layoutBox, context);
         }
 
         public static void FlowHeight(ILayoutBox layoutBox, FlowContext context)
         {
+            if (layoutBox == null)
+                return;
+
+            if (!context.FlowHeightCache.Add(layoutBox))
+                return;
+
             int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
 
-            context.LayoutsWithFlowApplied.Add(layoutBox);
             flowEnumLookup[layoutIndex].FlowHeight(layoutBox, context);
         }
 
         public static void FlowPlacement(ILayoutBox layoutBox, FlowContext context)
         {
+            if (layoutBox == null)
+                return;
+
+            if (!context.FlowPlacementCache.Add(layoutBox))
+                return;
+
             int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
 
-            context.LayoutsWithFlowApplied.Add(layoutBox);
             flowEnumLookup[layoutIndex].FlowPlacement(layoutBox, context);
         }
     }

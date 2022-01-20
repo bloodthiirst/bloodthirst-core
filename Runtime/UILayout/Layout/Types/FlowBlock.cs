@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,8 @@ namespace Bloodthirst.Core.UILayout
             {
                 ILayoutBox childLayout = layoutBox.ChildLayouts[i];
 
+                float h = 0;
+
                 // keyword
                 // if width is auto
                 // then we get the width of all children
@@ -47,36 +50,51 @@ namespace Bloodthirst.Core.UILayout
                             if (childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.Auto)
                             {
                                 autoHeightBoxes.Add(childLayout);
+                                break;
                             }
+
+                            if (childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.BasedOnWidth)
+                            {
+                                FlowLayoutEntry.FlowWidth(childLayout, context);
+                                childLayout.Rect.height = childLayout.Rect.width * childLayout.LayoutStyle.Height.UnitValue * 0.01f;
+                                h = childLayout.Rect.height;
+                                break;
+                            }
+
                             break;
                         }
                     case UnitType.PERCENTAGE:
                         {
-                            float h = childLayout.ParentLayout.Rect.height * (childLayout.LayoutStyle.Height.UnitValue / 100f);
-                            accumulatedHeight += h;
+                            h = childLayout.ParentLayout.Rect.height * (childLayout.LayoutStyle.Height.UnitValue / 100f);
                             childLayout.Rect.height = h;
                             break;
                         }
                     case UnitType.PIXEL:
                         {
-                            float h = childLayout.LayoutStyle.Height.UnitValue;
-                            accumulatedHeight += h;
+                            h = childLayout.LayoutStyle.Height.UnitValue;
                             childLayout.Rect.height = h;
                             break;
                         }
                 }
+
+                switch (childLayout.LayoutStyle.PositionType.PositionKeyword)
+                {
+                    case PositionKeyword.DISPLAY_MODE:
+                        {
+                            accumulatedHeight += h;
+                            break;
+                        }
+                    default:
+                        break;
+                }
             }
 
-            // if we have boxes with auto width
-            if (autoHeightBoxes.Count != 0)
+            // the rest of the width to divide between the auto boxes
+            float heightLeft = Mathf.Abs(layoutBox.Rect.height - accumulatedHeight);
+            float hPerAuto = heightLeft / autoHeightBoxes.Count;
+            foreach (ILayoutBox c in autoHeightBoxes)
             {
-                // the rest of the width to divide between the auto boxes
-                float heightLeft = Mathf.Abs(layoutBox.Rect.height - accumulatedHeight);
-                float hPerAuto = heightLeft / autoHeightBoxes.Count;
-                foreach (ILayoutBox c in autoHeightBoxes)
-                {
-                    c.Rect.height = hPerAuto;
-                }
+                c.Rect.height = hPerAuto;
             }
 
             // stretch to content
@@ -110,7 +128,16 @@ namespace Bloodthirst.Core.UILayout
                             if (childLayout.LayoutStyle.Width.KeywordValue == UnitKeyword.Auto)
                             {
                                 autoWidthtBoxes.Add(childLayout);
+                                break;
                             }
+
+                            if (childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.BasedOnHeight)
+                            {
+                                FlowLayoutEntry.FlowHeight(childLayout, context);
+                                childLayout.Rect.width = childLayout.Rect.height * childLayout.LayoutStyle.Width.UnitValue * 0.01f;
+                                break;
+                            }
+
                             break;
                         }
                     case UnitType.PERCENTAGE:
@@ -126,6 +153,8 @@ namespace Bloodthirst.Core.UILayout
                             break;
                         }
                 }
+
+
             }
 
             // set percentage height
@@ -173,26 +202,49 @@ namespace Bloodthirst.Core.UILayout
             // parents x offset
             // this is already accumulated due to recursion
             float worldSpaceParentX = layoutBox.Rect.x;
-            float worldSpaceParentY = layoutBox.Rect.y;    
+            float worldSpaceParentY = layoutBox.Rect.y;
 
             // recursivly update the layouts and the position
             foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
-                c.Rect.y = worldSpaceParentY + childOffsetY;
-                c.Rect.x = worldSpaceParentX;
-
-                if (!context.LayoutsWithFlowApplied.Contains(c))
+                switch (c.LayoutStyle.PositionType.PositionKeyword)
                 {
-                    FlowLayoutEntry.FlowPlacement(c, context);
-                    c.PostFlow();
+                    case PositionKeyword.DISPLAY_MODE:
+                        {
+                            c.Rect.y = worldSpaceParentY + childOffsetY;
+                            c.Rect.x = worldSpaceParentX;
+
+                            FlowLayoutEntry.FlowPlacement(c, context);
+
+                            childOffsetY += c.Rect.height;
+
+                            break;
+                        }
+                    case PositionKeyword.PARENT_SPACE:
+                        {
+                            c.Rect.x = worldSpaceParentX + c.LayoutStyle.PositionType.PositionValue.x;
+                            c.Rect.y = worldSpaceParentY + c.LayoutStyle.PositionType.PositionValue.y;
+
+                            FlowLayoutEntry.FlowPlacement(c, context);
+
+                            break;
+                        }
+                    case PositionKeyword.SCREEN_SPACE:
+                        {
+                            c.Rect.x = c.LayoutStyle.PositionType.PositionValue.x;
+                            c.Rect.y = c.LayoutStyle.PositionType.PositionValue.y;
+
+                            FlowLayoutEntry.FlowPlacement(c, context);
+
+                            break;
+                        }
+                    default:
+                        {
+                            throw new Exception("Position mode not implemented");
+                        }
                 }
-
-                childOffsetY += c.Rect.height;
             }
+
         }
-
-
-
-
     }
 }

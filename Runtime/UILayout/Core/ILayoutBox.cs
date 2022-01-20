@@ -9,10 +9,6 @@ namespace Bloodthirst.Core.UILayout
         string Path { get; }
         ref Rect Rect { get; }
         LayoutStyle LayoutStyle { get; set; }
-        Bounds Margin { get; set; }
-        Bounds Border { get; set; }
-        Bounds Padding { get; set; }
-
         Matrix4x4 LocalToWorldMatrix { get; }
         Matrix4x4 WorldToLocalMatrix { get; }
         ILayoutBox ParentLayout { get; set; }

@@ -34,7 +34,7 @@ public class LayoutRootBehaviour : LayoutBehaviour
     [Button]
     private void ReloadChildren()
     {
-        LayoutBoxUtils.ReloadChildren(this);
+        LayoutBoxUtils.AddChildren(this);
     }
 
     [Button]
@@ -49,8 +49,8 @@ public class LayoutRootBehaviour : LayoutBehaviour
 
     private void UpdateViewport()
     {
-        LayoutStyle.Width = new LengthUnit(cam.pixelWidth, UnitType.PIXEL);
-        LayoutStyle.Height = new LengthUnit(cam.pixelHeight, UnitType.PIXEL);
+        LayoutStyle.Width = new SizeUnit(cam.pixelWidth, UnitType.PIXEL);
+        LayoutStyle.Height = new SizeUnit(cam.pixelHeight, UnitType.PIXEL);
         Rect.x = 0;
         Rect.y = 0;
         Rect.width = cam.pixelWidth;
@@ -70,7 +70,8 @@ public class LayoutRootBehaviour : LayoutBehaviour
         if (updateEachFrame)
         {
             LayoutBoxUtils.ResetChildrenRects(this);
-            LayoutBoxUtils.ReloadChildren(this);
+            LayoutBoxUtils.ClearChildren(this);
+            LayoutBoxUtils.AddChildren(this);
             for (int i = 0; i < flowCount; i++)
             {
                 FlowLayoutEntry.FlowRoot(this);

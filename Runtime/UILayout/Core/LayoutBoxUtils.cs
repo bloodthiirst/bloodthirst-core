@@ -11,8 +11,12 @@ namespace Bloodthirst.Core.UILayout
         public static float GetChildrenWidthSum(this ILayoutBox layoutBox)
         {
             float sum = 0f;
+
             foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
+                if (c.LayoutStyle.PositionType.PositionKeyword != PositionKeyword.DISPLAY_MODE)
+                    continue;
+
                 sum += c.Rect.width;
             }
 
@@ -22,8 +26,12 @@ namespace Bloodthirst.Core.UILayout
         public static float GetChildrenHeightSum(this ILayoutBox layoutBox)
         {
             float sum = 0f;
+            
             foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
+                if (c.LayoutStyle.PositionType.PositionKeyword != PositionKeyword.DISPLAY_MODE)
+                    continue;
+
                 sum += c.Rect.height;
             }
 
@@ -63,20 +71,25 @@ namespace Bloodthirst.Core.UILayout
             return true;
         }
 
-        public static void ReloadChildren(LayoutBehaviour layoutBox)
+        public static void ClearChildren(ILayoutBox layoutBox)
         {
             for (int i = layoutBox.ChildLayouts.Count - 1; i >= 0; i--)
             {
                 ILayoutBox child = layoutBox.ChildLayouts[i];
-                layoutBox.RemoveChild(child);
-            }
 
+                layoutBox.RemoveChild(child);
+                ClearChildren(child);
+            }
+        }
+
+        public static void AddChildren(LayoutBehaviour layoutBox)
+        {
             foreach (Transform t in layoutBox.transform)
             {
                 if (t.TryGetComponent(out LayoutBehaviour l))
                 {
                     layoutBox.AddChild(l);
-                    ReloadChildren(l);
+                    AddChildren(l);
                 }
             }
         }

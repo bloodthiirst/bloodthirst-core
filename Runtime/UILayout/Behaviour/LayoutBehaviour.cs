@@ -11,9 +11,6 @@ namespace Bloodthirst.Core.UILayout
     {
         [SerializeField]
         protected LayoutStyle layoutStyle = new LayoutStyle();
-        protected Bounds padding;
-        protected Bounds margin;
-        protected Bounds border;
 
         [ShowInInspector]
         protected Rect rect;
@@ -52,9 +49,6 @@ namespace Bloodthirst.Core.UILayout
             get => layoutStyle;
             set => layoutStyle = value;
         }
-        public Bounds Padding { get => padding; set => padding = value; }
-        public Bounds Margin { get => margin; set => margin = value; }
-        public Bounds Border { get => border; set => border = value; }
         public ref Rect Rect => ref rect;
         public IReadOnlyList<ILayoutBox> ChildLayouts => children;
         public Matrix4x4 WorldToLocalMatrix

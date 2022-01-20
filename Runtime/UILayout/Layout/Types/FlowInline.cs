@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace Bloodthirst.Core.UILayout
     {
         public void FlowWidth(ILayoutBox layoutBox, FlowContext context)
         {
+            FlowLayoutEntry.FlowWidth(layoutBox.ParentLayout, context);
+
             // width section
             List<ILayoutBox> autoWidthBoxes = new List<ILayoutBox>();
             float accumulatedWidth = 0;
@@ -16,6 +19,7 @@ namespace Bloodthirst.Core.UILayout
             //recursing list
             List<ILayoutBox> recursiveLayouts = new List<ILayoutBox>();
 
+            // preflow the content base width boxes
             foreach (ILayoutBox childLayout in layoutBox.ChildLayouts)
             {
                 bool preFlowWidth = childLayout.LayoutStyle.Width.KeywordValue == UnitKeyword.Content && childLayout.LayoutStyle.Width.UnitType == UnitType.KEYWORD;
@@ -31,9 +35,12 @@ namespace Bloodthirst.Core.UILayout
                 accumulatedWidth += childLayout.Rect.width;
             }
 
+            // treat display mode position
             for (int i = 0; i < layoutBox.ChildLayouts.Count; i++)
             {
                 ILayoutBox childLayout = layoutBox.ChildLayouts[i];
+
+                float w = 0;
 
                 // keyword
                 // if width is auto
@@ -45,36 +52,51 @@ namespace Bloodthirst.Core.UILayout
                             if (childLayout.LayoutStyle.Width.KeywordValue == UnitKeyword.Auto)
                             {
                                 autoWidthBoxes.Add(childLayout);
+                                break;
                             }
+
+                            if (childLayout.LayoutStyle.Width.KeywordValue == UnitKeyword.BasedOnHeight)
+                            {
+                                FlowLayoutEntry.FlowHeight(childLayout, context);
+                                childLayout.Rect.width = childLayout.Rect.height * childLayout.LayoutStyle.Width.UnitValue * 0.01f;
+                                w = childLayout.Rect.width;
+                                break;
+                            }
+
                             break;
                         }
                     case UnitType.PERCENTAGE:
                         {
-                            float w = childLayout.ParentLayout.Rect.width * (childLayout.LayoutStyle.Width.UnitValue / 100f);
-                            accumulatedWidth += w;
+                            w = childLayout.ParentLayout.Rect.width * (childLayout.LayoutStyle.Width.UnitValue / 100f);
                             childLayout.Rect.width = w;
                             break;
                         }
                     case UnitType.PIXEL:
                         {
-                            float w = childLayout.LayoutStyle.Width.UnitValue;
-                            accumulatedWidth += w;
+                            w = childLayout.LayoutStyle.Width.UnitValue;
                             childLayout.Rect.width = w;
                             break;
                         }
                 }
+
+                switch (childLayout.LayoutStyle.PositionType.PositionKeyword)
+                {
+                    case PositionKeyword.DISPLAY_MODE:
+                        {
+                            accumulatedWidth += w;
+                            break;
+                        }
+                    default:
+                        break;
+                }
             }
 
-            // if we have boxes with auto width
-            if (autoWidthBoxes.Count != 0)
+            // the rest of the width to divide between the auto boxes
+            float widthLeft = Mathf.Abs(layoutBox.Rect.width - accumulatedWidth);
+            float wPerAuto = widthLeft / autoWidthBoxes.Count;
+            foreach (ILayoutBox c in autoWidthBoxes)
             {
-                // the rest of the width to divide between the auto boxes
-                float widthLeft = Mathf.Abs(layoutBox.Rect.width - accumulatedWidth);
-                float wPerAuto = widthLeft / autoWidthBoxes.Count;
-                foreach (ILayoutBox c in autoWidthBoxes)
-                {
-                    c.Rect.width = wPerAuto;
-                }
+                c.Rect.width = wPerAuto;
             }
 
             // stretch to content
@@ -83,7 +105,7 @@ namespace Bloodthirst.Core.UILayout
                 layoutBox.Rect.width = layoutBox.GetChildrenWidthSum();
             }
 
-            foreach(ILayoutBox c in recursiveLayouts)
+            foreach (ILayoutBox c in recursiveLayouts)
             {
                 FlowLayoutEntry.FlowWidth(c, context);
             }
@@ -91,6 +113,8 @@ namespace Bloodthirst.Core.UILayout
 
         public void FlowHeight(ILayoutBox layoutBox, FlowContext context)
         {
+            FlowLayoutEntry.FlowHeight(layoutBox.ParentLayout, context);
+
             // height section
             List<ILayoutBox> autoHeightBoxes = new List<ILayoutBox>();
             float maxHeight = layoutBox.Rect.height;
@@ -109,7 +133,16 @@ namespace Bloodthirst.Core.UILayout
                             if (childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.Auto)
                             {
                                 autoHeightBoxes.Add(childLayout);
+                                break;
                             }
+
+                            if (childLayout.LayoutStyle.Height.KeywordValue == UnitKeyword.BasedOnWidth)
+                            {
+                                FlowLayoutEntry.FlowWidth(childLayout, context);
+                                childLayout.Rect.height = childLayout.Rect.width * childLayout.LayoutStyle.Height.UnitValue * 0.01f;
+                                break;
+                            }
+
                             break;
                         }
                     case UnitType.PERCENTAGE:
@@ -177,17 +210,81 @@ namespace Bloodthirst.Core.UILayout
             // recursivly update the layouts and the position
             foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
-                c.Rect.x = worldSpaceParentX + childOffsetX;
-                c.Rect.y = worldSpaceParentY;
-
-                if (!context.LayoutsWithFlowApplied.Contains(c))
+                switch (c.LayoutStyle.PositionType.PositionKeyword)
                 {
-                    FlowLayoutEntry.FlowPlacement(c, context);
-                    c.PostFlow();
+                    case PositionKeyword.DISPLAY_MODE:
+                        {
+                            c.Rect.x = worldSpaceParentX + childOffsetX;
+                            c.Rect.y = worldSpaceParentY;
+
+                            if (!context.FlowPlacementCache.Contains(c))
+                            {
+                                FlowLayoutEntry.FlowPlacement(c, context);
+                            }
+
+                            childOffsetX += c.Rect.width;
+
+                            break;
+                        }
+                    case PositionKeyword.PARENT_SPACE:
+                        {
+                            c.Rect.x = worldSpaceParentX + c.LayoutStyle.PositionType.PositionValue.x;
+                            c.Rect.y = worldSpaceParentY + c.LayoutStyle.PositionType.PositionValue.y;
+
+                            switch (c.LayoutStyle.Pivot.X.UnitType)
+                            {
+                                case UnitType.PERCENTAGE:
+                                    {
+                                        c.Rect.x -= c.Rect.width * c.LayoutStyle.Pivot.X.UnitValue * 0.01f;
+                                        break;
+                                    }
+                                case UnitType.PIXEL:
+                                    {
+                                        c.Rect.x -= c.LayoutStyle.Pivot.X.UnitValue;
+                                        break;
+                                    }
+                                case UnitType.KEYWORD:
+                                    {
+                                        break;
+                                    }
+                            }
+
+                            switch (c.LayoutStyle.Pivot.Y.UnitType)
+                            {
+                                case UnitType.PERCENTAGE:
+                                    {
+                                        c.Rect.y -= c.Rect.height * c.LayoutStyle.Pivot.Y.UnitValue * 0.01f;
+                                        break;
+                                    }
+                                case UnitType.PIXEL:
+                                    {
+                                        c.Rect.y -= c.LayoutStyle.Pivot.Y.UnitValue;
+                                        break;
+                                    }
+                                case UnitType.KEYWORD:
+                                    {
+                                        break;
+                                    }
+                            }
+
+                            FlowLayoutEntry.FlowPlacement(c, context);
+
+                            break;
+                        }
+                    case PositionKeyword.SCREEN_SPACE:
+                        {
+                            c.Rect.x = c.LayoutStyle.PositionType.PositionValue.x;
+                            c.Rect.y = c.LayoutStyle.PositionType.PositionValue.y;
+
+                            FlowLayoutEntry.FlowPlacement(c, context);
+
+                            break;
+                        }
+                    default:
+                        {
+                            throw new Exception("Position mode not implemented");
+                        }
                 }
-
-
-                childOffsetX += c.Rect.width;
             }
         }
 

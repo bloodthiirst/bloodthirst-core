@@ -10,45 +10,21 @@ namespace Bloodthirst.Core.UILayout
         private DisplayType displayType = new DisplayType(DisplayKeyword.INLINE);
 
         [SerializeField]
-        private LengthUnit width;
+        private PositionType positionType = new PositionType(PositionKeyword.DISPLAY_MODE);
 
         [SerializeField]
-        private LengthUnit height;
+        private SizeUnit width;
 
         [SerializeField]
-        private LengthUnit paddingLeft;
+        private SizeUnit height;
 
         [SerializeField]
-        private LengthUnit paddingTop;
-
-        [SerializeField]
-        private LengthUnit paddingRight;
-
-        [SerializeField]
-        private LengthUnit paddingBottom;
-
-        [SerializeField]
-        private LengthUnit marginLeft;
-
-        [SerializeField]
-        private LengthUnit marginTop;
-
-        [SerializeField]
-        private LengthUnit marginRight;
-
-        [SerializeField]
-        private LengthUnit marginBottom;
+        private PivotUnit pivot;
 
         public DisplayType DisplayType { get => displayType; set => displayType = value; }
-        public LengthUnit Width { get => width; set => width = value; }
-        public LengthUnit Height { get => height; set => height = value; }
-        public LengthUnit PaddingLeft { get => paddingLeft; set => paddingLeft = value; }
-        public LengthUnit PaddingTop { get => paddingTop; set => paddingTop = value; }
-        public LengthUnit PaddingRight { get => paddingRight; set => paddingRight = value; }
-        public LengthUnit PaddingBottom { get => paddingBottom; set => paddingBottom = value; }
-        public LengthUnit MarginLeft { get => marginLeft; set => marginLeft = value; }
-        public LengthUnit MarginTop { get => marginTop; set => marginTop = value; }
-        public LengthUnit MarginRight { get => marginRight; set => marginRight = value; }
-        public LengthUnit MarginBottom { get => marginBottom; set => marginBottom = value; }
+        public PositionType PositionType { get => positionType; set => positionType = value; }
+        public SizeUnit Width { get => width; set => width = value; }
+        public SizeUnit Height { get => height; set => height = value; }
+        public PivotUnit Pivot { get => pivot; set => pivot = value; }
     }
 }
