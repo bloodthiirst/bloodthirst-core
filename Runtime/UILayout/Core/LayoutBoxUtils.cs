@@ -26,7 +26,7 @@ namespace Bloodthirst.Core.UILayout
         public static float GetChildrenHeightSum(this ILayoutBox layoutBox)
         {
             float sum = 0f;
-            
+
             foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
                 if (c.LayoutStyle.PositionType.PositionKeyword != PositionKeyword.DISPLAY_MODE)
@@ -38,23 +38,23 @@ namespace Bloodthirst.Core.UILayout
             return sum;
         }
 
-        public static void DrawRect(Rect rect)
+        public static void DrawSingleLayout(ILayoutBox layoutBox , SceneView sv, UICanvasInfoBase canvasInfo)
         {
-            Gizmos.DrawLine(ScreenToWorld(rect.topLeft), ScreenToWorld(rect.topRight));
-            Gizmos.DrawLine(ScreenToWorld(rect.topRight), ScreenToWorld(rect.bottomRight));
-            Gizmos.DrawLine(ScreenToWorld(rect.bottomRight), ScreenToWorld(rect.bottomLeft));
-            Gizmos.DrawLine(ScreenToWorld(rect.bottomLeft), ScreenToWorld(rect.topLeft));
+            DrawRect(layoutBox.Rect , sv, canvasInfo);
         }
-
-        public static void DrawSingleLayout(ILayoutBox layoutBox)
+        public static void DrawRect(Rect rect, SceneView sv, UICanvasInfoBase canvasInfo)
         {
-            Gizmos.DrawLine(ScreenToWorld(layoutBox.Rect.topLeft), ScreenToWorld(layoutBox.Rect.topRight));
-            Gizmos.DrawLine(ScreenToWorld(layoutBox.Rect.topRight), ScreenToWorld(layoutBox.Rect.bottomRight));
-            Gizmos.DrawLine(ScreenToWorld(layoutBox.Rect.bottomRight), ScreenToWorld(layoutBox.Rect.bottomLeft));
-            Gizmos.DrawLine(ScreenToWorld(layoutBox.Rect.bottomLeft), ScreenToWorld(layoutBox.Rect.topLeft));
-        }
+            Vector3 p1 = canvasInfo.CanvasToWorld(rect.topLeft);
+            Vector3 p2 = canvasInfo.CanvasToWorld(rect.topRight);
+            Vector3 p3 = canvasInfo.CanvasToWorld(rect.bottomRight);
+            Vector3 p4 = canvasInfo.CanvasToWorld(rect.bottomLeft);
 
-        static bool IsInsideRect(Rect rect, Vector2 p)
+            Handles.DrawLine(p1, p2);
+            Handles.DrawLine(p2, p3);
+            Handles.DrawLine(p3, p4);
+            Handles.DrawLine(p4, p1);
+        }
+        public static bool IsInsideRect(Rect rect, Vector2 p)
         {
             if (p.x < rect.x)
                 return false;
@@ -110,47 +110,34 @@ namespace Bloodthirst.Core.UILayout
             }
         }
 
-        public static void DrawLayoutOutlines(ILayoutBox layoutBox)
+        public static void DrawLayoutOutlines(ILayoutBox layoutBox ,SceneView sv, UICanvasInfoBase canvasInfo)
         {
             Color elemCol = Color.white;
 
-            if (IsInsideRect(layoutBox.Rect, Input.mousePosition))
-            {
-                elemCol = Color.red;
-            }
-
-            DrawSingleLayout(layoutBox);
+            DrawSingleLayout(layoutBox , sv , canvasInfo);
 
             int fontSize = 12;
-            int halftTextWidth = layoutBox.Name.Length * fontSize / 2;
-            int halftTextHeight = fontSize / 2;
-            Vector2 offset = new Vector2(halftTextWidth, halftTextHeight);
-            Vector3 worldSpace = ScreenToWorld(layoutBox.Rect.center - offset);
+
+            Vector3 worldSpace = canvasInfo.CanvasToWorld(layoutBox.Rect.center);
+
             GUIContent label = new GUIContent(layoutBox.Name);
             GUIStyleState txtStyle = new GUIStyleState() { textColor = elemCol };
 
             GUIStyle style = new GUIStyle()
             {
                 normal = txtStyle,
-                fontSize = 12
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = fontSize
             };
 
             Handles.Label(worldSpace, label, style);
 
             foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
-                DrawLayoutOutlines(c);
+                DrawLayoutOutlines(c , sv, canvasInfo);
             }
         }
 
-        private static Vector3 ScreenToWorld(Vector3 uiSpace)
-        {
-            Vector3 screenSpace = uiSpace;
-            screenSpace.z = Camera.main.nearClipPlane;
-            screenSpace.y = Camera.main.pixelHeight - screenSpace.y;
-            Vector3 worldSpace = Camera.main.ScreenToWorldPoint(screenSpace);
-            return worldSpace;
-        }
     }
 
 }

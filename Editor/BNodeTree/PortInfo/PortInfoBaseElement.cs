@@ -71,10 +71,26 @@ namespace Bloodthirst.System.Quest.Editor
             PortInfoRoot.MarkDirtyRepaint();
         }
 
-        private IEnumerable<MemberInfo> GetMembers()
+        private IEnumerable<MemberInfo> GetAllMembers()
         {
             foreach (PropertyInfo f in PortType.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
+                if (f.CanRead)
+                {
+                    if (f.GetGetMethod(true).IsFinal)
+                    {
+                        continue;
+                    }
+                }
+
+                if (f.CanWrite)
+                {
+                    if (f.GetSetMethod(true).IsFinal)
+                    {
+                        continue;
+                    }
+                }
+
                 yield return f;
             }
 
@@ -82,27 +98,38 @@ namespace Bloodthirst.System.Quest.Editor
             {
                 yield return f;
             }
+
         }
 
         public List<MemberInfo> ValidMembers()
         {
-            IEnumerable<MemberInfo> allInterfaceMembers = PortType.GetType().GetInterfaces().SelectMany( i => i.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+            Dictionary<string, List<MemberInfo>> allInterfaceMembers = PortType.GetType()
+                .GetInterfaces()
+                .SelectMany(i => i.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                .Where(m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property)
+                .GroupBy(m => m.Name)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
-            IEnumerable<MemberInfo> members = GetMembers()
+            List<MemberInfo> members = GetAllMembers().ToList();
 
+            List<MemberInfo> lst = members
+                .Where(m => !m.Name.EndsWith("__BackingField"))
                 .Where(m =>
                     {
-                        List<MemberInfo> mem = allInterfaceMembers.Where(i => i.Name == m.Name).ToList();
-
-                        if (mem.Count == 0)
+                        if (!allInterfaceMembers.TryGetValue(m.Name, out List<MemberInfo> list))
+                        {
                             return true;
+                        }
 
-                        return mem.FirstOrDefault(im => im != null && im.GetCustomAttribute<IgnoreBindableAttribute>() == null) != null;
+                        foreach (MemberInfo interfaceMember in list)
+                        {
+                            if (interfaceMember.GetCustomAttribute<IgnoreBindableAttribute>() != null)
+                                return false;
+                        }
+
+                        return true;
                     })
-
-                .Where(m => !m.Name.EndsWith("__BackingField"));
-
-            List<MemberInfo> lst = members.ToList();
+                .ToList();
 
             return lst;
         }

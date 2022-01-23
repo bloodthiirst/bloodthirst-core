@@ -420,11 +420,11 @@ MonoBehaviour:
     width:
       unitType: 1
       keywordValue: 0
-      unitValue: 653
+      unitValue: 559
     height:
       unitType: 1
       keywordValue: 0
-      unitValue: 600
+      unitValue: 565
     pivot:
       x:
         unitType: 0
@@ -432,8 +432,8 @@ MonoBehaviour:
       y:
         unitType: 0
         unitValue: 0
-  screenOutline: {r: 0.041583054, g: 0.7830189, b: 0, a: 1}
-  layoutOutline: {r: 1, g: 1, b: 1, a: 1}
+  screenOutline: {r: 0.041583054, g: 0.7830189, b: 0, a: 0.6509804}
+  layoutOutline: {r: 1, g: 1, b: 1, a: 0.41960785}
   cam: {fileID: 2014672156}
   updateEachFrame: 1
   flowCount: 1
@@ -448,8 +448,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1049938866}
   - {fileID: 987827031}
+  - {fileID: 1049938866}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -772,7 +772,7 @@ Transform:
   - {fileID: 642480046}
   - {fileID: 56621393}
   m_Father: {fileID: 400531701}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &987827032
 MonoBehaviour:
@@ -836,7 +836,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 400531701}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1049938867
 MonoBehaviour:
@@ -855,7 +855,7 @@ MonoBehaviour:
       displayKeyword: 0
     positionType:
       positionKeyword: 2
-      positionValue: {x: 114.7, y: 30.98}
+      positionValue: {x: 40.16, y: 70.34}
     width:
       unitType: 1
       keywordValue: 0
@@ -863,7 +863,7 @@ MonoBehaviour:
     height:
       unitType: 2
       keywordValue: 3
-      unitValue: 100.07
+      unitValue: 100
     pivot:
       x:
         unitType: 0
@@ -1143,7 +1143,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2014672154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0.92, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

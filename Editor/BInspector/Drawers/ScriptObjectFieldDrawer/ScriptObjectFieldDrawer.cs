@@ -10,13 +10,21 @@ using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
 {
+    [InitializeOnLoad]
     public class ScriptObjectFieldDrawer
     {
+        private static VisualTreeAsset uxmlAsset;
+        private static StyleSheet ussAsset;
+
+        static ScriptObjectFieldDrawer()
+        {
+            uxmlAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
+            ussAsset = AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
+        }
+
         private const string PATH_UXML = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Drawers/ScriptObjectFieldDrawer/ScriptObjectFieldDrawer.uxml";
         private const string PATH_USS = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Drawers/ScriptObjectFieldDrawer/ScriptObjectFieldDrawer.uss";
 
-        private static readonly VisualTreeAsset uxmlAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
-        private static readonly StyleSheet ussAsset = AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
 
         private const string ScriptNameLabel = nameof(ScriptNameLabel);
         private const string ScriptIconImage = nameof(ScriptIconImage);
@@ -52,7 +60,7 @@ namespace Bloodthirst.Editor.BInspector
             {
                 EditorGUIUtility.PingObject(script);
             }
-            if(evt.clickCount == 2)
+            if (evt.clickCount == 2)
             {
                 AssetDatabase.OpenAsset(script);
             }

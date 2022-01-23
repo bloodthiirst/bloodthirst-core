@@ -14,6 +14,16 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class EditorUtils
     {
+        /// <summary>
+        /// Clears the console in the editor
+        /// </summary>
+        public static void ClearConsole()
+        {
+            Assembly assembly = Assembly.GetAssembly(typeof(SceneView));
+            Type type = assembly.GetType("UnityEditor.LogEntries");
+            MethodInfo method = type.GetMethod("Clear");
+            method.Invoke(new object(), null);
+        }
 
         public static string CurrentProjectWindowPath()
         {
