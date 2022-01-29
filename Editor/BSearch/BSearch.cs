@@ -11,7 +11,7 @@ namespace Bloodthirst.Editor.BSearch
         private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BSearch/BSearch.uxml";
         private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BSearch/BSearch.uss";
 
-        [MenuItem("Bloodthirst Tool/BSearch")]
+        [MenuItem("Bloodthirst Tools/BSearch")]
         public static void ShowExample()
         {
             BSearch wnd = GetWindow<BSearch>();

@@ -17,13 +17,16 @@ namespace Bloodthirst.Editor.BInspector
             
             if(label != null)
             {
+                /*
                 Vector2 mesure = label.MeasureTextSize(label.text, label.resolvedStyle.width, VisualElement.MeasureMode.AtMost, label.resolvedStyle.height, VisualElement.MeasureMode.AtMost);
                 padding = mesure.x;
+                */
+
+                padding = label.resolvedStyle.width;
             }
 
             foreach (IValueDrawer c in valueDrawer.ChildrenValueDrawers)
             {
-                int tabDiff = c.DrawerContext.IndentationLevel - valueDrawer.DrawerContext.IndentationLevel;
 
                 if (!c.DrawerRoot.ClassListContains(ValueDrawerBase.VALUE_DRAWER_CONTAINER_CLASS))
                     continue;
