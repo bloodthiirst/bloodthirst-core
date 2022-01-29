@@ -1,0 +1,8 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement>
+
+		<!-- INSPECTOR UI CONTAINER -->
+		<ui:VisualElement name="container" class="container" />
+
+	</ui:VisualElement>
+</UXML>

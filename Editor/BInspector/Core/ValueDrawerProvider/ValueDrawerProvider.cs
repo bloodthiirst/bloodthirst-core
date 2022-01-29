@@ -1,12 +1,8 @@
 using Bloodthirst.Core.Utils;
-using Bloodthirst.JsonUnityObject;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
 {
@@ -16,20 +12,17 @@ namespace Bloodthirst.Editor.BInspector
         private static List<IValueDrawerValidator> valueDrawerValidators;
         internal static IReadOnlyList<IValueDrawerValidator> ValueDrawerValidators => valueDrawerValidators;
 
-        private static List<IValueDrawer> valueDrawers;
-        internal static IReadOnlyList<IValueDrawer> ValueDrawers => valueDrawers;
-
         static ValueDrawerProvider()
         {
             valueDrawerValidators = new List<IValueDrawerValidator>();
-            valueDrawers = new List<IValueDrawer>();
 
             // valid override type
             IEnumerable<Type> validatorTypes = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsAbstract)
                 .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IValueDrawerValidator)))
-                .Where(t => t != typeof(IValueDrawerValidator));
+                .Where(t => t != typeof(IValueDrawerValidator))
+                .Where(t => t != typeof(ComplexValueValidator));
 
             foreach (Type t in validatorTypes)
             {
@@ -45,13 +38,9 @@ namespace Bloodthirst.Editor.BInspector
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsAbstract)
                 .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IValueDrawer)))
-                .Where(t => t != typeof(IValueDrawer));
+                .Where(t => t != typeof(IValueDrawer))
+                .Where(t => t != typeof(ComplexValueDrawer));
 
-            foreach (Type t in drawerTypes)
-            {
-                IValueDrawer drawer = (IValueDrawer)Activator.CreateInstance(t);
-                valueDrawers.Add(drawer);
-            }
 
             // initialize
             foreach (IValueDrawerValidator v in valueDrawerValidators)
@@ -73,7 +62,7 @@ namespace Bloodthirst.Editor.BInspector
                 }
             }
 
-            return null;
+            return new ComplexValueDrawer();
         }
 
     }

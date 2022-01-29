@@ -2,44 +2,55 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using Bloodthirst.Editor.BInspector;
 
-
-public class BSearch : EditorWindow
+namespace Bloodthirst.Editor.BSearch
 {
-    [MenuItem("Bloodthirst Tool/BSearch")]
-    public static void ShowExample()
+    public class BSearch : EditorWindow
     {
-        BSearch wnd = GetWindow<BSearch>();
-        wnd.titleContent = new GUIContent("BSearch");
+        private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BSearch/BSearch.uxml";
+        private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BSearch/BSearch.uss";
 
-        //wnd.ShowPopup();
-        //wnd.ShowAsDropDown(new Rect( 300 , 0 , 200 , 100), Vector2.one * 300);
-        //wnd.ShowUtility();
-        //wnd.ShowModalUtility();
-        //wnd.ShowAuxWindow();
+        [MenuItem("Bloodthirst Tool/BSearch")]
+        public static void ShowExample()
+        {
+            BSearch wnd = GetWindow<BSearch>();
+            wnd.titleContent = new GUIContent("BSearch");
+        }
 
-        wnd.ShowNotification(new GUIContent("Hey Listen !"), 1f);
-    }
+        private EditorTest t;
 
-    public void CreateGUI()
-    {
-        // Each editor window contains a root VisualElement object
-        VisualElement root = rootVisualElement;
+        private void Awake()
+        {
+            t = new EditorTest();
+        }
+        private void OnEnable()
+        {
+            t = new EditorTest();
+        }
 
-        // VisualElements objects can contain other VisualElement following a tree hierarchy.
-        VisualElement label = new Label("Hello World! From C#");
-        root.Add(label);
+        public void CreateGUI()
+        {
+            // root
+            VisualElement root = rootVisualElement;
 
-        // Import UXML
-        var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Packages/com.bloodthirst.bloodthirst-core/Editor/BSearch/BSearch.uxml");
-        VisualElement labelFromUXML = visualTree.Instantiate();
-        root.Add(labelFromUXML);
+            root.Clear();
 
-        // A stylesheet can be added to a VisualElement.
-        // The style will be applied to the VisualElement and all of its children.
-        var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.bloodthirst.bloodthirst-core/Editor/BSearch/BSearch.uss");
-        VisualElement labelWithStyle = new Label("Hello World! With Style");
-        labelWithStyle.styleSheets.Add(styleSheet);
-        root.Add(labelWithStyle);
+            // uxml
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
+            VisualElement uxml = visualTree.Instantiate();
+
+            // stylesheet
+            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(USS_PATH);
+
+            root.styleSheets.Add(styleSheet);
+            root.Add(uxml);
+
+            IBInspectorDrawer editorCreator = BInspectorProvider.DefaultInspector;
+
+            VisualElement insp =  editorCreator.CreateInspectorGUI(t);
+
+            root.Add(insp);
+        }
     }
 }

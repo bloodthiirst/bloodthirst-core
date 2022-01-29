@@ -1,0 +1,13 @@
+#container
+{
+	padding : 10px;
+}
+
+.value-drawer-container
+{
+	display : flex;
+	margin-top : 5px;
+	margin-bottm : 5px;
+	flex-grow : 1;
+	-unity-text-align: middle-left;
+}

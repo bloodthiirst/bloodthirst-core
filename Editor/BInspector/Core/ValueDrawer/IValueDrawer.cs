@@ -1,18 +1,27 @@
-﻿using UnityEngine.UIElements;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
 {
     public interface IValueDrawer
     {
-        void Initialize();
-        
+        string FieldPath { get; set; }
+
+        event Action<IValueDrawer> OnValueChanged;
+        IValueDrawer Parent { get; set; }
+        IValueDrawerInfo DrawerInfo { get; set; }
+        DrawerContext DrawerContext { get; set; }
+
         object Value { get; set; }
 
-        void Setup(IDrawerInfo drawerInfo);
-
-        VisualElement VisualElement { get; }
+        IList<IValueDrawer> ChildrenValueDrawers { get; }
+             
+        VisualElement DrawerRoot { get; }
 
         object DefaultValue();
+
+        void Setup(IValueDrawerInfo drawerInfo , IValueDrawer parent , DrawerContext drawerContext);
 
         void Clean();
     }

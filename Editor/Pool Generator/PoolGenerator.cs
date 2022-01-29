@@ -271,10 +271,15 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static bool HasPrefabPools()
         {
+            List<MonoScript> scripts = EditorUtils.FindScriptAssets().Where(p => p != null).Where(p => p.GetClass() != null ).ToList();
+
             // generate the scripts
-            foreach (Type t in PoolableTypes)
+            for (int i = 0; i < PoolableTypes.Count; i++)
             {
-                TextAsset poolScript = EditorUtils.FindScriptAssets().FirstOrDefault(p => p.GetClass().Name.Equals($"{t.Name}Pool"));
+                Type t = PoolableTypes[i];
+                string poolName = $"{t.Name}Pool";
+
+                TextAsset poolScript = scripts.FirstOrDefault(p => p.GetClass().Name.Equals(poolName));
 
                 // pool class already exists
                 if (poolScript == null)
@@ -286,11 +291,15 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static void CreatePrefabPools()
         {
+            List<MonoScript> scripts = EditorUtils.FindScriptAssets()
+                .Where(s => s != null)
+                .Where(s => s.GetClass() != null)
+                .ToList();
 
             // generate the scripts
             foreach (Type t in PoolableTypes)
             {
-                TextAsset poolScript = EditorUtils.FindScriptAssets().FirstOrDefault(p => p.GetClass().Name.Equals($"{t.Name}Pool"));
+                TextAsset poolScript = scripts.FirstOrDefault(p => p.GetClass().Name.Equals($"{t.Name}Pool"));
 
                 // pool class already exists
                 if (poolScript != null)
@@ -323,7 +332,10 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static bool HasGlobalPool()
         {
-            return EditorUtils.FindScriptAssets().FirstOrDefault(p => p.GetClass().Name.Equals("GlobalPoolContainer")) != null;
+            return EditorUtils.FindScriptAssets()
+                .Where(s => s != null)
+                .Where(s => s.GetClass() != null)
+                .FirstOrDefault(p => p.GetClass().Name.Equals("GlobalPoolContainer")) != null;
         }
 
         /// <summary>
@@ -664,6 +676,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         {
             List<MonoScript> poolableScripts = EditorUtils.FindScriptAssets()
                             .Where(t => !filterFiles.Contains(t.name))
+                            .Where(t => t.GetClass() != null)
                             .Where(t => t.GetClass().GetCustomAttribute(typeof(GeneratePool)) != null)
                             .ToList();
 

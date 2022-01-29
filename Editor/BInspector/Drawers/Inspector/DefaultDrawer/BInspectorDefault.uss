@@ -1,9 +1,0 @@
-.DropdownContainer 
-{
-    position: absolute;
-    width: 100%;
-}
-
-.MainContentContainer
-{
-}

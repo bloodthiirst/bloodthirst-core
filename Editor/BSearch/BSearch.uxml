@@ -5,5 +5,5 @@
     xmlns:editor="UnityEditor.UIElements"
     xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
 >
-    <engine:Label text="Hello World! From UXML" />
+
 </engine:UXML>

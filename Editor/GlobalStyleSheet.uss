@@ -25,6 +25,10 @@
     flex-basis: 0;
 }
 
+.grow-1{
+    flex-grow: 1;
+}
+
 .w-100 {
     width: 100%;
 }
@@ -36,7 +40,6 @@
 .row {
     display: flex;
     flex-direction: row;
-    flex-grow: 1;
 }
 
 .col {
