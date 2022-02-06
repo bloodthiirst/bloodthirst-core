@@ -1,7 +1,10 @@
 ﻿using Bloodthirst.Core.Utils;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.Serialization;
+using UnityEngine;
 
 namespace Bloodthirst.JsonUnityObject
 {
@@ -25,7 +28,21 @@ namespace Bloodthirst.JsonUnityObject
                 UnityObjects = unityRefsList
             };
 
-            settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
+
+            
+            TypeConverter cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
+
+            if (cnv == null || !(cnv is UnityObjectTypeConverter))
+            {
+                Attribute[] attrs = new Attribute[] { new TypeConverterAttribute(typeof(UnityObjectTypeConverter)) };
+                TypeDescriptor.AddAttributes(typeof(UnityEngine.Object), attrs);
+                cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
+            }
+            /*
+            ((UnityObjectTypeConverter)cnv).CustomContext = ctx;
+            */
+
+            settings.Context = new StreamingContext(StreamingContextStates.All, ctx);
 
             // deserialize into the object
             JsonConvert.PopulateObject(jsonString, unityObjectThis, settings);
@@ -53,7 +70,21 @@ namespace Bloodthirst.JsonUnityObject
                 UnityObjects = unityRefsList
             };
 
-            settings.Context = new StreamingContext(StreamingContextStates.Other, ctx);
+
+            
+            TypeConverter cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
+
+            if (cnv == null || !(cnv is UnityObjectTypeConverter))
+            {
+                Attribute[] attrs = new Attribute[] { new TypeConverterAttribute(typeof(UnityObjectTypeConverter)) };
+                TypeDescriptor.AddAttributes(typeof(UnityEngine.Object), attrs);
+                cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
+            }
+            /*
+            ((UnityObjectTypeConverter)cnv).CustomContext = ctx;
+            */
+
+            settings.Context = new StreamingContext(StreamingContextStates.All, ctx);
 
             // serialize the object into JSON
             string res = JsonConvert.SerializeObject(unityObjectThis, settings);
@@ -62,6 +93,8 @@ namespace Bloodthirst.JsonUnityObject
             JsonUnityObjectSettings.ReturnSettings(settings);
 
             return res;
+
+
         }
     }
 }

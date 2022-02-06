@@ -2,9 +2,9 @@
 
 namespace Bloodthirst.BDeepCopy
 {
-    public interface IBConverterFactory
+    internal interface IBConverterFactory
     {
         void Initialize();
-        IBConverter CreateConverter(Type t);
+        IBConverterInternal CreateConverter(Type t);
     }
 }

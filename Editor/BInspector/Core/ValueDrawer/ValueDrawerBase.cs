@@ -29,7 +29,7 @@ namespace Bloodthirst.Editor.BInspector
             OnValueChanged?.Invoke(this);
         }
 
-        public abstract void Clean();
+        public abstract void Destroy();
 
         public abstract object DefaultValue();
 
@@ -39,16 +39,37 @@ namespace Bloodthirst.Editor.BInspector
         {
             Parent = parent;
             DrawerInfo = drawerInfo;
-            Value = drawerInfo.Get();
             DrawerContext = drawerContext;
 
-            if (string.IsNullOrEmpty(Parent?.FieldPath))
+            object val = null;
+
+            if (DrawerInfo.GetContainingInstance() != null || parent == null)
             {
-                FieldPath = drawerInfo.MemberInfo.Name;
+                val = DrawerInfo.Get();
             }
             else
             {
-                FieldPath += $"{Parent.FieldPath}/{drawerInfo.MemberInfo.Name}"; 
+                val = DefaultValue();
+
+            }
+
+            Value = val;
+
+            if (Parent == null || drawerInfo.MemberInfo == null)
+            {
+                FieldPath = String.Empty;
+            }
+            else
+            {
+                if(Parent.FieldPath != String.Empty)
+                {
+                    FieldPath = $" {Parent.FieldPath}/{drawerInfo.MemberInfo.Name}";
+                }
+
+                else
+                {
+                    FieldPath = $"{drawerInfo.MemberInfo.Name}";
+                }
             }
 
             DrawerRoot = new VisualElement();

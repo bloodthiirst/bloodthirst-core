@@ -8,8 +8,8 @@ namespace Bloodthirst.Editor.BInspector
 {
     public class DictionaryElementDrawer
     {
-        private const string PATH_UXML =    "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Drawers/Value/Dictionary/Element/DictionaryElementDrawer.uxml";
-        private const string PATH_USS =     "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Drawers/Value/Dictionary/Element/DictionaryElementDrawer.uss";
+        private const string PATH_UXML =    "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/Element/DictionaryElementDrawer.uxml";
+        private const string PATH_USS =     "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/Element/DictionaryElementDrawer.uss";
         private static VisualTreeAsset uxmlAsset => AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
         private static StyleSheet ussAsset => AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
 

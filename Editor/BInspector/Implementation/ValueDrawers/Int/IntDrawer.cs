@@ -36,8 +36,9 @@ namespace Bloodthirst.Editor.BInspector
 
         protected override void Postsetup()
         {
-            IntField.SetValueWithoutNotify((int)DrawerInfo.Get());
+            IntField.SetValueWithoutNotify((int) Value);
             IntField.RegisterValueChangedCallback(HandleValueChanged);
+
         }
 
         private void HandleValueChanged(ChangeEvent<int> evt)
@@ -46,7 +47,7 @@ namespace Bloodthirst.Editor.BInspector
             TriggerOnValueChangedEvent();
         }
 
-        public  override void Clean()
+        public  override void Destroy()
         {
             IntField.RegisterValueChangedCallback(HandleValueChanged);
             IntField = null;

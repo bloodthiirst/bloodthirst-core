@@ -1,17 +1,18 @@
 using Bloodthirst.Core.Utils;
+using Bloodthirst.Runtime.BInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.UIElements;
+using System.Reflection;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
 {
     public class ComplexValueDrawer : ValueDrawerBase
     {
-        private PopupField<Type> typeSelector;
-        public VisualElement UIContainer { get; private set; }
-        public VisualElement UIHeader { get; private set; }
+        private TypeSelector TypeSelector { get; set; }
+        private VisualElement UIContainer { get; set; }
+        private VisualElement UIHeader { get; set; }
 
         public override object DefaultValue()
         {
@@ -47,43 +48,46 @@ namespace Bloodthirst.Editor.BInspector
         private void HandleeometryChanged(GeometryChangedEvent evt)
         {
             // label spacing
-
             LabelSpacing labelSpacing = new LabelSpacing();
             labelSpacing.Setup(UIContainer);
         }
 
         protected override void Postsetup()
         {
-            Redraw();
+            Clean();
+            Draw();
         }
 
-        private void ResetUI()
+        private void Clean()
         {
+            if (TypeSelector != null)
+            {
+                UIHeader.Remove(TypeSelector);
+                TypeSelector.UnregisterValueChangedCallback(HandleValueTypeChanged);
+                TypeSelector = null;
+            }
+
             foreach (IValueDrawer c in ChildrenValueDrawers)
             {
-                c.Clean();
+                c.Destroy();
             }
 
             ChildrenValueDrawers.Clear();
-
-            if (typeSelector != null)
-            {
-                typeSelector.UnregisterValueChangedCallback(HandleValueChanged);
-            }
-
-            if (typeSelector != null)
-            {
-                UIHeader.Remove(typeSelector);
-            }
-            
             UIContainer.Clear();
         }
 
-        private void Redraw()
+        private void Draw()
         {
-            ResetUI();
-
-            InstanceCreator();
+            // in case root or struct
+            if (DrawerInfo.MemberInfo != null)
+            {
+                Type type = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
+                
+                if (type.IsClass || type.IsInterface)
+                {
+                    InstanceCreator();
+                }
+            }
 
             if (Value != null)
             {
@@ -92,40 +96,22 @@ namespace Bloodthirst.Editor.BInspector
 
         }
 
-        private string TypeSelectionFormat(Type t)
-        {
-            if (t == null)
-            {
-                return "Null";
-            }
-
-            return TypeUtils.GetNiceName(t);
-        }
-
         private void InstanceCreator()
         {
             Type type = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
 
-            List<Type> validTypes = TypeUtils.AllTypes
-                .Where(t => t.IsClass)
-                .Where(t => !t.IsAbstract)
-                .Where(t => TypeUtils.IsSubTypeOf(t, type))
-                .ToList();
+            TypeSelector = new TypeSelector(type);
+            TypeSelector.AddToClassList("grow-1");
 
-            validTypes.Insert(0, null);
+            TypeSelector.SetValueWithoutNotify(Value == null ? null : Value.GetType());
 
-            typeSelector = new PopupField<Type>(validTypes, 0, TypeSelectionFormat, TypeSelectionFormat);
-            typeSelector.AddToClassList("grow-1");
+            TypeSelector.UnregisterValueChangedCallback(HandleValueTypeChanged);
+            TypeSelector.RegisterValueChangedCallback(HandleValueTypeChanged);
 
-            typeSelector.SetValueWithoutNotify(Value == null ? null : Value.GetType());
-
-            typeSelector.UnregisterValueChangedCallback(HandleValueChanged);
-            typeSelector.RegisterValueChangedCallback(HandleValueChanged);
-
-            UIHeader.Add(typeSelector);
+            UIHeader.Add(TypeSelector);
         }
 
-        private void HandleValueChanged(ChangeEvent<Type> evt)
+        private void HandleValueTypeChanged(ChangeEvent<Type> evt)
         {
             Type newType = evt.newValue;
 
@@ -140,7 +126,8 @@ namespace Bloodthirst.Editor.BInspector
 
             TriggerOnValueChangedEvent();
 
-            Redraw();
+            Clean();
+            Draw();
         }
 
         private void HasValue()
@@ -154,7 +141,6 @@ namespace Bloodthirst.Editor.BInspector
 
             // style
             LabelDrawer labelDrawer = new LabelDrawer();
-
 
             // draw sub fields
             foreach (MemberData m in validFields)
@@ -181,25 +167,48 @@ namespace Bloodthirst.Editor.BInspector
                 labelDrawer.Setup(fieldDrawer);
             }
 
+            // methods
+            List<MethodInfo> methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+                .Where( m => m.ReturnType == typeof(void) )
+                .Where( m => m.GetParameters().Length == 0)
+                .Where( m => m.GetCustomAttribute<BButton>() != null)
+                .ToList();
+
+            // button methods
+            foreach(MethodInfo m in methods)
+            {
+                Button btn = new Button(() => m.Invoke(Value , null) );
+                btn.text = m.Name;
+
+                UIContainer.Add(btn);
+            }
 
             // indentation space
             TabSpacing tabSpacing = new TabSpacing();
             tabSpacing.Setup(this);
         }
 
-        public override void Clean()
+        public override void Destroy()
         {
-            ResetUI();
+            if (TypeSelector != null)
+            {
+                UIHeader.Remove(TypeSelector);
+                TypeSelector.UnregisterValueChangedCallback(HandleValueTypeChanged);
+                TypeSelector = null;
+            }
 
-            DrawerRoot.Clear();
+            foreach (IValueDrawer c in ChildrenValueDrawers)
+            {
+                c.Destroy();
+            }
+
+            ChildrenValueDrawers.Clear();
+            
+            DrawerRoot.Remove(UIHeader);
+            DrawerRoot.Remove(UIContainer);
 
             UIContainer = null;
-
-            if (typeSelector != null)
-            {
-                typeSelector.UnregisterValueChangedCallback(HandleValueChanged);
-                typeSelector = null;
-            }
+            UIHeader = null;
         }
     }
 }

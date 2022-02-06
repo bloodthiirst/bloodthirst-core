@@ -13,14 +13,8 @@ namespace Bloodthirst.Editor.BInspector
     [InitializeOnLoad]
     public class ScriptObjectFieldDrawer
     {
-        private static VisualTreeAsset uxmlAsset;
-        private static StyleSheet ussAsset;
-
-        static ScriptObjectFieldDrawer()
-        {
-            uxmlAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
-            ussAsset = AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
-        }
+        private VisualTreeAsset UXMLAsset => AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
+        private StyleSheet USSAsset => AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
 
         private const string PATH_UXML = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/Misc/ScriptObjectFieldDrawer/ScriptObjectFieldDrawer.uxml";
         private const string PATH_USS = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/Misc/ScriptObjectFieldDrawer/ScriptObjectFieldDrawer.uss";
@@ -33,7 +27,7 @@ namespace Bloodthirst.Editor.BInspector
         public VisualElement CreateVisualElement(MonoScript script)
         {
 
-            TemplateContainer ui = uxmlAsset.CloneTree();
+            TemplateContainer ui = UXMLAsset.CloneTree();
 
             Label name = ui.Q<Label>(ScriptNameLabel);
             Image icon = ui.Q<Image>(ScriptIconImage);
@@ -47,7 +41,7 @@ namespace Bloodthirst.Editor.BInspector
             name.text = script.GetClass().GetNiceName();
             clickZone.RegisterCallback<ClickEvent>(HandleClickOnScript);
 
-            ui.styleSheets.Add(ussAsset);
+            ui.styleSheets.Add(USSAsset);
 
             return ui;
         }

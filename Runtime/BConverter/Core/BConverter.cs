@@ -2,7 +2,7 @@ using System;
 
 namespace Bloodthirst.BDeepCopy
 {
-    public abstract class BConverter<TFrom, TTo> : IBConverter<TFrom, TTo>, IBConverter
+    internal abstract class BConverter<TFrom, TTo> : IBConverter<TFrom, TTo> , IBConverterInternal
     {
         protected static readonly Type fromType = typeof(TFrom);
         protected static readonly Type toType = typeof(TTo);
@@ -11,18 +11,38 @@ namespace Bloodthirst.BDeepCopy
 
         Type IBConverter.ToType => toType;
 
-        public abstract TFrom ConvertFrom(TTo t, BConverterSettings settings = null);
+        public IBConverterProvider Provider { get; set; }
 
-        public abstract TTo ConvertTo(TFrom t, BConverterSettings settings = null);
-
-        object IBConverter.ConvertFrom(object t, BConverterSettings settings)
+        public TFrom ConvertFrom(TTo t)
         {
-            return ConvertFrom((TTo)t, settings);
+            return ConvertFrom(t, new BConverterContext(), new BConverterSettings());
+        }
+        public TTo ConvertTo(TFrom t)
+        {
+            return ConvertTo(t, new BConverterContext(), new BConverterSettings());
         }
 
-        object IBConverter.ConvertTo(object t, BConverterSettings settings)
+        public abstract void Initialize();
+        protected abstract TFrom ConvertFrom(TTo t , BConverterContext context, BConverterSettings settings);
+
+        protected abstract TTo ConvertTo(TFrom t , BConverterContext context, BConverterSettings settings);
+
+        object IBConverter.ConvertFrom(object t)
         {
-            return ConvertTo((TFrom)t, settings);
+            return ConvertFrom((TTo)t);
+        }
+        object IBConverter.ConvertTo(object t)
+        {
+            return ConvertTo((TFrom)t);
+        }
+        object IBConverterInternal.ConvertFrom_Internal(object t, BConverterContext context, BConverterSettings settings)
+        {
+            return ConvertFrom((TTo)t, context, settings);
+        }
+
+        object IBConverterInternal.ConvertTo_Internal(object t, BConverterContext context, BConverterSettings settings)
+        {
+            return ConvertTo((TFrom) t, context, settings);
         }
     }
 }

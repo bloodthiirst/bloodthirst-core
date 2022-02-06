@@ -12,7 +12,7 @@ namespace Bloodthirst.JsonUnityObject
         [SerializeField]
         [JsonIgnore]
         [TextArea(5, 20)]
-        private string jsonData;
+        protected string jsonData;
 
         /// <summary>
         /// Contains all the unity objects references that should remain serialized by unity

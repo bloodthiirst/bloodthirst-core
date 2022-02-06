@@ -57,6 +57,7 @@ namespace Bloodthirst.BDeepCopy
                 }
                 // create
                 BMemberData memberData = new BMemberData();
+                memberData.Type = ReflectionUtils.GetMemberType(curr);
                 memberData.MemberInfo = curr;
                 memberData.MemberGetter = getter;
                 memberData.MemberSetter = setter;

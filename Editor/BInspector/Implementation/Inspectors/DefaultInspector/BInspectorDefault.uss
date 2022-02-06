@@ -6,8 +6,14 @@
 .value-drawer-container
 {
 	display : flex;
-	margin-top : 5px;
-	margin-bottm : 5px;
+	margin-top : 1px;
+	margin-bottom : 1px;
+	flex-grow : 1;
+	-unity-text-align: middle-left;
+}
+
+.member-label
+{
 	flex-grow : 1;
 	-unity-text-align: middle-left;
 }

@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace Bloodthirst.BDeepCopy
 {
-    internal static class BTypeProvider
+    public static class BTypeProvider
     {
         private static Dictionary<Type, BTypeData> TypeDatas { get; set; } = new Dictionary<Type, BTypeData>();
 
-        internal static BTypeData GetOrCreate(Type t)
+        public static BTypeData GetOrCreate(Type t)
         {
             if (!TypeDatas.TryGetValue(t, out BTypeData td))
             {

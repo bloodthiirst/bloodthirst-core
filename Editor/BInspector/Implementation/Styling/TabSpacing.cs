@@ -10,18 +10,29 @@ namespace Bloodthirst.Editor.BInspector
         private const float DEFAULT_INDENTATION = 40;
 
         private void RecursivelyAddTabSpacing(IValueDrawer valueDrawer)
-        {
+        {            
+            // if we are at the root level instance
+            // then we don't add padding and we just skip the children
+            if(valueDrawer.Parent == null)
+            {
+                foreach (IValueDrawer c in valueDrawer.ChildrenValueDrawers)
+                {
+
+                    if (!c.DrawerRoot.ClassListContains(ValueDrawerBase.VALUE_DRAWER_CONTAINER_CLASS))
+                        continue;
+
+                    RecursivelyAddTabSpacing(c);
+                }
+
+                return;
+            }
+            
             Label label = ValueDrawerUtils.GetLabel(valueDrawer);
 
             float padding = DEFAULT_INDENTATION;
-            
-            if(label != null)
-            {
-                /*
-                Vector2 mesure = label.MeasureTextSize(label.text, label.resolvedStyle.width, VisualElement.MeasureMode.AtMost, label.resolvedStyle.height, VisualElement.MeasureMode.AtMost);
-                padding = mesure.x;
-                */
 
+            if (label != null)
+            {
                 padding = label.resolvedStyle.width;
             }
 
@@ -31,7 +42,7 @@ namespace Bloodthirst.Editor.BInspector
                 if (!c.DrawerRoot.ClassListContains(ValueDrawerBase.VALUE_DRAWER_CONTAINER_CLASS))
                     continue;
                 
-                c.DrawerRoot.style.paddingLeft = new StyleLength(/*tabDiff * */ padding);
+                c.DrawerRoot.style.paddingLeft = new StyleLength( padding);
 
                 RecursivelyAddTabSpacing(c);
             }

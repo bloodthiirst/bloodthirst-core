@@ -21,7 +21,7 @@ namespace Bloodthirst.Editor.BInspector
 
         void IBInspectorValidator.Initialize()
         {
-            scriptObjectField = new ScriptObjectFieldDrawer();
+
         }
 
         bool IBInspectorValidator.CanInspect(Type type, object instance)
@@ -35,14 +35,16 @@ namespace Bloodthirst.Editor.BInspector
 
         void IBInspectorDrawer.Initialize()
         {
-
+            scriptObjectField = new ScriptObjectFieldDrawer();
         }
 
         VisualElement IBInspectorDrawer.CreateInspectorGUI(object instance)
         {
-            // get the type data of the inspector component
-            Type type = instance.GetType();
-            TypeData typeData = TypeDataProvider.Get(type);
+            return GetEditor(instance);
+        }
+
+        private VisualElement GetEditor(object instance)
+        {
 
             // start creating the ui
             VisualTreeAsset prefab = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
@@ -63,47 +65,20 @@ namespace Bloodthirst.Editor.BInspector
                 container.Add(gui);
             }
 
-
-            // event
-            container.RegisterCallback<GeometryChangedEvent>(HandleGeometryChanged);
+            ComplexValueDrawer drawer = new ComplexValueDrawer();
 
             // context
             DrawerContext drawerContext = new DrawerContext();
             drawerContext.AllDrawers = new List<IValueDrawer>();
             drawerContext.IndentationLevel = 0;
 
-            // style
-            LabelDrawer labelDrawer = new LabelDrawer();
+            ValueDrawerInfoGeneric info = new ValueDrawerInfoGeneric(null, () => instance, null, instance.GetType() , null);
 
-            // fields
-            List<MemberData> validMembers = typeData.MemberDatas.Where( m => !m.MemberInfo.Name.EndsWith("k__BackingField")).ToList();
+            drawer.Setup(info, null, drawerContext);
 
-            foreach (MemberData m in validMembers)
-            {
-                ValueDrawerInfoBasic info = new ValueDrawerInfoBasic() { ContainingInstance = instance, MemberData = m };
-
-                IValueDrawer fieldDrawer = ValueDrawerProvider.Get(info.DrawerType());
-
-                fieldDrawer.Setup(info , null , drawerContext);
-
-                // add to editor layout
-                container.Add(fieldDrawer.DrawerRoot);
-
-                // add label
-                labelDrawer.Setup(fieldDrawer);
-            }
-
-
+            container.Add(drawer.DrawerRoot);
 
             return root;
-        }
-
-        private void HandleGeometryChanged(GeometryChangedEvent evt)
-        {
-            // label spacing
-
-            LabelSpacing labelSpacing = new LabelSpacing();
-            labelSpacing.Setup(container);
         }
     }
 }

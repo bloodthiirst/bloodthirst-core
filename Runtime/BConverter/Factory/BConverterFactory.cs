@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Bloodthirst.BDeepCopy
 {
-    public class BConverterFactory<TConverter> : IBConverterFactory where TConverter : IBConverter
+    internal abstract class BConverterFactory<TConverter> : IBConverterFactory where TConverter : IBConverterInternal
     {
         private static Type baseConverterType = typeof(TConverter);
         private List<IBConverterFilter<TConverter>> ConverterFilters { get; set; }
@@ -39,18 +39,23 @@ namespace Bloodthirst.BDeepCopy
             }
         }
 
-        IBConverter IBConverterFactory.CreateConverter(Type t)
+        IBConverterInternal IBConverterFactory.CreateConverter(Type t)
         {
             for (int i = 0; i < ConverterFilters.Count; i++)
             {
-                IBConverterFilter curr = ConverterFilters[i];
+                IBConverterFilter<TConverter> curr = ConverterFilters[i];
 
                 if (curr.CanConvert(t))
+                {
                     return curr.GetConverter(t);
+                }
             }
 
-            return null;
+            return CreateConverterInternal(t);
         }
+
+        protected abstract TConverter CreateConverterInternal(Type t);
+
 
 
 

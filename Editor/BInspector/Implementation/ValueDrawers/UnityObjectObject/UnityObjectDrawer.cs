@@ -38,7 +38,7 @@ namespace Bloodthirst.Editor.BInspector
         protected override void Postsetup()
         {
             ObjectField.objectType = DrawerInfo.DrawerType();
-            ObjectField.SetValueWithoutNotify((UnityEngine.Object)DrawerInfo.Get());
+            ObjectField.SetValueWithoutNotify((UnityEngine.Object)Value);
             ObjectField.RegisterValueChangedCallback(HandleValueChanged);
 
         }
@@ -46,10 +46,12 @@ namespace Bloodthirst.Editor.BInspector
         private void HandleValueChanged(ChangeEvent<UnityEngine.Object> evt)
         {
             DrawerInfo.Set(evt.newValue);
+            Value = evt.newValue;
+
             TriggerOnValueChangedEvent();
         }
 
-        public override void Clean()
+        public override void Destroy()
         {
             ObjectField.UnregisterValueChangedCallback(HandleValueChanged);
         }

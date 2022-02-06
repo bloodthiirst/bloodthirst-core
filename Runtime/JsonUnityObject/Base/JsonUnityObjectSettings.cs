@@ -1,12 +1,21 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEditor;
+using UnityEngine;
 
 namespace Bloodthirst.JsonUnityObject
 {
     [InitializeOnLoad]
     public static class JsonUnityObjectSettings
     {
+
+        static JsonUnityObjectSettings()
+        {
+
+        }
+
         /// <summary>
         /// Pool to recycle settings instances to minimize GC when serializing
         /// </summary>
@@ -69,6 +78,7 @@ namespace Bloodthirst.JsonUnityObject
         {
             return new JsonSerializerSettings()
             {
+
                 TypeNameHandling = TypeNameHandling.All,
                 ObjectCreationHandling = ObjectCreationHandling.Replace,
 #if UNITY_EDITOR
@@ -87,7 +97,7 @@ namespace Bloodthirst.JsonUnityObject
         /// <returns></returns>
         public static JsonSerializerSettings GetSettings()
         {
-            if(pooledSettings.Count == 0)
+            if (pooledSettings.Count == 0)
             {
                 return CreateSerializerSettings();
             }

@@ -23,6 +23,6 @@ namespace Bloodthirst.Editor.BInspector
 
         void Setup(IValueDrawerInfo drawerInfo , IValueDrawer parent , DrawerContext drawerContext);
 
-        void Clean();
+        void Destroy();
     }
 }

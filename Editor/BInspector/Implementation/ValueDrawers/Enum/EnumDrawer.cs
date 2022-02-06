@@ -76,10 +76,11 @@ namespace Bloodthirst.Editor.BInspector
         private void HandleValueChanged(ChangeEvent<int> evt)
         {
             DrawerInfo.Set(evt.newValue);
+            Value = evt.newValue;
             TriggerOnValueChangedEvent();
         }
 
-        public override void Clean()
+        public override void Destroy()
         {
             EnumPopUp.UnregisterValueChangedCallback(HandleValueChanged);
             EnumPopUp = null;

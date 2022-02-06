@@ -36,17 +36,18 @@ namespace Bloodthirst.Editor.BInspector
 
         protected override void Postsetup()
         {
-            TextField.SetValueWithoutNotify((string)DrawerInfo.Get());
+            TextField.SetValueWithoutNotify((string) Value);
             TextField.RegisterValueChangedCallback(HandleValueChanged);
         }
 
         private void HandleValueChanged(ChangeEvent<string> evt)
         {
             DrawerInfo.Set(evt.newValue);
+            Value = evt.newValue;
             TriggerOnValueChangedEvent();
         }
 
-        public override void Clean()
+        public override void Destroy()
         {
             TextField.UnregisterValueChangedCallback(HandleValueChanged);
             TextField = null;

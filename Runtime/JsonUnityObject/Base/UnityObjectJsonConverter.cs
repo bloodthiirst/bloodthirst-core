@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -16,6 +17,16 @@ namespace Bloodthirst.JsonUnityObject
         {
             CustomContext ctx = (CustomContext) serializer.Context.Context;
 
+            
+            TypeConverter cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
+
+            if (cnv == null || !(cnv is UnityObjectTypeConverter))
+            {
+                Attribute[] attrs = new Attribute[] { new TypeConverterAttribute(typeof(UnityObjectTypeConverter)) };
+                TypeDescriptor.AddAttributes(typeof(UnityEngine.Object), attrs);
+                cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
+            }
+
             // if we are at the root of the object
             // that means that we need to draw as a normal json body and not with the ID
             //
@@ -27,13 +38,14 @@ namespace Bloodthirst.JsonUnityObject
             {
                 Type t = value.GetType();
 
-                List<MemberInfo> mems = new List<MemberInfo>();
+                List<MemberInfo> membersSerialized = new List<MemberInfo>();
 
                 // start the object 
                 // { 
                 writer.WriteStartObject();
 
-                foreach (MemberInfo m in t.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                MemberInfo[] membersVisible = t.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                foreach (MemberInfo m in membersVisible)
                 {
                     // we have to redo the check here since we are doing everything manually
                     
@@ -54,7 +66,7 @@ namespace Bloodthirst.JsonUnityObject
                                 if (f.Name.EndsWith("k__BackingField"))
                                     continue;
 
-                                mems.Add(f);
+                                membersSerialized.Add(f);
                                 var val = f.GetValue(value);
 
                                 // write the field name
@@ -68,7 +80,7 @@ namespace Bloodthirst.JsonUnityObject
                             }
                         case PropertyInfo p:
                             {
-                                mems.Add(p);
+                                membersSerialized.Add(p);
                                 var val = p.GetValue(value);
 
                                 // write the field name
@@ -77,7 +89,9 @@ namespace Bloodthirst.JsonUnityObject
 
                                 // write the actual value
                                 // "StringFieldValue"
-                                serializer.Serialize(writer, val);
+                                serializer.Serialize(writer, val );
+
+                                string str = writer.ToString();
 
                                 break;
                             }
