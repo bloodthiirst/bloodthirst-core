@@ -12,26 +12,8 @@ public class JSONParseTest : MonoBehaviour
     private string JsonInput;
 
     [SerializeField]
-    private bool skipSpace;
-
-    [SerializeField]
-    private List<string> Tokens = new List<string>();
-
-    [Button]
-    private void TestParse()
-    {
-        JSONParser parser = new JSONParser() { SkipEmptySpace = skipSpace };
-        TokenizerState<JSONTokenType> output = parser.TokenizeString(JsonInput);
-
-        List<Token<JSONTokenType>> all = output.Tokens;
-
-        Tokens.Clear();
-
-        foreach(Token<JSONTokenType> t in all)
-        {
-            Tokens.Add(t.AsString());
-        }
-    }
+    [TextArea(10, 50)]
+    private string JsonOutput;
 
     private class TestStruct
     {
@@ -50,7 +32,9 @@ public class JSONParseTest : MonoBehaviour
     [Button]
     private void TestComplexParser()
     {
-        TestStruct t = BConverterManger.FromJson<TestStruct>(JsonInput);
+        TestStruct original = BConverterManger.FromJson<TestStruct>(JsonInput);
+        JsonOutput = BConverterManger.ToJson(original);
+        TestStruct copy = BConverterManger.FromJson<TestStruct>(JsonOutput);
     }
 
 

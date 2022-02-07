@@ -26,7 +26,7 @@ namespace Bloodthirst.BDeepCopy
         {
             StringBuilder sb = new StringBuilder();
 
-            To_Internal(t, new StringBuilder(), new BConverterContext(), new BConverterSettings());
+            To_Internal(t, sb, new BConverterContext(), new BConverterSettings());
 
             return sb.ToString();
         }

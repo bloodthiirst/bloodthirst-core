@@ -12,16 +12,17 @@ namespace Bloodthirst.BDeepCopy
         private BTypeData TypeData { get; set; }
 
         private Dictionary<string, BMemberData> MemberToDataDictionary { get; set; }
+        private int MemberCount { get; set; }
 
         public BJsonComplexConverter(Type t) : base(t)
         {
             TypeData = BTypeProvider.GetOrCreate(t);
-            MemberToDataDictionary = TypeData.MemberDatas.ToDictionary(k => k.MemberInfo.Name, k => k);
         }
 
         public override void Initialize()
         {
-            
+            MemberToDataDictionary = TypeData.MemberDatas.ToDictionary(k => k.MemberInfo.Name, k => k);
+            MemberCount = MemberToDataDictionary.Count;
         }
         public override object CreateInstance_Internal()
         {
@@ -30,7 +31,22 @@ namespace Bloodthirst.BDeepCopy
 
         public override void To_Internal(object instance, StringBuilder jsonBuilder, BConverterContext context, BConverterSettings settings)
         {
-            throw new NotImplementedException();
+            jsonBuilder.Append('{');
+
+            foreach(KeyValuePair<string, BMemberData> kv in MemberToDataDictionary)
+            {
+                jsonBuilder.Append(kv.Key);
+                jsonBuilder.Append(':');
+
+                IBJsonConverterInternal valueConv = (IBJsonConverterInternal) Provider.Get(kv.Value.Type);
+                valueConv.To_Internal( kv.Value.MemberGetter(instance ) , jsonBuilder , context , settings);
+
+                jsonBuilder.Append(',');
+            }
+
+            jsonBuilder.Remove(jsonBuilder.Length - 1, 1);
+
+            jsonBuilder.Append('}');
         }
 
         public override object From_Internal(object instance, ref ParserState<JSONTokenType> parseState, BConverterContext context, BConverterSettings settings)

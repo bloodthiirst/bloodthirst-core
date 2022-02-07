@@ -34,7 +34,20 @@ namespace Bloodthirst.BDeepCopy
 
         public override void To_Internal(object instance, StringBuilder jsonBuilder, BConverterContext context, BConverterSettings settings)
         {
-            throw new NotImplementedException();
+            jsonBuilder.Append('[');
+
+            IList lst = (IList)instance;
+
+            foreach (object elem in lst)
+            {
+                ElementConverter.To_Internal(elem, jsonBuilder, context, settings);
+
+                jsonBuilder.Append(',');
+            }
+
+            jsonBuilder.Remove(jsonBuilder.Length - 1, 1);
+
+            jsonBuilder.Append(']');
         }
 
         public override object From_Internal(object instance, ref ParserState<JSONTokenType> parseState, BConverterContext context, BConverterSettings settings)
