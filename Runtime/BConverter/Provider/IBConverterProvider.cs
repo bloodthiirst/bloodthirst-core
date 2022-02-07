@@ -2,7 +2,7 @@
 
 namespace Bloodthirst.BDeepCopy
 {
-    internal interface IBConverterProvider
+    public interface IBConverterProvider
     {
         IBConverterFactory Factory { get; }
 

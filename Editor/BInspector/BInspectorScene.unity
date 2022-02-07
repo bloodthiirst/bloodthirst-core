@@ -328,8 +328,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae28a5e49471d654db4b21da2a3baadd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  JsonInput: '{ Id : 69 , Name : "Houssem" , ages : [ {23 , "Houssem"} , { 20 , "Maria"}
-    ] }'
+  JsonInput: "{ Id : 69 , Name : \"Houssem\" , Contacts : \n[\n {1 , { PhoneNumber:
+    1111111 , Address: \"Houssem\" , City : \"NewYork\"} },\n {2 , { PhoneNumber:
+    222222 , Address: \"Maria\" , City : \"Chicago\"} }\n] }"
   skipSpace: 0
   Tokens: []
 --- !u!4 &1322211179

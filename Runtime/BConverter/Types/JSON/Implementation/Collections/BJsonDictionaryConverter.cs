@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Bloodthirst.BDeepCopy
@@ -35,7 +36,7 @@ namespace Bloodthirst.BDeepCopy
             return Constructor();
         }
 
-        public override string To_Internal(object instance, BConverterContext context, BConverterSettings settings)
+        public override void To_Internal(object instance, StringBuilder jsonBuilder, BConverterContext context, BConverterSettings settings)
         {
             throw new NotImplementedException();
         }

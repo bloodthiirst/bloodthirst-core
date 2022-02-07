@@ -1,8 +1,9 @@
 using System;
+using System.Text;
 
 namespace Bloodthirst.BDeepCopy
 {
-    internal abstract class BJsonComplexBaseConverter : IBJsonConverterInternal
+    public abstract class BJsonComplexBaseConverter : IBJsonConverterInternal
     {
         protected Type ConvertType { get; set; }
 
@@ -23,18 +24,31 @@ namespace Bloodthirst.BDeepCopy
         #region Object To JSON
         public object ConvertTo(object t)
         {
-            return To_Internal(t, new BConverterContext(), new BConverterSettings());
-        }
-        public object ConvertTo_Internal(object t, BConverterContext context, BConverterSettings settings)
-        {
-            return To_Internal(t, context, settings);
+            StringBuilder sb = new StringBuilder();
+
+            To_Internal(t, new StringBuilder(), new BConverterContext(), new BConverterSettings());
+
+            return sb.ToString();
         }
 
-        public string To(object t)
+        public object ConvertTo_Internal(object t, BConverterContext context, BConverterSettings settings)
         {
-            return To_Internal(t, new BConverterContext(), new BConverterSettings());
+            StringBuilder sb = new StringBuilder();
+
+            To_Internal(t, sb, context, settings);
+
+            return sb.ToString();
         }
-        public abstract string To_Internal(object instance, BConverterContext context, BConverterSettings settings);
+
+        public string To(object t, BConverterContext context, BConverterSettings settings)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            To_Internal(t, sb, context, settings);
+
+            return sb.ToString();
+        }
+        public abstract void To_Internal(object instance, StringBuilder jsonBuilder, BConverterContext context, BConverterSettings settings);
 
         #endregion
 
@@ -78,7 +92,7 @@ namespace Bloodthirst.BDeepCopy
 
             return From_Internal(instance, ref state, context, settings);
         }
-        public object From(string json)
+        public object From(string json, BConverterContext context, BConverterSettings settings)
         {
             TokenizerState<JSONTokenType> tokens = JSONParser.Instance.TokenizeString(json);
             ParserState<JSONTokenType> state = new ParserState<JSONTokenType>(tokens);
@@ -86,16 +100,16 @@ namespace Bloodthirst.BDeepCopy
 
             object instance = CreateInstance_Internal();
 
-            return From_Internal(instance, ref state, new BConverterContext(), new BConverterSettings());
+            return From_Internal(instance, ref state, context, settings);
         }
 
-        public object Populate(object instance, string json)
+        public object Populate(object instance, string json, BConverterContext context, BConverterSettings settings)
         {
             TokenizerState<JSONTokenType> tokens = JSONParser.Instance.TokenizeString(json);
             ParserState<JSONTokenType> state = new ParserState<JSONTokenType>(tokens);
             RemoveSpaces(ref state);
 
-            return From_Internal(instance, ref state, new BConverterContext(), new BConverterSettings());
+            return From_Internal(instance, ref state, context, settings);
         }
 
         public abstract object From_Internal(object instance, ref ParserState<JSONTokenType> parseState, BConverterContext context, BConverterSettings settings);

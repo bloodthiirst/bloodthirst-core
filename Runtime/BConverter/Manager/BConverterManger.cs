@@ -6,6 +6,15 @@ namespace Bloodthirst.BDeepCopy
     {
         internal static BJsonProvider Json { get; private set; } = new BJsonProvider();
 
+        public static string ToJson<T>(T json)
+        {
+            Type t = typeof(T);
+            IBJsonConverterInternal c = Json.GetOrCreate(t);
+
+            return (string)c.ConvertTo(json);
+        }
+
+
         public static T FromJson<T>(string json)
         {
             Type t = typeof(T);
@@ -18,7 +27,7 @@ namespace Bloodthirst.BDeepCopy
         {
             Type t = typeof(T);
             IBJsonConverterInternal c = Json.GetOrCreate(t);
-            c.Populate(instance, json);
+            c.Populate(instance, json , new BConverterContext() , new BConverterSettings());
         }
 
 

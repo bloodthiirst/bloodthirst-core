@@ -1,6 +1,6 @@
 ﻿namespace Bloodthirst.BDeepCopy
 {
-    internal interface IBConverterInternal : IBConverter
+    public interface IBConverterInternal : IBConverter
     {
         IBConverterProvider Provider { get; set; }
         void Initialize();
