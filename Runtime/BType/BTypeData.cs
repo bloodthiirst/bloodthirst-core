@@ -50,7 +50,7 @@ namespace Bloodthirst.BDeepCopy
 
                 IEnumerable<Attribute> attrsList = curr.GetCustomAttributes(typeof(Attribute), true).Cast<Attribute>();
 
-                foreach (CopierSettingAttribute a in attrsList)
+                foreach (Attribute a in attrsList)
                 {
                     Type attrType = a.GetType();
                     attrs.Add(a.GetType(), a);

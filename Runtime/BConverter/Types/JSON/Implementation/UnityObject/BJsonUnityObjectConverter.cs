@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.BDeepCopy
 {
@@ -21,7 +22,7 @@ namespace Bloodthirst.BDeepCopy
 
         public override void Initialize()
         {
-            IntJsonConverter = (IBJsonConverterInternal) Provider.Get(typeof(int));
+            IntJsonConverter = (IBJsonConverterInternal)Provider.Get(typeof(int));
         }
 
         public override object CreateInstance_Internal()
@@ -31,19 +32,27 @@ namespace Bloodthirst.BDeepCopy
 
         public override void To_Internal(object instance, StringBuilder jsonBuilder, BConverterContext context, BConverterSettings settings)
         {
-            throw new NotImplementedException();
+            UnityObjectContext ctx = (UnityObjectContext)settings.CustomContext;
+
+            int id = ctx.UnityObjects.Count;
+
+            ctx.UnityObjects.Add((UnityEngine.Object)instance);
+
+            jsonBuilder.Append(id.ToString());
         }
 
         public override object From_Internal(object instance, ref ParserState<JSONTokenType> parseState, BConverterContext context, BConverterSettings settings)
         {
-            if(parseState.CurrentTokenIndex == 0)
+            if (parseState.CurrentTokenIndex == 0)
             {
-                return DefaultJsonConverter.From_Internal(instance , ref parseState , context , settings);
+                return DefaultJsonConverter.From_Internal(instance, ref parseState, context, settings);
             }
 
             UnityObjectContext ctx = (UnityObjectContext)settings.CustomContext;
 
-            int id = (int) IntJsonConverter.From_Internal(instance, ref parseState , context , settings);
+            Assert.IsNotNull(ctx);
+
+            int id = (int)IntJsonConverter.From_Internal(instance, ref parseState, context, settings);
 
             return ctx.UnityObjects[id];
         }
