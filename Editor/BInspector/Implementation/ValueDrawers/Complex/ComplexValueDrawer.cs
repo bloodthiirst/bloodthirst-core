@@ -1,3 +1,5 @@
+using Bloodthirst.BJson;
+using Bloodthirst.BType;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Runtime.BInspector;
 using System;
@@ -134,16 +136,18 @@ namespace Bloodthirst.Editor.BInspector
         {
             // get the type data of the inspector component
             Type type = Value.GetType();
-            TypeData typeData = TypeDataProvider.Get(type);
+
+            // filter all the fields that should be drawn
+            BTypeData typeData = BInspectorPropertyFilterProvider.GetFilteredProperties(type);
 
             // fields
-            List<MemberData> validFields = typeData.MemberDatas.Where(m => !m.MemberInfo.Name.EndsWith("k__BackingField")).ToList();
+            List<BMemberData> validFields = typeData.MemberDatas;
 
             // style
             LabelDrawer labelDrawer = new LabelDrawer();
 
             // draw sub fields
-            foreach (MemberData m in validFields)
+            foreach (BMemberData m in validFields)
             {
                 Type fieldType = ReflectionUtils.GetMemberType(m.MemberInfo);
                 IValueDrawer fieldDrawer = ValueDrawerProvider.Get(fieldType);
@@ -168,7 +172,9 @@ namespace Bloodthirst.Editor.BInspector
             }
 
             // methods
-            List<MethodInfo> methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
+            List<MethodInfo> methods =  TypeUtils.GetAllMethods(type);
+
+            methods = methods
                 .Where( m => m.ReturnType == typeof(void) )
                 .Where( m => m.GetParameters().Length == 0)
                 .Where( m => m.GetCustomAttribute<BButton>() != null)

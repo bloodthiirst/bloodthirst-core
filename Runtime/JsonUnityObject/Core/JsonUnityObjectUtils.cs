@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.BJson;
+using Bloodthirst.Core.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -19,36 +20,14 @@ namespace Bloodthirst.JsonUnityObject
         public static void DeserializeUnityObject(string jsonString, UnityEngine.Object unityObjectThis, List<UnityEngine.Object> unityRefsList)
         {
             // get pooled settings
-            JsonSerializerSettings settings = JsonUnityObjectSettings.GetSettings();
+            BJsonSettings settings = JsonUnityObjectSettings.GetSettings();
 
             // custom context
             // make it a struct to minimize GC
-            CustomContext ctx = new CustomContext()
-            {
-                UnityObjects = unityRefsList
-            };
-
-
-            
-            TypeConverter cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
-
-            if (cnv == null || !(cnv is UnityObjectTypeConverter))
-            {
-                Attribute[] attrs = new Attribute[] { new TypeConverterAttribute(typeof(UnityObjectTypeConverter)) };
-                TypeDescriptor.AddAttributes(typeof(UnityEngine.Object), attrs);
-                cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
-            }
-            /*
-            ((UnityObjectTypeConverter)cnv).CustomContext = ctx;
-            */
-
-            settings.Context = new StreamingContext(StreamingContextStates.All, ctx);
+            settings.CustomContext = new UnityObjectContext() { UnityObjects = unityRefsList };
 
             // deserialize into the object
-            JsonConvert.PopulateObject(jsonString, unityObjectThis, settings);
-
-            // return the pooled settings
-            JsonUnityObjectSettings.ReturnSettings(settings);
+            BJsonConverter.PopulateFromJson(unityObjectThis, jsonString , settings);
         }
 
         /// <summary>
@@ -61,36 +40,14 @@ namespace Bloodthirst.JsonUnityObject
             unityRefsList = unityRefsList.CreateOrClear();
 
             // get pooled settings
-            JsonSerializerSettings settings = JsonUnityObjectSettings.GetSettings();
+            BJsonSettings settings = JsonUnityObjectSettings.GetSettings();
 
             // custom context
             // make it a struct to minimize GC
-            CustomContext ctx = new CustomContext()
-            {
-                UnityObjects = unityRefsList
-            };
-
-
-            
-            TypeConverter cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
-
-            if (cnv == null || !(cnv is UnityObjectTypeConverter))
-            {
-                Attribute[] attrs = new Attribute[] { new TypeConverterAttribute(typeof(UnityObjectTypeConverter)) };
-                TypeDescriptor.AddAttributes(typeof(UnityEngine.Object), attrs);
-                cnv = TypeDescriptor.GetConverter(typeof(UnityEngine.Object));
-            }
-            /*
-            ((UnityObjectTypeConverter)cnv).CustomContext = ctx;
-            */
-
-            settings.Context = new StreamingContext(StreamingContextStates.All, ctx);
+            settings.CustomContext = new UnityObjectContext() { UnityObjects = unityRefsList };
 
             // serialize the object into JSON
-            string res = JsonConvert.SerializeObject(unityObjectThis, settings);
-
-            // return the pooled settings
-            JsonUnityObjectSettings.ReturnSettings(settings);
+            string res = BJsonConverter.ToJson(unityObjectThis, unityObjectThis.GetType(), settings);
 
             return res;
 

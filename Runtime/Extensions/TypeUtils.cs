@@ -50,6 +50,28 @@ namespace Bloodthirst.Core.Utils
             }
         }
 
+        public static List<MethodInfo> GetAllMethods(Type type)
+        {
+            TypeInfo typeInfo = type.GetTypeInfo();
+            List<MethodInfo> methods = new List<MethodInfo>();
+
+            while (true)
+            {
+                methods.AddRange(typeInfo.DeclaredMethods);
+
+                Type type2 = typeInfo.BaseType;
+
+                if (type2 == null)
+                {
+                    break;
+                }
+
+                typeInfo = type2.GetTypeInfo();
+            }
+
+            return methods;
+        }
+
         /// <summary>
         /// <para>Does type <paramref name="t"/> have a class that inherits it ?</para>
         /// <para>NOTE : This doesn't guarantee a correct return value if the type <paramref name="t"/> passed is a generic type</para>

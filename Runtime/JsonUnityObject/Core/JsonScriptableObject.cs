@@ -1,7 +1,17 @@
-﻿using Newtonsoft.Json;
-using Sirenix.OdinInspector;
+﻿using Bloodthirst.BJson;
+using Bloodthirst.Editor.BInspector;
+using Bloodthirst.Runtime.BInspector;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Bloodthirst.JsonUnityObject
 {
@@ -10,39 +20,78 @@ namespace Bloodthirst.JsonUnityObject
         /// <summary>
         /// Contains the actual JSON representation of the object
         /// </summary>
+        [BJsonIgnore]
 #if ODIN_INSPECTOR
-        [ShowIf(nameof(showJSON))]
+        [ShowIf(nameof(showJsonData))]
 #endif
+        [BInspectorIgnore]
         [SerializeField]
-        [JsonIgnore]
         [TextArea(5, 20)]
-        private string jsonData;
+        protected string jsonData;
 
         /// <summary>
         /// Contains all the unity objects references that should remain serialized by unity
         /// </summary>
+        [BJsonIgnore]
+#if ODIN_INSPECTOR
+        [ShowIf(nameof(showJsonData))]
+#endif
+        [BInspectorIgnore]
         [SerializeField]
-        [JsonIgnore]
-        private List<UnityEngine.Object> unityObjects;
+        protected List<UnityEngine.Object> unityObjects;
 
 #if UNITY_EDITOR
         /// <summary>
         /// Toggle to see the JSON result for debugging puposes
         /// </summary>
-#if ODIN_INSPECTOR
-        [ShowInInspector]
+        [BInspectorIgnore]
+        [SerializeField]
+        protected bool showJsonData;
 #endif
-        [JsonIgnore]
-        private bool showJSON;
-#endif
+
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
-            JsonUnityObjectUtils.DeserializeUnityObject(jsonData, this, unityObjects);
+            try
+            {
+                JsonUnityObjectUtils.DeserializeUnityObject(jsonData, this, unityObjects);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex, this);
+            }
         }
+
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            jsonData = JsonUnityObjectUtils.SerializeUnityObject(this, unityObjects);
+            try
+            {
+                string oldJson = jsonData;
+                string newJson = JsonUnityObjectUtils.SerializeUnityObject(this, unityObjects);
+
+#if UNITY_EDITOR
+                if (!string.Equals(oldJson, newJson))
+                {
+                    //Undo.RecordObject(this, $"{gameObject.name} Data change on component {GetType().Name}");
+                    jsonData = newJson;
+                    EditorUtility.SetDirty(this);
+                }
+#endif
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex, this);
+
+            }
+        }
+
+        [BButton]
+#if ODIN_INSPECTOR
+        [Button]
+#endif
+        private void LogJson()
+        {
+            Debug.Log(jsonData);
         }
     }
 }

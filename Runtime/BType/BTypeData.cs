@@ -3,29 +3,45 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine.Assertions;
 
-namespace Bloodthirst.BDeepCopy
+namespace Bloodthirst.BType
 {
     public class BTypeData
     {
+
+        public static BTypeData Copy(BTypeData from)
+        {
+            return new BTypeData()
+            {
+                Constructor = from.Constructor,
+                Type = from.Type,
+                MemberDatas = new List<BMemberData>(from.MemberDatas)
+            };
+        }
+
         public Type Type { get; private set; }
         public Func<object> Constructor { get; private set; }
 
         #region members
-        private List<BMemberData> _MemberDatas { get; set; }
 
-        public IReadOnlyList<BMemberData> MemberDatas => _MemberDatas;
+        public List<BMemberData> MemberDatas { get; set; }
 
         #endregion
+
+        private BTypeData()
+        {
+
+        }
 
         internal BTypeData(Type t)
         {
             Type = t;
 
-            _MemberDatas = new List<BMemberData>();
+            Assert.IsFalse( TypeUtils.PrimitiveTypes.Contains(t));
 
+            MemberDatas = new List<BMemberData>();
             BTypeProvider.Register(this);
-
             Initialize();
         }
 
@@ -64,7 +80,7 @@ namespace Bloodthirst.BDeepCopy
                 memberData.Attributes = attrs;
 
                 // add
-                _MemberDatas.Add(memberData);
+                MemberDatas.Add(memberData);
             }
         }
 
@@ -76,6 +92,9 @@ namespace Bloodthirst.BDeepCopy
 
             foreach (PropertyInfo p in props)
             {
+                if (p.GetIndexParameters().Length != 0)
+                    continue;
+
                 if (p.CanRead && p.CanWrite)
                     yield return p;
             }

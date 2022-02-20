@@ -11,11 +11,11 @@
         <editor:ObjectField label="Node Behaviour" name="NodeBehaviourPicker" />
         <editor:ObjectField label="Node Tree Data" name="NodeTreeDataPicker" />
 
-        <engine:Button text="Save" name="SaveBtn"/>
-        <engine:Button text="Load" name="LoadBtn"/>
+        <engine:Button name="SaveBtn" text="Save" />
+        <engine:Button name="LoadBtn" text="Load" />
         <engine:VisualElement name="NodeTypePickerContainer"></engine:VisualElement>
         
-        <engine:VisualElement class="row m-10 canvas-border canvas-overflow canvas-texture" name="Container"  focusable="true">
+        <engine:VisualElement name="Container" class="row m-10 canvas-border canvas-overflow canvas-texture flex-grow" focusable="true">
         
             <engine:VisualElement class="canvas-pos" name="Canvas">
             

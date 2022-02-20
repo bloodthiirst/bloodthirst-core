@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.BDeepCopy;
+using Bloodthirst.BJson;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.JsonUnityObject;
 using Newtonsoft.Json;
@@ -17,11 +18,11 @@ namespace Bloodthirst.System.Quest.Editor
         public Type NodeBaseType { get; set; }
 
         [ShowInInspector]
-        [JsonIgnore]
+        [BJsonIgnore]
         private List<NodeData> nodes;
 
         [ShowInInspector]
-        [JsonIgnore]
+        [BJsonIgnore]
         private List<LinkData> links;
 
         public List<NodeData> Nodes { get => nodes; set => nodes = value; }

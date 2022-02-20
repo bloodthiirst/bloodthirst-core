@@ -162,6 +162,10 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static Func<object> GetParameterlessConstructor(Type type)
         {
+            ConstructorInfo parameterlessCtor = type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+
+            if (parameterlessCtor == null)
+                return null;
 
             Func<object> result = Expression.Lambda<Func<object>>
             (
@@ -245,56 +249,64 @@ namespace Bloodthirst.Core.Utils
 
         public static Action<object, object> EmitPropertySetter(PropertyInfo prop)
         {
-            string methodName = prop.ReflectedType.FullName + "set_prop_" + prop.Name;
-            DynamicMethod setter = new DynamicMethod(methodName, null, new Type[2] { typeof(object), typeof(object) }, true);
-            ILGenerator gen = setter.GetILGenerator();
-
-            // load the instance to the stack
-            gen.Emit(OpCodes.Ldarg_0);
-
-            // cast it to the proper type
-            // if struct
-            if (prop.DeclaringType.IsValueType)
+            try
             {
-                gen.Emit(OpCodes.Unbox, prop.DeclaringType);
-            }
+                string methodName = prop.ReflectedType.FullName + "set_prop_" + prop.Name;
+                DynamicMethod setter = new DynamicMethod(methodName, null, new Type[2] { typeof(object), typeof(object) }, true);
+                ILGenerator gen = setter.GetILGenerator();
 
-            // if class
-            else
+                // load the instance to the stack
+                gen.Emit(OpCodes.Ldarg_0);
+
+                // cast it to the proper type
+                // if struct
+                if (prop.DeclaringType.IsValueType)
+                {
+                    gen.Emit(OpCodes.Unbox, prop.DeclaringType);
+                }
+
+                // if class
+                else
+                {
+                    gen.Emit(OpCodes.Castclass, prop.DeclaringType);
+                }
+
+                // load the parameter to the stack
+                gen.Emit(OpCodes.Ldarg_1);
+
+                // inverstigate differnec between unbox and unbox_any
+                // answer :
+                // - unbox      : gets the pointer to the struct and pushes it into the stack
+                // - unbox_any  : gets the pointer to the struct , loads the value , THEN pushes the value into the stack
+                // since we're gonna use this in the "setMethod" , we're gonna need the value and NOT the pointer
+                // so we use unbox_any
+                // ps : if the value in the stack in a reference type , then "unbox_any" acts as "castClass"
+                gen.Emit(OpCodes.Unbox_Any, prop.PropertyType);
+
+
+                // call the set function
+                if (prop.DeclaringType.IsValueType)
+                {
+                    gen.Emit(OpCodes.Call, prop.SetMethod);
+                }
+                else
+                {
+                    gen.Emit(OpCodes.Callvirt, prop.SetMethod);
+                }
+
+
+                gen.Emit(OpCodes.Ret);
+
+
+                Delegate del = setter.CreateDelegate(typeof(Action<object, object>));
+                Action<object, object> casted = (Action<object, object>)del;
+                return casted;
+            }
+            catch (Exception ex)
             {
-                gen.Emit(OpCodes.Castclass, prop.DeclaringType);
+
             }
-
-            // load the parameter to the stack
-            gen.Emit(OpCodes.Ldarg_1);
-
-            // inverstigate differnec between unbox and unbox_any
-            // answer :
-            // - unbox      : gets the pointer to the struct and pushes it into the stack
-            // - unbox_any  : gets the pointer to the struct , loads the value , THEN pushes the value into the stack
-            // since we're gonna use this in the "setMethod" , we're gonna need the value and NOT the pointer
-            // so we use unbox_any
-            // ps : if the value in the stack in a reference type , then "unbox_any" acts as "castClass"
-            gen.Emit(OpCodes.Unbox_Any, prop.PropertyType);
-
-
-            // call the set function
-            if (prop.DeclaringType.IsValueType)
-            {
-                gen.Emit(OpCodes.Call, prop.SetMethod);
-            }
-            else
-            {
-                gen.Emit(OpCodes.Callvirt, prop.SetMethod);
-            }
-
-
-            gen.Emit(OpCodes.Ret);
-
-
-            Delegate del = setter.CreateDelegate(typeof(Action<object, object>));
-            Action<object, object> casted = (Action<object, object>)del;
-            return casted;
+            return null;
         }
 
         /// <summary>
@@ -305,40 +317,49 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static Func<object, object> EmitPropertyGetter(PropertyInfo prop)
         {
-            string methodName = "get_prop_" + prop.Name;
-            DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(object), new Type[1] { typeof(object) }, true);
-            ILGenerator gen = getterMethod.GetILGenerator();
-
-            // load the instance to the stack
-            gen.Emit(OpCodes.Ldarg_0);
-
-            // cast it to the proper type
-            // if struct
-            if (prop.DeclaringType.IsValueType)
+            try
             {
-                gen.Emit(OpCodes.Unbox, prop.DeclaringType);
-                gen.Emit(OpCodes.Call, prop.GetMethod);
+                string methodName = "get_prop_" + prop.Name;
+                DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(object), new Type[1] { typeof(object) }, true);
+                ILGenerator gen = getterMethod.GetILGenerator();
+
+                // load the instance to the stack
+                gen.Emit(OpCodes.Ldarg_0);
+
+                // cast it to the proper type
+                // if struct
+                if (prop.DeclaringType.IsValueType)
+                {
+                    gen.Emit(OpCodes.Unbox, prop.DeclaringType);
+                    gen.Emit(OpCodes.Call, prop.GetMethod);
+                }
+
+                // if class
+                else
+                {
+                    gen.Emit(OpCodes.Castclass, prop.DeclaringType);
+                    gen.Emit(OpCodes.Callvirt, prop.GetMethod);
+                }
+
+                // the value needs to be boxed before it's returned
+                // since we return it as "object"
+                if (prop.PropertyType.IsValueType)
+                {
+                    gen.Emit(OpCodes.Box, prop.PropertyType);
+                }
+
+                gen.Emit(OpCodes.Ret);
+
+                Delegate del = getterMethod.CreateDelegate(typeof(Func<object, object>));
+                Func<object, object> casted = (Func<object, object>)del;
+                return casted;
+            }
+            catch(Exception ex)
+            {
+
             }
 
-            // if class
-            else
-            {
-                gen.Emit(OpCodes.Castclass, prop.DeclaringType);
-                gen.Emit(OpCodes.Callvirt, prop.GetMethod);
-            }
-
-            // the value needs to be boxed before it's returned
-            // since we return it as "object"
-            if (prop.PropertyType.IsValueType)
-            {
-                gen.Emit(OpCodes.Box, prop.PropertyType);
-            }
-
-            gen.Emit(OpCodes.Ret);
-
-            Delegate del = getterMethod.CreateDelegate(typeof(Func<object, object>));
-            Func<object, object> casted = (Func<object, object>)del;
-            return casted;
+            return null;
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Editor.BInspector;
+﻿using Bloodthirst.BType;
+using Bloodthirst.Editor.BInspector;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -12,17 +13,17 @@ namespace Bloodthirst.Editor.BInspector
     public struct ValueDrawerInfoBasic : IValueDrawerInfo
     {
         public object ContainingInstance { get; set; }
-        public MemberData MemberData { get; set; }
+        public BMemberData MemberData { get; set; }
         public MemberInfo MemberInfo => MemberData.MemberInfo;
 
         public object Get()
         {
-            return MemberData.Getter(ContainingInstance);
+            return MemberData.MemberGetter(ContainingInstance);
         }
 
         public void Set(object value)
         {
-            MemberData.Setter(ContainingInstance, value);
+            MemberData.MemberSetter(ContainingInstance, value);
         }
 
         public Type DrawerType()

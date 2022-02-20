@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Bloodthirst.BDeepCopy
+namespace Bloodthirst.BType
 {
     public struct BMemberData
     {
