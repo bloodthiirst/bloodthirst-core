@@ -108,7 +108,7 @@ namespace Bloodthirst.BJson
             {
                 jsonBuilder.AddIndentation(context.Indentation);
                 jsonBuilder.Append(kv.Key);
-                jsonBuilder.Append(':');
+                jsonBuilder.Append(" : ");
 
                 IBJsonConverterInternal valueConv = Provider.GetConverter(kv.Value.Type);
                 object val = kv.Value.MemberGetter(instance);

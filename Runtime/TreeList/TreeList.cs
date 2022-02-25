@@ -7,12 +7,9 @@ namespace Bloodthirst.Core.TreeList
     {
         public List<TreeLeaf<TKey, TValue>> SubLeafs { get; set; }
 
-        public HashSet<TKey> AllLeafKeys { get; set; }
-
         public TreeList()
         {
             SubLeafs = new List<TreeLeaf<TKey, TValue>>();
-            AllLeafKeys = new HashSet<TKey>();
         }
 
         public bool LookForKey(TKey key, out TreeLeafInfo<TKey, TValue> info)
@@ -29,7 +26,7 @@ namespace Bloodthirst.Core.TreeList
 
             for (int i = 0; i < SubLeafs.Count; i++)
             {
-                if (SubLeafs[i].LookForKey(key, out info))
+                if (SubLeafs[i].LookForKeyRecursive(key, out info))
                     return true;
             }
 
@@ -39,7 +36,6 @@ namespace Bloodthirst.Core.TreeList
         public void Clear()
         {
             SubLeafs.Clear();
-            AllLeafKeys.Clear();
         }
 
         public IEnumerable<TreeLeaf<TKey, TValue>> GetFinalLeafs()
@@ -53,7 +49,7 @@ namespace Bloodthirst.Core.TreeList
                     yield return l;
             }
         }
-        
+
         public IEnumerable<TreeLeaf<TKey, TValue>> GetRootLeafs()
         {
             if (SubLeafs == null)
@@ -74,16 +70,15 @@ namespace Bloodthirst.Core.TreeList
         /// <returns></returns>
         public IEnumerable<TValue> GetElementsRecursivly(TKey key)
         {
-            if (!AllLeafKeys.Contains(key))
+            if (!LookForKey(key, out TreeLeafInfo<TKey, TValue> info))
                 yield break;
-
-            LookForKey(key, out TreeLeafInfo<TKey, TValue> info);
 
             foreach (TValue s in info.TreeLeaf.TraverseAllSubElements())
             {
                 yield return s;
             }
         }
+
 
         /// <summary>
         /// <para> Get or create a sequence of interconnected leafs using the order in the list passed</para>
@@ -93,19 +88,10 @@ namespace Bloodthirst.Core.TreeList
         public TreeLeaf<TKey, TValue> GetOrCreateLeaf(IList<TKey> keys)
         {
             // first key 
-            TreeLeaf<TKey, TValue> firstLeaf = null;
             TKey firstKey = keys[0];
+            TreeLeaf<TKey, TValue> firstLeaf = SubLeafs.Find(l => l.LeafKey.Equals(firstKey));
 
-            // if the key already exists
-            if (!AllLeafKeys.Add(firstKey))
-            {
-                if (LookForKey(firstKey, out TreeLeafInfo<TKey, TValue> info))
-                {
-                    firstLeaf = info.TreeLeaf;
-                }
-            }
-
-            else
+            if (firstLeaf == null)
             {
                 firstLeaf = new TreeLeaf<TKey, TValue>();
                 firstLeaf.LeafKey = firstKey;
@@ -120,28 +106,22 @@ namespace Bloodthirst.Core.TreeList
             // and linking the leafs
             for (int i = 1; i < keys.Count; i++)
             {
-                TKey curr = keys[i];
+                TKey currKey = keys[i];
+
+                TreeLeaf<TKey, TValue> leaf = previousLeaf.LookForKeyDirect(currKey);
 
                 // if the key already exists
-                if (!AllLeafKeys.Add(curr))
+                if (leaf != null)
                 {
-                    if (LookForKey(curr, out TreeLeafInfo<TKey, TValue> info))
-                    {
-                        currentLeaf = info.TreeLeaf;
-                    }
+                    currentLeaf = leaf;
                 }
 
                 // else create it and add it
                 else
                 {
                     currentLeaf = new TreeLeaf<TKey, TValue>();
-                    currentLeaf.LeafKey = curr;
-                    SubLeafs.Add(currentLeaf);
-                }
-
-                if (previousLeaf != null)
-                {
-                    currentLeaf.AddSubLeaf(previousLeaf);
+                    currentLeaf.LeafKey = currKey;
+                    previousLeaf.AddSubLeaf(currentLeaf);
                 }
 
                 previousLeaf = currentLeaf;

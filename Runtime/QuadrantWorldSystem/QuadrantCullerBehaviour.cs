@@ -150,7 +150,7 @@ namespace Bloodthirst.System.Quadrant
                 Handles.color = GetColor(keys).MulColor(a: visibility);
 
                 //Gizmos.DrawCube(center, quadrantManager.CubeSize);
-                EditorUtils.HandlesDrawCube(center, quadrantManagerBehaviour.QuadrantManager.CubeSize);
+                GizmosUtils.HandlesDrawCube(center, quadrantManagerBehaviour.QuadrantManager.CubeSize);
 
             }
 
@@ -173,7 +173,7 @@ namespace Bloodthirst.System.Quadrant
                 center += halfSize;
 
                 Handles.color = gizmosOutlineColor.MulColor(a: visibility);
-                EditorUtils.HandlesDrawCubeOutline(center, quadrantManagerBehaviour.QuadrantManager.CubeSize);
+                GizmosUtils.HandlesDrawCubeOutline(center, quadrantManagerBehaviour.QuadrantManager.CubeSize);
 
             }
 

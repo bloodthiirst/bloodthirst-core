@@ -92,6 +92,10 @@ namespace Bloodthirst.BType
 
             foreach (PropertyInfo p in props)
             {
+                // to skip events
+                if (TypeUtils.IsSubTypeOf(p.PropertyType, typeof(Delegate)))
+                    continue;
+
                 if (p.GetIndexParameters().Length != 0)
                     continue;
 
@@ -101,6 +105,10 @@ namespace Bloodthirst.BType
 
             foreach (FieldInfo f in fields)
             {
+                // to skip events
+                if (TypeUtils.IsSubTypeOf(f.FieldType, typeof(Delegate)) )
+                    continue;
+
                 if (!f.Name.EndsWith("__BackingField"))
                     yield return f;
             }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:VisualElement class="p-5 row grow-1 shrink-0">
+
+        <engine:VisualElement class="basis-1 grow-1">
+            <engine:Label name="FieldPath" text="Path" class="grow-1"/>
+        </engine:VisualElement>
+
+        <engine:VisualElement class="basis-1 grow-1">
+            <engine:Label name="FieldType" text="Type" class="grow-1"/>
+        </engine:VisualElement>
+
+        <engine:VisualElement class="basis-1 grow-1">
+            <editor:ObjectField name="FieldValue" class="grow-1"/>
+        </engine:VisualElement>
+    
+    </engine:VisualElement>
+
+</engine:UXML>

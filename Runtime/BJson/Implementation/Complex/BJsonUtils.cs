@@ -6,7 +6,8 @@ namespace Bloodthirst.BJson
     public static class BJsonUtils
     {
         public const string NULL_IDENTIFIER = "null";
-        public static bool IsCachedOrNull(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings , out object cached)
+
+        public static bool IsCachedOrNull(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings, out object cached)
         {
             // todo : check if null in JSON
             if (parseState.CurrentToken.TokenType == JSONTokenType.NULL)
@@ -46,17 +47,11 @@ namespace Bloodthirst.BJson
                 // key found
                 string key = currentToken.ToString();
 
-                try
+                // skip until the first colon
+                while (parseState.Tokens[tmpIndex].TokenType != JSONTokenType.COLON)
                 {
-                    // skip until the first colon
-                    while (parseState.Tokens[tmpIndex].TokenType != JSONTokenType.COLON)
-                    {
-                        tmpIndex++;
-                        continue;
-                    }
-                }catch (Exception e)
-                {
-
+                    tmpIndex++;
+                    continue;
                 }
 
                 tmpIndex++;
@@ -89,8 +84,7 @@ namespace Bloodthirst.BJson
             return false;
         }
 
-
-        public static bool WriteIdFormatter(object instance, StringBuilder jsonBuilder, BJsonContext context , BJsonSettings settings)
+        public static bool WriteIdFormatter(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)
         {
             if (context.IsCached(instance, out int id))
             {
@@ -99,10 +93,10 @@ namespace Bloodthirst.BJson
                 context.Indentation++;
                 jsonBuilder.Append(Environment.NewLine);
                 jsonBuilder.AddIndentation(context.Indentation);
-                
+
                 jsonBuilder.Append("$id : ");
                 jsonBuilder.Append(id);
-                
+
                 context.Indentation--;
                 jsonBuilder.Append(Environment.NewLine);
                 jsonBuilder.AddIndentation(context.Indentation);
@@ -128,7 +122,7 @@ namespace Bloodthirst.BJson
             return false;
         }
 
-        public static void WriteTypeInfoFormatted(object instance, StringBuilder jsonBuilder , BJsonContext context , BJsonSettings settings)
+        public static void WriteTypeInfoFormatted(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)
         {
             // type
             Type concreteType = instance.GetType();
@@ -146,14 +140,11 @@ namespace Bloodthirst.BJson
             // type
             Type concreteType = instance.GetType();
 
-            jsonBuilder.AddIndentation(context.Indentation);
             jsonBuilder.Append("$type:");
             jsonBuilder.Append('"');
             jsonBuilder.Append(concreteType.AssemblyQualifiedName);
             jsonBuilder.Append('"');
             jsonBuilder.Append(',');
         }
-
-
     }
 }

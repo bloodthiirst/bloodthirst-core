@@ -6,4 +6,8 @@
     xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
 >
 
+    <engine:VisualElement name="PathsContainer" class="p-5 mt-3 mb-3 col grow-1 border">
+
+    </engine:VisualElement>
+
 </engine:UXML>

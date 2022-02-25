@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+
+    <engine:VisualElement class="p-5 col grow-1">
+
+        <!-- FILTER DROPDOWN -->
+        <engine:VisualElement name="FilterDropdownContainer" />
+
+        <!-- FILTER UI -->
+        <engine:VisualElement name="FilterSettings"/>
+
+        <!-- SEARCH SECTION -->
+        <engine:VisualElement name="SearchSection" class="col grow-1">
+
+            <!-- SEARCH IN -->        
+            <engine:Label text="Search in "/>
+
+            <engine:VisualElement class="row shrink-0 space-around">
+
+                <engine:Toggle name="Prefabs" label="Prefabs" />
+
+                <engine:Toggle name="ScriptableObjects" label="ScriptableObjects" />
+                
+                <engine:Toggle name="Scenes" label="Scenes" />
+        
+            </engine:VisualElement>
+
+            <!-- SEARCH BUTTON -->
+            <engine:Button name="SearchBtn" text="Search" />
+
+            <!-- SEARCH RESULTS-->
+            <engine:Label text="Search results"/>
+
+            <engine:ScrollView name="SearchResultContainer" class="col border p-5" />
+
+        </engine:VisualElement>
+    
+    </engine:VisualElement>
+
+</engine:UXML>

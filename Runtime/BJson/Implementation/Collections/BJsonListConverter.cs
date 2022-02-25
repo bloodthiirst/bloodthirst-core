@@ -100,14 +100,18 @@ namespace Bloodthirst.BJson
 
             foreach (object elem in lst)
             {
+                jsonBuilder.AddIndentation(context.Indentation);
+
                 Type elemType = elem.GetType();
                 IBJsonConverterInternal c = Provider.GetConverter(elemType);
+
                 c.Serialize_Formatted_Internal(elem, jsonBuilder, context, settings);
 
                 jsonBuilder.Append(',');
                 jsonBuilder.Append(Environment.NewLine);
             }
             context.Indentation--;
+
             // remove the last ','
             jsonBuilder.Remove(jsonBuilder.Length - 3, 1);
             jsonBuilder.AddIndentation(context.Indentation);
@@ -162,18 +166,12 @@ namespace Bloodthirst.BJson
                 // skip until the first comma or object end
                 parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
 
-                try
+                if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
                 {
-                    if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
-                    {
-                        parseState.CurrentTokenIndex++;
-                        break;
-                    }
+                    parseState.CurrentTokenIndex++;
+                    break;
                 }
-                catch (Exception ex)
-                {
 
-                }
 
                 parseState.CurrentTokenIndex++;
             }

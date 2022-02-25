@@ -77,7 +77,6 @@ namespace Bloodthirst.BJson
             {
                 return;
             }
-
             context.Register(instance);
 
             jsonBuilder.Append(Environment.NewLine);
@@ -90,17 +89,26 @@ namespace Bloodthirst.BJson
 
             BJsonUtils.WriteTypeInfoFormatted(instance, jsonBuilder, context, settings);
 
+            jsonBuilder.Append(Environment.NewLine);
+
             IList lst = (IList)instance;
 
             foreach (object elem in lst)
             {
-                jsonBuilder.Append(Environment.NewLine);
+                jsonBuilder.AddIndentation(context.Indentation);
+
                 ElementConverter.Serialize_Formatted_Internal(elem, jsonBuilder, context, settings);
 
                 jsonBuilder.Append(',');
+                jsonBuilder.Append(Environment.NewLine);
             }
 
-            jsonBuilder[jsonBuilder.Length - 1] = ']';
+            context.Indentation--;
+
+            // remove the last ','
+            jsonBuilder.Remove(jsonBuilder.Length - 3, 1);
+            jsonBuilder.AddIndentation(context.Indentation);
+            jsonBuilder.Append(']');
         }
 
         public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)

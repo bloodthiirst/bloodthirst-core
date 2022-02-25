@@ -152,15 +152,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d8207bde06714244994903af7885bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jsonData: "{\r\n\t$type:\"Bloodthirst.Editor.BInspector.BInspectorBehaviour, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\r\n\tdict:\r\n\t[\r\n\t\t$type:\"System.Collections.Generic.Dictionary`2[[UnityEngine.GameObject,
+  jsonData: "{\r\n\t$type : \"Bloodthirst.Editor.BInspector.BInspectorBehaviour,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null\",\r\n\tdict
+    : \r\n\t[\r\n\t\t$type : \"System.Collections.Generic.Dictionary`2[[UnityEngine.GameObject,
     UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[System.Int32,
     mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]],
-    mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\",\t\t{\r\n\t\t\t\r\n\t\t\t{\r\n\t\t\t\t$type
-    : \"UnityEngine.GameObject\",\r\n\t\t\t\tindex : 0\r\n\t\t\t},\r\n\t\t\t9\r\n\t\t}\r\n\t],\r\n\tsomeEnum:1,\r\n\tshowJSON:false\r\n}"
+    mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\",\r\n\t\t{\r\n\t\t\t\r\n\t\t\t{\r\n\t\t\t\t$type
+    : \"UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null\",\r\n\t\t\t\tindex : 0\r\n\t\t\t},\r\n\t\t\t42069\r\n\t\t},\r\n\t\t{\r\n\t\t\t\r\n\t\t\t{\r\n\t\t\t\t$type
+    : \"UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+    PublicKeyToken=null\",\r\n\t\t\t\tindex : 1\r\n\t\t\t},\r\n\t\t\t0\r\n\t\t}\r\n\t],\r\n\tsomeEnum
+    : 1,\r\n\tshowJsonData : false\r\n}"
   unityObjects:
+  - {fileID: 1094465570}
   - {fileID: 954696833}
-  showJSON: 0
+  showJsonData: 0
   someEnum: 1
 --- !u!4 &686949054
 Transform:

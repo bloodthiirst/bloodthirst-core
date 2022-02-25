@@ -22,33 +22,20 @@ namespace Bloodthirst.BJson
 
         public void SkipWhile(Predicate<Token<TTokenType>> skip)
         {
-            try
+            // skip space
+            while (skip(Tokens[CurrentTokenIndex]))
             {
-                // skip space
-                while (skip(Tokens[CurrentTokenIndex]))
-                {
-                    CurrentTokenIndex++;
-                }
+                CurrentTokenIndex++;
             }
-            catch (Exception ex)
-            {
 
-            }
         }
 
         public void SkipUntil(Predicate<Token<TTokenType>> stopSkipping)
         {
-            try
+            // skip space
+            while (!stopSkipping(Tokens[CurrentTokenIndex]))
             {
-                // skip space
-                while (!stopSkipping(Tokens[CurrentTokenIndex]))
-                {
-                    CurrentTokenIndex++;
-                }
-            }
-            catch(Exception ex)
-            {
-
+                CurrentTokenIndex++;
             }
         }
     }

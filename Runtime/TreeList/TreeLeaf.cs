@@ -11,7 +11,7 @@ namespace Bloodthirst.Core.TreeList
         private List<TreeLeaf<TKey, TValue>> _SubLeafs { get; set; }
         public IReadOnlyList<TreeLeaf<TKey, TValue>> SubLeafs => _SubLeafs;
 
-        private bool LookForKeyInternal(TKey searchKey, TreeLeafInfo<TKey, TValue> info, out TreeLeafInfo<TKey, TValue> result)
+        private bool LookForKeyRecursiveInternal(TKey searchKey, TreeLeafInfo<TKey, TValue> info, out TreeLeafInfo<TKey, TValue> result)
         {
             info.Depth++;
 
@@ -41,7 +41,7 @@ namespace Bloodthirst.Core.TreeList
 
             for (int i = 0; i < SubLeafs.Count; i++)
             {
-                if (SubLeafs[i].LookForKeyInternal(searchKey, info, out result))
+                if (SubLeafs[i].LookForKeyRecursiveInternal(searchKey, info, out result))
                 {
                     return true;
                 }
@@ -74,19 +74,24 @@ namespace Bloodthirst.Core.TreeList
             }
         }
 
+        public TreeLeaf<TKey, TValue> LookForKeyDirect(TKey key)
+        {
+            return _SubLeafs?.Find(l => l.LeafKey.Equals(key));
+        }
+
         /// <summary>
         /// <para>Return the leaf with the Key value of <paramref name="key"/></para>
         /// <para>Returns null if keys not found in the leaf and it's sub leafs</para>
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public bool LookForKey(TKey key, out TreeLeafInfo<TKey, TValue> info)
+        public bool LookForKeyRecursive(TKey key, out TreeLeafInfo<TKey, TValue> info)
         {
             info = new TreeLeafInfo<TKey, TValue>();
             info.Depth = -1;
             info.KeysEncountered = new HashSet<TKey>();
 
-            return LookForKeyInternal(key, info, out info);
+            return LookForKeyRecursiveInternal(key, info, out info);
         }
 
         /// <summary>
