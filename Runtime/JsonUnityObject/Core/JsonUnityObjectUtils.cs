@@ -37,7 +37,8 @@ namespace Bloodthirst.JsonUnityObject
         public static string SerializeUnityObject(UnityEngine.Object unityObjectThis, List<UnityEngine.Object> unityRefsList)
         {
             // init/clear the list of unity object references
-            unityRefsList = unityRefsList.CreateOrClear();
+            // edit : list should be already cleared here
+            //unityRefsList.Clear();
 
             // get pooled settings
             BJsonSettings settings = JsonUnityObjectSettings.GetSettings();

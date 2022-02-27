@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Editor.BSearch
 {
@@ -43,11 +45,44 @@ namespace Bloodthirst.Editor.BSearch
         }
         List<List<ResultPath>> IBSearchFilter.GetSearchResults(List<object> rootItems)
         {
-            return SearchByValue(IsEqual , rootItems);
+            return SearchByValue(IsEqual, rootItems);
         }
         private bool IsEqual(object instance)
         {
-            return Value == instance;
+            GameObject instanceGO = null;
+            GameObject valueGO = null;
+
+            if (instance is GameObject)
+            {
+                instanceGO = (GameObject)instance;
+            }
+
+            if (Value is GameObject)
+            {
+                valueGO = (GameObject)Value;
+            }
+            // if it's a scene or a scriptableObject
+            // then we do normal comaprisson
+            if (valueGO == null)
+            {
+                return Value == instance;
+            }
+
+            if (instanceGO == null)
+            {
+                return Value == instance;
+            }
+
+            if(PrefabUtility.IsAnyPrefabInstanceRoot(valueGO))
+            {
+                valueGO = PrefabUtility.GetCorrespondingObjectFromSource(valueGO);
+            }
+            if (PrefabUtility.IsAnyPrefabInstanceRoot(instanceGO))
+            {
+                instanceGO = PrefabUtility.GetCorrespondingObjectFromSource(instanceGO);
+            }
+
+            return valueGO == instanceGO;
         }
 
         #region field filters
@@ -61,6 +96,7 @@ namespace Bloodthirst.Editor.BSearch
                 if (TypeUtils.IsSubTypeOf(f.FieldType, typeof(UnityEngine.Object)))
                 {
                     yield return f;
+                    continue;
                 }
 
                 // if collection (the case of it veing a "Transform" is taken care of by the previous check
@@ -94,14 +130,42 @@ namespace Bloodthirst.Editor.BSearch
         }
         #endregion
 
-        public List<List<ResultPath>> SearchByValue(Predicate<object> condition , List<object> rootItems)
+        private FieldType RootType(object instance)
+        {
+            if(instance is ScriptableObject)
+            {
+                return FieldType.SCRIPTABLEOBJECT;
+            }
+            if(instance is GameObject)
+            {
+                return FieldType.GAMEOBJECT;
+            }
+            if(instance is SceneAsset)
+            {
+                return FieldType.SCENE;
+            }
+
+            return FieldType.OTHER_UNITY_OBJECT;
+        }
+
+        private string RootName(object instance)
+        {
+            if (instance is UnityEngine.Object unityObj)
+            {
+                return unityObj.name;
+            }
+
+            return instance.ToString();
+        }
+
+        public List<List<ResultPath>> SearchByValue(Predicate<object> condition, List<object> rootItems)
         {
             HashSet<object> searchedCache = new HashSet<object>();
             List<List<ResultPath>> results = new List<List<ResultPath>>();
 
             List<object> rootCpy = rootItems.ToList();
-            
-            if(RemoveValueFromRootList)
+
+            if (RemoveValueFromRootList)
             {
                 rootCpy.Remove(Value);
             }
@@ -109,11 +173,15 @@ namespace Bloodthirst.Editor.BSearch
             foreach (object root in rootCpy)
             {
                 List<ResultPath> curr = new List<ResultPath>();
-                curr.Add(new ResultPath() { FieldName = "Root", FieldType = FieldType.FIELD, FieldValue = root });
-                RecursiveSearch(condition, root, searchedCache, curr, results);
+
+                FieldType fieldType = RootType(root);
+                string name = RootName(root);
+
+                curr.Add(new ResultPath() { ValueName = name, ValuePath = fieldType, Value = root });
+                RecursiveSearch(condition, root, rootCpy, searchedCache, curr, results);
             }
 
-            foreach(List<ResultPath> l in results)
+            foreach (List<ResultPath> l in results)
             {
                 l.Reverse();
             }
@@ -134,7 +202,7 @@ namespace Bloodthirst.Editor.BSearch
                 for (int i = 0; i < l.Count; i++)
                 {
                     ResultPath path = l[i];
-                    keys.Add(path.FieldValue);
+                    keys.Add(path.Value);
                 }
 
                 tree.GetOrCreateLeaf(keys);
@@ -142,7 +210,7 @@ namespace Bloodthirst.Editor.BSearch
                 for (int i = 0; i < l.Count; i++)
                 {
                     ResultPath path = l[i];
-                    tree.LookForKey(path.FieldValue, out TreeLeafInfo<object, ResultPath> info);
+                    tree.LookForKey(path.Value, out TreeLeafInfo<object, ResultPath> info);
                     info.TreeLeaf.Value = path;
                 }
             }
@@ -166,7 +234,7 @@ namespace Bloodthirst.Editor.BSearch
         }
         private void RecrusiveClean(TreeLeaf<object, ResultPath> leaf, List<ResultPath> currentPath, List<List<ResultPath>> results)
         {
-            if (leaf.Value.FieldValue is UnityEngine.Object)
+            if (leaf.Value.Value is UnityEngine.Object)
             {
                 List<ResultPath> res = currentPath.ToList();
                 results.Add(res);
@@ -180,25 +248,33 @@ namespace Bloodthirst.Editor.BSearch
                 RecrusiveClean(l, curr, results);
             }
         }
-        private void RecursiveSearch(Predicate<object> condition, object searchTarget, HashSet<object> searchedCache, List<ResultPath> currentPath, List<List<ResultPath>> allResults)
+        private void RecursiveSearch(Predicate<object> condition, object searchTarget, List<object> rootList, HashSet<object> searchedCache, List<ResultPath> currentPath, List<List<ResultPath>> allResults)
         {
+            // if the current instance exists as a root
+            // and we found it while starting form another object
+            // then we leave
+            // since it will eventually be picked up by once it starts in the root
+            if (rootList.Contains(searchTarget) && currentPath[0].Value != searchTarget)
+                return;
+
             bool isNull = searchTarget == null;
             bool isCached = false;
 
-            if(!isNull)
+            if (!isNull)
             {
                 isCached = !searchedCache.Add(searchTarget);
             }
-            
-            if (isNull && isCached)
-                return;
 
             if (condition(searchTarget))
             {
                 allResults.Add(currentPath);
             }
 
-            // if null leave
+            if (isCached)
+            {
+                return;
+            }
+
             if (isNull)
             {
                 return;
@@ -206,12 +282,6 @@ namespace Bloodthirst.Editor.BSearch
 
             // if primitive
             if (TypeUtils.PrimitiveTypes.Contains(searchTarget.GetType()))
-            {
-                return;
-            }
-
-            // if already seen it before leave
-            if (isCached)
             {
                 return;
             }
@@ -232,7 +302,34 @@ namespace Bloodthirst.Editor.BSearch
                 return;
             }
 
+            if (searchTarget is SceneAsset sceneAsset)
+            {
+                string scenePath = AssetDatabase.GetAssetPath(sceneAsset);
 
+                Scene scene = SceneManager.GetSceneByPath(scenePath);
+
+                // if scene is not already open , we open it
+                if (!scene.IsValid())
+                {
+                    scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+                }
+
+                List<GameObject> sceneObjs = scene.GetRootGameObjects().ToList();
+
+                for (int i = 0; i < sceneObjs.Count; i++)
+                {
+                    GameObject gameObject = sceneObjs[i];
+                    List<ResultPath> path = currentPath.ToList();
+                    ResultPath toAppend = new ResultPath()
+                    {
+                        ValueName = gameObject.name,
+                        ValuePath = FieldType.GAMEOBJECT,
+                        Value = gameObject
+                    };
+                    path.Add(toAppend);
+                    RecursiveSearch(condition, gameObject, rootList, searchedCache, path, allResults);
+                }
+            }
 
             // if is gameObject
             // go into each component and child gameObject
@@ -244,12 +341,12 @@ namespace Bloodthirst.Editor.BSearch
                     List<ResultPath> path = currentPath.ToList();
                     ResultPath toAppend = new ResultPath()
                     {
-                        FieldName = $"[Compenent] {c.GetType().Name}",
-                        FieldType = FieldType.COMPONENT,
-                        FieldValue = c
+                        ValueName = c.GetType().Name,
+                        ValuePath = FieldType.COMPONENT,
+                        Value = c
                     };
                     path.Add(toAppend);
-                    RecursiveSearch(condition, c, searchedCache, path, allResults);
+                    RecursiveSearch(condition, c, rootList, searchedCache, path, allResults);
                 }
 
                 // child transforms
@@ -261,15 +358,15 @@ namespace Bloodthirst.Editor.BSearch
 
                     ResultPath toAppend = new ResultPath()
                     {
-                        FieldName = $"[Child] {curr.gameObject.name}",
-                        FieldType = FieldType.CHILD_OBJECT,
-                        FieldValue = curr.gameObject,
+                        ValueName = curr.gameObject.name,
+                        ValuePath = FieldType.GAMEOBJECT,
+                        Value = curr.gameObject,
                         Index = i
                     };
 
                     path.Add(toAppend);
 
-                    RecursiveSearch(condition, curr.gameObject, searchedCache, path, allResults);
+                    RecursiveSearch(condition, curr.gameObject, rootList, searchedCache, path, allResults);
                 }
 
                 return;
@@ -289,14 +386,14 @@ namespace Bloodthirst.Editor.BSearch
 
                     ResultPath toAppend = new ResultPath()
                     {
-                        FieldName = $"{field.Name}",
-                        FieldType = FieldType.FIELD,
-                        FieldValue = val
+                        ValueName = field.Name,
+                        ValuePath = FieldType.FIELD,
+                        Value = val
                     };
 
                     path.Add(toAppend);
 
-                    RecursiveSearch(condition, val, searchedCache, path, allResults);
+                    RecursiveSearch(condition, val, rootList, searchedCache, path, allResults);
                 }
             }
 
@@ -312,14 +409,14 @@ namespace Bloodthirst.Editor.BSearch
 
                     ResultPath toAppend = new ResultPath()
                     {
-                        FieldName = $"{field.Name}",
-                        FieldType = FieldType.FIELD,
-                        FieldValue = val
+                        ValueName = field.Name,
+                        ValuePath = FieldType.FIELD,
+                        Value = val
                     };
 
                     path.Add(toAppend);
 
-                    RecursiveSearch(condition, val, searchedCache, path, allResults);
+                    RecursiveSearch(condition, val, rootList, searchedCache, path, allResults);
                 }
 
                 if (val == null)
@@ -336,15 +433,15 @@ namespace Bloodthirst.Editor.BSearch
 
                         ResultPath toAppend = new ResultPath()
                         {
-                            FieldName = $"{field.Name}",
-                            FieldType = FieldType.COLLECTION,
-                            FieldValue = elem,
+                            ValueName = field.Name,
+                            ValuePath = FieldType.COLLECTION,
+                            Value = elem,
                             Index = i
                         };
 
                         path.Add(toAppend);
 
-                        RecursiveSearch(condition, elem, searchedCache, path, allResults);
+                        RecursiveSearch(condition, elem, rootList, searchedCache, path, allResults);
                         i++;
                     }
                 }

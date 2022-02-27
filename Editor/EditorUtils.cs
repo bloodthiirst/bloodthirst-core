@@ -15,6 +15,30 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class EditorUtils
     {
+
+        public static List<T> FindAssets<T>() where T : UnityEngine.Object
+        {
+            List<T> queryResults = AssetDatabase
+                .FindAssets($"t:{typeof(T).Name }")
+                .Select(g => AssetDatabase.GUIDToAssetPath(g))
+                .Select(p => AssetDatabase.LoadAssetAtPath<T>(p))
+                .ToList();
+
+            return queryResults;
+        }
+
+        public static List<T> FindAssetsAs<T>(string queryText)
+        {
+            List<T> queryResults = AssetDatabase
+                .FindAssets(queryText)
+                .Select(g => AssetDatabase.GUIDToAssetPath(g))
+                .Select(p => AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(p))
+                .Cast<T>()
+                .ToList();
+
+            return queryResults;
+        }
+
         /// <summary>
         /// Clears the console in the editor
         /// </summary>
@@ -26,9 +50,9 @@ namespace Bloodthirst.Core.Utils
             method.Invoke(new object(), null);
         }
 
-        public static void Display( this VisualElement visualElement, bool show )
+        public static void Display(this VisualElement visualElement, bool show)
         {
-            DisplayStyle style  = show ? DisplayStyle.Flex : DisplayStyle.None;
+            DisplayStyle style = show ? DisplayStyle.Flex : DisplayStyle.None;
             visualElement.style.display = style;
         }
 

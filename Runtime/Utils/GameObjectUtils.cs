@@ -1,10 +1,31 @@
-﻿using System.Collections;
+﻿using Bloodthirst.Core.Utils;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.Scripts.Core.Utils
 {
     public static class GameObjectUtils
     {
+        public static void GetAllComponents<T>(ref List<T> list, bool includeInactive)
+        {
+            list = CollectionsUtils.CreateOrClear(list);
+
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            {
+                GameObject[] rootGameObjects = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).GetRootGameObjects();
+                foreach (GameObject rootGameObject in rootGameObjects)
+                {
+                    T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>(includeInactive);
+                    foreach (T childInterface in childrenInterfaces)
+                    {
+                        list.Add(childInterface);
+                    }
+                }
+
+            }
+        }
+
         /// <summary>
         /// Combines a list of coroutines into one with the same order in the params
         /// </summary>
@@ -34,14 +55,6 @@ namespace Bloodthirst.Scripts.Core.Utils
             {
                 Object.DestroyImmediate(t.GetChild(i).gameObject);
             }
-        }
-        public static void CreateOrClearDict<D>(this D collection) where D : IDictionary, new()
-        {
-            if (collection == null)
-                collection = new D();
-            else
-                collection.Clear();
-
         }
     }
 }

@@ -7,6 +7,7 @@ using UnityEngine;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+using Bloodthirst.Core.Utils;
 #endif
 
 #if UNITY_EDITOR
@@ -67,6 +68,7 @@ namespace Bloodthirst.JsonUnityObject
             try
             {
                 string oldJson = jsonData;
+                unityObjects = unityObjects.CreateOrClear();
                 string newJson = JsonUnityObjectUtils.SerializeUnityObject(this, unityObjects);
 
 #if UNITY_EDITOR

@@ -1,0 +1,11 @@
+.up-icon
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/baseline_expand_less_white_24dp.png");
+	width : 24px;
+	height : 24px
+}
+
+.result-path Label
+{
+	-unity-text-align : middle-left
+}

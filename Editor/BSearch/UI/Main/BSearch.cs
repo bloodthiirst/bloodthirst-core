@@ -9,6 +9,8 @@ using Bloodthirst.Core.Utils;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using UnityEngine.SceneManagement;
+using UnityEditor.SceneManagement;
 
 namespace Bloodthirst.Editor.BSearch
 {
@@ -25,6 +27,8 @@ namespace Bloodthirst.Editor.BSearch
         }
 
         private IBSearchFilter currentSearchFilter;
+
+        private List<BSearchResultPath> CachedUIs { get; set; } = new List<BSearchResultPath>();
 
         private IBSearchFilter CurrentSearchFilter
         {
@@ -62,6 +66,26 @@ namespace Bloodthirst.Editor.BSearch
         private Button SearchBtn => Root.Q<Button>(nameof(SearchBtn));
 
         private VisualElement SearchResultContainer => Root.Q<VisualElement>(nameof(SearchResultContainer));
+
+        public void OnEnable()
+        {
+            EditorSceneManager.sceneOpened -= HandleSceneOpened;
+            EditorSceneManager.sceneOpened += HandleSceneOpened;
+        }
+
+        public void OnDisable()
+        {
+            EditorSceneManager.sceneOpened -= HandleSceneOpened;
+        }
+
+        private void HandleSceneOpened(Scene scene, OpenSceneMode mode)
+        {
+            for (int i = 0; i < CachedUIs.Count; i++)
+            {
+                BSearchResultPath ui = CachedUIs[i];
+                ui.Refresh();
+            }
+        }
 
         public void CreateGUI()
         {
@@ -178,50 +202,62 @@ namespace Bloodthirst.Editor.BSearch
             typeof(SceneAsset)
         };
 
+
+
         private void HandleSeachBtnClicked()
         {
-            StringBuilder searchQuery = new StringBuilder();
+            SearchResultContainer.Clear();
+            CachedUIs.Clear();
+
+            List<List<ResultPath>> results = new List<List<ResultPath>>();
 
             if (ScriptableObjects.value)
             {
-                searchQuery.Append("t:scriptableobject ");
+                List<object> objs = EditorUtils.FindAssets<ScriptableObject>().Cast<object>().ToList();
+                List<List<ResultPath>> res = CurrentSearchFilter.GetSearchResults(objs);
+
+                results.AddRange(res);
             }
 
             if (Prefabs.value)
             {
-                searchQuery.Append("t:prefab ");
+                List<object> objs = EditorUtils.FindAssetsAs<object>("t:prefab");
+                List<List<ResultPath>> res = CurrentSearchFilter.GetSearchResults(objs);
+
+                results.AddRange(res);
             }
 
             if (Scenes.value)
             {
-                searchQuery.Append("t:scene ");
-            }
+                // save previously open scenes
+                List<Scene> prevSceneDetails = SceneUtils.GetAllScenesInHierarchy(out Scene active);
 
-            string queryTxt = searchQuery.ToString();
+                // search
+                List<SceneAsset> allScenes = EditorUtils.FindAssetsAs<SceneAsset>("t:scene");
+                List<object> objs = allScenes.Cast<object>().ToList();
 
-            List<object> allUnityObjects = AssetDatabase
-                .FindAssets(queryTxt)
-                .Select(g => AssetDatabase.GUIDToAssetPath(g))
-                .Select(p => AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(p))
-                .OrderBy(p =>
+                // this already opens all the scenes
+                List<List<ResultPath>> res = CurrentSearchFilter.GetSearchResults(objs);
+                results.AddRange(res);
+
+                // restore the scenes
+                IEnumerable<string> scenesToUnload = allScenes.Select( s => AssetDatabase.GetAssetPath(s)).Except(prevSceneDetails.Select(s => s.path));
+
+                foreach (string s in scenesToUnload)
                 {
-                    for (int i = 0; i < OrderByType.Count; i++)
+                    Scene scene = SceneManager.GetSceneByPath(s);
+
+                    if (scene.isLoaded)
                     {
-                        Type t = OrderByType[i];
-                        if (TypeUtils.IsSubTypeOf(p.GetType(), t))
-                            return i;
+                        EditorSceneManager.CloseScene(scene, true);
                     }
+                }
 
-                    return OrderByType.Count;
-                })
-                .Cast<object>()
-                .ToList();
+                SceneManager.SetActiveScene(active);
+            }   
 
-            List<List<ResultPath>> result = CurrentSearchFilter.GetSearchResults(allUnityObjects);
 
-            SearchResultContainer.Clear();
-
-            if (result.Count == 0)
+            if (results.Count == 0)
             {
                 SearchResultContainer.Display(false);
                 return;
@@ -229,28 +265,18 @@ namespace Bloodthirst.Editor.BSearch
 
             SearchResultContainer.Display(true);
 
-            foreach (List<ResultPath> resultPath in result)
+            foreach (List<ResultPath> resultPath in results)
             {
                 BSearchResult r = new BSearchResult();
 
-                foreach (ResultPath p in resultPath)
+                for (int i = 0; i < resultPath.Count; i++)
                 {
+                    ResultPath p = resultPath[i];
                     BSearchResultPath path = new BSearchResultPath();
-                    path.FieldPath.text = p.FieldName;
-                    path.FieldType.text = $"{p.FieldType} of type { TypeUtils.GetNiceName(p.FieldValue.GetType()) }";
-                    path.FieldValue.objectType = typeof(UnityEngine.Object);
-
-                    if (p.FieldValue == null || !(p.FieldValue is UnityEngine.Object u))
-                    {
-                        path.FieldValue.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
-                    }
-                    else
-                    {
-                        path.FieldValue.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
-                        path.FieldValue.value = u;
-                    }
-
+                    path.Setup(p , resultPath.Count - i);
+                   
                     r.PathsContainer.Add(path);
+                    CachedUIs.Add(path);
                 }
 
                 SearchResultContainer.Add(r);

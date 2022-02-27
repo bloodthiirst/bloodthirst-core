@@ -12,6 +12,11 @@
     height: 50%;
 }
 
+.text-center-y
+{
+    -unity-text-align: middle-left
+}
+
 .center {
     display: flex;
     flex-direction: row;

@@ -1,4 +1,5 @@
 using Bloodthirst.Core.Utils;
+using Bloodthirst.Scripts.Core.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,11 +42,11 @@ namespace Bloodthirst.Core.Setup
 
             List<IPostGameSetup> postGameSetups = new List<IPostGameSetup>();
 
-            QueryScenes(ref preGameSetups);
+            GameObjectUtils.GetAllComponents(ref preGameSetups , true);
 
-            QueryScenes(ref gameSetups);
+            GameObjectUtils.GetAllComponents(ref gameSetups , true);
 
-            QueryScenes(ref postGameSetups);
+            GameObjectUtils.GetAllComponents(ref postGameSetups , true);
 
             List<IGrouping<int, IGameSetup>> ordered = gameSetups.GroupBy(o => o.Order).OrderBy(g => g.Key).ToList();
 
@@ -99,25 +100,6 @@ namespace Bloodthirst.Core.Setup
                 post.Execute();
             }
 
-        }
-
-        public static void QueryScenes<T>(ref List<T> list)
-        {
-            list = CollectionsUtils.CreateOrClear(list);
-
-            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
-            {
-                GameObject[] rootGameObjects = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).GetRootGameObjects();
-                foreach (GameObject rootGameObject in rootGameObjects)
-                {
-                    T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>(true);
-                    foreach (T childInterface in childrenInterfaces)
-                    {
-                        list.Add(childInterface);
-                    }
-                }
-
-            }
         }
 
     }

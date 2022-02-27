@@ -6,15 +6,15 @@ namespace Bloodthirst.Core.BISDSystem
 {
     public class InstanceRegister<INSTANCE> where INSTANCE : IEntityInstance
     {
-        private static HashSet<INSTANCE> instances;
+        private static HashSet<IEntityInstance> instances;
 
-        private static HashSet<INSTANCE> Instances
+        private static HashSet<IEntityInstance> Instances
         {
             get
             {
                 if (instances == null)
                 {
-                    instances = new HashSet<INSTANCE>();
+                    instances = new HashSet<IEntityInstance>();
                     EntityManager._AllInstanceSets.Add(instances);
 
                 }
@@ -26,7 +26,7 @@ namespace Bloodthirst.Core.BISDSystem
         /// <summary>
         /// List of the instances alive
         /// </summary>
-        public static IReadOnlyCollection<INSTANCE> AvailableInstances => Instances;
+        public static IReadOnlyCollection<IEntityInstance> AvailableInstances => Instances;
 
 
         /// <summary>
