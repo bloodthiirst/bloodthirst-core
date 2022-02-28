@@ -6,8 +6,8 @@ namespace Bloodthirst.Core.BISDSystem
     public abstract class EntityGameSaveHandlerBase<TSave, TState> :
     IEntitySaver<TSave, TState>,
     IEntityLoader<TSave, TState>
-    where TState : IEntityState
-    where TSave : IEntityGameSave<TState>
+    where TState : ISavableState
+    where TSave : ISavableGameSave
     {
         private static readonly Type saveType = typeof(TSave);
         private static readonly Type stateType = typeof(TState);
@@ -36,18 +36,18 @@ namespace Bloodthirst.Core.BISDSystem
             LinkReferences(save, state, context);
         }
 
-        IEntityGameSave IEntitySaver.GetSave(IEntityState state, SavingContext context)
+        ISavableGameSave IEntitySaver.GetSave(ISavableState state, SavingContext context)
         {
             return GetSave((TState)state, context);
         }
 
-        IEntityState IEntityLoader.GetState(IEntityGameSave save, LoadingContext context)
+        ISavableState IEntityLoader.GetState(ISavableGameSave save, LoadingContext context)
         {
             return GetState((TSave)save, context);
         }
 
 
-        void IEntityLoader.LinkReferences(IEntityGameSave save, IEntityState state, LoadingContext context)
+        void IEntityLoader.LinkReferences(ISavableGameSave save, ISavableState state, LoadingContext context)
         {
             LinkReferences((TSave) save ,(TState) state, context);
         }

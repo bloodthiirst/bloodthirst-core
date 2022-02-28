@@ -4,8 +4,8 @@ using System;
 namespace Bloodthirst.Core.BISDSystem
 {
     public interface IEntitySaver<TSave, TState>: IEntitySaver 
-        where TState : IEntityState 
-        where TSave : IEntityGameSave<TState>
+        where TState : ISavableState
+        where TSave : ISavableGameSave
     {
         TSave GetSave(TState state, SavingContext context);
     }
@@ -14,6 +14,6 @@ namespace Bloodthirst.Core.BISDSystem
     {
         Type From { get; }
         Type To { get; }
-        IEntityGameSave GetSave(IEntityState state, SavingContext context);
+        ISavableGameSave GetSave(ISavableState state, SavingContext context);
     }
 }

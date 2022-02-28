@@ -12,7 +12,7 @@ namespace Bloodthirst.Core.BISDSystem
     /// </summary>
     [GeneratePool]
     [RequireComponent(typeof(EntityInstanceManager))]
-    public class EntityIdentifier : MonoBehaviour
+    public class EntityIdentifier : MonoBehaviour, ISavableIdentifier
     {
         [SerializeField]
         private int id;
@@ -35,7 +35,7 @@ namespace Bloodthirst.Core.BISDSystem
             {
                 IBehaviourInstance curr = all[i];
 
-                IEntityState state =  curr.Instance.State;
+                IEntityState state = curr.Instance.State;
 
                 state.Id = identifier;
 
@@ -92,5 +92,13 @@ namespace Bloodthirst.Core.BISDSystem
             OnEntitySpawned?.Invoke(this);
         }
 
+        public ISavableSpawnInfo GetSpawnInfo()
+        {
+            return new BISDSpawnInfo()
+            {
+                Id = Id,
+                EntityType = entityType
+            };
+        }
     }
 }

@@ -5,6 +5,8 @@ using UnityEngine;
 namespace Bloodthirst.Core.BISDSystem
 {
     public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour,
+        ISavableBehaviour,
+
         IInitializeIdentifier,
         IInitializeInstance,
 
@@ -145,22 +147,8 @@ namespace Bloodthirst.Core.BISDSystem
         /// <para>Inject the instance either by using the exterior data or by using the serialized instance</para>
         /// <para>This should only be called by the <see cref="EntitySpawner"/> and injection points</para>
         /// </summary>
-        protected virtual void InitializeInstance(EntityIdentifier entityIdentifier, IEntityState preloadState)
+        protected virtual void InitializeInstance(EntityIdentifier entityIdentifier)
         {
-            // try loading from preload
-            if (preloadState != null)
-            {
-                STATE state = (STATE)preloadState;
-                state.InitDefaultState();
-
-                INSTANCE loaded = new INSTANCE
-                {
-                    State = state
-                };
-
-                Instance = loaded;
-                return;
-            }
 
             // try loading from injector
             IInstanceInjector<INSTANCE> injector = GetComponentInChildren<IInstanceInjector<INSTANCE>>();
@@ -248,9 +236,9 @@ namespace Bloodthirst.Core.BISDSystem
 
         Type IInitializeInstance.StateType => stateType;
 
-        void IInitializeInstance.InitializeInstance(EntityIdentifier entityIdentifier, IEntityState preloadState)
+        void IInitializeInstance.InitializeInstance(EntityIdentifier entityIdentifier)
         {
-            InitializeInstance(entityIdentifier, preloadState);
+            InitializeInstance(entityIdentifier);
         }
 
         void IHasEntityInstanceRegister.InitializeEntityInstanceRegister(IEntityInstanceRegister instanceRegister)
@@ -271,6 +259,13 @@ namespace Bloodthirst.Core.BISDSystem
         void IPostEntitiesLoaded.PostEntitiesLoaded()
         {
             PostEntityLoaded();
+        }
+        #endregion
+
+        #region savable
+        public ISavable GetSavable()
+        {
+            return Instance;
         }
         #endregion
     }

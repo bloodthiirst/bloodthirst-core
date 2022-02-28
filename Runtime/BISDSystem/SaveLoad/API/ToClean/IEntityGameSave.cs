@@ -5,7 +5,7 @@
 
     }
     
-    public interface IEntityGameSave
+    public interface IEntityGameSave : ISavableGameSave
     {
 
     }

@@ -1,5 +1,6 @@
 ﻿using Bloodthirst.Core.AdvancedPool.Pools;
 using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.Singleton;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public class EntitySpawner : MonoBehaviour, IQuerySingletonPass
+    public class EntitySpawner : UnitySingleton<EntitySpawner>, IQuerySingletonPass, IEntitySpawner
     {
         private IGlobalPool _genericUnityPool;
 
@@ -19,28 +20,28 @@ namespace Bloodthirst.Core.BISDSystem
         }
 
         #region spawn
-        public T SpawnEntity<T>(IList<IEntityState> preloadedStates = null) where T : MonoBehaviour
+        public T SpawnEntity<T>() where T : MonoBehaviour
         {
             T entity = _genericUnityPool.Get<T>();
 
-            entity = SetupEntity(entity, preloadedStates);
+            entity = SetupEntity(entity);
 
             return entity;
         }
 
-        public T SpawnEntity<T>(Predicate<T> filter, IList<IEntityState> preloadedStates = null) where T : MonoBehaviour
+        public T SpawnEntity<T>(Predicate<T> filter) where T : MonoBehaviour
         {
             T entity = _genericUnityPool.Get(filter);
-            entity = SetupEntity(entity, preloadedStates);
+            entity = SetupEntity(entity);
 
             return entity;
         }
         #endregion
 
         #region setup
-        private T SetupEntity<T>(T entity, IList<IEntityState> preloadedStates = null) where T : MonoBehaviour
+        private T SetupEntity<T>(T entity) where T : MonoBehaviour
         {
-            entity = InjectStates(entity, preloadedStates);
+            entity = InjectStates(entity);
 
             // we set the id after since we might be creating new instances of the states
             EntityIdentifier id = entity.GetComponent<EntityIdentifier>();
@@ -53,7 +54,7 @@ namespace Bloodthirst.Core.BISDSystem
 
             return entity;
         }
-        public T InjectStates<T>(T entity, IList<IEntityState> preloadedStates = null) where T : MonoBehaviour
+        public T InjectStates<T>(T entity) where T : MonoBehaviour
         {
 
             // get instance register and provider and identifier
@@ -81,8 +82,7 @@ namespace Bloodthirst.Core.BISDSystem
 
             foreach (IInitializeInstance init in entity.GetComponentsInChildren<IInitializeInstance>())
             {
-                IEntityState lookForPreload = preloadedStates == null ? null : preloadedStates.FirstOrDefault(s => s.GetType() == init.StateType);
-                init.InitializeInstance(entityIdentifier, lookForPreload);
+                init.InitializeInstance(entityIdentifier);
             }
 
             // initialize provider
@@ -119,7 +119,7 @@ namespace Bloodthirst.Core.BISDSystem
             ((IHasEntityInstanceRegister)behaviour).InitializeEntityInstanceRegister(instanceRegister);
 
             // init instancee
-            ((IInitializeInstance)behaviour).InitializeInstance(entityIdentifier, null);
+            ((IInitializeInstance)behaviour).InitializeInstance(entityIdentifier);
 
             // initialize provider
 
@@ -148,9 +148,9 @@ namespace Bloodthirst.Core.BISDSystem
         #endregion
 
         #region  load game
-        public List<EntityIdentifier> LoadGameState(BISDGameStateData gameData)
+        public List<GameObject> LoadGameState(GameStateSaveInstance gameData)
         {
-            return EntityManager.Load(gameData, this);
+            return SaveLoadManager.Load(gameData, this);
         }
         #endregion
     }

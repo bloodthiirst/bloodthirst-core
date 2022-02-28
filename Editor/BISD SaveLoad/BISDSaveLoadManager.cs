@@ -88,15 +88,15 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private void OnCreateAssetClicked()
         {
-            BISDGameStateData data = CreateInstance<BISDGameStateData>();
+            GameStateSaveInstance data = CreateInstance<GameStateSaveInstance>();
 
             data.Title = titleTxt.value;
 
-            data.GameDatas = EntityManager.GetAllEntityStates();
+            data.GameDatas = SaveLoadManager.SaveRuntimeState();
 
             AssetDatabase.CreateAsset(data, selectPathTxt.value);
 
-            BISDGameStateData created = AssetDatabase.LoadAssetAtPath<BISDGameStateData>(selectPathTxt.value);
+            GameStateSaveInstance created = AssetDatabase.LoadAssetAtPath<GameStateSaveInstance>(selectPathTxt.value);
 
             ProjectWindowUtil.ShowCreatedAsset(created);
 
