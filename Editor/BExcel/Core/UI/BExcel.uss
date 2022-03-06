@@ -1,0 +1,39 @@
+.filter-container
+{
+	margin : 5px;
+	padding : 10px;
+	border-width : 2px;
+	border-color : #b0b0b0;
+	border-radius : 10px;
+}
+
+.empty-space
+{
+	flex-grow : 1;
+}
+
+.mt-10
+{
+	margin-top : 10px;
+}
+
+.mb-10
+{
+	margin-bottom : 10px;
+}
+
+.title
+{
+	-unity-font-style: bold
+}
+
+.row
+{
+	display : flex;
+	flex-direction : row
+}
+
+.flex-grow
+{
+	flex-grow : 1;
+}

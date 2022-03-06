@@ -1,0 +1,43 @@
+GameSetup
+-> Start
+
+-> Setup
+
+    -> IPreGameSetup
+
+        - in this phase we collect all the data necessary before starting the game
+        for example : loading save files , game settings , collecting all scriptableObjects
+
+        - also big systems register in BProvider since they will be needed later on
+        like GamePassInitiator and SceneLoadingManager
+
+    -> IGameSetup (AsyncOperations)
+
+        - in this phase we do the main loading tasks , loading scenes , maybe stuff from the internet
+
+        - in the basic case , scene will be loadingAsync through the SceneLoadingManager
+        
+    -> IPostGameSetup
+
+        - in this phase , we should have most of the scenes/content present , but not yet linked correctly
+        - so what we do is register/link up everything , starting with adding stuff to BProvider
+        - this is also where we plug the custom BProvider to inject EdtiorTime only dependencies if there are any
+        - then we query and execute every "IGamePass" instance in order to link everything
+
+            -> IGamePass
+            happens in the following order :
+
+                -> scene stuff
+                IBeforeAllScenesInitializationPass : for now , the only thing using this is Pool instantiation
+                ISceneInitializationPass : Actually initializing the scene but without referencing stuff from other scenes
+                IPostSceneInitializationPass : Step where we can reference stuff from other scenes
+                IAfterAllScenesIntializationPass : Step where all the scenes have already did ISceneInitializationPass and IPostSceneInitializationPass
+
+                -> callback stuff
+                ISetupSingletonPass : setup for singletons to self initialize without referencing stuff from other singletons
+                IQuerySingletonPass : Step where we can reference stuff from other singletons
+                IInjectPass : 
+                IAwakePass 
+                IPostAwakePass
+                IEnablePass 
+                IPostEnablePass 

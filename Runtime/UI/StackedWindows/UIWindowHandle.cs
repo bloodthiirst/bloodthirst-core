@@ -28,6 +28,15 @@ namespace Bloodthirst.Core.UI
 
         void IAwakePass.Execute()
         {
+            Execute();
+        }
+        void IGamePass.Execute()
+        {
+            Execute();
+        }
+
+        private void Execute()
+        {
             _mouseUtils = BProviderRuntime.Instance.GetSingleton<MouseUtils>();
         }
 

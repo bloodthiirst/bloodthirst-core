@@ -2,6 +2,6 @@
 {
     public interface IInjectPass : IGamePass
     {
-        void Execute();
+        new void Execute();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.Setup;
 using Bloodthirst.Core.Singleton;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
@@ -11,7 +12,12 @@ using UnityEngine.UI;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public abstract class SceneInstanceManager<T> : UnitySingleton<T>, ISceneInstanceManager , ISceneInitializationPass , IPostSceneInitializationPass where T : SceneInstanceManager<T>
+    public abstract class SceneInstanceManager<T> : UnitySingleton<T>, 
+        ISceneInstanceManager, 
+        ISceneInitializationPass, 
+        IPostSceneInitializationPass,
+        IBeforeSceneUnload
+        where T : SceneInstanceManager<T>
     {
         public event Action<T> OnSceneVisibilityChanged;
         public event Action<T> OnSceneStateChanged;
@@ -65,7 +71,7 @@ namespace Bloodthirst.Core.SceneManager
 
         private List<Renderer> previouslyActiveRenderers = new List<Renderer>();
 
-        private SceneLoadingManager _sceneLoadingManager;
+        private LoadingManager _loadingManager;
 
         [SerializeField]
         private UnityEvent onSceneInitialization;
@@ -75,21 +81,26 @@ namespace Bloodthirst.Core.SceneManager
 
         void ISceneInitializationPass.Execute()
         {
-            _sceneLoadingManager = BProviderRuntime.Instance.GetSingleton<SceneLoadingManager>();
+            _loadingManager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
 
             // register the manager to the list of managers
-            if (_sceneLoadingManager == null)
+            if (_loadingManager == null)
             {
                 Debug.LogError("SceneLoadingManager is null");
             }
 
-            _sceneLoadingManager.SceneInstanceManagers.Add(this);
+            BProviderRuntime.Instance.RegisterInstance<ISceneInstanceManager> (this);
 
             QuerySceneGameObjects();
 
             onSceneInitialization?.Invoke();
         }
 
+        void IBeforeSceneUnload.Execute()
+        {
+            BProviderRuntime.Instance.RemoveInstance<ISceneInstanceManager>(this);
+            Debug.Log($"Scene { Scene.name } has been unloaded");
+        }
 
         void IPostSceneInitializationPass.Execute()
         {
@@ -100,7 +111,7 @@ namespace Bloodthirst.Core.SceneManager
 
         public void OnDestroy()
         {
-            _sceneLoadingManager?.SceneInstanceManagers.Remove(this);
+            BProviderRuntime.Instance.RemoveInstance<ISceneInstanceManager>(this);
         }
 
         public void QuerySceneGameObjects()
@@ -190,7 +201,7 @@ namespace Bloodthirst.Core.SceneManager
 
         [Button]
         [InfoBox("disables all the gameObjects under the scene")]
-        public void Pause()
+        public void Disable()
         {
             if (!isScenePlaying)
                 return;
@@ -214,7 +225,7 @@ namespace Bloodthirst.Core.SceneManager
 
         [Button]
         [InfoBox("enables all the gameObjects under the scene")]
-        public void Play()
+        public void Enable()
         {
             if (isScenePlaying)
                 return;
@@ -299,5 +310,15 @@ namespace Bloodthirst.Core.SceneManager
 
             OnSceneVisibilityChanged?.Invoke((T)this);
         }
+
+
+        [Button]
+        [InfoBox("Unloads the scene")]
+        public void UnloadScene()
+        {
+            _loadingManager.Load( new IAsynOperationWrapper[] { new UnloadSceneAsyncOperation(Scene.path) } );
+        }
+
+
     }
 }

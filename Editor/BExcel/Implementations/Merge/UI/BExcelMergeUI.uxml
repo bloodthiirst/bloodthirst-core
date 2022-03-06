@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <!-- EXCEL ASSET -->
+    <engine:Label text="Excel Merge Settings :"/>
+
+    <!-- EXPORT -->
+    <engine:VisualElement class="row">
+    
+        <!-- EXPORT PATH -->
+        <engine:TextField labe="Export path" name="ExportPath" class="flex-grow"/>
+    
+        <!-- CHANGE EXPORT -->
+        <engine:Button name="ChangeExportBtn" text="Change"/>
+
+    </engine:VisualElement>
+
+    <!-- ORIGINAL TAB -->
+    <engine:Label text="Original Tab :" class="title mt-10" />
+    <engine:VisualElement name="OriginalTabContainer"/>
+    
+    <!-- ADD DUPLICATE TAB -->
+    <engine:Button name="AddTabBtn" text="Add Duplicate Tab" class="mb-10" />
+
+    <!-- DUPLICATES LIST -->
+    <engine:Label text="Duplicate Tabs : " />
+    <engine:VisualElement name="TabsContainer" />
+
+</engine:UXML>

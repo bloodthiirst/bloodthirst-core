@@ -21,7 +21,16 @@ namespace Bloodthirst.Core.Pooling
             }
         }
 
+        void IGamePass.Execute()
+        {
+            Execute();
+        }
         void ISetupSingletonPass.Execute()
+        {
+            Execute();
+        }
+
+        private void Execute()
         {
             if (instance == null)
             {

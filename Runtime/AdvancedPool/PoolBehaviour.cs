@@ -74,8 +74,14 @@ namespace Bloodthirst.Core.AdvancedPool
 
         void IBeforeAllScenesInitializationPass.Execute()
         {
+            Execute();
+        }
+
+        private void Execute()
+        {
             InitializePool();
             Debug.Log($"[POOL LOADED] Pool initialized for prefab <{prefab.name}>");
         }
+
     }
 }

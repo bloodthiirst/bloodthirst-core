@@ -79,8 +79,8 @@ namespace Bloodthirst.Core.SceneManager.DependencyInjector
 
             // construct the dependency object
             GameObject injectorGO = new GameObject(PER_SCENE_INJECTOR_NAME);
-            GamePassInitiator init = injectorGO.AddComponent<GamePassInitiator>();
-            GameSetup gameSetup = injectorGO.AddComponent<GameSetup>();
+            DependenciesInjectorBehaviour init = injectorGO.AddComponent<DependenciesInjectorBehaviour>();
+            GameStart gameSetup = injectorGO.AddComponent<GameStart>();
             gameSetup.ExecuteOnStart = true;
 
             foreach (Component injector in injectors)

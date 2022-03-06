@@ -9,7 +9,17 @@ public class FetchFromInjectedProvider : MonoBehaviour , IAwakePass
     [SerializeField]
     private ScriptableObject scriptableObject;
 
+    void IGamePass.Execute()
+    {
+        Execute();
+    }
+
     void IAwakePass.Execute()
+    {
+        Execute();
+    }
+
+    private void Execute()
     {
         List<ScriptableObject> fetch = BProviderRuntime.Instance.GetInstances<ScriptableObject>().ToList();
         scriptableObject = fetch[0];

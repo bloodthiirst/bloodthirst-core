@@ -2,6 +2,6 @@
 {
     public interface IQuerySingletonPass : IGamePass
     {
-        void Execute();
+        new void Execute();
     }
 }

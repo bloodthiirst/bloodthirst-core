@@ -2,6 +2,6 @@
 {
     public interface ISetupSingletonPass : IGamePass
     {
-        void Execute();
+        new void Execute();
     }
 }

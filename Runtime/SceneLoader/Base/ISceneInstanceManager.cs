@@ -11,8 +11,8 @@ namespace Bloodthirst.Core.SceneManager
         void QuerySceneGameObjects();
         void AddToScene(GameObject gameObject);
         void RemoveFromScene(GameObject gameObject);
-        void Pause();
-        void Play();
+        void Disable();
+        void Enable();
         void Show();
         void Hide();
     }

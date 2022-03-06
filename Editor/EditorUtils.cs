@@ -90,6 +90,36 @@ namespace Bloodthirst.Core.Utils
         private static string pathToProject;
 
         /// <summary>
+        /// <para>Takes a relative paht and returns it as absolute path</para>
+        /// <para>Relative paths are usually returned from <see cref="AssetDatabase.GetAssetPath(int)"/> or other <see cref="AssetDatabase"/> methods </para>
+        /// </summary>
+        /// <param name="relative">The relative path , usually the path you get from <see cref="AssetDatabase.GetAssetPath(int)"/> </param>
+        /// <returns>The absolute path</returns>
+        public static string RelativeToAbsolutePath(string relative)
+        {
+            return PathToProject + "/" + relative;
+        }
+
+
+        /// <summary>
+        /// <para>Takes an anbsolute path and returns it as relative path</para>
+        /// <para>Relative paths are usually used in methods provided in <see cref="AssetDatabase"/> </para>
+        /// </summary>
+        /// <param name="relative">The relative path , usually the path you get from <see cref="AssetDatabase.GetAssetPath(int)"/> </param>
+        /// <returns>The relative path OR <see cref="null"/> if the path isn't in the project</returns>
+        public static string AbsoluteToRelativePath(string absolute)
+        {
+            string relative = null;
+
+            if (absolute.StartsWith(Application.dataPath))
+            {
+                relative = "Assets" + absolute.Substring(Application.dataPath.Length);
+            }
+
+            return relative;
+        }
+
+        /// <summary>
         ///<para>Path to project (without the Asset folder)</para>
         ///<para>Example : C:/UnityProjects/[ProjectName]</para>
         /// </summary>
@@ -99,7 +129,8 @@ namespace Bloodthirst.Core.Utils
             {
                 if (string.IsNullOrEmpty(pathToProject))
                 {
-                    pathToProject = Application.dataPath.TrimEnd("Assets".ToCharArray());
+                    pathToProject = Application.dataPath;
+                    pathToProject = pathToProject.Substring(0 , pathToProject.Length - "/Assets".Length);
                 }
 
                 return pathToProject;

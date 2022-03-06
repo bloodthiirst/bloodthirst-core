@@ -12,7 +12,7 @@ namespace Bloodthirst.Editor.BSearch
         private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BSearch/UI/Result/BSearchResultPath.uxml";
         private ResultPath resultPath;
         private int index;
-        private int instanceID;
+        private GlobalObjectId objectId;
 
         private Label ValueIndex => this.Q<Label>(nameof(ValueIndex));
         private Label ValueName => this.Q<Label>(nameof(ValueName));
@@ -31,11 +31,11 @@ namespace Bloodthirst.Editor.BSearch
             this.resultPath = resultPath;
             this.index = index;
 
-            instanceID = -1;
+            objectId = default(GlobalObjectId);
 
             if (resultPath.Value is UnityEngine.Object unityObj)
             {
-                instanceID = unityObj.GetInstanceID();
+                objectId = GlobalObjectId.GetGlobalObjectIdSlow(unityObj); 
             }
 
             Refresh();
@@ -56,13 +56,13 @@ namespace Bloodthirst.Editor.BSearch
             ValueType.text = TypeUtils.GetNiceName(resultPath.Value.GetType());
             ValuePicker.objectType = typeof(UnityEngine.Object);
 
-            if (instanceID == -1)
+            if (objectId.Equals(default(GlobalObjectId)) )
             {
                 ValuePicker.Display(false);
                 return;
             }
 
-            UnityEngine.Object find = EditorUtility.InstanceIDToObject(instanceID);
+            UnityEngine.Object find = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(objectId);
 
             if (find == null)
             {

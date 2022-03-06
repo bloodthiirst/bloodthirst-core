@@ -277,10 +277,10 @@ namespace Bloodthirst.Core.SceneManager
 
             if (sceneIndex == 0)
             {
-                SceneLoadingManager sceneLoadingManager = scene
+                LoadingManager sceneLoadingManager = scene
                     .GetRootGameObjects()
-                    .FirstOrDefault(go => go.GetComponent<SceneLoadingManager>() != null)?
-                    .GetComponent<SceneLoadingManager>();
+                    .FirstOrDefault(go => go.GetComponent<LoadingManager>() != null)?
+                    .GetComponent<LoadingManager>();
 
                 if (sceneLoadingManager != null)
                 {

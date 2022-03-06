@@ -71,10 +71,20 @@ namespace Bloodthirst.Socket.Core
 
         private ThreadCommandProcessor _threadCommandProcessor;
 
+        void IGamePass.Execute()
+        {
+            Execute();
+        }
+
         void IAwakePass.Execute()
         {
+            Execute();
+        }
+
+        private void Execute()
+        {
             _threadCommandProcessor = BProviderRuntime.Instance.GetSingleton<ThreadCommandProcessor>();
-            
+
             OnConnectedBehaviours = new List<IOnSocketClientConnected<TClient, TIdentifier>>();
 
             GetComponentsInChildren(OnConnectedBehaviours);

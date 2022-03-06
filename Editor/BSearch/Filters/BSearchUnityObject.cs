@@ -65,12 +65,16 @@ namespace Bloodthirst.Editor.BSearch
             // then we do normal comaprisson
             if (valueGO == null)
             {
+#pragma warning disable CS0253 // Possible unintended reference comparison; right hand side needs cast
                 return Value == instance;
+#pragma warning restore CS0253 // Possible unintended reference comparison; right hand side needs cast
             }
 
             if (instanceGO == null)
             {
+#pragma warning disable CS0253 // Possible unintended reference comparison; right hand side needs cast
                 return Value == instance;
+#pragma warning restore CS0253 // Possible unintended reference comparison; right hand side needs cast
             }
 
             if(PrefabUtility.IsAnyPrefabInstanceRoot(valueGO))

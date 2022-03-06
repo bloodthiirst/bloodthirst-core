@@ -45,7 +45,17 @@ namespace Bloodthirst.Core.Singleton
             BProviderRuntime.Instance.RegisterSingleton<TConcrete, TInterface>(Instance);
         }
 
+        void IGamePass.Execute()
+        {
+            Execute();
+        }
+
         void ISetupSingletonPass.Execute()
+        {
+            Execute();
+        }
+
+        private void Execute()
         {
             Register();
             OnSetupSingletonPass();
