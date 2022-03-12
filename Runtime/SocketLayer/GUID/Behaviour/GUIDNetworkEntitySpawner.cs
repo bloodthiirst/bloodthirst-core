@@ -42,12 +42,6 @@ namespace Bloodthirst.Socket.BehaviourComponent
             _commandManager = BProviderRuntime.Instance.GetSingleton<CommandManager>();
         }
 
-        void IGamePass.Execute()
-        {
-            Execute();
-        }
-
-
         void IAwakePass.Execute()
         {
             Execute();

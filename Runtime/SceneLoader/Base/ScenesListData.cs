@@ -76,9 +76,9 @@ namespace Bloodthirst.Core.SceneManager
                 return;
 
             AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
-            AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
-
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
+
+            AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
             AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
         }
 
@@ -302,6 +302,7 @@ namespace Bloodthirst.Core.SceneManager
             if (sceneInstanceManager != null)
             {
                 sceneInstanceManager.SceneIndex = sceneIndex;
+                sceneInstanceManager.ScenePath = scene.path;
                 EditorSceneManager.SaveScene(sceneRef);
             }
             if (cleanupScene)

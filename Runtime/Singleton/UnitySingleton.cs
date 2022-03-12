@@ -13,7 +13,8 @@ namespace Bloodthirst.Core.Singleton
         }
     }
 
-    public abstract class UnitySingleton<TConcrete , TInterface> : MonoBehaviour, ISetupSingletonPass
+    public abstract class UnitySingleton<TConcrete , TInterface> : MonoBehaviour,
+        ISetupSingletonPass
         where TConcrete : UnitySingleton<TConcrete , TInterface> , TInterface
         where TInterface : class
     {

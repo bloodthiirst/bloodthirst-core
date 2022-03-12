@@ -4,7 +4,7 @@
 			{
 	 	 		for(int i = 0; i < save.[SAVE_FIELD_NAME].Count; i++)
 	 	 		{
-					[INSTANCE_TYPE] instance = context.GetInstance<[INSTANCE_TYPE]>( save.[SAVE_FIELD_NAME][i] );
+					[INSTANCE_TYPE] instance = context.GetInstance<[INSTANCE_TYPE]>( instance => instance.EntityIdentifier.Id == save.[SAVE_FIELD_NAME][i] );
 	 	 	 		state.[STATE_FIELD_NAME].Add( instance );
 	 	 		} 
 			}

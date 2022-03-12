@@ -18,7 +18,7 @@ namespace Bloodthirst.Core.BISDSystem
         Type IEntitySaver.From => stateType;
         Type IEntitySaver.To => saveType;
 
-        public abstract TSave GetSave(TState save, SavingContext context);
+        public abstract TSave GetSave(TState state, SavingContext context);
         public abstract TState GetState(TSave save, LoadingContext context);
         public abstract void LinkReferences(TSave save, TState state, LoadingContext context);
 

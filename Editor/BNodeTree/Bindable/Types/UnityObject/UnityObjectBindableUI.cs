@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class UnityObjectBindableUI : IBindableUI
     {

@@ -58,11 +58,6 @@ namespace Bloodthirst.Core.UI
             StartCoroutine(Close());
         }
 
-        void IGamePass.Execute()
-        {
-            Execute();
-        }
-
         void IAwakePass.Execute()
         {
             Execute();

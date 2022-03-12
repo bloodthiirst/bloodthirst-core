@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloodthirst.Runtime.BNodeTree;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -6,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class PortInfoBaseElement
     {

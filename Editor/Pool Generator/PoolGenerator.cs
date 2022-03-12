@@ -314,7 +314,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                                 .Replace(CLASS_NAME_REPLACE_KEYWORD, t.Name)
                                 .Replace(CLASS_NAMESPACE_REPLACE_KEYWORD, t.Namespace == null ? string.Empty : $"using {t.Namespace};");
 
-                File.WriteAllText(pathToProject + relativePath, scriptText);
+                File.WriteAllText(pathToProject + "/" + relativePath, scriptText);
 
                 AssetDatabase.ImportAsset(relativePath);
             }
@@ -325,7 +325,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             string relativePath = $"{POOL_SCRIPTS_PATH}/GlobalPoolContainer.cs";
             string pathToProject = EditorUtils.PathToProject;
 
-            File.WriteAllText(pathToProject + relativePath, AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text);
+            File.WriteAllText(pathToProject + "/" + relativePath, AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text);
 
             AssetDatabase.ImportAsset(relativePath);
         }
@@ -632,7 +632,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             string relativePath = $"{POOL_SCRIPTS_PATH}/GlobalPoolContainer.cs";
             string pathToProject = EditorUtils.PathToProject;
 
-            File.WriteAllText(pathToProject + relativePath, oldScript);
+            File.WriteAllText(pathToProject + "/" + relativePath, oldScript);
         }
 
         private static void CreatePoolScene()

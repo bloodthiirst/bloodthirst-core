@@ -1,6 +1,6 @@
 ﻿using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class PanCanvasAction : NodeEditorActionBase
     {
@@ -8,67 +8,69 @@ namespace Bloodthirst.System.Quest.Editor
 
         public override void OnDisable()
         {
-            NodeEditor.OnCanvasMouseMove -= HandleMouseMove;
-            NodeEditor.OnCanvasMouseUp -= HandleMouseUp;
-            NodeEditor.OnCanvasMouseDown -= HandleMouseDown;
-            NodeEditor.OnCanvasMouseLeave -= HandleMouseLeave;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseMove>(HandleMouseMove);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseUp>(HandleMouseUp);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseDown>(HandleMouseDown);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseLeave>(HandleMouseLeave);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnCanvasMouseMove -= HandleMouseMove;
-            NodeEditor.OnCanvasMouseMove += HandleMouseMove;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseMove>(HandleMouseMove);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseUp>(HandleMouseUp);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseDown>(HandleMouseDown);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseLeave>(HandleMouseLeave);
 
-            NodeEditor.OnCanvasMouseUp -= HandleMouseUp;
-            NodeEditor.OnCanvasMouseUp += HandleMouseUp;
-
-            NodeEditor.OnCanvasMouseDown -= HandleMouseDown;
-            NodeEditor.OnCanvasMouseDown += HandleMouseDown;
-
-            NodeEditor.OnCanvasMouseLeave -= HandleMouseLeave;
-            NodeEditor.OnCanvasMouseLeave += HandleMouseLeave;
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseMove>(HandleMouseMove);
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseUp>(HandleMouseUp);
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseDown>(HandleMouseDown);
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseLeave>(HandleMouseLeave);
         }
 
-        private void HandleMouseDown(MouseDownEvent evt)
+        private void HandleMouseDown(OnCanvasMouseDown evt)
         {
-            if (evt.button != (int)MouseButton.MiddleMouse)
+            MouseDownEvent mouseDown = evt.MouseDownEvent;
+
+            if (mouseDown.button != (int)MouseButton.MiddleMouse)
                 return;
 
             IsDragging = true;
 
             // stops the click from affecting child elements
-            evt.StopPropagation();
+            mouseDown.StopPropagation();
         }
 
-        private void HandleMouseLeave(MouseLeaveEvent evt)
+        private void HandleMouseLeave(OnCanvasMouseLeave evt)
         {
+            MouseLeaveEvent mouseLeave = evt.MouseLeaveEvent;
             IsDragging = false;
 
             // stops the click from affecting child elements
-            evt.StopPropagation();
+            mouseLeave.StopPropagation();
         }
 
 
-        private void HandleMouseUp(MouseUpEvent evt)
+        private void HandleMouseUp(OnCanvasMouseUp evt)
         {
-            if (evt.button != (int)MouseButton.MiddleMouse)
+            MouseUpEvent mouseUp = evt.MouseUpEvent;
+            if (mouseUp.button != (int)MouseButton.MiddleMouse)
                 return;
 
             IsDragging = false;
 
             // stops the click from affecting child elements
-            evt.StopPropagation();
+            mouseUp.StopPropagation();
         }
 
-        private void HandleMouseMove(MouseMoveEvent evt)
+        private void HandleMouseMove(OnCanvasMouseMove evt)
         {
             if (!IsDragging)
                 return;
 
-            NodeEditor.PanningOffset += evt.mouseDelta / NodeEditor.Zoom;
+            NodeEditor.PanningOffset += evt.MouseMoveEvent.mouseDelta / NodeEditor.Zoom;
 
             // stops the click from affecting child elements
-            evt.StopPropagation();
+            evt.MouseMoveEvent.StopPropagation();
         }
     }
 }

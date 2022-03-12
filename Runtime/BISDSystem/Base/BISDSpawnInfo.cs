@@ -16,8 +16,9 @@ namespace Bloodthirst.Core.BISDSystem
 
         public GameObject GetInstanceToInject()
         {
-            return BProviderRuntime.Instance.
-                GetSingleton<EntitySpawner>()
+            EntitySpawner spawner = BProviderRuntime.Instance.GetSingleton<EntitySpawner>();
+
+            return spawner
                 .SpawnEntity<EntityIdentifier>(e => e.EntityType == EntityType)
                 .gameObject;
         }

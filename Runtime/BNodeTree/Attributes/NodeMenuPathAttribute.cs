@@ -1,4 +1,4 @@
-﻿namespace Bloodthirst.System.Quest.Editor
+﻿namespace Bloodthirst.Runtime.BNodeTree
 {
     [global::System.AttributeUsage(global::System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class NodeMenuPathAttribute : global::System.Attribute

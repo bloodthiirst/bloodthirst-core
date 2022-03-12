@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public static class BindableUIProvider
     {

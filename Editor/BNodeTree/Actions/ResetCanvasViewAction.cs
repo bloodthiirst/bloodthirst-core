@@ -2,19 +2,19 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class ResetCanvasViewAction : NodeEditorActionBase , INodeEditorCommand
     {
         public override void OnDisable()
         {
-            NodeEditor.OnWindowKeyPressed -= HandleKeyDown;
+            NodeEditor.BEventSystem.Unlisten<OnWindowKeyPressed>(HandleKeyDown);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnWindowKeyPressed -= HandleKeyDown;
-            NodeEditor.OnWindowKeyPressed += HandleKeyDown;
+            NodeEditor.BEventSystem.Unlisten<OnWindowKeyPressed>(HandleKeyDown);
+            NodeEditor.BEventSystem.Listen<OnWindowKeyPressed>(HandleKeyDown);
         }
 
         public void Execute()
@@ -56,9 +56,9 @@ namespace Bloodthirst.System.Quest.Editor
             NodeEditor.Zoom = Mathf.Min(1, appropriateZoom);
         }
 
-        private void HandleKeyDown(KeyDownEvent evt)
+        private void HandleKeyDown(OnWindowKeyPressed evt)
         {
-            if (evt.keyCode != KeyCode.R)
+            if (evt.KeyDownEvent.keyCode != KeyCode.R)
                 return;
 
             ((INodeEditorCommand) this ).Execute();

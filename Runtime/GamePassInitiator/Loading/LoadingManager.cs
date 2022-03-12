@@ -3,6 +3,7 @@ using Bloodthirst.Core.Setup;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.Core.Utils;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,16 +36,42 @@ namespace Bloodthirst.Core.SceneManager
             ScenesListData.Instance.LoadAllScenesAvailable();
         }
 #endif
+        public event Action<LoadingManager> OnLoadingValueChanged;
+
+        public event Action<LoadingManager> OnLoadingStatusChanged;
 
         [SerializeField]
         private float progress;
 
-        public float Progress => progress;
-
         [SerializeField]
         private LOADDING_STATE state;
 
-        public LOADDING_STATE State => state;
+        public float Progress
+        {
+            get => progress;
+            private set
+            {
+                if (progress == value)
+                    return;
+
+                progress = value;
+                OnLoadingValueChanged?.Invoke(this);
+            }
+        }
+
+
+        public LOADDING_STATE State
+        {
+            get => state;
+            private set
+            {
+                if (state == value)
+                    return;
+
+                state = value;
+                OnLoadingStatusChanged?.Invoke(this);
+            }
+        }
 
         void IPreGameSetup.Execute()
         {
@@ -93,6 +120,8 @@ namespace Bloodthirst.Core.SceneManager
 
             progress = 1f;
             state = LOADDING_STATE.FREE;
+
+            progress = 0f;
         }
 
 

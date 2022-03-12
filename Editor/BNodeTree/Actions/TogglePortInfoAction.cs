@@ -1,4 +1,4 @@
-﻿namespace Bloodthirst.System.Quest.Editor
+﻿namespace Bloodthirst.Editor.BNodeTree
 {
     public class TogglePortInfoAction : NodeEditorActionBase
     {
@@ -6,18 +6,18 @@
 
         public override void OnDisable()
         {
-            NodeEditor.OnPortToggleInfo -= HandleNodeRightClick;
+            NodeEditor.BEventSystem.Unlisten<OnPortToggleInfo>(HandleNodeRightClick);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnPortToggleInfo -= HandleNodeRightClick;
-            NodeEditor.OnPortToggleInfo += HandleNodeRightClick;
+            NodeEditor.BEventSystem.Unlisten<OnPortToggleInfo>(HandleNodeRightClick);
+            NodeEditor.BEventSystem.Unlisten<OnPortToggleInfo>(HandleNodeRightClick);
         }
 
-        private void HandleNodeRightClick(PortBaseElement rightClickedPort)
+        private void HandleNodeRightClick(OnPortToggleInfo evt)
         {
-            if (LastToggledPort == rightClickedPort)
+            if (LastToggledPort == evt.PortToggled)
             {
                 if (LastToggledPort.IsShowingInfo)
                 {
@@ -37,8 +37,8 @@
                 LastToggledPort.HideInfo();
             }
 
-            rightClickedPort.ShowInfo();
-            LastToggledPort = rightClickedPort;
+            evt.PortToggled.ShowInfo();
+            LastToggledPort = evt.PortToggled;
 
         }
     }

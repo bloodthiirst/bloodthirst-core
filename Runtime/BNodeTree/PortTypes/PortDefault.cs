@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public class PortDefault<TNode> : IPortType<TNode>, IPortType where TNode : INodeType<TNode>, INodeType
     {

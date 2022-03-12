@@ -1,26 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class RemoveNodeAction : NodeEditorActionBase
     {
         public override void OnDisable()
         {
-            NodeEditor.OnWindowKeyPressed -= HandleKeyDown;
+            NodeEditor.BEventSystem.Unlisten<OnWindowKeyPressed>(HandleKeyDown);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnWindowKeyPressed -= HandleKeyDown;
-            NodeEditor.OnWindowKeyPressed += HandleKeyDown;
+            NodeEditor.BEventSystem.Unlisten<OnWindowKeyPressed>(HandleKeyDown);
+            NodeEditor.BEventSystem.Listen<OnWindowKeyPressed>(HandleKeyDown);
         }
 
-        private void HandleKeyDown(KeyDownEvent evt)
+        private void HandleKeyDown(OnWindowKeyPressed evt)
         {
-            if (evt.keyCode != UnityEngine.KeyCode.Delete)
+            KeyDownEvent keydownEvent = evt.KeyDownEvent;
+
+            if (keydownEvent.keyCode != UnityEngine.KeyCode.Delete)
                 return;
 
             List<NodeBaseElement> asList = NodeEditor.SelectedNodes.ToList();

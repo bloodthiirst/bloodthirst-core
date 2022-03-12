@@ -1,17 +1,15 @@
-using Bloodthirst.System.Quest.Editor;
 using Sirenix.OdinInspector;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Bloodthirst.System.Quest
+namespace Bloodthirst.Runtime.BNodeTree
 {
     /// <summary>
     /// Base class for all the typed treenode behaviours
     /// </summary>
-   public abstract class BNodeTreeBehaviourBase : MonoBehaviour , IBNodeTreeBehaviour
+    public abstract class BNodeTreeBehaviourBase : MonoBehaviour , IBNodeTreeBehaviour
     {
         /// <summary>
         /// the data asset of the treenode

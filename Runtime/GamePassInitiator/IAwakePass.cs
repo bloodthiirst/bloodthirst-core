@@ -1,6 +1,6 @@
 ﻿namespace Bloodthirst.Scripts.Core.GamePassInitiator
 {
-    public interface IAwakePass : IGamePass
+    public interface IAwakePass
     {
         void Execute();
     }

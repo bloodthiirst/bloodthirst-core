@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-using Sirenix.OdinInspector;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public interface INodeType<TTNode> where TTNode : INodeType<TTNode>
     {

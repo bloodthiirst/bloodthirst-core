@@ -17,7 +17,7 @@ namespace Bloodthirst.Editor.BExcel
         private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BExcel/Core/UI/BExcel.uxml";
         private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BExcel/Core/UI/BExcel.uss";
 
-        [MenuItem("Bloodthirst Tools/BExcelEditor")]
+        [MenuItem("Bloodthirst Tools/BExcel")]
         public static void ShowExample()
         {
             BExcel wnd = GetWindow<BExcel>();

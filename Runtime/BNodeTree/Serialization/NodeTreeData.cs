@@ -2,6 +2,7 @@
 using Bloodthirst.BJson;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.JsonUnityObject;
+using Bloodthirst.Runtime.BNodeTree;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System;
@@ -9,8 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using UnityEngine;
+using UnityEngine.Assertions;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public class NodeTreeData : JsonScriptableObject
     {
@@ -41,6 +43,8 @@ namespace Bloodthirst.System.Quest.Editor
         /// <returns></returns>
         public IEnumerable<TNode> BuildAllNodes<TNode>() where TNode : INodeType<TNode>, INodeType
         {
+            Assert.IsTrue( TypeUtils.IsSubTypeOf(NodeBaseType , typeof(TNode)) , $"You're trying to get a node structure of type {NodeBaseType.Name} as use it as {typeof(TNode).Name}" );
+
             // get the nodes
             List<TNode> allNodes = new List<TNode>();
 

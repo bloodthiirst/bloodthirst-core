@@ -148,7 +148,8 @@ public class SceneCreatorEditor : EditorWindow
 
         // refresh the scene list data
 
-        ScenesListData scenesListData = Resources.Load<ScenesListData>(ScenesListData.AssetPath);
+        //ScenesListData scenesListData = Resources.Load<ScenesListData>(ScenesListData.AssetPath);
+        ScenesListData scenesListData = ScenesListData.Instance;
 
         if (scenesListData == null)
         {
@@ -263,7 +264,7 @@ public class SceneCreatorEditor : EditorWindow
 
         EditorUtils.CreateFoldersFromPath(relativePath);
 
-        string finalPath = $"{EditorUtils.PathToProject}{relativePath}/{sceneName}";
+        string finalPath = $"{EditorUtils.PathToProject}/{relativePath}/{sceneName}";
 
 
 

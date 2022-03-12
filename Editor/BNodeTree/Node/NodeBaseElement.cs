@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloodthirst.Runtime.BNodeTree;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -6,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class NodeBaseElement
     {
@@ -60,6 +61,8 @@ namespace Bloodthirst.System.Quest.Editor
         public bool IsNodeSelected { get; set; }
         public bool IsNodeActive { get; set; }
         public INodeType NodeType { get; }
+        public INodeEditor NodeEditor { get; }
+
         public Vector2 NodeSize
         {
             get
@@ -92,8 +95,12 @@ namespace Bloodthirst.System.Quest.Editor
             OnNodeResized?.Invoke(this);
         }
 
-        public NodeBaseElement(INodeType nodeType)
+        public NodeBaseElement(INodeType nodeType , INodeEditor nodeEditor)
         {
+
+            NodeType = nodeType;
+            NodeEditor = nodeEditor;
+
             // all
             Ports = new List<PortBaseElement>();
 
@@ -113,7 +120,6 @@ namespace Bloodthirst.System.Quest.Editor
             BorderActive.pickingMode = PickingMode.Ignore;
             BorderSelected.pickingMode = PickingMode.Ignore;
 
-            NodeType = nodeType;
 
             // node name
             NodeNameAttribute nameAttr = NodeType.GetType().GetCustomAttribute<NodeNameAttribute>();

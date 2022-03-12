@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public abstract class PortWithType<T,TNode> : IPortType<TNode> where TNode : INodeType<TNode>
     {

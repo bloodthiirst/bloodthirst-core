@@ -6,13 +6,17 @@
     xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
 >
     <!-- EXCEL ASSET -->
-    <engine:Label text="Excel Merge Settings :"/>
+    <engine:Label text="Excel Merge Settings :" class="title"/>
+
+    <!-- COLORING -->
+    <editor:ColorField class="title" label="Original" name="OriginalEntries"/>
+    <editor:ColorField class="title" label="Duplicate" name="DuplicateEntries"/>
 
     <!-- EXPORT -->
     <engine:VisualElement class="row">
     
         <!-- EXPORT PATH -->
-        <engine:TextField labe="Export path" name="ExportPath" class="flex-grow"/>
+        <engine:TextField label="Export path" name="ExportPath" class="title flex-grow"/>
     
         <!-- CHANGE EXPORT -->
         <engine:Button name="ChangeExportBtn" text="Change"/>
@@ -20,6 +24,11 @@
     </engine:VisualElement>
 
     <!-- ORIGINAL TAB -->
+    <engine:Label text="Original Tab :" class="title mt-10" />
+    <engine:VisualElement name="OriginalTabContainer"/>
+
+
+
     <engine:Label text="Original Tab :" class="title mt-10" />
     <engine:VisualElement name="OriginalTabContainer"/>
     

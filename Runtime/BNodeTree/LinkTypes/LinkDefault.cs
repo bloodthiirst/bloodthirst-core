@@ -1,4 +1,4 @@
-﻿namespace Bloodthirst.System.Quest.Editor
+﻿namespace Bloodthirst.Runtime.BNodeTree
 {
     public class LinkDefault<TNode> :  ILinkType<TNode> , ILinkType  where TNode : INodeType<TNode>
     {

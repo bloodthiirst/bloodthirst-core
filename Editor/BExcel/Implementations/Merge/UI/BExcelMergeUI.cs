@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BSearch
@@ -20,6 +22,10 @@ namespace Bloodthirst.Editor.BSearch
         private Button ChangeExportBtn => Root.Q<Button>(nameof(ChangeExportBtn));
         private VisualElement OriginalTabContainer => Root.Q<VisualElement>(nameof(OriginalTabContainer));
         private SourceTabDropdownUI OriginalTab {get; set; }
+
+        private ColorField OriginalEntries => Root.Q<ColorField>(nameof(OriginalEntries));
+        private ColorField DuplicateEntries => Root.Q<ColorField>(nameof(DuplicateEntries));
+
         private Button AddTabBtn => Root.Q<Button>(nameof(AddTabBtn));
         private VisualElement TabsContainer => Root.Q<VisualElement>(nameof(TabsContainer));
         private List<TabDropdownUI> TabsList { get; set; } = new List<TabDropdownUI>();
@@ -45,7 +51,8 @@ namespace Bloodthirst.Editor.BSearch
             ChangeExportBtn.clickable.clicked += HandleChangeExportClicked;
             ExportPath.SetEnabled(false);
             ExportPath.RegisterValueChangedCallback(HandleExportPathChanged);
-
+            OriginalEntries.RegisterValueChangedCallback(HandleOriginalColorChanged);
+            DuplicateEntries.RegisterValueChangedCallback(HandleDuplicateColorChanged);
             // original
             OriginalTab = new SourceTabDropdownUI(TabNames);
             OriginalTab.OnValueChanged += HandleTabChanged;
@@ -58,6 +65,16 @@ namespace Bloodthirst.Editor.BSearch
             Refresh();
 
             return Root;
+        }
+
+        private void HandleDuplicateColorChanged(ChangeEvent<Color> evt)
+        {
+            Refresh();
+        }
+
+        private void HandleOriginalColorChanged(ChangeEvent<Color> evt)
+        {
+            Refresh();
         }
 
         private void HandleExportPathChanged(ChangeEvent<string> evt)
@@ -76,6 +93,8 @@ namespace Bloodthirst.Editor.BSearch
         {
             ExcelMerge.ExportPath = ExportPath.value;
             ExcelMerge.OriginalTab = OriginalTab.Value;
+            ExcelMerge.OriginalColor = OriginalEntries.value;
+            ExcelMerge.DuplicateColor = DuplicateEntries.value;
 
             ExcelMerge.DuplicateTabs.Clear();
             foreach (TabDropdownUI tabUi in TabsList)

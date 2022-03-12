@@ -1,22 +1,22 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using Bloodthirst.BJson;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public interface ILinkType<TNode> : ILinkType where TNode : INodeType<TNode>
     {
-        [JsonIgnore]
+        [BJsonIgnore]
         IPortType<TNode> FromTyped { get; set; }
 
-        [JsonIgnore]
+        [BJsonIgnore]
         IPortType<TNode> ToTyped { get; set; }
     }
 
     public interface ILinkType
     {
-        [JsonIgnore]
+        [BJsonIgnore]
         IPortType From { get; set; }
-        [JsonIgnore]
+
+        [BJsonIgnore]
         IPortType To { get; set; }
     }
 }

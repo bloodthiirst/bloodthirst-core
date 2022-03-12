@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using Bloodthirst.Runtime.BNodeTree;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public class NodeData
     {

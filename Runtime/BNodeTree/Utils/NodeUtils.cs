@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using UnityEngine;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public static class NodeUtils
     {

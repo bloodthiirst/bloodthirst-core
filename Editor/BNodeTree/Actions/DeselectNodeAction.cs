@@ -1,23 +1,23 @@
 ﻿using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class DeselectNodeAction : NodeEditorActionBase
     {
         public override void OnDisable()
         {
-            NodeEditor.OnCanvasMouseClick -= HandleMouseClick;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseClick>(HandleMouseClick);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnCanvasMouseClick -= HandleMouseClick;
-            NodeEditor.OnCanvasMouseClick += HandleMouseClick;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseClick>(HandleMouseClick);
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseClick>(HandleMouseClick);
         }
 
-        private void HandleMouseClick(ClickEvent evt)
+        private void HandleMouseClick(OnCanvasMouseClick evt)
         {
-            TryDeselect(evt);
+            TryDeselect(evt.ClickEvent);
         }
 
         private void TryDeselect(ClickEvent evt)

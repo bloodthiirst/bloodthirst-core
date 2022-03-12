@@ -1,8 +1,4 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.UIElements;
-
-namespace Bloodthirst.System.Quest.Editor
+﻿namespace Bloodthirst.Editor.BNodeTree
 {
     public class ResizeNodeAction : NodeEditorActionBase
     {
@@ -10,40 +6,39 @@ namespace Bloodthirst.System.Quest.Editor
 
         public override void OnDisable()
         {
-            NodeEditor.OnNodeStartResize -= HandleStartNodeResize;
-            NodeEditor.OnCanvasMouseUp -= HandleMouseUp;
-            NodeEditor.OnCanvasMouseMove -= HandleMouseMove;
+            NodeEditor.BEventSystem.Unlisten<OnNodeStartResize>(HandleStartNodeResize);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseUp>(HandleMouseUp);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseMove>(HandleMouseMove);
         }
 
 
         public override void OnEnable()
         {
-            NodeEditor.OnNodeStartResize -= HandleStartNodeResize;
-            NodeEditor.OnNodeStartResize += HandleStartNodeResize;
+            NodeEditor.BEventSystem.Unlisten<OnNodeStartResize>(HandleStartNodeResize);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseUp>(HandleMouseUp);
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseMove>(HandleMouseMove);
 
-            NodeEditor.OnCanvasMouseUp -= HandleMouseUp;
-            NodeEditor.OnCanvasMouseUp += HandleMouseUp;
-
-            NodeEditor.OnCanvasMouseMove -= HandleMouseMove;
-            NodeEditor.OnCanvasMouseMove += HandleMouseMove;
+            NodeEditor.BEventSystem.Listen<OnNodeStartResize>(HandleStartNodeResize);
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseUp>(HandleMouseUp);
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseMove>(HandleMouseMove);
         }
 
-        private void HandleMouseMove(MouseMoveEvent evt)
+        private void HandleMouseMove(OnCanvasMouseMove evt)
         {
             if (currentNode == null)
                 return;
 
-            currentNode.NodeSize += evt.mouseDelta / NodeEditor.Zoom;
+            currentNode.NodeSize += evt.MouseMoveEvent.mouseDelta / NodeEditor.Zoom;
         }
 
-        private void HandleMouseUp(MouseUpEvent obj)
+        private void HandleMouseUp(OnCanvasMouseUp evt)
         {
             currentNode = null;
         }
 
-        private void HandleStartNodeResize(NodeBaseElement node)
+        private void HandleStartNodeResize(OnNodeStartResize evt)
         {
-            currentNode = node;
+            currentNode = evt.Node;
         }
 
     }

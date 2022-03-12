@@ -517,6 +517,9 @@ namespace Bloodthirst
 
         private void OnDrawGizmos()
         {
+            if (InterpolatedPoints == null)
+                return;
+
             for (int i = 0; i < InterpolatedPoints.Count - 1; i++)
             {
                 var curr = InterpolatedPoints[i];

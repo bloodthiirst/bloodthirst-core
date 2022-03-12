@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public interface IBindableUIFactory
     {

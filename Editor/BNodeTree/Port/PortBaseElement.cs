@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Bloodthirst.Runtime.BNodeTree;
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class PortBaseElement
     {

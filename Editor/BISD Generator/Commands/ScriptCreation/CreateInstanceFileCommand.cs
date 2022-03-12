@@ -23,7 +23,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 
         protected override void Execute()
         {
-            string finalPath = EditorUtils.PathToProject + relativeFolderPath;
+            string finalPath = EditorUtils.PathToProject + "/" + relativeFolderPath;
             string scriptText = AssetDatabase.LoadAssetAtPath<TextAsset>(INSTANCE_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName);
             
             File.WriteAllText($"{finalPath}/{modelName}Instance.cs", scriptText);

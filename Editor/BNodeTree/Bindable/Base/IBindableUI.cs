@@ -1,8 +1,8 @@
-﻿using Bloodthirst.System.Quest.Editor;
+﻿using Bloodthirst.Runtime.BNodeTree;
 using System.Reflection;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public interface IBindableUI
     {

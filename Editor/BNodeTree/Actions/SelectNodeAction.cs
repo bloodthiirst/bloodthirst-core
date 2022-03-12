@@ -1,24 +1,24 @@
 ﻿using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class SelectNodeAction : NodeEditorActionBase
     {
         public override void OnDisable()
         {
-            NodeEditor.OnNodeMouseClick -= HandleNodeMouseClick;
+            NodeEditor.BEventSystem.Unlisten<OnNodeMouseClick>(HandleNodeMouseClick);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnNodeMouseClick -= HandleNodeMouseClick;
-            NodeEditor.OnNodeMouseClick += HandleNodeMouseClick;
+            NodeEditor.BEventSystem.Unlisten<OnNodeMouseClick>(HandleNodeMouseClick);
+            NodeEditor.BEventSystem.Listen<OnNodeMouseClick>(HandleNodeMouseClick);
         }
 
-        private void HandleNodeMouseClick(NodeBaseElement node , ClickEvent evt)
+        private void HandleNodeMouseClick(OnNodeMouseClick evt)
         {
             // middle mouse
-            if (evt.button == (int)MouseButton.MiddleMouse)
+            if (evt.ClickEvent.button == (int)MouseButton.MiddleMouse)
                 return;
 
             // deselect previous
@@ -30,8 +30,8 @@ namespace Bloodthirst.System.Quest.Editor
             NodeEditor.SelectedNodes.Clear();
 
             // select current
-            NodeEditor.SelectedNodes.Add(node);
-            node.SelectInCanvas();
+            NodeEditor.SelectedNodes.Add(evt.Node);
+            evt.Node.SelectInCanvas();
         }
     }
 }

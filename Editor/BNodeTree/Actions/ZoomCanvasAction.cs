@@ -1,23 +1,23 @@
 ﻿using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class ZoomCanvasAction : NodeEditorActionBase
     {
         public override void OnDisable()
         {
-            NodeEditor.OnCanvasScrollWheel -= HandleMouseScroll;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasScrollWheel>(HandleMouseScroll);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnCanvasScrollWheel -= HandleMouseScroll;
-            NodeEditor.OnCanvasScrollWheel += HandleMouseScroll;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasScrollWheel>(HandleMouseScroll);
+            NodeEditor.BEventSystem.Listen<OnCanvasScrollWheel>(HandleMouseScroll);
         }
 
-        private void HandleMouseScroll(WheelEvent evt)
+        private void HandleMouseScroll(OnCanvasScrollWheel evt)
         {
-            float zoomDelta = evt.delta.y * NodeEditor.ZoomSensitivity;
+            float zoomDelta = evt.WheelEvent.delta.y * NodeEditor.ZoomSensitivity;
             zoomDelta *= NodeEditor.InvertZoom ? -1 : 1;
             NodeEditor.Zoom += zoomDelta;
         }

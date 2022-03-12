@@ -1,21 +1,22 @@
-﻿using System;
+﻿using Bloodthirst.Runtime.BNodeTree;
+using System;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class AddPortOutputAction : NodeEditorActionBase
     {
         public override void OnDisable()
         {
-            NodeEditor.OnNodeAddOutput -= HandleNodeAddOutput;
+            NodeEditor.BEventSystem.Unlisten<OnNodeAddOutput>(HandleNodeAddOutput);
         }
         public override void OnEnable()
         {
-            NodeEditor.OnNodeAddOutput -= HandleNodeAddOutput;
-            NodeEditor.OnNodeAddOutput += HandleNodeAddOutput;
+            NodeEditor.BEventSystem.Unlisten<OnNodeAddOutput>(HandleNodeAddOutput);
+            NodeEditor.BEventSystem.Listen<OnNodeAddOutput>(HandleNodeAddOutput);
         }
 
-        private void HandleNodeAddOutput(NodeBaseElement node)
+        private void HandleNodeAddOutput(OnNodeAddOutput evt)
         {
             Type defaultPortType = typeof(PortDefault<>).MakeGenericType(NodeEditor.NodeBaseType);
 
@@ -24,7 +25,7 @@ namespace Bloodthirst.System.Quest.Editor
             defaultPort.PortType = PORT_TYPE.VARIABLE;
             defaultPort.PortName = "Output";
 
-            node.NodeType.AddPort(defaultPort, defaultPort.PortDirection, defaultPort.PortType);
+            evt.Node.NodeType.AddPort(defaultPort, defaultPort.PortDirection, defaultPort.PortType);
         }
     }
 }

@@ -7,7 +7,6 @@ using UnityEngine.UIElements;
 
 public class SceneLoadHelper : EditorWindow
 {
-
     private const string USS_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Load Helper/SceneLoadHelper.uss";
     private const string UXML_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Load Helper/SceneLoadHelper.uxml";
 
@@ -31,16 +30,14 @@ public class SceneLoadHelper : EditorWindow
         // Import UXML
         VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
 
-        VisualElement labelFromUXML = visualTree.CloneTree();
+        visualTree.CloneTree(root);
 
         StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(USS_PATH);
 
-        root.Add(labelFromUXML);
         root.styleSheets.Add(styleSheet);
         root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
 
         BootstrapWindow();
-
     }
 
     public void RefreshWindow()
@@ -81,13 +78,10 @@ public class SceneLoadHelper : EditorWindow
         };
 
         row.Add(btn);
-
-
     }
 
     private void LoadAllSceneAdditively()
     {
-
         VisualElement row = CreateRow();
 
         Button btn = new Button();

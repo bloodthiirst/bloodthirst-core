@@ -110,9 +110,6 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         public void InjectGeneratedCode(BISDInfoContainer typeInfo)
         {
-            if (!ShouldInject(typeInfo))
-                return;
-
             List<MemberInfo> fields = GetMembersInState(typeInfo);
 
             string oldScript = typeInfo.GameSaveHandler.TextAsset.text;

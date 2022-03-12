@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class LinkNodesAction : NodeEditorActionBase
     {
@@ -9,20 +9,22 @@ namespace Bloodthirst.System.Quest.Editor
 
         public override void OnDisable()
         {
-            NodeEditor.OnPortMouseContextClick -= HandleNodeRightClick;
+            NodeEditor.BEventSystem.Unlisten<OnPortMouseContextClick>(HandleNodeRightClick);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnPortMouseContextClick -= HandleNodeRightClick;
-            NodeEditor.OnPortMouseContextClick += HandleNodeRightClick;
+            NodeEditor.BEventSystem.Unlisten<OnPortMouseContextClick>(HandleNodeRightClick);
+            NodeEditor.BEventSystem.Listen<OnPortMouseContextClick>(HandleNodeRightClick);
         }
 
-        private void HandleNodeRightClick(PortBaseElement rightClickedPort , ContextClickEvent evt)
+        private void HandleNodeRightClick(OnPortMouseContextClick evt)
         {
+            PortBaseElement rightClickedPort = evt.PortRightClicked;
+
             if (PendingLinkingPort == null)
             {
-                PendingLinkingPort = rightClickedPort;
+                PendingLinkingPort = evt.PortRightClicked;
                 PendingLinkingPort.Select();
                 return;
             }

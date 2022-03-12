@@ -1,10 +1,10 @@
 ﻿using Bloodthirst.Core.Utils;
+using Bloodthirst.Runtime.BNodeTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     /// <summary>
     /// class responsible for providing the nodes to be created

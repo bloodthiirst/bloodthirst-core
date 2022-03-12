@@ -30,10 +30,6 @@ namespace Bloodthirst.Core.UI
         {
             Execute();
         }
-        void IGamePass.Execute()
-        {
-            Execute();
-        }
 
         private void Execute()
         {

@@ -8,6 +8,7 @@ namespace Bloodthirst.Core.SceneManager
         bool IsSceneVisible { get; }
         bool IsConfigScene { get; set; }
         int SceneIndex { get; set; }
+        string ScenePath{ get; set; }
         void QuerySceneGameObjects();
         void AddToScene(GameObject gameObject);
         void RemoveFromScene(GameObject gameObject);

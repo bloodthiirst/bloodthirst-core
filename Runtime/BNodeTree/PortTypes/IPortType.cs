@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using Bloodthirst.Runtime.BNodeTree;
+using Newtonsoft.Json;
 using System;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Runtime.BNodeTree
 {
     public enum PORT_DIRECTION
     {

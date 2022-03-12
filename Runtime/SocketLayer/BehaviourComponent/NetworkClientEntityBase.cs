@@ -71,11 +71,6 @@ namespace Bloodthirst.Socket.Core
 
         private ThreadCommandProcessor _threadCommandProcessor;
 
-        void IGamePass.Execute()
-        {
-            Execute();
-        }
-
         void IAwakePass.Execute()
         {
             Execute();

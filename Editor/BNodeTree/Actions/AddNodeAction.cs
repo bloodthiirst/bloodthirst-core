@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Bloodthirst.Runtime.BNodeTree;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class AddNodeAction : NodeEditorActionBase
     {
         public override void OnDisable()
         {
-            NodeEditor.OnCanvasMouseContextClick -= HandleRightMouseClick;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseContextClick>(HandleRightMouseClick);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnCanvasMouseContextClick -= HandleRightMouseClick;
-            NodeEditor.OnCanvasMouseContextClick += HandleRightMouseClick;
+            NodeEditor.BEventSystem.Unlisten<OnCanvasMouseContextClick>(HandleRightMouseClick);
+            NodeEditor.BEventSystem.Listen<OnCanvasMouseContextClick>(HandleRightMouseClick);
         }
 
         private void ContextMenuAddNode(object menuItem)
@@ -33,7 +33,7 @@ namespace Bloodthirst.System.Quest.Editor
             public NodeProvider.FactoryRecord NodeCreationInfo { get; set; }
         }
 
-        private void HandleRightMouseClick(ContextClickEvent evt)
+        private void HandleRightMouseClick(OnCanvasMouseContextClick evt)
         {
             GenericMenu menu = new GenericMenu();
 
@@ -46,13 +46,13 @@ namespace Bloodthirst.System.Quest.Editor
                         ContextMenuAddNode,
                         new NodeCreationData()
                         {
-                            MousePosition = evt.mousePosition,
+                            MousePosition = evt.ClickEvent.mousePosition,
                             NodeCreationInfo = kv.Value
                         }
                     );
             }
 
-            Rect menuRect = new Rect(evt.mousePosition, Vector2.zero);
+            Rect menuRect = new Rect(evt.ClickEvent.mousePosition, Vector2.zero);
             menu.DropDown(menuRect);
         }
 

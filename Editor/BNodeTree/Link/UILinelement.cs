@@ -1,10 +1,11 @@
 ﻿using Bloodthirst.Scripts.Utils;
-using Bloodthirst.System.Quest.Editor;
+using Bloodthirst.Runtime.BNodeTree;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Bloodthirst.Editor.BNodeTree;
 
 public class UILinelement : VisualElement
 {
@@ -17,20 +18,6 @@ public class UILinelement : VisualElement
     private const string ARROW_TEXTURE = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Resources/ArrowDirection.png";
 
     private Texture2D arrowTexture;
-
-    private Texture2D ArrowTexture
-    {
-        get
-        {
-            if (arrowTexture == null)
-            {
-                arrowTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(ARROW_TEXTURE);
-            }
-
-            return arrowTexture;
-        }
-    }
-
 
     /// <summary>
     /// From position in world space
@@ -70,6 +57,7 @@ public class UILinelement : VisualElement
     public UILinelement(float thickness = 20f)
     {
         name = "Link";
+        arrowTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(ARROW_TEXTURE);
         generateVisualContent += HandleContentGeneration;
         Thickness = thickness;
     }
@@ -126,7 +114,7 @@ public class UILinelement : VisualElement
              invertHandles: false
             );
 
-        MeshWriteData mwd = cxt.Allocate(curve.Count, curve.Count, ArrowTexture);
+        MeshWriteData mwd = cxt.Allocate(curve.Count, curve.Count, arrowTexture);
 
         // the vertices are setup with the center (0,0) being the top left corner of the rect of the VisualElement
         Vertex[] curveToVerts = curve.Select(v => new Vertex() { position = v.position, uv = v.uv0, tint = Color.white }).ToArray();

@@ -49,7 +49,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
             {
                 string relativePath = AssetDatabase.GetAssetPath(txt);
 
-                string systemPath = EditorUtils.PathToProject + relativePath;
+                string systemPath = EditorUtils.PathToProject + "/" + relativePath;
 
                 SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(txt.text);
 

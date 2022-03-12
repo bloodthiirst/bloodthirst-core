@@ -9,11 +9,6 @@ public class FetchFromInjectedProvider : MonoBehaviour , IAwakePass
     [SerializeField]
     private ScriptableObject scriptableObject;
 
-    void IGamePass.Execute()
-    {
-        Execute();
-    }
-
     void IAwakePass.Execute()
     {
         Execute();

@@ -63,7 +63,7 @@ namespace Bloodthirst.Scripts.Core.Utils
 
             List<GameObject> gos = GetAllRootGameObjects();
 
-            GetAllComponents(ref list, gos, true);
+            GetAllComponents(ref list, gos, includeInactive);
         }
 
         public static void GetAllComponents<T>(ref List<T> list, IList<GameObject> go, bool includeInactive)

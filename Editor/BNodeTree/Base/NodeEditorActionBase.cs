@@ -1,4 +1,4 @@
-﻿namespace Bloodthirst.System.Quest.Editor
+﻿namespace Bloodthirst.Editor.BNodeTree
 {
     public abstract class NodeEditorActionBase : INodeEditorAction
     {

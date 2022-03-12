@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Bloodthirst.Runtime.BNodeTree;
 using System.Linq;
-using UnityEngine.UIElements;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class ActiveNodeBehaviourAction : NodeEditorActionBase
     {
@@ -17,32 +16,34 @@ namespace Bloodthirst.System.Quest.Editor
                 SelectedTree.OnActiveNodeChanged -= HanleActiveNodeChanged;
             }
 
-            NodeEditor.OnBehaviourSelectionChanged -= HandleBehaviourChanged;
+            NodeEditor.BEventSystem.Unlisten<OnBehaviourSelectionChanged>(HandleBehaviourChanged);
         }
 
         public override void OnEnable()
         {
-            NodeEditor.OnBehaviourSelectionChanged -= HandleBehaviourChanged;
-            NodeEditor.OnBehaviourSelectionChanged += HandleBehaviourChanged;
+            NodeEditor.BEventSystem.Unlisten<OnBehaviourSelectionChanged>(HandleBehaviourChanged);
+            NodeEditor.BEventSystem.Listen<OnBehaviourSelectionChanged>(HandleBehaviourChanged);
         }
         private void HanleActiveNodeChanged(INodeType currentNode)
         {
             RefreshSelected(currentNode);
         }
 
-        private void HandleBehaviourChanged(IBNodeTreeBehaviour behaviour)
+        private void HandleBehaviourChanged(OnBehaviourSelectionChanged onBehaviourSelectionChanged)
         {
             if (SelectedTree != null)
             {
                 SelectedTree.OnActiveNodeChanged -= HanleActiveNodeChanged;
             }
 
+            IBNodeTreeBehaviour behaviour = onBehaviourSelectionChanged.Behaviour;
+
             if (behaviour == null)
             {
                 return;
             }
 
-            SelectedTree = behaviour;
+            SelectedTree = onBehaviourSelectionChanged.Behaviour;
 
             // when active node is changed
             SelectedTree.OnActiveNodeChanged -= HanleActiveNodeChanged;

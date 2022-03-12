@@ -22,6 +22,8 @@ namespace Bloodthirst.Editor.BSearch
         internal string ExportPath { get; set; }
 
         internal string OriginalTab { get; set; }
+        internal UnityEngine.Color OriginalColor{ get; set; }
+        internal UnityEngine.Color DuplicateColor { get; set; }
 
         internal List<string> DuplicateTabs { get; set; } = new List<string>();
 
@@ -212,11 +214,19 @@ namespace Bloodthirst.Editor.BSearch
                         key += "_Old";
                     }
 
+                    UnityEngine.Color bgColor = o == 0 ? OriginalColor : DuplicateColor;
+
+                    Color excelColor = Color.FromArgb((int) (bgColor.a * 255), (int) (bgColor.r * 255), (int) (bgColor.g * 255) , (int) (bgColor.b * 255));
+                    
                     // do the actual copying
                     for (int c = 0; c < cellsToCopy.Count; c++)
                     {
-                        cellsToCopy[c].Copy(mergedSheet.Cells[rowIndex, c + 1]);
+                        ExcelRange resultCell = mergedSheet.Cells[rowIndex, c + 1];
+                        cellsToCopy[c].Copy(resultCell);
+                        resultCell.Style.Fill.BackgroundColor.SetColor(excelColor);
                     }
+
+                    mergedSheet.Cells[rowIndex, 1].Value = key;
 
                     rowIndex++;
                 }

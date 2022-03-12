@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public abstract class SceneInstanceManager<T> : UnitySingleton<T>, 
+    public abstract class SceneInstanceManager<T> : MonoBehaviour, 
         ISceneInstanceManager, 
         ISceneInitializationPass, 
         IPostSceneInitializationPass,
@@ -30,6 +30,11 @@ namespace Bloodthirst.Core.SceneManager
         public int sceneIndex;
 
         public int SceneIndex { get => sceneIndex; set => sceneIndex = value; }
+        
+        [SerializeField]
+        [ReadOnly]
+        private string scenePath;
+        public string ScenePath { get => scenePath; set => scenePath = value; }
 
         [SerializeField]
         private bool isScenePlaying = true;
@@ -45,6 +50,8 @@ namespace Bloodthirst.Core.SceneManager
                 return UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex);
             }
         }
+
+
 
         [ShowInInspector]
         /// <summary>
@@ -63,7 +70,6 @@ namespace Bloodthirst.Core.SceneManager
         /// Renderable Objects other than UI related to the scene
         /// </summary>
         protected List<Renderer> sceneRenderers = new List<Renderer>();
-
 
         private List<GameObject> previouslyActiveGO = new List<GameObject>();
 
@@ -90,6 +96,7 @@ namespace Bloodthirst.Core.SceneManager
             }
 
             BProviderRuntime.Instance.RegisterInstance<ISceneInstanceManager> (this);
+            BProviderRuntime.Instance.RegisterSingleton<T> ((T) this);
 
             QuerySceneGameObjects();
 
@@ -99,6 +106,7 @@ namespace Bloodthirst.Core.SceneManager
         void IBeforeSceneUnload.Execute()
         {
             BProviderRuntime.Instance.RemoveInstance<ISceneInstanceManager>(this);
+            BProviderRuntime.Instance.RemoveSingleton<T>((T)this);
             Debug.Log($"Scene { Scene.name } has been unloaded");
         }
 
@@ -112,6 +120,7 @@ namespace Bloodthirst.Core.SceneManager
         public void OnDestroy()
         {
             BProviderRuntime.Instance.RemoveInstance<ISceneInstanceManager>(this);
+            BProviderRuntime.Instance.RemoveSingleton<T>((T)this);
         }
 
         public void QuerySceneGameObjects()
@@ -134,6 +143,10 @@ namespace Bloodthirst.Core.SceneManager
 
         public void AddToScene(GameObject gameObject)
         {
+            if (sceneGameObjects.Contains(gameObject))
+                return;
+
+            gameObject.transform.SetParent(null);
             UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(gameObject, Scene);
 
             // add to the appropriate lists
@@ -179,6 +192,9 @@ namespace Bloodthirst.Core.SceneManager
         /// <param name="gameObject"></param>
         public void RemoveFromScene(GameObject gameObject)
         {
+            if (!sceneGameObjects.Contains(gameObject))
+                return;
+
             // remove from the appropriate lists
             sceneGameObjects.Remove(gameObject);
             previouslyActiveGO.Remove(gameObject);
@@ -199,8 +215,34 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        [Button]
-        [InfoBox("disables all the gameObjects under the scene")]
+        [TitleGroup("Toggle GameObjectes active in the scene", GroupID = "EnableDisable")]
+        [HorizontalGroup("EnableDisable/H")]
+        [Button(ButtonSizes.Large)]
+        [PropertyTooltip("enables all the gameObjects under the scene")]
+        public void Enable()
+        {
+            if (isScenePlaying)
+                return;
+
+            isScenePlaying = true;
+
+            Show();
+
+            for (int i = 0; i < previouslyActiveGO.Count; i++)
+            {
+                GameObject go = sceneGameObjects[i];
+                go.SetActive(true);
+            }
+
+            previouslyActiveGO.Clear();
+
+            OnSceneStateChanged?.Invoke((T)this);
+        }
+
+        [TitleGroup("Toggle GameObjectes active in the scene", GroupID = "EnableDisable")]
+        [HorizontalGroup("EnableDisable/H")]
+        [Button(ButtonSizes.Large)]
+        [PropertyTooltip("disables all the gameObjects under the scene")]
         public void Disable()
         {
             if (!isScenePlaying)
@@ -223,30 +265,12 @@ namespace Bloodthirst.Core.SceneManager
             OnSceneStateChanged?.Invoke((T)this);
         }
 
-        [Button]
-        [InfoBox("enables all the gameObjects under the scene")]
-        public void Enable()
-        {
-            if (isScenePlaying)
-                return;
 
-            isScenePlaying = true;
 
-            Show();
-
-            for (int i = 0; i < previouslyActiveGO.Count; i++)
-            {
-                GameObject go = sceneGameObjects[i];
-                go.SetActive(true);
-            }
-
-            previouslyActiveGO.Clear();
-
-            OnSceneStateChanged?.Invoke((T)this);
-        }
-
-        [Button]
-        [InfoBox("shows all the visual elements of the scene that were previously hidden")]
+        [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
+        [HorizontalGroup("ShowHide/H")]
+        [Button(ButtonSizes.Large)]
+        [PropertyTooltip("shows all the visual elements of the scene that were previously hidden")]
         public void Show()
         {
             if (sceneVisible)
@@ -275,8 +299,10 @@ namespace Bloodthirst.Core.SceneManager
             OnSceneVisibilityChanged?.Invoke((T)this);
         }
 
-        [Button]
-        [InfoBox("Hides all the visual elements of the scene \nNOTE : the objects are still active , just not visible")]
+        [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
+        [HorizontalGroup("ShowHide/H")]
+        [Button(ButtonSizes.Large)]
+        [PropertyTooltip("Hides all the visual elements of the scene \nNOTE : the objects are still active , just not visible")]
         public void Hide()
         {
             if (!sceneVisible)
@@ -312,13 +338,13 @@ namespace Bloodthirst.Core.SceneManager
         }
 
 
-        [Button]
-        [InfoBox("Unloads the scene")]
+        [TitleGroup("Unload the scene", GroupID = "Unload")]
+        [HorizontalGroup("Unload/H")]
+        [Button(ButtonSizes.Large)]
+        [PropertyTooltip("Unloads the scene")]
         public void UnloadScene()
         {
             _loadingManager.Load( new IAsynOperationWrapper[] { new UnloadSceneAsyncOperation(Scene.path) } );
         }
-
-
     }
 }

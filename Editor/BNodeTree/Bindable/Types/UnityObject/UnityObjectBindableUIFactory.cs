@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class UnityObjectBindableUIFactory : IBindableUIFactory
     {

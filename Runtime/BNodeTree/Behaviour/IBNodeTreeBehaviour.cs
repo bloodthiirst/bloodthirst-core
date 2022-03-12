@@ -1,7 +1,6 @@
-using Bloodthirst.System.Quest.Editor;
 using System;
 
-namespace Bloodthirst.System.Quest
+namespace Bloodthirst.Runtime.BNodeTree
 {
     /// <summary>
     /// Base class for all the behaviours that have treenode behaviours

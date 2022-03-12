@@ -17,7 +17,7 @@ using static Bloodthirst.Core.Setup.GameStart;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public class InitSceneStartup : MonoBehaviour , IPreGameSetup , IGameSetup , IPostGameSetup
+    public class SceneStartup : MonoBehaviour , IPreGameSetup , IGameSetup , IPostGameSetup
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport
 #endif
@@ -70,7 +70,7 @@ namespace Bloodthirst.Core.SceneManager
             GameObjectUtils.GetAllComponents<IPostSceneInitializationPass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IAfterAllScenesIntializationPass>(allGos, true).ForEach(e => e.Execute()); ;
 
-            GameObjectUtils.GetAllComponents<IQuerySingletonPass>(allGos, true).ForEach(e => e.Execute());
+            GameObjectUtils.GetAllComponents<ISetupSingletonPass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IQuerySingletonPass>(allGos, true).ForEach(e => e.Execute()); ;
             GameObjectUtils.GetAllComponents<IInjectPass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IAwakePass>(allGos, true).ForEach(e => e.Execute());

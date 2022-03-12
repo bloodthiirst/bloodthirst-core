@@ -41,11 +41,6 @@ namespace Bloodthirst.Systems.CameraSystem
         private bool pause;
         public bool Pause { get => pause; set => pause = value; }
 
-        void IGamePass.Execute()
-        {
-            Execute();
-        }
-
         void IAwakePass.Execute()
         {
             Execute();
