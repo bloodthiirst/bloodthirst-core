@@ -1,7 +1,6 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Bloodthirst.Editor;
 using System.Collections.Generic;
 using System;
 using UnityEditor.UIElements;
@@ -11,8 +10,10 @@ using UnityEditor.Callbacks;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using Sirenix.Utilities;
+using Bloodthirst.Runtime.BNodeTree;
+using Bloodthirst.BEventSystem;
 
-namespace Bloodthirst.System.Quest.Editor
+namespace Bloodthirst.Editor.BNodeTree
 {
     public class BNodeTreeEditor : EditorWindow, INodeEditor
     {
@@ -69,7 +70,7 @@ namespace Bloodthirst.System.Quest.Editor
             {
                 float old = zoom;
                 zoom = Mathf.Clamp(value, ZoomMinMax.x, ZoomMinMax.y);
-                OnZoomChanged?.Invoke(old, zoom);
+                BEventSystem.Trigger(new OnZoomChanged(this , old, zoom));
             }
         }
 
@@ -138,6 +139,7 @@ namespace Bloodthirst.System.Quest.Editor
                 EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeDataForce(value), this);
             }
         }
+        #endregion
 
         #region crt setters
         private IEnumerator CrtSetSelectedTreeDataForce(NodeTreeData value)
@@ -175,7 +177,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         private IEnumerator CrtTriggerSelectTreeDataChanged()
         {
-            OnDataSelectionChanged?.Invoke(selectedNodeData);
+            BEventSystem.Trigger(new OnDataSelectionChanged(this ,selectedNodeData));
             yield break;
         }
 
@@ -223,7 +225,7 @@ namespace Bloodthirst.System.Quest.Editor
 
         private IEnumerator CrtTriggerSelectTreeBehaviourChanged()
         {
-            OnBehaviourSelectionChanged?.Invoke(selectedTreeBehaviour);
+            BEventSystem.Trigger(new OnBehaviourSelectionChanged(this, selectedTreeBehaviour));
             yield break;
         }
         #endregion
@@ -234,45 +236,8 @@ namespace Bloodthirst.System.Quest.Editor
         List<LinkElement> INodeEditor.AllLinks => AllLinks;
         List<int> INodeEditor.CurrentNodeIDs => CurrentNodeIDs;
 
-        #endregion
+        public BEventSystem<BNodeTreeEventBase> BEventSystem { get; set; }
 
-        public event Action<float, float> OnZoomChanged;
-
-        public event Action<KeyDownEvent> OnWindowKeyPressed;
-
-        public event Action<ClickEvent> OnCanvasMouseClick;
-
-        public event Action<ContextClickEvent> OnCanvasMouseContextClick;
-
-        public event Action<NodeBaseElement, ClickEvent> OnNodeMouseClick;
-
-        public event Action<NodeBaseElement> OnNodeStartResize;
-
-        public event Action<NodeBaseElement> OnNodeEndResize;
-
-        public event Action<NodeBaseElement> OnNodeAddInput;
-
-        public event Action<NodeBaseElement> OnNodeAddOutput;
-
-        public event Action<PortBaseElement> OnPortToggleInfo;
-
-        public event Action<NodeBaseElement, ContextClickEvent> OnNodeMouseContextClick;
-
-        public event Action<PortBaseElement, ContextClickEvent> OnPortMouseContextClick;
-
-        public event Action<IBNodeTreeBehaviour> OnBehaviourSelectionChanged;
-
-        public event Action<NodeTreeData> OnDataSelectionChanged;
-
-        public event Action<WheelEvent> OnCanvasScrollWheel;
-
-        public event Action<MouseDownEvent> OnCanvasMouseDown;
-
-        public event Action<MouseLeaveEvent> OnCanvasMouseLeave;
-
-        public event Action<MouseUpEvent> OnCanvasMouseUp;
-
-        public event Action<MouseMoveEvent> OnCanvasMouseMove;
         private List<INodeEditorAction> CanvasActions { get; set; }
 
         public Vector2 CanvasSize => Container.localBound.size;
@@ -643,30 +608,12 @@ namespace Bloodthirst.System.Quest.Editor
                 n.NodeID = generatedID;
             }
 
-            NodeBaseElement node = new NodeBaseElement(n);
+            NodeBaseElement node = new NodeBaseElement(n , this);
 
 
             // add nodes to list
             AllNodes.Add(node);
             CurrentNodeIDs.Add(n.NodeID);
-
-            node.OnNodeClicked -= OnNodeClicked;
-            node.OnNodeClicked += OnNodeClicked;
-
-            node.OnRequestNodeAddOutput -= HandleRequestAddOutput;
-            node.OnRequestNodeAddOutput += HandleRequestAddOutput;
-
-            node.OnRequestNodeAddInput -= HandleRequestAddInput;
-            node.OnRequestNodeAddInput += HandleRequestAddInput;
-
-            node.OnNodeStartResize -= OnNodeStartResized;
-            node.OnNodeStartResize += OnNodeStartResized;
-
-            node.OnNodeEndResize -= OnNodeEndResized;
-            node.OnNodeEndResize += OnNodeEndResized;
-
-            node.OnNodeRightClicked -= OnNodeRightClicked;
-            node.OnNodeRightClicked += OnNodeRightClicked;
 
 
             // add to ui
@@ -678,53 +625,13 @@ namespace Bloodthirst.System.Quest.Editor
 
             node.AfterAddToCanvas();
 
-            // ports
-            RegisterPortEvents(node);
-
             if (size.HasValue)
             {
                 node.NodeSize = size.Value;
             }
         }
 
-        private void RegisterPortEvents(NodeBaseElement node)
-        {
-            // subscribe to ports events
 
-            for (int i = 0; i < node.Ports.Count; i++)
-            {
-                node.Ports[i].OnPortRightClicked -= HandlePortRightClick;
-                node.Ports[i].OnPortRightClicked += HandlePortRightClick;
-
-                node.Ports[i].OnPortToggleInfoDialog -= HandlePortToggle;
-                node.Ports[i].OnPortToggleInfoDialog += HandlePortToggle;
-            }
-        }
-
-        private void HandleRequestAddInput(NodeBaseElement node)
-        {
-            OnNodeAddInput?.Invoke(node);
-
-            RegisterPortEvents(node);
-        }
-
-
-        private void HandleRequestAddOutput(NodeBaseElement node)
-        {
-            OnNodeAddOutput?.Invoke(node);
-
-            RegisterPortEvents(node);
-        }
-
-        private void OnNodeEndResized(NodeBaseElement node)
-        {
-            OnNodeEndResize?.Invoke(node);
-        }
-
-        public void OnNodeStartResized(NodeBaseElement node)
-        {
-            OnNodeStartResize?.Invoke(node);
-        }
 
         public LinkElement AddLink(PortBaseElement from, PortBaseElement to)
         {
@@ -760,22 +667,8 @@ namespace Bloodthirst.System.Quest.Editor
             SelectedNodes.Remove(node);
             CurrentNodeIDs.Remove(node.NodeType.NodeID);
 
-            // ui remove
-            node.OnNodeClicked -= OnNodeClicked;
-            node.OnNodeStartResize -= OnNodeStartResized;
-            node.OnNodeEndResize -= OnNodeEndResized;
-            node.OnNodeRightClicked -= OnNodeRightClicked;
-            node.OnRequestNodeAddInput -= HandleRequestAddInput;
-            node.OnRequestNodeAddOutput -= HandleRequestAddOutput;
-
             node.BeforeRemoveFromCanvas();
             Canvas.Remove(node.VisualElement);
-
-            for (int i = 0; i < node.Ports.Count; i++)
-            {
-                node.Ports[i].OnPortRightClicked -= HandlePortRightClick;
-                node.Ports[i].OnPortToggleInfoDialog -= HandlePortToggle;
-            }
 
             for (int i = AllLinks.Count - 1; i >= 0; i--)
             {
@@ -1047,36 +940,17 @@ namespace Bloodthirst.System.Quest.Editor
             Save();
         }
 
-        private void OnNodeClicked(NodeBaseElement node, ClickEvent evt)
-        {
-            OnNodeMouseClick?.Invoke(node, evt);
-        }
-
-        private void HandlePortToggle(PortBaseElement portBaseElement)
-        {
-            OnPortToggleInfo?.Invoke(portBaseElement);
-        }
-
         private void OnKeyPress(KeyDownEvent evt)
         {
-            OnWindowKeyPressed?.Invoke(evt);
+            BEventSystem.Trigger(new OnWindowKeyPressed(this ,evt));
         }
 
-        private void HandlePortRightClick(PortBaseElement port, ContextClickEvent evt)
-        {
-            OnPortMouseContextClick?.Invoke(port, evt);
-        }
-
-        private void OnNodeRightClicked(NodeBaseElement node, ContextClickEvent evt)
-        {
-            OnNodeMouseContextClick?.Invoke(node, evt);
-        }
         private void OnRightClick(ContextClickEvent evt)
         {
             if (IsInsideNode(evt.mousePosition))
                 return;
 
-            OnCanvasMouseContextClick?.Invoke(evt);
+           BEventSystem.Trigger(new OnCanvasMouseContextClick(this , evt));
         }
 
         private void OnMouseClick(ClickEvent evt)
@@ -1084,35 +958,33 @@ namespace Bloodthirst.System.Quest.Editor
             if (IsInsideNode(evt.position))
                 return;
 
-            OnCanvasMouseClick?.Invoke(evt);
+            BEventSystem.Trigger(new OnCanvasMouseClick(this ,evt));
         }
 
         private void OnMouseMove(MouseMoveEvent evt)
         {
-            OnCanvasMouseMove?.Invoke(evt);
+            BEventSystem.Trigger(new OnCanvasMouseMove(this ,evt));
         }
 
         private void OnMouseUp(MouseUpEvent evt)
         {
-            OnCanvasMouseUp?.Invoke(evt);
+            BEventSystem.Trigger(new OnCanvasMouseUp(this ,evt));
         }
 
         private void OnMouseDown(MouseDownEvent evt)
         {
-            OnCanvasMouseDown?.Invoke(evt);
+            BEventSystem.Trigger(new OnCanvasMouseDown(this , evt));
         }
 
         private void OnMouseLeave(MouseLeaveEvent evt)
         {
-            OnCanvasMouseLeave?.Invoke(evt);
+            BEventSystem.Trigger(new OnCanvasMouseLeave(this ,evt));
         }
 
         private void OnScrollWheel(WheelEvent evt)
         {
-            OnCanvasScrollWheel?.Invoke(evt);
+            BEventSystem.Trigger(new OnCanvasScrollWheel(this ,evt));
         }
-
-
         #endregion
     }
 }

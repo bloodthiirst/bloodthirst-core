@@ -18,22 +18,6 @@ namespace Bloodthirst.Editor.BNodeTree
         private const string NODE_IS_ACTIVE_USS_CLASS = "is-active";
         #endregion
 
-        #region events
-        public event Action<NodeBaseElement, ClickEvent> OnNodeClicked;
-        public event Action<NodeBaseElement, ContextClickEvent> OnNodeRightClicked;
-        public event Action<NodeBaseElement, ClickEvent> OnNodeRequestRemove;
-        public event Action<NodeBaseElement> OnNodeMoved;
-
-        public event Action<NodeBaseElement> OnNodeStartResize;
-        public event Action<NodeBaseElement> OnNodeEndResize;
-        public event Action<NodeBaseElement> OnNodeResized;
-
-        public event Action<NodeBaseElement> OnRequestNodeAddInput;
-        public event Action<NodeBaseElement> OnRequestNodeAddOutput;
-
-        public event Action<NodeBaseElement, PortBaseElement> OnNodePortAdded;
-
-        #endregion
 
         #region ui elements
         private VisualElement NodeRoot { get; set; }
@@ -97,7 +81,6 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public NodeBaseElement(INodeType nodeType , INodeEditor nodeEditor)
         {
-
             NodeType = nodeType;
             NodeEditor = nodeEditor;
 
