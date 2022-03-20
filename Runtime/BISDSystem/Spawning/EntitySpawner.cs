@@ -150,7 +150,7 @@ namespace Bloodthirst.Core.BISDSystem
         #region  load game
         public List<GameObject> LoadGameState(GameStateSaveInstance gameData)
         {
-            return SaveLoadManager.Load(gameData, this);
+            return SaveLoadManager.Load(gameData, true);
         }
         #endregion
     }

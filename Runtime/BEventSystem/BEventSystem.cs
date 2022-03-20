@@ -82,5 +82,14 @@ namespace Bloodthirst.BEventSystem
                 kv.Value.Clear();
             }
         }
+
+        public void UnlistenAll<T>() where T : TEventBase
+        {
+            Type eventType = typeof(T);
+
+            List<Delegate> list = EventSubsriptions[eventType];
+
+            list.Clear();
+        }
     }
 }

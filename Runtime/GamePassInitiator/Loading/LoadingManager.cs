@@ -1,8 +1,6 @@
 ﻿using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Setup;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
-using Bloodthirst.Scripts.Core.Utils;
-using Sirenix.OdinInspector;
+using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,9 +10,6 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 #endif
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
-using static Bloodthirst.Core.Setup.GameStart;
 
 namespace Bloodthirst.Core.SceneManager
 {
@@ -23,7 +18,7 @@ namespace Bloodthirst.Core.SceneManager
         FREE,
         LOADING
     }
-    public class LoadingManager : MonoBehaviour , IPreGameSetup
+    public class LoadingManager : MonoBehaviour, IPreGameSetup, IPreGameEnd
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport
 #endif
@@ -36,7 +31,7 @@ namespace Bloodthirst.Core.SceneManager
             ScenesListData.Instance.LoadAllScenesAvailable();
         }
 #endif
-        public event Action<LoadingManager> OnLoadingValueChanged;
+        public event Action<LoadingManager> OnLoadingProgressChanged;
 
         public event Action<LoadingManager> OnLoadingStatusChanged;
 
@@ -46,84 +41,143 @@ namespace Bloodthirst.Core.SceneManager
         [SerializeField]
         private LOADDING_STATE state;
 
+        /// <summary>
+        /// Progress value between 0 -> 1
+        /// </summary>
         public float Progress
         {
             get => progress;
             private set
             {
-                if (progress == value)
-                    return;
-
                 progress = value;
-                OnLoadingValueChanged?.Invoke(this);
             }
         }
-
 
         public LOADDING_STATE State
         {
             get => state;
             private set
             {
-                if (state == value)
-                    return;
-
                 state = value;
-                OnLoadingStatusChanged?.Invoke(this);
             }
         }
 
+        private CommandBatchQueue loadingQueue;
+
+        private List<AsyncOperationsCommand> runningCommands;
+
+        int IPreGameSetup.Order => 1;
         void IPreGameSetup.Execute()
         {
+            State = LOADDING_STATE.FREE;
+            Progress = 0;
+
+            runningCommands = new List<AsyncOperationsCommand>();
+
+            loadingQueue = BProviderRuntime.Instance.GetSingleton<CommandManagerBehaviour>().AppendBatch<CommandBatchQueue>(this, false);
+            loadingQueue.OnCommandAdded += HandleCommandAdded;
+            loadingQueue.OnCommandRemoved += HandleCommandRemoved;
+
             BProviderRuntime.Instance.RegisterSingleton(this);
         }
 
-        public void Load(IEnumerable<IAsynOperationWrapper> ops)
+        void IPreGameEnd.Execute()
         {
-            StartCoroutine(CrtLoad(ops));
+            loadingQueue.Interrupt();
+            loadingQueue.OnCommandAdded -= HandleCommandAdded;
+            loadingQueue.OnCommandRemoved -= HandleCommandRemoved;
         }
 
-        private IEnumerator CrtLoad(IEnumerable<IAsynOperationWrapper> ops)
+        private void RefreshState()
         {
-            progress = 0;
-            state = LOADDING_STATE.LOADING;
-
-            float totalOpsCount = ops.Sum(o => o.OperationsCount());
-
-            List<IAsynOperationWrapper> ordered = ops.OrderBy(o => o.Order).ToList();
-
-            float opsDone = 0;
-
-            while (opsDone != totalOpsCount)
+            if (runningCommands.Count == 0)
             {
-                for (int i = 0; i < ordered.Count; i++)
-                {
-                    IAsynOperationWrapper currWave = ordered[i];
+                SetStateAndProgress(LOADDING_STATE.FREE, 0);
+                return;
+            }
+            
+            float progressSum = 0f;
+            float totalOpsSum = 0f;
 
-                    IEnumerable<AsyncOperation> startOps = currWave.StartOperations();
+            bool notDone = false;
 
-                    // get the wave of async ops
-                    AsyncOperationGroup group = new AsyncOperationGroup(startOps);
+            for (int i = 0; i < runningCommands.Count; i++)
+            {
+                AsyncOperationsCommand curr = runningCommands[i];
+                progressSum += curr.Progress * curr.TotalOpsCount;
+                totalOpsSum += curr.TotalOpsCount;
 
-                    do
-                    {
-                        group.Refresh();
-                        float groupProgress = group.Progress * group.Count;
-                        progress = (opsDone + groupProgress) / totalOpsCount;
-                        yield return null;
-                    }
-                    while (!group.IsDone);
-
-                    opsDone += group.Count;
-                }
+                notDone = notDone || (curr.Progress != 1);
             }
 
-            progress = 1f;
-            state = LOADDING_STATE.FREE;
+            float progressPerecentage = progressSum / totalOpsSum;
 
-            progress = 0f;
+            if (notDone)
+            {
+                SetStateAndProgress(LOADDING_STATE.LOADING, progressPerecentage);
+                return;
+
+            }
+
+            runningCommands.Clear();
+            SetStateAndProgress(LOADDING_STATE.FREE, 0);
         }
 
+        private void SetStateAndProgress(LOADDING_STATE state , float progress)
+        {
+            bool stateChanged = false;
+            bool progressChanged = false;
+            if(state != State)
+            {
+                stateChanged = true;
+                State = state;
+            }
+
+            if (progress != Progress)
+            {
+                progressChanged = true;
+                Progress = progress;
+            }
+
+            if(stateChanged)
+            {
+                OnLoadingStatusChanged?.Invoke(this);
+            }
+
+            if(progressChanged)
+            {
+                OnLoadingProgressChanged?.Invoke(this);
+            }
+        }
+
+        private void HandleProgressChanged(AsyncOperationsCommand obj)
+        {
+            RefreshState();
+        }
+
+        private void HandleCommandRemoved(ICommandBatch batch, ICommandBase cmd)
+        {
+            AsyncOperationsCommand casted = (AsyncOperationsCommand)cmd;
+            casted.OnCurrentProgressChanged -= HandleProgressChanged;
+
+            RefreshState();
+        }
+
+        private void HandleCommandAdded(ICommandBatch batch, ICommandBase cmd)
+        {
+            AsyncOperationsCommand casted = (AsyncOperationsCommand)cmd;
+            casted.OnCurrentProgressChanged += HandleProgressChanged;
+
+            runningCommands.Add(casted);
+
+            RefreshState();
+        }
+
+        public void Load(IAsynOperationWrapper asyncOperations)
+        {
+            AsyncOperationsCommand cmd = new AsyncOperationsCommand(asyncOperations);
+            loadingQueue.Append(cmd);
+        }
 
     }
 

@@ -21,7 +21,7 @@ namespace Bloodthirst.BJson
             {
                 BMemberData curr = cpy.MemberDatas[i];
 
-                if(curr.Attributes.ContainsKey(ignoreType))
+                if(curr.DirectAttributes.ContainsKey(ignoreType))
                 {
                     cpy.MemberDatas.RemoveAt(i);
                 }

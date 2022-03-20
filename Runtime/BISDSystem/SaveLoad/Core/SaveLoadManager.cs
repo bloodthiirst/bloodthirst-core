@@ -14,37 +14,43 @@ namespace Bloodthirst.Core.BISDSystem
     [InitializeOnLoad]
     public class SaveLoadManager
     {
-        private static List<IEntityLoader> Loaders { get; set; } = new List<IEntityLoader>();
+        private struct SpawnInstanceIdPair
+        {
+            public GameObject SpawnedInstance { get; set; }
+            public ISavableInstanceProvider SpawnInfo { get; set; }
+        }
 
-        private static List<IEntitySaver> Savers { get; set; } = new List<IEntitySaver>();
+        private static List<IGameStateLoader> Loaders { get; set; } = new List<IGameStateLoader>();
+
+        private static List<IGameStateSaver> Savers { get; set; } = new List<IGameStateSaver>();
 
         static SaveLoadManager()
         {
             IEnumerable<Type> loadTypes = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsAbstract)
-                .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IEntityLoader)));
+                .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IGameStateLoader)));
 
             IEnumerable<Type> saveTypes = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsAbstract)
-                .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IEntitySaver)));
+                .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IGameStateSaver)));
 
             foreach (Type l in loadTypes)
             {
-                IEntityLoader loader = (IEntityLoader)Activator.CreateInstance(l);
+                IGameStateLoader loader = (IGameStateLoader)Activator.CreateInstance(l);
                 Loaders.Add(loader);
             }
 
             foreach (Type s in saveTypes)
             {
-                IEntitySaver saver = (IEntitySaver)Activator.CreateInstance(s);
+                IGameStateSaver saver = (IGameStateSaver)Activator.CreateInstance(s);
                 Savers.Add(saver);
             }
         }
 
         [Button]
-        public static Dictionary<ISavableSpawnInfo, List<ISavableGameSave>> SaveRuntimeState()
+        public static Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> SaveRuntimeState()
         {
             Dictionary<ISavableIdentifier, List<ISavableGameSave>> savableToGamesaves = new Dictionary<ISavableIdentifier, List<ISavableGameSave>>();
 
@@ -69,7 +75,7 @@ namespace Bloodthirst.Core.BISDSystem
                 }
 
                 // get the correct saver
-                IEntitySaver saver = Savers.FirstOrDefault(s => s.From == savable.SavableStateType);
+                IGameStateSaver saver = Savers.FirstOrDefault(s => s.From == savable.SavableStateType);
 
                 // create the gamesave from the state
                 ISavableGameSave gameData = saver.GetSave(savable.GetSavableState(), context);
@@ -78,36 +84,27 @@ namespace Bloodthirst.Core.BISDSystem
 
             // finally after all the states are grouped by instance
             // we save them with the key being a class that contains all the necessary info to spawn or load
-            Dictionary<ISavableSpawnInfo, List<ISavableGameSave>> finalSaveData = savableToGamesaves.ToDictionary(kv => kv.Key.GetSpawnInfo(), kv => kv.Value);
+            Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> finalSaveData = savableToGamesaves.ToDictionary(kv => kv.Key.GetInstanceProvider(), kv => kv.Value);
 
             return finalSaveData;
         }
 
-        // TODO : work on loading
         [Button]
+        private static List<GameObject> LoadBtn(GameStateSaveInstance gameData, bool withPostLoad)
+        {
+            return Load(gameData, withPostLoad);
+        }
+
         public static List<GameObject> Load(GameStateSaveInstance gameData, bool withPostLoad)
         {
-            EntitySpawner spawner = UnityEngine.Object.FindObjectOfType<EntitySpawner>();
-
-            return Load(gameData, spawner, withPostLoad);
-        }
-        
-        private struct SpawnInfoInstancePair
-        {
-            public GameObject SpawnedInstance { get; set; }
-            public ISavableSpawnInfo SpawnInfo { get; set; }
-        }
-
-        public static List<GameObject> Load(GameStateSaveInstance gameData, EntitySpawner spawner, bool withPostLoad)
-        {
-            List<SpawnInfoInstancePair> allSpawned = new List<SpawnInfoInstancePair>();
+            List<SpawnInstanceIdPair> allSpawned = new List<SpawnInstanceIdPair>();
 
             LoadingContext context = new LoadingContext();
 
             Dictionary<GameObject, List<LoadingInfo>> loadingInfo = new Dictionary<GameObject, List<LoadingInfo>>();
 
             // for each entity
-            foreach (KeyValuePair<ISavableSpawnInfo, List<ISavableGameSave>> kv in gameData.GameDatas)
+            foreach (KeyValuePair<ISavableInstanceProvider, List<ISavableGameSave>> kv in gameData.GameDatas)
             {
 
                 List<LoadingInfo> loadingPerInstance = new List<LoadingInfo>();
@@ -129,7 +126,7 @@ namespace Bloodthirst.Core.BISDSystem
                 {
                     LoadingInfo loading = new LoadingInfo();
 
-                    IEntityLoader stateLoader = Loaders.FirstOrDefault(l => l.From == g.GetType());
+                    IGameStateLoader stateLoader = Loaders.FirstOrDefault(l => l.From == g.GetType());
 
                     ISavableState state = stateLoader.GetState(g, context);
 
@@ -146,8 +143,6 @@ namespace Bloodthirst.Core.BISDSystem
                 loadingInfo.Add(spawned, loadingPerInstance);
 
                 // spawn the entity with the preloaded state
-                //EntityIdentifier loadedEntity = spawner.SpawnEntity<EntityIdentifier>(e => e.EntityType == prefabId.EntityType, statesForInstance);
-
                 ISavableBehaviour[] savablesToLoad = spawned.GetComponentsInChildren<ISavableBehaviour>();
 
                 /// adding states to instances
@@ -163,7 +158,7 @@ namespace Bloodthirst.Core.BISDSystem
                     context.AddInstance(savable);
                 }
 
-                allSpawned.Add( new SpawnInfoInstancePair() { SpawnedInstance = spawned, SpawnInfo = kv.Key });
+                allSpawned.Add(new SpawnInstanceIdPair() { SpawnedInstance = spawned, SpawnInfo = kv.Key });
             }
 
             // link refs
@@ -177,7 +172,7 @@ namespace Bloodthirst.Core.BISDSystem
 
             // post instance applied
             // for example : do the whole instance linking/refresh state for BISD
-            foreach (SpawnInfoInstancePair s in allSpawned)
+            foreach (SpawnInstanceIdPair s in allSpawned)
             {
                 s.SpawnInfo.PostStatesApplied(s.SpawnedInstance);
             }
@@ -185,7 +180,7 @@ namespace Bloodthirst.Core.BISDSystem
             // after all entities are loaded
             if (withPostLoad)
             {
-                foreach (SpawnInfoInstancePair s in allSpawned)
+                foreach (SpawnInstanceIdPair s in allSpawned)
                 {
                     IPostEntitiesLoaded[] postLoads = s.SpawnedInstance.GetComponentsInChildren<IPostEntitiesLoaded>(true);
 
@@ -196,7 +191,7 @@ namespace Bloodthirst.Core.BISDSystem
                 }
             }
 
-            return allSpawned.Select( p => p.SpawnedInstance).ToList();
+            return allSpawned.Select(p => p.SpawnedInstance).ToList();
         }
     }
 }

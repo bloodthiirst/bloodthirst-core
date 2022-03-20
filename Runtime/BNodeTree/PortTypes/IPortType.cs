@@ -1,4 +1,6 @@
-﻿using Bloodthirst.Runtime.BNodeTree;
+﻿using Bloodthirst.BJson;
+using Bloodthirst.Editor.BInspector;
+using Bloodthirst.Runtime.BNodeTree;
 using Newtonsoft.Json;
 using System;
 
@@ -16,28 +18,26 @@ namespace Bloodthirst.Runtime.BNodeTree
 
     public interface IPortType<TNode> where TNode : INodeType<TNode>
     {
-        [IgnoreBindable]
+        [BInspectorIgnore]
         Type PortValueType { get;}
 
-        [IgnoreBindable]
+        [BInspectorIgnore]
         string PortName { get; set; }
 
-        [IgnoreBindable]
-        [JsonProperty]
+        [BInspectorIgnore]
         PORT_DIRECTION PortDirection { get; set; }
 
-        [IgnoreBindable]
-        [JsonProperty]
+        [BInspectorIgnore]
         PORT_TYPE PortType { get; set; }
 
         object GetPortValue();
 
-        [JsonIgnore]
-        [IgnoreBindable]
+        [BJsonIgnore]
+        [BInspectorIgnore]
         TNode ParentNode { get; set; }
 
-        [JsonIgnore]
-        [IgnoreBindable]
+        [BJsonIgnore]
+        [BInspectorIgnore]
         ILinkType<TNode> LinkAttached { get; set; }
 
         bool CanLinkTo(IPortType<TNode> otherPort);
@@ -45,25 +45,25 @@ namespace Bloodthirst.Runtime.BNodeTree
 
     public interface IPortType
     {
-        [IgnoreBindable]
+        [BInspectorIgnore]
         Type PortValueType { get;  }
 
-        [IgnoreBindable]
+        [BInspectorIgnore]
         string PortName { get; set; }
 
-        [IgnoreBindable]
+        [BInspectorIgnore]
         PORT_DIRECTION PortDirection { get; set; }
 
-        [IgnoreBindable]
+        [BInspectorIgnore]
         PORT_TYPE PortType { get; set; }
 
         object GetPortValue();
-        [JsonIgnore]
-        [IgnoreBindable]
+        [BJsonIgnore]
+        [BInspectorIgnore]
         INodeType ParentNode { get; set; }
 
-        [JsonIgnore]
-        [IgnoreBindable]
+        [BJsonIgnore]
+        [BInspectorIgnore]
         ILinkType LinkAttached { get; set; }
 
         bool CanLinkTo(IPortType otherPort);

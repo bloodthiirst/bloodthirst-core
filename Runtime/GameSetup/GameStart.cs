@@ -35,7 +35,7 @@ namespace Bloodthirst.Core.Setup
             List<GameObject> allGos = GameObjectUtils.GetAllRootGameObjects();
 
             // pre
-            GameObjectUtils.GetAllComponents<IPreGameSetup>(allGos, true).ForEach((e) => e.Execute());
+            GameObjectUtils.GetAllComponents<IPreGameSetup>(allGos, true).OrderBy( p => p.Order).ToList().ForEach((e) => e.Execute());
 
             // setup
             LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
@@ -43,8 +43,12 @@ namespace Bloodthirst.Core.Setup
             List<IGameSetup> gameSetups = new List<IGameSetup>();
             GameObjectUtils.GetAllComponents(ref gameSetups, true);
 
-            manager.Load(gameSetups.Select(g => g.GetAsynOperations()));
+            IEnumerable<IAsynOperationWrapper> asyncOps = gameSetups.Select(g => g.GetAsynOperations());
 
+            foreach (IAsynOperationWrapper op in asyncOps)
+            {
+                manager.Load(op);
+            }
             yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
 
             // post

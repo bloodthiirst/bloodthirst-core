@@ -11,9 +11,9 @@ namespace Bloodthirst.Core.BISDSystem
         public string Title { get => title; set => title = value; }
 
         [SerializeField]
-        private Dictionary<ISavableSpawnInfo, List<ISavableGameSave>> gameDatas;
+        private Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> gameDatas;
 
-        public Dictionary<ISavableSpawnInfo, List<ISavableGameSave>> GameDatas { get => gameDatas; set => gameDatas = value; }
+        public Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> GameDatas { get => gameDatas; set => gameDatas = value; }
 
     }
 }

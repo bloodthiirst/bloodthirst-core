@@ -351,6 +351,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public void CreateGUI()
         {
+            BEventSystem = new BEventSystem<BNodeTreeEventBase>();
 
             SetupCanvasActions();
 
@@ -646,7 +647,7 @@ namespace Bloodthirst.Editor.BNodeTree
             from.PortType.LinkAttached = typedLink;
 
             // ui
-            LinkElement link = new LinkElement(typedLink, from, to);
+            LinkElement link = new LinkElement( this, typedLink, from, to);
 
             Canvas.Add(link.VisualElement);
             AllLinks.Add(link);
@@ -860,8 +861,9 @@ namespace Bloodthirst.Editor.BNodeTree
             // wait for node reconstruction
             while (true)
             {
-                foreach (NodeBaseElement n in AllNodes)
+                for (int i = 0; i < AllNodes.Count; i++)
                 {
+                    NodeBaseElement n = AllNodes[i];
                     if (float.IsNaN(n.VisualElement.contentRect.width))
                         yield return null;
                 }

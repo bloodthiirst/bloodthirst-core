@@ -9,7 +9,6 @@ namespace Bloodthirst.BType
 {
     public class BTypeData
     {
-
         public static BTypeData Copy(BTypeData from)
         {
             return new BTypeData()
@@ -38,8 +37,14 @@ namespace Bloodthirst.BType
         {
             Type = t;
 
-            Assert.IsFalse( TypeUtils.PrimitiveTypes.Contains(t));
+            try
+            {
+                Assert.IsFalse(TypeUtils.PrimitiveTypes.Contains(t));
+            }
+            catch
+            {
 
+            }
             MemberDatas = new List<BMemberData>();
             BTypeProvider.Register(this);
             Initialize();
@@ -61,23 +66,42 @@ namespace Bloodthirst.BType
                 // setter
                 Action<object, object> setter = MemberSetter(curr);
 
-                // attr
-                Dictionary<Type, Attribute> attrs = new Dictionary<Type, Attribute>();
+                // direct attr
+                Dictionary<Type, Attribute> directAttrs = new Dictionary<Type, Attribute>();
+                IEnumerable<Attribute> directAttrList = curr.GetCustomAttributes(typeof(Attribute), true).Cast<Attribute>();
 
-                IEnumerable<Attribute> attrsList = curr.GetCustomAttributes(typeof(Attribute), true).Cast<Attribute>();
+                foreach (Attribute attributeValue in directAttrList)
+                {
+                    Type attrType = attributeValue.GetType();
+                    directAttrs.Add(attrType, attributeValue);
+                }
 
-                foreach (Attribute a in attrsList)
+
+                // inherited attr
+                Dictionary<Type, List<Attribute>> inheritedAttrs = new Dictionary<Type, List<Attribute>>();
+                List<Attribute> inheritedAttrList = curr.GetAttributesWithInheritence<Attribute>();
+
+                foreach (Attribute a in inheritedAttrList)
                 {
                     Type attrType = a.GetType();
-                    attrs.Add(a.GetType(), a);
+
+                    if(!inheritedAttrs.TryGetValue(attrType , out var lst ))
+                    {
+                        lst = new List<Attribute>();
+                        inheritedAttrs.Add(attrType, lst);
+                    }
+
+                    lst.Add(a);
                 }
+
                 // create
                 BMemberData memberData = new BMemberData();
                 memberData.Type = ReflectionUtils.GetMemberType(curr);
                 memberData.MemberInfo = curr;
                 memberData.MemberGetter = getter;
                 memberData.MemberSetter = setter;
-                memberData.Attributes = attrs;
+                memberData.DirectAttributes = directAttrs;
+                memberData.InheritedAttributes = inheritedAttrs;
 
                 // add
                 MemberDatas.Add(memberData);

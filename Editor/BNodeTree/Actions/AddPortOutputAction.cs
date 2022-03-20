@@ -8,15 +8,15 @@ namespace Bloodthirst.Editor.BNodeTree
     {
         public override void OnDisable()
         {
-            NodeEditor.BEventSystem.Unlisten<OnNodeAddOutput>(HandleNodeAddOutput);
+            NodeEditor.BEventSystem.Unlisten<OnPortRequestAddOutput>(HandleNodeAddOutput);
         }
         public override void OnEnable()
         {
-            NodeEditor.BEventSystem.Unlisten<OnNodeAddOutput>(HandleNodeAddOutput);
-            NodeEditor.BEventSystem.Listen<OnNodeAddOutput>(HandleNodeAddOutput);
+            NodeEditor.BEventSystem.Unlisten<OnPortRequestAddOutput>(HandleNodeAddOutput);
+            NodeEditor.BEventSystem.Listen<OnPortRequestAddOutput>(HandleNodeAddOutput);
         }
 
-        private void HandleNodeAddOutput(OnNodeAddOutput evt)
+        private void HandleNodeAddOutput(OnPortRequestAddOutput evt)
         {
             Type defaultPortType = typeof(PortDefault<>).MakeGenericType(NodeEditor.NodeBaseType);
 

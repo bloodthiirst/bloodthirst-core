@@ -1,0 +1,86 @@
+.play-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Play_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.pause-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Pause_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.record-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Record_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.record-btn:disabled
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Record_Icon_Disabled.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+
+.stop-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Stop_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.main-btn
+{
+	width : 100px;
+	height : 100px;
+	
+	margin : 10px;
+	padding : 20px;
+
+	background-color : rgb(130,130,130);
+
+
+	border-width : 2px;
+	border-color : black;
+	border-radius: 14px;
+}
+
+.main-btn:hover
+{
+	background-color : rgb(180,180,180);
+}
+
+.main-btn:disabled
+{
+	background-color : rgb(120,120,120);
+}
+
+.timelineContainer-main
+{
+	height : 200px;
+	width : 100%;
+}
+
+.timelineContainer-border
+{
+	border-width : 2px;
+	border-color : black;
+	border-radius: 14px;
+	padding : 14px;
+}
+
+.timelineContainer-bg
+{
+	background-color : rgb(130,130,130);
+}
+
+.box
+{
+	width : 100px;
+	height : 100px;
+	border-width : 2px;
+	border-color : black;
+	border-radius: 0px;
+	background-color : red;
+}
+

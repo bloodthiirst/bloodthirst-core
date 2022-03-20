@@ -10,6 +10,7 @@ namespace Bloodthirst.BType
         public MemberInfo MemberInfo { get; set; }
         public Func<object, object> MemberGetter { get; set; }
         public Action<object, object> MemberSetter { get; set; }
-        public Dictionary<Type, Attribute> Attributes { get; set; }
+        public Dictionary<Type, Attribute> DirectAttributes { get; set; }
+        public Dictionary<Type, List<Attribute>> InheritedAttributes { get; internal set; }
     }
 }

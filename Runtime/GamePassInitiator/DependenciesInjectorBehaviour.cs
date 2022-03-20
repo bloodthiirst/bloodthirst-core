@@ -9,13 +9,35 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Bloodthirst.Scripts.Core.Utils;
-using Bloodthirst.Core.SceneManager;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Bloodthirst.Core.GameInitPass
 {
     public class DependenciesInjectorBehaviour : MonoBehaviour , IPreGameSetup , IPostGameSetup
     {
-        void IPreGameSetup.Execute()
+        [ReadOnly]
+        [SerializeField]
+        private List<ScriptableObject> allScriptables;
+
+        [FolderPath]
+        [SerializeField]
+        private string[] searchInFolders;
+
+#if UNITY_EDITOR
+        [Button]
+        private void FetchAllScriptableObjects()
+        {
+            allScriptables = AssetDatabase.FindAssets($"t:{nameof(ScriptableObject)}" , searchInFolders)
+                .Select( g => AssetDatabase.GUIDToAssetPath(g))
+                .Select(p => AssetDatabase.LoadAssetAtPath<ScriptableObject>(p))
+                .ToList();
+        }
+#endif
+        int IPreGameSetup.Order => 0;
+
+        void IPreGameSetup.Execute() 
         {
             ScriptableObjects();
         }
@@ -25,14 +47,14 @@ namespace Bloodthirst.Core.GameInitPass
             SceneDependencies();
         }
 
+
+
         private void ScriptableObjects()
         {
             BProvider scProvider = new BProvider();
 
-            UnityEngine.Object[] scriptables = Resources.LoadAll(string.Empty);
-
-            List<IScriptableObject> scInstances = scriptables.OfType<IScriptableObject>().ToList();
-            List<IScriptableObjectSingleton> scSingletons = scriptables.OfType<IScriptableObjectSingleton>().ToList();
+            List<IScriptableObject> scInstances = allScriptables.OfType<IScriptableObject>().ToList();
+            List<IScriptableObjectSingleton> scSingletons = allScriptables.OfType<IScriptableObjectSingleton>().ToList();
 
             // instances
             foreach (IScriptableObject s in scInstances)

@@ -12,7 +12,7 @@
         public override void OnEnable()
         {
             NodeEditor.BEventSystem.Unlisten<OnPortToggleInfo>(HandleNodeRightClick);
-            NodeEditor.BEventSystem.Unlisten<OnPortToggleInfo>(HandleNodeRightClick);
+            NodeEditor.BEventSystem.Listen<OnPortToggleInfo>(HandleNodeRightClick);
         }
 
         private void HandleNodeRightClick(OnPortToggleInfo evt)

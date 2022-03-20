@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Runtime.BNodeTree;
+﻿using Bloodthirst.Editor.BInspector;
+using Bloodthirst.Runtime.BNodeTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public bool IsShowingInfo { get; private set; }
 
-        private List<IBindableUI> BindableUIs { get; set; }
+        private List<IValueDrawer> BindableUIs { get; set; }
 
         public PortInfoBaseElement(PortBaseElement port, IPortType portType)
         {
@@ -44,7 +45,7 @@ namespace Bloodthirst.Editor.BNodeTree
             BorderSelected.pickingMode = PickingMode.Ignore;
 
             // bindable
-            BindableUIs = new List<IBindableUI>();
+            BindableUIs = new List<IValueDrawer>();
 
             // parent node ui
             PortBase = port;
@@ -65,8 +66,6 @@ namespace Bloodthirst.Editor.BNodeTree
                 FieldsContainer.style.display = DisplayStyle.Flex;
 
                 SetupFields();
-
-                FixLabels();
             }
 
             PortInfoRoot.MarkDirtyRepaint();
@@ -137,51 +136,12 @@ namespace Bloodthirst.Editor.BNodeTree
 
         private void SetupFields()
         {
-            List<MemberInfo> members = ValidMembers();
+            IBInspectorDrawer inspector = BInspectorProvider.DefaultInspector;
 
+            VisualElement ui = inspector.CreateInspectorGUI(PortType);
 
-            foreach (MemberInfo mem in members)
-            {
-                IBindableUIFactory factory = BindableUIProvider.UIFactory.FirstOrDefault(f => f.CanBind(mem));
-
-                if (factory == null)
-                    continue;
-
-                IBindableUI bindable = factory.CreateUI();
-
-                BindableUIs.Add(bindable);
-
-                bindable.Setup(PortType, mem);
-                FieldsContainer.Add(bindable.VisualElement);
-
-            }
+            FieldsContainer.Add(ui);
         }
-
-
-        private void FixLabels()
-        {
-            if (BindableUIs.Count == 0)
-                return;
-
-            // max label length
-            int maxLabelLength = BindableUIs.Max(l => l.MemberInfo.Name.Length);
-
-
-
-            // ratio picked
-            float fontRatio = 70 / 10f;
-
-            float labelWidth = fontRatio * maxLabelLength;
-
-            foreach (IBindableUI ui in BindableUIs)
-            {
-                foreach (Label l in ui.VisualElement.Query<Label>().Build().ToList())
-                {
-                    l.style.width = new StyleLength(labelWidth);
-                }
-            }
-        }
-
 
         public void AfterAddToCanvas()
         {

@@ -9,21 +9,19 @@ namespace Bloodthirst.Editor.BNodeTree
     public class LinkElement
     {
         private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Link/LinkElement.uss";
-        
+
+        public INodeEditor NodeEditor { get; }
         public ILinkType LinkType { get; set; }    
         public PortBaseElement From { get; private set; }
         public PortBaseElement To { get; private set; }
         private UILinelement Root { get; set; }
         public VisualElement VisualElement => Root;
 
-        public event Action<LinkElement, ClickEvent> OnLinkClicked;
-
-        public event Action<LinkElement, ClickEvent> OnLinkRequestRemove;
-
-        public LinkElement( ILinkType link, PortBaseElement from, PortBaseElement to)
+        public LinkElement( INodeEditor nodeEditor, ILinkType link, PortBaseElement from, PortBaseElement to)
         {
             From = from;
             To = to;
+            NodeEditor = nodeEditor;
             LinkType = link;
             
             Root = new UILinelement()
@@ -43,26 +41,23 @@ namespace Bloodthirst.Editor.BNodeTree
             Root.AddToClassList("link-container");
             Root.AddToClassList("unity-button");
 
-            From.ParentNode.OnNodeMoved -= HandleNodeMoved;
-            From.ParentNode.OnNodeMoved += HandleNodeMoved;
-
-            From.ParentNode.OnNodeResized -= HandleNodeResized;
-            From.ParentNode.OnNodeResized += HandleNodeResized;
-
-            To.ParentNode.OnNodeMoved -= HandleNodeMoved;
-            To.ParentNode.OnNodeMoved += HandleNodeMoved;
-
-            To.ParentNode.OnNodeResized -= HandleNodeResized;
-            To.ParentNode.OnNodeResized += HandleNodeResized;
+            NodeEditor.BEventSystem.Listen<OnNodeMoved>(HandleNodeMoved);
+            NodeEditor.BEventSystem.Listen<OnNodeResized>(HandleNodeResized);
         }
 
-        private void HandleNodeResized(NodeBaseElement node)
+        private void HandleNodeResized(OnNodeResized evt)
         {
+            if (evt.Node != From.ParentNode && evt.Node != To.ParentNode)
+                return;
+
             Refresh();
         }
 
-        private void HandleNodeMoved(NodeBaseElement node)
+        private void HandleNodeMoved(OnNodeMoved evt)
         {
+            if (evt.Node != From.ParentNode && evt.Node != To.ParentNode)
+                return;
+
             Refresh();
         }
 
@@ -73,11 +68,8 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public void BeforeRemoveFromCanvas()
         {
-            From.ParentNode.OnNodeMoved -= HandleNodeMoved;
-            To.ParentNode.OnNodeMoved -= HandleNodeMoved;
-
-            From.ParentNode.OnNodeResized -= HandleNodeResized;
-            To.ParentNode.OnNodeResized -= HandleNodeResized;
+            NodeEditor.BEventSystem.Unlisten<OnNodeMoved>(HandleNodeMoved);
+            NodeEditor.BEventSystem.Unlisten<OnNodeResized>(HandleNodeResized);
 
             From = null;
             To = null;

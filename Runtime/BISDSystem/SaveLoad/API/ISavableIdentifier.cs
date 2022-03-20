@@ -2,6 +2,6 @@
 {
     public interface ISavableIdentifier
     {
-        ISavableSpawnInfo GetSpawnInfo();
+        ISavableInstanceProvider GetInstanceProvider();
     }
 }

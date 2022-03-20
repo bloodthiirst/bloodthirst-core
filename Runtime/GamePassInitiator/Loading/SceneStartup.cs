@@ -31,6 +31,7 @@ namespace Bloodthirst.Core.SceneManager
         }
 #endif
 
+        int IPreGameSetup.Order => 0;
         void IPreGameSetup.Execute()
         {
             BProviderRuntime.Instance.RegisterSingleton(this);
@@ -53,6 +54,7 @@ namespace Bloodthirst.Core.SceneManager
 
             return op;
         }
+
 
         void IPostGameSetup.Execute()
         {

@@ -31,6 +31,49 @@ namespace Bloodthirst.Core.Utils
             typeof(float)
         };
 
+        // in later .NETs, you can cache reflection extensions using a static generic class and
+        // a ConcurrentDictionary. E.g.
+        //public static class Attributes<T> where T : Attribute
+        //{
+        //    private static readonly ConcurrentDictionary<MemberInfo, IReadOnlyCollection<T>> _cache =
+        //        new ConcurrentDictionary<MemberInfo, IReadOnlyCollection<T>>();
+        //
+        //    public static IReadOnlyCollection<T> Get(MemberInfo member)
+        //    {
+        //        return _cache.GetOrAdd(member, GetImpl, Enumerable.Empty<T>().ToArray());
+        //    }
+        //    //GetImpl as per code below except that recursive steps re-enter via the cache
+        //}
+
+        public static List<T> GetAttributesWithInheritence<T>(this MemberInfo member) where T : Attribute
+        {
+            List<T> attributes = new List<T>();
+
+            List<Type> allTypes = new List<Type>();
+
+            Type parentType = member.DeclaringType;
+            List<Type> allClasses = parentType.GetBaseClasses().ToList();
+            List<Type> allInterfaces = parentType.GetInterfaces().ToList();
+
+            allTypes.Add(parentType);
+            allTypes.AddRange(allClasses);
+            allTypes.AddRange(allInterfaces);
+
+            foreach(Type i in allTypes)
+            {
+                foreach(MemberInfo mem in i.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (mem.MemberType != member.MemberType || mem.Name != member.Name)
+                        continue;
+
+                    IEnumerable<T> attrsFound = mem.GetCustomAttributes<T>(true);
+                    attributes.AddRange(attrsFound);
+                }
+            }
+
+            return attributes;
+        }
+
         /// <summary>
         /// Get a readonly list of all the types in every assembly
         /// </summary>

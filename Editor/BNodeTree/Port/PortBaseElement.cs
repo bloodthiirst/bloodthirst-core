@@ -1,5 +1,8 @@
-﻿using Bloodthirst.Runtime.BNodeTree;
+﻿using Bloodthirst.Core.Utils;
+using Bloodthirst.Runtime.BNodeTree;
 using System;
+using System.Collections;
+using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,21 +18,19 @@ namespace Bloodthirst.Editor.BNodeTree
 
 
         private Color color;
-
-        public event Action<PortBaseElement, ClickEvent> OnPortClicked;
-
-        public event Action<PortBaseElement, ContextClickEvent> OnPortRightClicked;
-
-        public event Action<PortBaseElement> OnPortToggleInfoDialog;
+        private double lastClickTimestamp;
+        private EditorCoroutine crtHandle;
 
         private VisualElement PortRoot { get; set; }
         private VisualElement PortColor => PortRoot.Q<VisualElement>(nameof(PortColor));
         private Label PortName => PortRoot.Q<Label>(nameof(PortName));
+        private TextField PortNameEdit => PortRoot.Q<TextField>(nameof(PortNameEdit));
         private VisualElement PortBG => PortRoot.Q<VisualElement>(nameof(PortBG));
         private VisualElement PortSelected => PortRoot.Q<VisualElement>(nameof(PortSelected));
         private VisualElement PortInfoContainer => PortRoot.Q<VisualElement>(nameof(PortInfoContainer));
         public VisualElement VisualElement => PortRoot;
 
+        public INodeEditor NodeEditor { get; }
         public NodeBaseElement ParentNode { get; }
         public PortInfoBaseElement PortInfo { get; }
         public LinkElement Link { get; set; }
@@ -48,7 +49,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public bool IsShowingInfo { get; private set; }
 
-        public PortBaseElement( NodeBaseElement parentNode, IPortType portType)
+        public PortBaseElement(INodeEditor nodeEditor, NodeBaseElement parentNode, IPortType portType)
         {
             // Import UXML
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
@@ -59,6 +60,8 @@ namespace Bloodthirst.Editor.BNodeTree
             PortRoot = templateContainer.Q<VisualElement>(nameof(PortRoot));
             PortRoot.styleSheets.Add(customUss);
 
+            NodeEditor = nodeEditor;
+
             // parent node ui
             ParentNode = parentNode;
 
@@ -66,7 +69,6 @@ namespace Bloodthirst.Editor.BNodeTree
             PortType = portType;
 
             // info 
-
             PortInfo = new PortInfoBaseElement(this , portType);
 
             PortInfoContainer.Add(PortInfo.VisualElement);
@@ -76,6 +78,14 @@ namespace Bloodthirst.Editor.BNodeTree
 
             // label
             PortName.text = PortType.PortName;
+
+            //edit
+            //PortNameEdit.labelElement.parent.Remove(PortNameEdit.labelElement);
+            PortNameEdit.labelElement.Display(false);
+
+            PortName.Display(true);
+            PortNameEdit.Display(false);
+            PortNameEdit.focusable = false;
 
             // add class to flip the appearance
             if (PortType.PortDirection == PORT_DIRECTION.INPUT)
@@ -92,32 +102,84 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public void AfterAddToCanvas()
         {
-            PortRoot.RegisterCallback<ClickEvent>(OnClick);
+            PortRoot.RegisterCallback<MouseDownEvent>(OnClick);
             PortRoot.RegisterCallback<ContextClickEvent>(OnRightClick);
+
+            PortNameEdit.RegisterCallback<KeyDownEvent>(HandleKeydown);
         }
+
 
         public void BeforeRemoveFromCanvas()
         {
-            PortRoot.UnregisterCallback<ClickEvent>(OnClick);
+            PortRoot.UnregisterCallback<MouseDownEvent>(OnClick);
             PortRoot.UnregisterCallback<ContextClickEvent>(OnRightClick);
-            OnPortClicked = null;
-            OnPortRightClicked = null;
+
+            PortNameEdit.UnregisterCallback<KeyDownEvent>(HandleKeydown);
         }
+
+        private void HandleKeydown(KeyDownEvent evt)
+        {
+            if(evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter)
+            {
+                PortType.PortName = PortNameEdit.value;
+                PortName.text = PortNameEdit.value;
+                PortName.Display(true);
+                PortNameEdit.Display(false);
+                PortNameEdit.focusable = false;
+            }
+
+            if(evt.keyCode == KeyCode.Escape)
+            {
+                PortName.Display(true);
+                PortNameEdit.Display(false);
+                PortNameEdit.focusable = false;
+            }
+        }
+
 
         private void OnRightClick(ContextClickEvent evt)
         {
-            OnPortRightClicked?.Invoke(this, evt);
+            NodeEditor.BEventSystem.Trigger(new OnPortMouseContextClick(NodeEditor , this , evt));
         }
 
-        private void OnClick(ClickEvent evt)
+        IEnumerator CrtDoubleClick(double clickTime)
         {
-            
+            double waitTime = 0.3f;
+            yield return new WaitUntil(() => EditorApplication.timeSinceStartup >= clickTime + waitTime);
+            double delta = lastClickTimestamp - clickTime;
+
+            // if one click
+            if (delta < 0.001f)
+            {
+                NodeEditor.BEventSystem.Trigger(new OnPortToggleInfo(NodeEditor, this)); ;
+            }
+            // else two clicks
+            else
+            {
+                PortNameEdit.focusable = true;
+                PortNameEdit.Focus();
+                PortNameEdit.value = PortType.PortName;
+                PortName.Display(false);
+                PortNameEdit.Display(true);
+            }
+
+    
+
+            crtHandle = null;
+        }
+
+        private void OnClick(MouseDownEvent evt)
+        {   
             if (evt.target != PortName)
                 return;
 
-            OnPortToggleInfoDialog?.Invoke(this);
+            lastClickTimestamp = EditorApplication.timeSinceStartup;
 
-            OnPortClicked?.Invoke(this, evt);
+            if (crtHandle == null)
+            {
+                crtHandle = EditorCoroutineUtility.StartCoroutine(CrtDoubleClick(EditorApplication.timeSinceStartup), this);
+            }
+
         }
 
         public void Select()

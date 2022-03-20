@@ -18,9 +18,6 @@
 }
 
 .center {
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
     justify-content: center;
 }
 
@@ -36,12 +33,12 @@
 
 .basis-1
 {
-    flex-basis : 1;
+    flex-basis : 100%;
 }
 
 .basis-0
 {
-    flex-basis : 1;
+    flex-basis : 0%;
 }
 
 .grow-1{
@@ -90,12 +87,13 @@
     border-radius: 10px;
 }
 
-.m-5 {
-    margin: 5px;
+.m-0
+{
+    margin : 0px;
 }
 
-.p-5 {
-    padding: 5px;
+.m-5 {
+    margin: 5px;
 }
 
 .mt-3 {
@@ -117,6 +115,13 @@
     margin-bottom: 5px;
 }
 
+.p-0
+{
+    padding : 0px;
+}
+.p-5 {
+    padding: 5px;
+}
 
 .pt-5 {
     padding-top: 5px;

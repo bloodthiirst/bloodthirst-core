@@ -9,7 +9,9 @@
 
         <engine:VisualElement class="port-row">
 
-            <engine:Label class="port-name" name="PortName" text="Hello"/>
+            <engine:Label class="port-name port-name-padding" name="PortName" text="Hello"/>
+
+            <engine:TextField class="port-name-edit  p-0 m-0" name="PortNameEdit"/>
 
             <engine:VisualElement class="port-graphics">
         

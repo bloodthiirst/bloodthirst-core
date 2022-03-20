@@ -7,7 +7,7 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
 {
     [BISDTag("[MODELNAME]" , ClassType.GAME_SAVE)]
     [Serializable]
-    public class [MODELNAME]GameSave : IEntityGameSave<[MODELNAME]State>
+    public class [MODELNAME]GameSave : ISavableGameSave
     {
         //GAMEDATA_START
 		//GAMEDATA_END

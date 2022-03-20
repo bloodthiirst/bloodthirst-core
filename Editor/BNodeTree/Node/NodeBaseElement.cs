@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Runtime.BNodeTree;
+﻿using Bloodthirst.Editor.BInspector;
+using Bloodthirst.Runtime.BNodeTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace Bloodthirst.Editor.BNodeTree
         public VisualElement VisualElement => NodeRoot;
 
         public List<PortBaseElement> Ports { get; }
-        public List<IBindableUI> BindableUIs { get; }
+        public List<IValueDrawer> BindableUIs { get; }
         #endregion
 
         public bool IsInsideResize { get; set; }
@@ -76,10 +77,11 @@ namespace Bloodthirst.Editor.BNodeTree
             NodeRoot.style.height = h;
 
             NodeRoot.MarkDirtyRepaint();
-            OnNodeResized?.Invoke(this);
+
+            NodeEditor.BEventSystem.Trigger(new OnNodeResized(NodeEditor, this));
         }
 
-        public NodeBaseElement(INodeType nodeType , INodeEditor nodeEditor)
+        public NodeBaseElement(INodeType nodeType, INodeEditor nodeEditor)
         {
             NodeType = nodeType;
             NodeEditor = nodeEditor;
@@ -88,7 +90,7 @@ namespace Bloodthirst.Editor.BNodeTree
             Ports = new List<PortBaseElement>();
 
             // ui feilds
-            BindableUIs = new List<IBindableUI>();
+            BindableUIs = new List<IValueDrawer>();
 
             // Import UXML
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UXML_PATH);
@@ -119,20 +121,12 @@ namespace Bloodthirst.Editor.BNodeTree
                 return;
 
             // max label length
-            int maxLabelLength = BindableUIs.Max(l => l.MemberInfo.Name.Length);
+            int maxLabelLength = ValidMembers().Max(l => l.Name.Length);
 
             // ratio picked
             float fontRatio = 70 / 10f;
 
             float labelWidth = fontRatio * maxLabelLength;
-
-            foreach (IBindableUI ui in BindableUIs)
-            {
-                foreach (Label l in ui.VisualElement.Query<Label>().Build().ToList())
-                {
-                    l.style.width = new StyleLength(labelWidth);
-                }
-            }
         }
 
         /// <summary>
@@ -184,70 +178,55 @@ namespace Bloodthirst.Editor.BNodeTree
         /// </summary>
         private void SetupFields()
         {
-            List<MemberInfo> members = ValidMembers();
+            IBInspectorDrawer inspector = BInspectorProvider.DefaultInspector;
 
+            VisualElement ui = inspector.CreateInspectorGUI(NodeType);
 
-            foreach (MemberInfo mem in members)
-            {
-                IBindableUIFactory factory = BindableUIProvider.UIFactory.FirstOrDefault(f => f.CanBind(mem));
-
-                if (factory == null)
-                    continue;
-
-                IBindableUI bindable = factory.CreateUI();
-
-                BindableUIs.Add(bindable);
-
-                bindable.Setup(NodeType, mem);
-                FieldsContainer.Add(bindable.VisualElement);
-
-            }
+            FieldsContainer.Add(ui);
+            
+            ComplexValueDrawer drawer = new ComplexValueDrawer();
         }
 
         #region add input
         private void AddConstInputPort(IPortType curr)
         {
-            PortBaseElement input = new PortBaseElement(this, curr);
+            PortBaseElement input = new PortBaseElement(NodeEditor, this, curr);
             InputPortsContainer.Add(input.VisualElement);
 
             Ports.Add(input);
 
             input.AfterAddToCanvas();
-            OnNodePortAdded?.Invoke(this, input);
         }
         public void AddVariableInputPort(IPortType curr)
         {
-            PortBaseElement input = new PortBaseElement(this, curr);
+            PortBaseElement input = new PortBaseElement(NodeEditor, this, curr);
             InputPortsContainer.Add(input.VisualElement);
 
             Ports.Add(input);
 
             input.AfterAddToCanvas();
-            OnNodePortAdded?.Invoke(this, input);
-
         }
         #endregion
 
         #region add output
         private void AddConstOutputPort(IPortType port)
         {
-            PortBaseElement output = new PortBaseElement(this, port);
-            OutputPortsContainer.Add(output.VisualElement);
-
-            Ports.Add(output);
-
-            OnNodePortAdded?.Invoke(this, output);
-        }
-
-        public void AddVariableOutputPort(IPortType port)
-        {
-            PortBaseElement output = new PortBaseElement(this, port);
+            PortBaseElement output = new PortBaseElement(NodeEditor, this, port);
             OutputPortsContainer.Add(output.VisualElement);
 
             Ports.Add(output);
 
             output.AfterAddToCanvas();
-            OnNodePortAdded?.Invoke(this, output);
+        }
+
+        public void AddVariableOutputPort(IPortType port)
+        {
+            PortBaseElement output = new PortBaseElement(NodeEditor, this, port);
+            OutputPortsContainer.Add(output.VisualElement);
+
+            Ports.Add(output);
+
+            output.AfterAddToCanvas();
         }
         #endregion
 
@@ -261,7 +240,9 @@ namespace Bloodthirst.Editor.BNodeTree
                 throw new Exception("Port not found when trying to remove");
             }
             curr.BeforeRemoveFromCanvas();
+
             OutputPortsContainer.Remove(curr.VisualElement);
+
             Ports.Remove(curr);
         }
 
@@ -381,7 +362,6 @@ namespace Bloodthirst.Editor.BNodeTree
         public void AfterAddToCanvas()
         {
             // node events
-
             NodeType.OnPortAdded -= HandleAddPort;
             NodeType.OnPortAdded += HandleAddPort;
 
@@ -415,6 +395,16 @@ namespace Bloodthirst.Editor.BNodeTree
             }
         }
 
+        private void HandleAddOutput()
+        {
+            NodeEditor.BEventSystem.Trigger(new OnPortRequestAddOutput(NodeEditor, this));
+        }
+
+        private void HandleAddInput()
+        {
+            NodeEditor.BEventSystem.Trigger(new OnPortRequestAddInput(NodeEditor, this));
+        }
+
         private void HandleAddPort(IPortType port)
         {
             if (port.PortDirection == PORT_DIRECTION.INPUT && port.PortType == PORT_TYPE.CONST)
@@ -438,35 +428,25 @@ namespace Bloodthirst.Editor.BNodeTree
             }
         }
 
-        private void HandleAddOutput()
-        {
-            OnRequestNodeAddOutput?.Invoke(this);
-        }
-
-        private void HandleAddInput()
-        {
-            OnRequestNodeAddInput?.Invoke(this);
-        }
-
         private void OnResizeUp(MouseUpEvent evt)
         {
             CanResize = false;
 
-            OnNodeEndResize?.Invoke(this);
+            NodeEditor.BEventSystem.Trigger(new OnNodeEndResize(NodeEditor, this));
         }
 
         private void OnResizeDown(MouseDownEvent evt)
         {
             CanResize = true;
 
-            OnNodeStartResize?.Invoke(this);
+            NodeEditor.BEventSystem.Trigger(new OnNodeStartResize(NodeEditor, this));
         }
         private void OnResizeLeave(MouseLeaveEvent evt)
         {
             IsInsideResize = false;
             CanDrag = false;
 
-            OnNodeEndResize?.Invoke(this);
+            NodeEditor.BEventSystem.Trigger(new OnNodeEndResize(NodeEditor, this));
         }
 
         private void OnResizeEnter(MouseEnterEvent evt)
@@ -505,21 +485,21 @@ namespace Bloodthirst.Editor.BNodeTree
         {
             ClearAllPorts();
 
-            foreach (IBindableUI b in BindableUIs)
+            foreach (IValueDrawer b in BindableUIs)
             {
-                b.CleanUp();
+                b.Destroy();
             }
         }
 
         #region canvas events
         private void OnRightClick(ContextClickEvent evt)
         {
-            OnNodeRightClicked?.Invoke(this, evt);
+            NodeEditor.BEventSystem.Trigger(new OnNodeMouseContextClick(NodeEditor, this, evt));
         }
 
         private void OnClick(ClickEvent evt)
         {
-            OnNodeClicked?.Invoke(this, evt);
+            NodeEditor.BEventSystem.Trigger(new OnNodeMouseClick(NodeEditor, this, evt));
         }
 
         private void OnMouseUp(MouseUpEvent evt)
@@ -542,7 +522,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
             NodeRoot.transform.position += res;
 
-            OnNodeMoved?.Invoke(this);
+            NodeEditor.BEventSystem.Trigger(new OnNodeMoved(NodeEditor, this));
         }
 
         private void OnMouseDown(MouseDownEvent evt)

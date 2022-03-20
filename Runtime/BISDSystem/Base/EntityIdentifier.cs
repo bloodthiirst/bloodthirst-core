@@ -92,9 +92,9 @@ namespace Bloodthirst.Core.BISDSystem
             OnEntitySpawned?.Invoke(this);
         }
 
-        public ISavableSpawnInfo GetSpawnInfo()
+        public ISavableInstanceProvider GetInstanceProvider()
         {
-            return new BISDSpawnInfo()
+            return new BISDInstanceProvider()
             {
                 Id = Id,
                 EntityType = entityType

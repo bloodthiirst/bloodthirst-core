@@ -1,8 +1,0 @@
-#TextUI > Label {
-    min-width: 10px;
-}
-
-#TextUI
-{
-    margin : 5px;
-}

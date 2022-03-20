@@ -37,7 +37,7 @@ namespace Bloodthirst.Editor.BInspector
 
             UIHeader.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
 
-            
+
             UIContainer = new VisualElement();
             UIContainer.AddToClassList("column");
             UIContainer.AddToClassList("grow-1");
@@ -84,7 +84,7 @@ namespace Bloodthirst.Editor.BInspector
             if (DrawerInfo.MemberInfo != null)
             {
                 Type type = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
-                
+
                 if (type.IsClass || type.IsInterface)
                 {
                     InstanceCreator();
@@ -105,8 +105,9 @@ namespace Bloodthirst.Editor.BInspector
             TypeSelector = new TypeSelector(type);
             TypeSelector.AddToClassList("grow-1");
 
-            TypeSelector.SetValueWithoutNotify(Value == null ? null : Value.GetType());
+            Type instanceType = Value == null ? null : Value.GetType();
 
+            TypeSelector.SetValueWithoutNotify(instanceType);
             TypeSelector.UnregisterValueChangedCallback(HandleValueTypeChanged);
             TypeSelector.RegisterValueChangedCallback(HandleValueTypeChanged);
 
@@ -147,8 +148,9 @@ namespace Bloodthirst.Editor.BInspector
             LabelDrawer labelDrawer = new LabelDrawer();
 
             // draw sub fields
-            foreach (BMemberData m in validFields)
+            for (int i = 0; i < validFields.Count; i++)
             {
+                BMemberData m = validFields[i];
                 Type fieldType = ReflectionUtils.GetMemberType(m.MemberInfo);
                 IValueDrawer fieldDrawer = ValueDrawerProvider.Get(fieldType);
                 ChildrenValueDrawers.Add(fieldDrawer);
@@ -172,18 +174,18 @@ namespace Bloodthirst.Editor.BInspector
             }
 
             // methods
-            List<MethodInfo> methods =  TypeUtils.GetAllMethods(type);
+            List<MethodInfo> methods = TypeUtils.GetAllMethods(type);
 
             methods = methods
-                .Where( m => m.ReturnType == typeof(void) )
-                .Where( m => m.GetParameters().Length == 0)
-                .Where( m => m.GetCustomAttribute<BButton>() != null)
+                .Where(m => m.ReturnType == typeof(void))
+                .Where(m => m.GetParameters().Length == 0)
+                .Where(m => m.GetCustomAttribute<BButton>() != null)
                 .ToList();
 
             // button methods
-            foreach(MethodInfo m in methods)
+            foreach (MethodInfo m in methods)
             {
-                Button btn = new Button(() => m.Invoke(Value , null) );
+                Button btn = new Button(() => m.Invoke(Value, null));
                 btn.text = m.Name;
 
                 UIContainer.Add(btn);
@@ -209,7 +211,7 @@ namespace Bloodthirst.Editor.BInspector
             }
 
             ChildrenValueDrawers.Clear();
-            
+
             DrawerRoot.Remove(UIHeader);
             DrawerRoot.Remove(UIContainer);
 

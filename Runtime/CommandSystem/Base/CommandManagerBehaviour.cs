@@ -1,13 +1,16 @@
-﻿using Bloodthirst.Core.Singleton;
+﻿using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.Setup;
+using Bloodthirst.Core.Singleton;
+using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
-    public class CommandManagerBehaviour : UnitySingleton<CommandManagerBehaviour>
+    public class CommandManagerBehaviour : MonoBehaviour, IPreGameSetup
     {
-
         [ShowInInspector]
+        [ShowIf("@UnityEngine.Application.isPlaying")]
         private CommandManager commandManager;
 
         [ReadOnly]
@@ -18,11 +21,15 @@ namespace Bloodthirst.System.CommandSystem
 
         private CommandBatchList globalCommandBatch;
 
-        protected override void OnSetupSingletonPass()
+        int IPreGameSetup.Order => 0;
+        void IPreGameSetup.Execute()
         {
+            
             commandManager = new CommandManager();
             globalCommandBatch = AppendBatch<CommandBatchList>(this);
             isActive = true;
+
+            BProviderRuntime.Instance.RegisterSingleton<CommandManagerBehaviour , CommandManagerBehaviour>(this);
         }
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace Bloodthirst.Editor.BInspector
             {
                 BMemberData curr = cpy.MemberDatas[i];
 
-                if(curr.Attributes.ContainsKey(ignoreType))
+                if(curr.InheritedAttributes.ContainsKey(ignoreType))
                 {
                     cpy.MemberDatas.RemoveAt(i);
                 }
