@@ -2,9 +2,9 @@
 {
     public abstract class BRecorderActionBase
     {
-        protected BRecorder Recorder { get; private set; }
+        protected BRecorderEditor Recorder { get; private set; }
 
-        public BRecorderActionBase(BRecorder recorder)
+        public BRecorderActionBase(BRecorderEditor recorder)
         {
             Recorder = recorder;
         }

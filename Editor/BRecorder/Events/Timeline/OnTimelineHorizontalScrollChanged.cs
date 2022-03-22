@@ -6,7 +6,7 @@ namespace Bloodthirst.Editor.BRecorder
     {
         public float HorizontalScroll { get; }
 
-        public OnTimelineHorizontalScrollChanged(BRecorder recorder, float HorizontalScroll) : base(recorder)
+        public OnTimelineHorizontalScrollChanged(BRecorderEditor recorder, float HorizontalScroll) : base(recorder)
         {
             this.HorizontalScroll = HorizontalScroll;
         }

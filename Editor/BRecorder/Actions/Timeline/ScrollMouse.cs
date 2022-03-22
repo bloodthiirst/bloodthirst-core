@@ -6,7 +6,7 @@ namespace Bloodthirst.Editor.BRecorder
     {
         private bool canDrag;
 
-        public ScrollMouse(BRecorder recorder) : base(recorder)
+        public ScrollMouse(BRecorderEditor recorder) : base(recorder)
         {
         }
 
@@ -36,14 +36,14 @@ namespace Bloodthirst.Editor.BRecorder
 
         private void HandleScrollWheel(OnTimelineScrollWheel evt)
         {
-            Recorder.CurrentZoom -= evt.WheelEvent.delta.y * 0.01f;
+            Recorder.CurrentHorizontalZoom -= evt.WheelEvent.delta.y * 0.01f;
         }
         private void HandleMouseMove(OnTimelineMouseMove evt)
         {
             if (!canDrag)
                 return;
 
-            Recorder.HorizontalScrollValue -= evt.MouseMoveEvent.mouseDelta.x / Recorder.CurrentZoom;
+            Recorder.HorizontalScrollValue -= evt.MouseMoveEvent.mouseDelta.x / Recorder.CurrentHorizontalZoom;
         }
 
         public override void Destroy()

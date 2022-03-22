@@ -2,9 +2,9 @@
 {
     public abstract class BRecorderEventBase
     {
-        public BRecorder Recorder { get; private set; }
+        public BRecorderEditor Recorder { get; private set; }
 
-        public BRecorderEventBase(BRecorder recorder)
+        public BRecorderEventBase(BRecorderEditor recorder)
         {
             Recorder = recorder;
         }

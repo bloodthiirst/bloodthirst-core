@@ -6,7 +6,7 @@ namespace Bloodthirst.Editor.BRecorder
     {
         public WheelEvent WheelEvent { get; }
 
-        public OnTimelineScrollWheel(BRecorder recorder, WheelEvent WheelEvent) : base(recorder)
+        public OnTimelineScrollWheel(BRecorderEditor recorder, WheelEvent WheelEvent) : base(recorder)
         {
             this.WheelEvent = WheelEvent;
         }

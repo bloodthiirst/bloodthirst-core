@@ -6,7 +6,7 @@ namespace Bloodthirst.Editor.BRecorder
     {
         public MouseDownEvent MouseDownEvent { get; }
 
-        public OnTimelineMouseDown(BRecorder recorder, MouseDownEvent MouseDownEvent) : base(recorder)
+        public OnTimelineMouseDown(BRecorderEditor recorder, MouseDownEvent MouseDownEvent) : base(recorder)
         {
             this.MouseDownEvent = MouseDownEvent;
         }

@@ -6,7 +6,7 @@ namespace Bloodthirst.Editor.BRecorder
     {
         public MouseLeaveEvent MouseLeaveEvent { get; }
 
-        public OnTimelineMouseLeave(BRecorder recorder, MouseLeaveEvent MouseLeaveEvent) : base(recorder)
+        public OnTimelineMouseLeave(BRecorderEditor recorder, MouseLeaveEvent MouseLeaveEvent) : base(recorder)
         {
             this.MouseLeaveEvent = MouseLeaveEvent;
         }

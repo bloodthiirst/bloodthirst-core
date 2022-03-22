@@ -1,0 +1,23 @@
+.cursor-line
+{
+	width : 4px;
+	
+	top : 0;
+	bottom : 0;
+
+	background-color : rgb(80,80,80);
+
+	border-color : black;
+	border-width : 1px;
+}
+
+.up-arrow
+{
+	width : 16px;
+	height : 16px;
+	position : absolute;
+	bottom : -2px;
+	left : -7px;
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Up_Pointer.png");
+	-unity-background-image-tint-color : rgb(0,0,0);
+}

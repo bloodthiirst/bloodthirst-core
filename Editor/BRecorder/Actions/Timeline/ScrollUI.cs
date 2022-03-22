@@ -4,7 +4,7 @@ namespace Bloodthirst.Editor.BRecorder
 {
     public class ScrollUI : BRecorderActionBase
     {
-        public ScrollUI(BRecorder recorder) : base(recorder)
+        public ScrollUI(BRecorderEditor recorder) : base(recorder)
         {
         }
 
