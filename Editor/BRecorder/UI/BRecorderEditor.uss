@@ -4,6 +4,18 @@
 	min-height : 500px;
 }
 
+.timer-icon
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Timer_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.settings-icon
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Settings_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
 .play-btn
 {
 	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Play_Icon.png");
@@ -22,6 +34,18 @@
 	-unity-background-image-tint-color :	rgb(255,255,255);
 }
 
+.clear-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Clear_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.clear-asset-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Delete_File_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
 .record-btn:disabled
 {
 	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Record_Icon_Disabled.png");
@@ -35,16 +59,51 @@
 	-unity-background-image-tint-color :	rgb(255,255,255);
 }
 
+.open-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Open_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.save-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Save_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.small-btn
+{
+	width : 60px;
+	height : 60px;
+
+	min-width : 40px;
+	min-height : 40px;
+	
+	padding : 3px;
+
+	background-color : rgb(130,130,130);
+
+	border-width : 2px;
+	border-color : black;
+	border-radius: 8px;
+}
+
+
 .main-btn
 {
 	width : 100px;
 	height : 100px;
+
+	min-width : 100px;
+	min-height : 100px;
+
+	max-width : auto;
+	max-height : auto;
 	
-	margin : 10px;
-	padding : 20px;
+	margin : 5px;
+	padding : 14px;
 
 	background-color : rgb(130,130,130);
-
 
 	border-width : 2px;
 	border-color : black;
@@ -61,17 +120,18 @@
 	background-color : rgb(120,120,120);
 }
 
-.timelineContainer-main
+.timeline-container
 {
+	overflow : hidden;
 }
 
-.timelineContainer-border
+.timeline-border
 {
 	border-width : 2px;
 	border-color : black;
 }
 
-.timelineContainer-bg
+.timeline-bg
 {
 	background-color : rgb(130,130,130);
 }
@@ -110,13 +170,14 @@
 	bottom : 30px;
 }
 
-.timer-icon
+.icon-20
 {
-	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Timer_Icon.png");
-	-unity-background-image-tint-color :	rgb(255,255,255);
+	width : 20px;
+	height : 20px;
 }
 
-.timer-icon-size
+
+.icon-40
 {
 	width : 40px;
 	height : 40px;
@@ -124,16 +185,60 @@
 
 .timer-zone
 {
-	flex-shrink : 1;
-	flex-grow : 0;
 	align-self : center;
-	-unity-text-align : middle-center;
-	
-	height : 60px;
-
 	
 	margin : 10px;
 	padding : 10px;
+
+	background-color : rgb(130,130,130);
+
+	border-width : 2px;
+	border-color : black;
+	border-radius: 10px;
+}
+
+.current-time
+{
+	padding : 10px;
+	align-self : center;
+
+	background-color : rgb(0,130,0);
+
+	-unity-font : url("project:/Assets/TextMesh Pro/Examples & Extras/Fonts/Electronic Highway Sign.TTF");
+
+	font-size : 25px;
+
+	border-width : 2px;
+	border-color : black;
+	border-radius: 10px;
+}
+
+.saveopen-btn
+{
+	width : 60px;
+	height : 60px;
+	
+	margin : 10px;
+	padding : 5px;
+
+	background-color : rgb(130,130,130);
+
+
+	border-width : 2px;
+	border-color : black;
+	border-radius: 10px;
+}
+
+.saveopen-zone
+{
+	flex-shrink : 1;
+	flex-grow : 0;
+	align-self : flex-end;
+	-unity-text-align : middle-center;
+
+	
+	margin : 10px;
+	padding : 5px;
 
 	background-color : rgb(130,130,130);
 

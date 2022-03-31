@@ -6,6 +6,6 @@
     xsi:noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd"
 >
 
-<engine:VisualElement class="up-arrow" />
+<engine:VisualElement class="cursor-base-arrow" />
 
 </engine:UXML>

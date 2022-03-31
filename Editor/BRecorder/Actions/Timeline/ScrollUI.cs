@@ -16,7 +16,6 @@ namespace Bloodthirst.Editor.BRecorder
 
         private void HandleHorizontalScroll(OnTimelineHorizontalScrollChanged evt)
         {
-
             Recorder.HorizontalScrollValue = evt.HorizontalScroll;
         }
 

@@ -16,7 +16,7 @@ namespace Bloodthirst.Runtime.BRecorder
 
         public static event Action<BRecorderSession, BRecorderSession> OnSessionChanged;
         public static event Action<RECORDER_STATE, RECORDER_STATE> OnStateChanged;
-        
+
         private static RECORDER_STATE recordingState;
         public static RECORDER_STATE RecordingState
         {
@@ -34,10 +34,10 @@ namespace Bloodthirst.Runtime.BRecorder
         }
 
         private static BRecorderSession currentSession;
-        public static BRecorderSession CurrentSession 
+        public static BRecorderSession CurrentSession
         {
             get => currentSession;
-            private set
+            set
             {
                 BRecorderSession old = currentSession;
                 currentSession = value;
@@ -49,13 +49,13 @@ namespace Bloodthirst.Runtime.BRecorder
 
         public static void StartRecording()
         {
-            if (CurrentSession != null)
-            {
-                CurrentSession.Clear();
-            }
-
             CurrentSession = new BRecorderSession();
 
+            RecordingState = RECORDER_STATE.RECORDING;
+        }
+
+        public static void SetRecording()
+        {
             RecordingState = RECORDER_STATE.RECORDING;
         }
 
@@ -71,7 +71,7 @@ namespace Bloodthirst.Runtime.BRecorder
 
         public static void PauseSession()
         {
-            RecordingState = RECORDER_STATE.PAUSED                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ;
+            RecordingState = RECORDER_STATE.PAUSED;
         }
     }
 }

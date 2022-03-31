@@ -12,59 +12,136 @@
     <engine:VisualElement class="row center">
 
         <!-- TIMER -->
-        <engine:VisualElement name="Timer" class="basis-1">
+        <engine:VisualElement name="Timer" class="timer-zone basis-1 row shrink-1">
 
-            <engine:VisualElement class="timer-zone row">
-                
-                <engine:VisualElement class="timer-icon-size timer-icon" />
+            <!-- CURRENT TIME -->
+            <engine:VisualElement class="current-time row mr-10 shrink-0">
 
-                <engine:Label name="GameTimer" text="Timer 10:59" />
+                    <engine:VisualElement class="icon-40 timer-icon shrink-0" />
 
-            </engine:VisualElement>
+                    <engine:Label name="GameTimer" text="Loading..." class="shrink-1 grow-0 black-font text-center-y" />
+
+             </engine:VisualElement>
+
+            <!-- SETTINGS -->
+            <engine:VisualElement class="column shrink-0">
+
+                <!-- TITLE -->
+                <engine:VisualElement class="row">      
+
+                        <engine:VisualElement class="icon-20 settings-icon" />
+
+                        <engine:Label name="GameTimer" text="Settings :" class="shrink-1 grow-0" />
+
+                 </engine:VisualElement>
+
+                <!-- UPDATE EVERY FRAME -->
+                <engine:VisualElement class="row mt-5" >
+            
+                    <engine:Toggle label="Update every frame" name="UpdateEveyframe" />
+            
+                </engine:VisualElement>
         
-        </engine:VisualElement>
 
-        <!-- BUTTONS-->
-        <engine:VisualElement class="row center basis-1">
+                <!-- SHOW CURRENT FRAME -->
+                <engine:VisualElement class="row mt-5" >
+            
+                    <engine:Toggle label="Show current frame" name="ShowCurrentFrame" />
+            
+                </engine:VisualElement>
 
-            <engine:VisualElement name="RecordBtn" class="main-btn">
-                <engine:Image class="w-100 h-100 record-btn" />
-            </engine:VisualElement>
+                <!-- START RECORDING ON GAME START-->
+                <engine:VisualElement class="row mt-5" >
+            
+                    <engine:Toggle label="Record on game start" name="RecordOnGameStart" />
+            
+                </engine:VisualElement>
 
-             <engine:VisualElement name="StopBtn" class="main-btn">
-                <engine:Image class="w-100 h-100 stop-btn" />
-            </engine:VisualElement>
-
-             <engine:VisualElement name="PlayBtn" class="main-btn">
-                <engine:Image class="w-100 h-100 play-btn" />
-            </engine:VisualElement>
-
-             <engine:VisualElement name="PauseBtn" class="main-btn">
-                <engine:Image class="w-100 h-100 pause-btn" />
-            </engine:VisualElement>
+             </engine:VisualElement>
 
         </engine:VisualElement>
 
-        <!-- EMPTY -->
-        <engine:VisualElement name="Timer" class="basis-1">
+        <!-- MIDDLE -->
+        <engine:VisualElement class="column shrink-0">
+
+        
+            <!-- BUTTONS-->
+            <engine:VisualElement class="row center">
+
+                <engine:VisualElement name="RecordBtn" class="main-btn">
+                    <engine:VisualElement class="h-100 w-100 record-btn" />
+                </engine:VisualElement>
+
+                 <engine:VisualElement name="StopBtn" class="main-btn">
+                    <engine:VisualElement class="h-100 w-100 stop-btn" />
+                </engine:VisualElement>
+
+                 <engine:VisualElement name="PlayBtn" class="main-btn">
+                    <engine:VisualElement class="h-100 w-100 play-btn" />
+                </engine:VisualElement>
+
+                 <engine:VisualElement name="PauseBtn" class="main-btn">
+                    <engine:VisualElement class="h-100 w-100 pause-btn" />
+                </engine:VisualElement>
+
+                 <engine:VisualElement name="ClearBtn" class="main-btn">
+                    <engine:VisualElement class="h-100 w-100 clear-btn" />
+                </engine:VisualElement>
+
+            </engine:VisualElement>
+
+            <!-- OPEN SESSION -->
+            <engine:VisualElement class="row center p-5">
+
+                <editor:ObjectField name="OpenSession" Label="Open Session" class="grow-1 text-center-y ml-10 mr-10"/>
+
+                 <engine:VisualElement name="ClearAssetBtn" class="small-btn">
+                    <engine:VisualElement class="h-100 w-100 clear-asset-btn" />
+                </engine:VisualElement>
+
+            </engine:VisualElement>
+
+        </engine:VisualElement>
+
+        <!-- SAVE OPEN -->
+        <engine:VisualElement class="basis-1">
+
+            <engine:VisualElement class="saveopen-zone row">
+                
+                <engine:VisualElement name="OpenBtn" class="saveopen-btn">
+                    <engine:Image class="w-100 h-100 open-btn" />
+                </engine:VisualElement>
+
+                <engine:VisualElement name="SaveBtn" class="saveopen-btn">
+                    <engine:Image class="w-100 h-100 save-btn" />
+                </engine:VisualElement>
+
+            </engine:VisualElement>
 
         </engine:VisualElement>
  
         
     </engine:VisualElement>
 
-    <engine:ScrollView name="TimelineContainer">
+    <!-- TIMELINE CONTAINER -->
+    <engine:VisualElement name="TimelineContainer" class="timeline-container">
     
-        <!-- TIMELINE CONTAINER -->
-        <engine:VisualElement name="Timeline" class="timelineContainer-main timelineContainer-border timelineContainer-bg column" >
+        <engine:VisualElement name="Timeline" class="timeline-main timeline-border timeline-bg column" >
 
-                <engine:VisualElement name="CommandsContainer" class="commands-container" />
+                <engine:VisualElement name="CursorsContainer" class="commands-container" />
         
                 <engine:VisualElement name="TimeAxis" class="time-axis" />
 
         </engine:VisualElement>
 
-     </engine:ScrollView>
+     </engine:VisualElement>
+
+     <!--  HORIZONTAL SCROLLER-->
+     <engine:VisualElement class="row">
+
+        <engine:Scroller name="HorizontalScroller" direction="Horizontal" class="row grow-1"  />
+     
+     </engine:VisualElement>
 
 </engine:VisualElement>
 

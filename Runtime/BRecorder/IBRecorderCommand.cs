@@ -4,6 +4,7 @@
     {
         float GameTime { get; }
         void Setup();
+        void PreExecute();
         void Execute();
     }
 }

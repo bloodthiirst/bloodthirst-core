@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.Serialization;
+using System;
 using System.Collections.Generic;
 
 namespace Bloodthirst.Runtime.BRecorder
@@ -8,6 +9,8 @@ namespace Bloodthirst.Runtime.BRecorder
         public event Action<IBRecorderCommand> OnCommandAdded;
         public event Action<IBRecorderCommand> OnCommandRemoved;
         public event Action<BRecorderSession> OnSessionChanged;
+
+        [OdinSerialize]
         private List<IBRecorderCommand> RecorderCommands { get; set; }
 
         public IReadOnlyList<IBRecorderCommand> Commands => RecorderCommands;

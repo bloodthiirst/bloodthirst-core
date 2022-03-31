@@ -57,8 +57,6 @@ namespace Bloodthirst.BDeepCopy
 
         internal override object Copy(object t,object instance, BCopierContext copierContext , BCopierSettings copierSettings)
         {
-            // TODO : optimize by looking for contructor with capacity first
-            // DONE
             IList casted = (IList)t;
             IList castedInstance = (IList)instance;
 
@@ -71,6 +69,12 @@ namespace Bloodthirst.BDeepCopy
             for (int i = 0; i < casted.Count; i++)
             {
                 curr = casted[i];
+
+                if(curr == null)
+                {
+                    castedInstance.Add(null);
+                    continue;
+                }
                 currType = curr.GetType();
 
                 c = GetElementCopier(currType);

@@ -1,0 +1,41 @@
+.cursor-base-line
+{
+	width : 4px;
+	
+	top : 0;
+	bottom : 0;
+
+	border-color : black;
+	border-width : 1px;
+}
+
+ .cursor-base-arrow
+{
+
+	width : 16px;
+	height : 16px;
+	position : absolute;
+	bottom : -2px;
+	left : -7px;
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Up_Pointer.png");
+}
+
+.current-time-cursor
+{
+	background-color : rgb(255, 51, 0);
+}
+
+.current-time-cursor > *
+{
+	 -unity-background-image-tint-color : rgb(255, 51, 0);
+}
+
+.command-cursor
+{
+	background-color : rgb(0,0,0);
+}
+
+ .command-cursor > *
+ {
+	 -unity-background-image-tint-color : rgb(0,0,0);
+ }

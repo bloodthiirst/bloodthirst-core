@@ -4,11 +4,11 @@ using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BRecorder
 {
-    public class BRecorderCommandInfoUI : VisualElement
+    public class BRecorderInfoUI : VisualElement
     {
         public IBRecorderCommand Command { get; private set; }
 
-        public BRecorderCommandInfoUI(IBRecorderCommand command)
+        public BRecorderInfoUI(IBRecorderCommand command)
         {
             Command = command;
 
