@@ -5,18 +5,22 @@ namespace Bloodthirst.BJson
 {
     internal class BJsonFactory
     {
-        internal List<IBJsonFilter> ConverterFilters { get; }
+        internal List<IBJsonFilterInternal> ConverterFilters { get; }
 
         public BJsonFactory()
         {
-            ConverterFilters = new List<IBJsonFilter>()
+            ConverterFilters = new List<IBJsonFilterInternal>()
             {
                 // basic types
                 new BJsonStringFilter(),
-                new BJsonEnumFilter(),
                 new BJsonIntFilter(),
                 new BJsonFloatFilter(),
                 new BJsonBooleanFilter(),
+                new BJsonFlagFilter(),
+                new BJsonEnumFilter(),
+                new BJsonByteFilter(),
+                new BJsonUIntFilter(),
+
 
                 // type
                 new BJsonTypeFilter(),
@@ -38,11 +42,11 @@ namespace Bloodthirst.BJson
         {
             for (int i = 0; i < ConverterFilters.Count; i++)
             {
-                IBJsonFilter curr = ConverterFilters[i];
+                IBJsonFilterInternal curr = ConverterFilters[i];
 
                 if (curr.CanConvert(t))
                 {
-                    return curr.GetConverter(t);
+                    return curr.GetConverter_Internal(t);
                 }
             }
 

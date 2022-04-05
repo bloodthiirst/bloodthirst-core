@@ -48,8 +48,17 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            jsonBuilder.Append('{');
+            UnityEngine.Object casted = (UnityEngine.Object)instance;
 
+            if (casted == null)
+            {
+                jsonBuilder.Append(BJsonUtils.NULL_IDENTIFIER);
+                return;
+            }
+
+            jsonBuilder.Append('{');
+            
+            // type info
             BJsonUtils.WriteTypeInfoNonFormatted(instance, jsonBuilder, context, settings);
 
             // unity index
@@ -70,21 +79,27 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            if (context.Indentation != 0)
+            UnityEngine.Object casted = (UnityEngine.Object)instance;
+
+            if (casted == null)
             {
-                jsonBuilder.Append(Environment.NewLine);
+                jsonBuilder.Append(BJsonUtils.NULL_IDENTIFIER);
+                return;
             }
+
+            jsonBuilder.Append(Environment.NewLine);
 
             jsonBuilder.AddIndentation(context.Indentation);
 
             jsonBuilder.Append('{');
 
-            jsonBuilder.Append(Environment.NewLine);
-
             context.Indentation++;
 
-            BJsonUtils.WriteTypeInfoFormatted(instance, jsonBuilder, context, settings);
+            jsonBuilder.Append(Environment.NewLine);
 
+            // type info
+            BJsonUtils.WriteTypeInfoFormatted(instance , jsonBuilder , context , settings);
+            
             // unity index
             UnityObjectContext ctx = (UnityObjectContext)settings.CustomContext;
             int index = ctx.UnityObjects.Count;
@@ -109,6 +124,14 @@ namespace Bloodthirst.BJson
                 return DefaultJsonConverter.Deserialize_Internal(instance, ref parseState, context, settings);
             }
 
+            if (parseState.CurrentToken.TokenType == JSONTokenType.NULL)
+            {
+                parseState.SkipUntil(ParserUtils.IsPropertyEndObject);
+                parseState.CurrentTokenIndex++;
+                return null;
+            }
+
+
             // skip {
             parseState.CurrentTokenIndex++;
 
@@ -130,7 +153,17 @@ namespace Bloodthirst.BJson
             parseState.SkipUntil(ParserUtils.IsPropertyEndObject);
             parseState.CurrentTokenIndex++;
 
-            return ctx.UnityObjects[id];
+            UnityEngine.Object unityObj = null;
+
+            try
+            {
+                unityObj = ctx.UnityObjects[id];
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return unityObj;
         }
 
     }

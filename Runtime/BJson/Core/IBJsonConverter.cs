@@ -9,7 +9,7 @@ namespace Bloodthirst.BJson
         object Populate(object instance, string json, BJsonContext context, BJsonSettings settings);
     }
 
-    internal interface IBJsonConverterInternal : IBJsonConverter
+    public interface IBJsonConverterInternal : IBJsonConverter
     {
         BJsonProvider Provider { get; set; }
         void Initialize();

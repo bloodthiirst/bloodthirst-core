@@ -14,11 +14,13 @@ namespace Bloodthirst.BJson
     {
         private IBJsonConverterInternal IntJsonConverter { get; set; }
 
-        private readonly int[] enumValues;
+        private readonly object[] enumValues;
 
         public BJsonEnumConverter(Type t) : base(t)
         {
-            enumValues = (int[])Enum.GetValues(t);
+            Array vals = Enum.GetValues(t);
+            enumValues = new object[vals.Length];
+            vals.CopyTo(enumValues, 0);
         }
 
         public override void Initialize()
@@ -33,12 +35,14 @@ namespace Bloodthirst.BJson
 
         public override void Serialize_Formatted_Internal(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)
         {
-            IntJsonConverter.Serialize_Formatted_Internal((int) instance, jsonBuilder, context, settings);
+            int index = enumValues.IndexOf(instance);
+            IntJsonConverter.Serialize_Formatted_Internal(index, jsonBuilder, context, settings);
         }
 
         public override void Serialize_NonFormatted_Internal(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)
         {
-            IntJsonConverter.Serialize_NonFormatted_Internal((int)instance, jsonBuilder, context, settings);
+            int index = enumValues.IndexOf(instance);
+            IntJsonConverter.Serialize_NonFormatted_Internal(index, jsonBuilder, context, settings);
         }
 
 

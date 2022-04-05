@@ -27,7 +27,17 @@ namespace Bloodthirst.BJson
             string str = t.ToString();
             parseState.CurrentTokenIndex++;
 
-            return int.Parse(str);
+            int res = -1;
+            try
+            {
+                res =  int.Parse(str);
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            return res;
         }
 
         public override void Serialize_Formatted_Internal(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)

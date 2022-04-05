@@ -6,6 +6,16 @@ namespace Bloodthirst.BJson
     public static class BJsonUtils
     {
         public const string NULL_IDENTIFIER = "null";
+        public static readonly string NEW_LINE = Environment.NewLine;
+
+        public static void NewLineAtStart(StringBuilder jsonBuilder)
+        {
+            bool isNotStartOfJson = jsonBuilder.Length != 0;
+            int spaceCount = Convert.ToInt32(isNotStartOfJson);
+
+            jsonBuilder.Append(NEW_LINE[0], spaceCount);
+            jsonBuilder.Append(NEW_LINE[1], spaceCount);
+        }
 
         public static bool IsCachedOrNull(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings, out object cached)
         {

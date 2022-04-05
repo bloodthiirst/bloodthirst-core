@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Core.Utils
@@ -74,15 +75,21 @@ namespace Bloodthirst.Core.Utils
         {
             string[] folders = folderPath.Split('/');
 
-            for (int i = 0; i < folders.Length; i++)
+            // the path must start from assets
+            Assert.AreEqual(folders[0], "Assets");
+
+            string prevFolder = "Assets";
+
+            for (int i = 1; i < folders.Length; i++)
             {
-                string folderToCheck = string.Join("/", folders.Take(i + 1));
-                string parentFolder = string.Join("/", folders.Take(i));
+                string folderToCheck = prevFolder + "/" + folders[i];
 
                 if (!AssetDatabase.IsValidFolder(folderToCheck))
                 {
-                    AssetDatabase.CreateFolder(parentFolder, folders[i]);
+                    AssetDatabase.CreateFolder(prevFolder, folders[i]);
                 }
+
+                prevFolder = folderToCheck;
             }
         }
 

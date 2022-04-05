@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace Bloodthirst.BJson
 {
-    internal class BJsonListSealedElementFilter : IBJsonFilter
+    internal class BJsonListSealedElementFilter : IBJsonFilterInternal
     {
         public bool CanConvert(Type t)
         {
@@ -15,9 +15,14 @@ namespace Bloodthirst.BJson
                     TypeUtils.IsPureValueType(args[0]);
         }
 
-        public IBJsonConverterInternal GetConverter(Type t)
+        public IBJsonConverterInternal GetConverter_Internal(Type t)
         {
             return new BJsonListSealedElementConverter(t);
+        }
+
+        public IBJsonConverter GetConverter(Type t)
+        {
+            return GetConverter_Internal(t);
         }
     }
 }

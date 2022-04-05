@@ -9,7 +9,7 @@ using UnityEngine.Assertions;
 
 namespace Bloodthirst.BJson
 {
-    internal class BJsonComplexConverter : BJsonComplexBaseConverter
+    public class BJsonComplexConverter : BJsonComplexBaseConverter
     {
         private BTypeData TypeData { get; set; }
 
@@ -63,9 +63,15 @@ namespace Bloodthirst.BJson
 
                 jsonBuilder.Append(':');
 
-                IBJsonConverterInternal valueConv = Provider.GetConverter(kv.Value.Type);
+                IBJsonConverterInternal cnv = null;
+
+                if (!settings.HasCustomConverter(kv.Value.Type, out cnv))
+                {
+                    cnv = Provider.GetConverter(kv.Value.Type);
+                }
+
                 object val = kv.Value.MemberGetter(instance);
-                valueConv.Serialize_NonFormatted_Internal(val, jsonBuilder, context, settings);
+                cnv.Serialize_NonFormatted_Internal(val, jsonBuilder, context, settings);
 
                 jsonBuilder.Append(',');
             }
@@ -75,12 +81,6 @@ namespace Bloodthirst.BJson
 
         public override void Serialize_Formatted_Internal(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)
         {
-            if (context.Indentation != 0)
-            {
-                jsonBuilder.Append(Environment.NewLine);
-            }
-
-            jsonBuilder.AddIndentation(context.Indentation);
 
             if (instance == null)
             {
@@ -92,6 +92,10 @@ namespace Bloodthirst.BJson
             {
                 return;
             }
+
+            BJsonUtils.NewLineAtStart(jsonBuilder);
+
+            jsonBuilder.AddIndentation(context.Indentation);
 
             context.Register(instance);
 
@@ -110,9 +114,16 @@ namespace Bloodthirst.BJson
                 jsonBuilder.Append(kv.Key);
                 jsonBuilder.Append(" : ");
 
-                IBJsonConverterInternal valueConv = Provider.GetConverter(kv.Value.Type);
+                IBJsonConverterInternal cnv = null;
+
+                if (!settings.HasCustomConverter(kv.Value.Type, out cnv))
+                {
+                    cnv = Provider.GetConverter(kv.Value.Type);
+                }
+
                 object val = kv.Value.MemberGetter(instance);
-                valueConv.Serialize_Formatted_Internal(val, jsonBuilder, context, settings);
+
+                cnv.Serialize_Formatted_Internal(val, jsonBuilder, context, settings);
 
                 jsonBuilder.Append(',');
                 jsonBuilder.Append(Environment.NewLine);

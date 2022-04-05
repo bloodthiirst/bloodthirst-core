@@ -1,9 +1,9 @@
 ﻿namespace Bloodthirst.BJson
 {
-    internal static class ParserUtils
+    public static class ParserUtils
     {
         #region utils
-        internal static void RemoveSpaces(ref ParserState<JSONTokenType> state)
+        public static void RemoveSpaces(ref ParserState<JSONTokenType> state)
         {
             // remove spaces
             for (int i = state.Tokens.Count - 1; i >= 0; i--)
@@ -16,27 +16,27 @@
                 }
             }
         }
-        internal static bool IsPropertyEndInArray(Token<JSONTokenType> token)
+        public static bool IsPropertyEndInArray(Token<JSONTokenType> token)
         {
             return token.TokenType == JSONTokenType.ARRAY_END || token.TokenType == JSONTokenType.COMMA;
         }
 
-        internal static bool IsPropertyEndObject(Token<JSONTokenType> token)
+        public static bool IsPropertyEndObject(Token<JSONTokenType> token)
         {
             return token.TokenType == JSONTokenType.OBJECT_END || token.TokenType == JSONTokenType.COMMA;
         }
 
-        internal static bool IsSkippableSpace(Token<JSONTokenType> token)
+        public static bool IsSkippableSpace(Token<JSONTokenType> token)
         {
             return token.TokenType == JSONTokenType.SPACE || token.TokenType == JSONTokenType.NEW_LINE;
         }
 
-        internal static bool IsComma(Token<JSONTokenType> token)
+        public static bool IsComma(Token<JSONTokenType> token)
         {
             return token.TokenType == JSONTokenType.COMMA;
         }
 
-        internal static bool IsColon(Token<JSONTokenType> token)
+        public static bool IsColon(Token<JSONTokenType> token)
         {
             return token.TokenType == JSONTokenType.COLON;
         }

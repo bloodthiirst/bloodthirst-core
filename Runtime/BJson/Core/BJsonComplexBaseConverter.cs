@@ -7,7 +7,7 @@ namespace Bloodthirst.BJson
     {
         protected Type ConvertType { get; set; }
 
-        internal BJsonProvider Provider { get; set; }
+        public BJsonProvider Provider { get; set; }
         BJsonProvider IBJsonConverterInternal.Provider { get => Provider; set => Provider = value; }
         public BJsonComplexBaseConverter(Type t)
         {

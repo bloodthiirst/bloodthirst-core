@@ -4,16 +4,22 @@ using System.Collections;
 
 namespace Bloodthirst.BJson
 {
-    internal class BJsonDictionaryFilter : IBJsonFilter
+    internal class BJsonDictionaryFilter : IBJsonFilterInternal
     {
         public bool CanConvert(Type t)
         {
             return TypeUtils.IsSubTypeOf(t, typeof(IDictionary));
         }
 
-        public IBJsonConverterInternal GetConverter(Type t)
+        public IBJsonConverterInternal GetConverter_Internal(Type t)
         {
             return new BJsonDictionaryConverter(t);
+        }
+
+
+        public IBJsonConverter GetConverter(Type t)
+        {
+            return GetConverter_Internal(t);
         }
     }
 }

@@ -79,7 +79,7 @@ namespace Bloodthirst.BJson
             }
             context.Register(instance);
 
-            jsonBuilder.Append(Environment.NewLine);
+            BJsonUtils.NewLineAtStart(jsonBuilder);
             jsonBuilder.AddIndentation(context.Indentation);
 
             jsonBuilder.Append('[');

@@ -16,10 +16,19 @@ namespace Bloodthirst.BJson
 
             AllFilters = new List<IBJsonPropertyFilter>()
             {
-                new UnityObjectPropertyFilter(),
+                // general
                 new JsonIgnorePropertyFilter(),
+
+                // common structs
                 new Vector2PropertyFilter(),
-                new Vector3PropertyFilter()
+                new Vector3PropertyFilter(),
+                new Vector4PropertyFilter(),
+                new QuaternionPropertyFilter(),
+
+                // unity objects
+                new TransformPropertyFilter(),
+                new UnityComponentPropertyFilter(),
+                new UnityObjectPropertyFilter(),
             };
         }
 

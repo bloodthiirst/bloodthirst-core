@@ -59,8 +59,15 @@ namespace Bloodthirst.BJson
             foreach (object elem in lst)
             {
                 Type elemType = elem.GetType();
-                IBJsonConverterInternal c = Provider.GetConverter(elemType);
-                c.Serialize_NonFormatted_Internal(elem, jsonBuilder, context, settings);
+
+                IBJsonConverterInternal cnv = null;
+
+                if (!settings.HasCustomConverter(ElementType, out cnv))
+                {
+                    cnv = Provider.GetConverter(elemType);
+                }
+
+                cnv.Serialize_NonFormatted_Internal(elem, jsonBuilder, context, settings);
 
                 jsonBuilder.Append(',');
             }
@@ -84,7 +91,8 @@ namespace Bloodthirst.BJson
 
             context.Register(instance);
 
-            jsonBuilder.Append(Environment.NewLine);
+
+            BJsonUtils.NewLineAtStart(jsonBuilder);
             jsonBuilder.AddIndentation(context.Indentation);
 
             jsonBuilder.Append('[');
@@ -103,9 +111,15 @@ namespace Bloodthirst.BJson
                 jsonBuilder.AddIndentation(context.Indentation);
 
                 Type elemType = elem.GetType();
-                IBJsonConverterInternal c = Provider.GetConverter(elemType);
 
-                c.Serialize_Formatted_Internal(elem, jsonBuilder, context, settings);
+                IBJsonConverterInternal cnv = null;
+
+                if (!settings.HasCustomConverter(ElementType, out cnv))
+                {
+                    cnv = Provider.GetConverter(elemType);
+                }
+
+                cnv.Serialize_Formatted_Internal(elem, jsonBuilder, context, settings);
 
                 jsonBuilder.Append(',');
                 jsonBuilder.Append(Environment.NewLine);
@@ -159,7 +173,14 @@ namespace Bloodthirst.BJson
 
             while (parseState.CurrentTokenIndex < parseState.Tokens.Count)
             {
-                object elem = ElementConverter.Deserialize_Internal(null, ref parseState, context, settings);
+                IBJsonConverterInternal cnv = null;
+
+                if (!settings.HasCustomConverter(ElementType, out cnv))
+                {
+                    cnv = ElementConverter;
+                }
+
+                object elem = cnv.Deserialize_Internal(null, ref parseState, context, settings);
 
                 lst.Add(elem);
 

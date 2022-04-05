@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace Bloodthirst.BJson
 {
-    internal class BJsonProvider
+    public class BJsonProvider
     {
         private Dictionary<Type, IBJsonConverterInternal> Converters { get; set; }
         private BJsonFactory Factory { get; set; }
-        internal BJsonProvider()
+        public BJsonProvider()
         {
             Converters = new Dictionary<Type, IBJsonConverterInternal>();
             Factory = new BJsonFactory();
         }
 
-        internal IBJsonConverterInternal GetConverter(Type t)
+        public IBJsonConverterInternal GetConverter(Type t)
         {
             if(Converters.TryGetValue(t , out IBJsonConverterInternal cnv))
             {
