@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Bloodthirst.System.Quadrant
 {
-    public class QuadTreeEquatableBase<TKey, TElement , TLeaf> where TKey : IEquatable<TKey> where TLeaf : QuadLeafEquatableBase<TKey,TElement,TLeaf> , new()
+    public class QuadTreeEquatableBase<TKey, TElement, TLeaf> where TKey : IEquatable<TKey> where TLeaf : QuadLeafEquatableBase<TKey, TElement, TLeaf>, new()
     {
         private List<TLeaf> rootLeafs { get; set; }
 

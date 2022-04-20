@@ -1,0 +1,22 @@
+{
+    "name": "BRecorder.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:24b9e271d5028fe428bd217d1f66aa60",
+        "GUID:478a2357cc57436488a56e564b08d223",
+        "GUID:a5dfb7b8688dc614f8068fbd46e090d9",
+        "GUID:d4b8c3fba2bf3b24a95d555cfd649c27",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:12e5c912b42f2454ab6e7e789904681c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

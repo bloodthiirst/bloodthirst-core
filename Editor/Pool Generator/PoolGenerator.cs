@@ -1,7 +1,6 @@
-using Bloodthirst.Core.Consts;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
-using Sirenix.Utilities;
+using Bloodthirst.Runtime.BAdapter;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,10 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
-using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static Bloodthirst.Core.Utils.StringExtensions;
 
 namespace Bloodthirst.Core.AdvancedPool.Editor
 {
@@ -105,12 +102,6 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             AssetDatabase.DeleteAsset(POOL_SCENE_FOLDER_PATH);
         }
 
-        [DidReloadScripts(BloodthirstCoreConsts.POOL_GENERATOR)]
-        public static void OnDidReloadScripts()
-        {
-
-        }
-
         private static bool CanRelink()
         {
             // there are no poolable types that need to be treated
@@ -171,7 +162,9 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             {
                 FieldInfo field = poolFields[i];
 
-                Component correctPool = PoolablePrefabs.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.gameObject.name.RemoveWhitespace())));
+
+                // todo : Component correctPool = PoolablePrefabs.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.gameObject.name.RemoveWhitespace())));
+                Component correctPool = PoolablePrefabs.FirstOrDefault();
 
                 if (correctPool == null)
                 {
@@ -424,7 +417,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             {
                 FieldInfo field = poolFields[i];
 
-                IPoolBehaviour correctPool = poolsInScene.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.Prefab.gameObject.name.RemoveWhitespace())));
+                // todo : IPoolBehaviour correctPool = poolsInScene.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.Prefab.gameObject.name.RemoveWhitespace())));
+                IPoolBehaviour correctPool = poolsInScene.FirstOrDefault();
 
                 if (correctPool == null)
                 {
@@ -458,8 +452,14 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 }
 
                 GameObject newPoolGo = new GameObject($"Auto-Generated Pool [ {poolablePrefab.name} ]");
+
                 Type poolType = TypeUtils.AllTypes.FirstOrDefault(t => t.Name.Equals(poolablePrefab.GetType().Name + "Pool"));
 
+
+                // an adapter behaviour we add to separate the pool funtionality from the scne initialization
+                PoolAdapter adapter = newPoolGo.AddComponent<PoolAdapter>();
+
+                // add the pool behaviour
                 IPoolBehaviour poolComponent = newPoolGo.AddComponent(poolType) as IPoolBehaviour;
 
                 // assign the prefab
@@ -526,14 +526,14 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             string oldScript = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
 
             // fields section
-            List<Tuple<Utils.StringExtensions.SECTION_EDGE, int, int>> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
+            List<Tuple<SECTION_EDGE, int, int>> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
 
             int padding = 0;
 
             for (int i = 0; i < fieldsSections.Count - 1; i++)
             {
-                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> start = fieldsSections[i];
-                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> end = fieldsSections[i + 1];
+                Tuple<SECTION_EDGE, int, int> start = fieldsSections[i];
+                Tuple<SECTION_EDGE, int, int> end = fieldsSections[i + 1];
                 // if we have correct start and end
                 // then do the replacing
                 if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
@@ -581,7 +581,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 }
             }
 
-            List<Tuple<Utils.StringExtensions.SECTION_EDGE, int, int>> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
+            List<Tuple<SECTION_EDGE, int, int>> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
 
             // awake section
 
@@ -589,8 +589,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             for (int i = 0; i < awakeInitSections.Count - 1; i++)
             {
-                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> start = awakeInitSections[i];
-                Tuple<Utils.StringExtensions.SECTION_EDGE, int, int> end = awakeInitSections[i + 1];
+                Tuple<SECTION_EDGE, int, int> start = awakeInitSections[i];
+                Tuple<SECTION_EDGE, int, int> end = awakeInitSections[i + 1];
                 // if we have correct start and end
                 // then do the replacing
                 if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
@@ -688,7 +688,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
                 if (type == null)
                 {
-                    Debug.LogError($"Couldn't find type named {type.GetNiceName()} in the assembly");
+                    Debug.LogError($"Couldn't find type named {  TypeUtils.GetNiceName(type) } in the assembly");
                     continue;
                 }
 

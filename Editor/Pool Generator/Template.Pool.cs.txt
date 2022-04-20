@@ -2,9 +2,6 @@
 [NAMESPACE]
 #endregion
 
-#if UNITY_EDITOR
-using Bloodthirst.Core.AdvancedPool.Editor;
-#endif
 
 using System;
 
@@ -16,7 +13,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
     /// <para> The pool generation is done by the <see cref="PoolGenerator"> class</see></para>
     /// </summary>
     [Serializable]
-    public class [BEHAVIOUR]Pool : PoolBehaviour<[BEHAVIOUR]>
+    public class [BEHAVIOUR]Pool : UnityPoolBaseBehaviour<[BEHAVIOUR]>
     {
     }
 }

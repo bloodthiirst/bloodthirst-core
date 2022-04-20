@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Bloodthirst.Core.ThreadProcessor
 {
-    public class ThreadCommandProcessor : UnitySingleton<ThreadCommandProcessor>
+    public class ThreadCommandProcessor : BSingleton<ThreadCommandProcessor>
     {
         [ShowInInspector]
         private List<ISeparateThreadCommand> threadCommand;

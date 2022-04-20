@@ -1,10 +1,7 @@
 using Bloodthirst.Core.Utils;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace Bloodthirst.BJson
 {
@@ -44,7 +41,7 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            if (BJsonUtils.WriteIdNonFormatter(instance, jsonBuilder, context, settings))
+            if (BJsonUtils.WriteIdNonFormatted(instance, jsonBuilder, context, settings))
             {
                 return;
             }
@@ -92,7 +89,7 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            if (BJsonUtils.WriteIdFormatter(instance, jsonBuilder, context, settings))
+            if (BJsonUtils.WriteIdFormatted(instance, jsonBuilder, context, settings))
             {
                 return;
             }
@@ -108,7 +105,7 @@ namespace Bloodthirst.BJson
             context.Indentation++;
 
             BJsonUtils.WriteTypeInfoFormatted(instance, jsonBuilder, context, settings);
-            
+
 
             IDictionary dict = (IDictionary)instance;
 
@@ -158,9 +155,9 @@ namespace Bloodthirst.BJson
             jsonBuilder.Append(']');
         }
 
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
-            if (BJsonUtils.IsCachedOrNull(instance, ref parseState, context, settings, out object cached))
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
             {
                 return cached;
             }
@@ -173,17 +170,7 @@ namespace Bloodthirst.BJson
             // so basically skip until the first ',' or ']'
             parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
 
-            IDictionary dict = null;
-
-            if (instance == null)
-            {
-                dict = (IDictionary)Constructor();
-            }
-            else
-            {
-                dict = (IDictionary)instance;
-                dict.Clear();
-            }
+            IDictionary dict = (IDictionary)Constructor();
 
             context.Register(dict);
 
@@ -204,14 +191,87 @@ namespace Bloodthirst.BJson
 
                 // get key
                 object defaultKey = KeyConverter.CreateInstance_Internal();
-                object key = KeyConverter.Deserialize_Internal(defaultKey, ref parseState, context, settings);
+                object key = KeyConverter.Deserialize_Internal(ref parseState, context, settings);
 
                 // skip the comma
                 parseState.CurrentTokenIndex++;
 
                 // get value
                 object defaultVal = ValueConverter.CreateInstance_Internal();
-                object val = ValueConverter.Deserialize_Internal(defaultVal, ref parseState, context, settings);
+                object val = ValueConverter.Deserialize_Internal(ref parseState, context, settings);
+
+                // add
+                dict.Add(key, val);
+
+                // skip until the first comma or object end
+                parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
+
+                if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
+                {
+                    parseState.CurrentTokenIndex++;
+                    break;
+                }
+
+                parseState.CurrentTokenIndex++;
+            }
+
+            return dict;
+        }
+
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
+            {
+                return cached;
+            }
+
+            // skip [
+            parseState.CurrentTokenIndex++;
+
+            // skip $type
+            // OR if the array is empty , then just skip to the end of the array
+            // so basically skip until the first ',' or ']'
+            parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
+
+            IDictionary dict = (IDictionary)instance;
+            IDictionary resultDict = dict;
+
+            if (resultDict == null)
+            {
+                resultDict = (IDictionary)Constructor();
+            }
+            else
+            {
+                resultDict.Clear();
+            }
+
+            context.Register(dict);
+
+
+            if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
+            {
+                parseState.CurrentTokenIndex++;
+                return dict;
+            }
+
+            // skip the comma
+            parseState.CurrentTokenIndex++;
+
+            while (parseState.CurrentTokenIndex < parseState.Tokens.Count)
+            {
+                // skip the { for pair object start
+                parseState.CurrentTokenIndex++;
+
+                // get key
+                //object defaultKey = KeyConverter.CreateInstance_Internal();
+                object key = KeyConverter.Deserialize_Internal(ref parseState, context, settings);
+
+                // skip the comma
+                parseState.CurrentTokenIndex++;
+
+                // get value
+                //object defaultVal = ValueConverter.CreateInstance_Internal();
+                object val = ValueConverter.Deserialize_Internal(ref parseState, context, settings);
 
                 // add
                 dict.Add(key, val);

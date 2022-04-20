@@ -15,7 +15,7 @@ namespace Bloodthirst.System.CommandSystem
         private readonly CommandManager commandManager;
         private readonly bool failIfQueueInterrupted;
 
-        public QueueCommandBase(CommandManager commandManager , bool failIfQueueInterrupted = false) : base()
+        public QueueCommandBase(CommandManager commandManager, bool failIfQueueInterrupted = false) : base()
         {
             this.commandManager = commandManager;
             this.failIfQueueInterrupted = failIfQueueInterrupted;

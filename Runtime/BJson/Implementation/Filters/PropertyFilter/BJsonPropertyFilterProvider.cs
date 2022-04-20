@@ -24,23 +24,35 @@ namespace Bloodthirst.BJson
                 new Vector3PropertyFilter(),
                 new Vector4PropertyFilter(),
                 new QuaternionPropertyFilter(),
+                new Matrix4x4PropertyFilter(),
+                new RayPropertyFilter(),
+                new ColorPropertyFilter(),
+                new Color32PropertyFilter(),
+                new RectPropertyFilter(),
 
                 // unity objects
                 new TransformPropertyFilter(),
+                new LayoutGroupPropertyFilter(),
+                new RectTransformPropertyFilter(),
                 new UnityComponentPropertyFilter(),
                 new UnityObjectPropertyFilter(),
+                new BJsonTMP_TextPropertyFilter(),
+                new BJsonRectOffsetPropertyFilter(),
+
+                // input system
+                new BJsonBaseInputModulePropertyFilter()
             };
         }
 
         public static BTypeData GetFilteredProperties(Type t)
         {
-            if(!PropertyFilters.TryGetValue(t , out BTypeData filteredProps))
+            if (!PropertyFilters.TryGetValue(t, out BTypeData filteredProps))
             {
                 filteredProps = BTypeProvider.GetOrCreate(t);
 
-                foreach(IBJsonPropertyFilter filter in AllFilters)
+                foreach (IBJsonPropertyFilter filter in AllFilters)
                 {
-                    if(filter.CanFilter(t))
+                    if (filter.CanFilter(t))
                     {
                         filteredProps = filter.FilteredProperties(filteredProps);
                     }

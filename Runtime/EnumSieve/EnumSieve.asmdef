@@ -1,0 +1,17 @@
+{
+    "name": "EnumSieve",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8c56f6571bf7a874cb263c6dd7c2029a",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,5 +1,4 @@
-﻿using Bloodthirst.System.CommandSystem;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,7 +9,7 @@ namespace Bloodthirst.Core.Setup
         private List<string> _scenes;
 
         int IAsynOperationWrapper.Order { get; }
-        
+
         public LoadMultipleScenesAsyncOperation()
         {
             _scenes = new List<string>();

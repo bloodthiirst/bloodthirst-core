@@ -1,11 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine.TextCore.Text;
 
 namespace Bloodthirst.BJson.Tests
 {
     public class BJson_Basic_Tests
     {
+        [Test]
+        public void EnumFlags()
+        {
+            SomeFlags flags = SomeFlags.One | SomeFlags.Two;
+
+            string json = BJsonConverter.ToJson(flags);
+
+            SomeFlags copy = BJsonConverter.FromJson<SomeFlags>(json);
+
+            Assert.AreEqual(flags, copy);
+        }
+        
+        [Test]
+        public void TMPEnumFlags()
+        {
+            FontStyles flags = FontStyles.Normal;
+
+            string json = BJsonConverter.ToJson(flags);
+
+            FontStyles copy = BJsonConverter.FromJson<FontStyles>(json);
+
+            Assert.AreEqual(flags, copy);
+        }
+
         [Test]
         public void ConcreteInstance()
         {

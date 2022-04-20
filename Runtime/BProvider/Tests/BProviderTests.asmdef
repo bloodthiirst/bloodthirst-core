@@ -1,10 +1,10 @@
 {
-    "name": "BProvider",
+    "name": "BProvider.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "com.bloodthirst.bloodthirst-core"
+        "BProvider"
     ],
     "includePlatforms": [
         "Editor"

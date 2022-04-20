@@ -211,9 +211,9 @@ namespace Bloodthirst.System.CommandSystem
         #endregion
 
     }
-    public abstract class CommandBase<T,TResult> : CommandBase<T> , IResult<TResult> where T : CommandBase<T,TResult>
+    public abstract class CommandBase<T, TResult> : CommandBase<T>, IResult<TResult> where T : CommandBase<T, TResult>
     {
-        public bool IsReady => CommandState == COMMAND_STATE.SUCCESS; 
+        public bool IsReady => CommandState == COMMAND_STATE.SUCCESS;
         public TResult Result { get; protected set; }
 
 

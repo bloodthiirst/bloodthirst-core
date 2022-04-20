@@ -1,10 +1,6 @@
-﻿using Bloodthirst.Scripts.Utils;
-using Bloodthirst.Core.Utils;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
-using System.Linq;
 #if UNITY_EDITOR
-using UnityEditor;
 #endif
 using UnityEngine;
 
@@ -22,13 +18,13 @@ namespace Bloodthirst.System.Quadrant
         [HideInInspector]
         private Vector3Int cachedTestQuadrant;
 
-        private QuadrantManager<QuadrantEntityBehaviour , QuadLeafEquatableWorldChunk> quadrantManager;
+        private QuadrantManager<QuadrantEntityBehaviour, QuadLeafEquatableWorldChunk> quadrantManager;
 
-        public QuadrantManager<QuadrantEntityBehaviour , QuadLeafEquatableWorldChunk> QuadrantManager => quadrantManager;
+        public QuadrantManager<QuadrantEntityBehaviour, QuadLeafEquatableWorldChunk> QuadrantManager => quadrantManager;
 
         private void Awake()
         {
-            quadrantManager = new QuadrantManager<QuadrantEntityBehaviour , QuadLeafEquatableWorldChunk>();
+            quadrantManager = new QuadrantManager<QuadrantEntityBehaviour, QuadLeafEquatableWorldChunk>();
 
             PreloadLeafs();
         }

@@ -1,0 +1,16 @@
+{
+    "name": "SceneLoadHelper.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:fc39af5560e2f0d45a684977ceb06a77"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

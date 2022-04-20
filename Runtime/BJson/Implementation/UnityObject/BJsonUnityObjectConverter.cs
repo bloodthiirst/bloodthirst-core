@@ -1,8 +1,5 @@
 using Bloodthirst.Core.Utils;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -25,7 +22,7 @@ namespace Bloodthirst.BJson
             // if we don't do this
             // is will try to create custom converters for gameObject or transform
             // which we don't want
-            if (TypeUtils.IsSubTypeOf(ConvertType, typeof(ScriptableObject)) || TypeUtils.IsSubTypeOf(ConvertType, typeof(MonoBehaviour)))
+            if (TypeUtils.IsSubTypeOf(ConvertType, typeof(ScriptableObject)) || TypeUtils.IsSubTypeOf(ConvertType, typeof(Component)))
             {
                 DefaultJsonConverter = new BJsonComplexConverter(ConvertType);
                 DefaultJsonConverter.Provider = Provider;
@@ -57,7 +54,7 @@ namespace Bloodthirst.BJson
             }
 
             jsonBuilder.Append('{');
-            
+
             // type info
             BJsonUtils.WriteTypeInfoNonFormatted(instance, jsonBuilder, context, settings);
 
@@ -98,8 +95,8 @@ namespace Bloodthirst.BJson
             jsonBuilder.Append(Environment.NewLine);
 
             // type info
-            BJsonUtils.WriteTypeInfoFormatted(instance , jsonBuilder , context , settings);
-            
+            BJsonUtils.WriteTypeInfoFormatted(instance, jsonBuilder, context, settings);
+
             // unity index
             UnityObjectContext ctx = (UnityObjectContext)settings.CustomContext;
             int index = ctx.UnityObjects.Count;
@@ -117,16 +114,15 @@ namespace Bloodthirst.BJson
             jsonBuilder.Append('}');
         }
 
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
             if (parseState.CurrentTokenIndex == 0)
             {
-                return DefaultJsonConverter.Deserialize_Internal(instance, ref parseState, context, settings);
+                return DefaultJsonConverter.Deserialize_Internal(ref parseState, context, settings);
             }
 
             if (parseState.CurrentToken.TokenType == JSONTokenType.NULL)
             {
-                parseState.SkipUntil(ParserUtils.IsPropertyEndObject);
                 parseState.CurrentTokenIndex++;
                 return null;
             }
@@ -148,21 +144,56 @@ namespace Bloodthirst.BJson
 
             Assert.IsNotNull(ctx);
 
-            int id = (int)IntJsonConverter.Deserialize_Internal(instance, ref parseState, context, settings);
+            int id = (int)IntJsonConverter.Deserialize_Internal(ref parseState, context, settings);
 
             parseState.SkipUntil(ParserUtils.IsPropertyEndObject);
             parseState.CurrentTokenIndex++;
 
             UnityEngine.Object unityObj = null;
 
-            try
-            {
-                unityObj = ctx.UnityObjects[id];
-            }
-            catch (Exception ex)
-            {
+            unityObj = ctx.UnityObjects[id];
 
+            return unityObj;
+        }
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            if (parseState.CurrentTokenIndex == 0)
+            {
+                return DefaultJsonConverter.Populate_Internal(instance, ref parseState, context, settings);
             }
+
+            if (parseState.CurrentToken.TokenType == JSONTokenType.NULL)
+            {
+                parseState.CurrentTokenIndex++;
+                return null;
+            }
+
+
+            // skip {
+            parseState.CurrentTokenIndex++;
+
+            // skip the "$type" property
+            parseState.SkipUntil(ParserUtils.IsComma);
+
+            // skip the "index : " and go straight to the index value
+            parseState.SkipUntil(ParserUtils.IsColon);
+
+            // skip the colon
+            parseState.CurrentTokenIndex++;
+
+            UnityObjectContext ctx = (UnityObjectContext)settings.CustomContext;
+
+            Assert.IsNotNull(ctx);
+
+            int id = (int)IntJsonConverter.Populate_Internal(instance, ref parseState, context, settings);
+
+            parseState.SkipUntil(ParserUtils.IsPropertyEndObject);
+            parseState.CurrentTokenIndex++;
+
+            UnityEngine.Object unityObj = null;
+
+            unityObj = ctx.UnityObjects[id];
+
             return unityObj;
         }
 

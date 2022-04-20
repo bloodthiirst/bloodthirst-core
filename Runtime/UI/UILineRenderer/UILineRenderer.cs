@@ -1,14 +1,10 @@
 ﻿using Bloodthirst.Scripts.Utils;
-using Bloodthirst.Utils;
-using Packages.com.bloodthirst.bloodthirst_core.Runtime.UI.UILineRenderer;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using static Bloodthirst.Scripts.Utils.VectorUtils;
 
-namespace Bloodthirst
+namespace Bloodthirst.Core.UI
 {
     [RequireComponent(typeof(CanvasRenderer))]
     public class UILineRenderer : MaskableGraphic
@@ -57,9 +53,9 @@ namespace Bloodthirst
         /// <summary>
         /// Method used for UV smoothing
         /// </summary>
-        public UV_SMOOTHING UVSmoothing;
+        public UVSmoothingType UVSmoothing;
 
-        [ShowIf(nameof(UVSmoothing), Value = UV_SMOOTHING.LERP)]
+        [ShowIf(nameof(UVSmoothing), Value = UVSmoothingType.LERP)]
         [Range(0f, 1f)]
         public float uvSmoothLerp;
 

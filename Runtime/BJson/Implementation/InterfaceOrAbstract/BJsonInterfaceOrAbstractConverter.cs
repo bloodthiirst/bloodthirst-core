@@ -1,9 +1,4 @@
-using Bloodthirst.BType;
-using Bloodthirst.Core.Utils;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine.Assertions;
 
@@ -12,6 +7,7 @@ namespace Bloodthirst.BJson
     internal class BJsonInterfaceOrAbstractConverter : BJsonComplexBaseConverter
     {
         private IBJsonConverterInternal TypeConverter { get; set; }
+
         public BJsonInterfaceOrAbstractConverter(Type t) : base(t)
         {
 
@@ -57,89 +53,38 @@ namespace Bloodthirst.BJson
             c.Serialize_Formatted_Internal(instance, jsonBuilder, context, settings);
         }
 
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
-            // todo : check if null in JSON
-            if(parseState.CurrentToken.TokenType == JSONTokenType.NULL)
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
             {
-                return null;
+                return cached;
             }
 
-            int tmpIndex = parseState.CurrentTokenIndex;
-            tmpIndex++;
+            Type concreteType = BJsonUtils.GetConcreteType(parseState);
 
-            while (tmpIndex < parseState.Tokens.Count)
+            IBJsonConverterInternal c = Provider.GetConverter(concreteType);
+
+            object actualInstance = c.Deserialize_Internal(ref parseState, context, settings);
+
+            return actualInstance;
+        }
+
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
             {
-                Token<JSONTokenType> currentToken = parseState.Tokens[tmpIndex];
-
-                // skip spaces
-                if (currentToken.TokenType == JSONTokenType.SPACE)
-                {
-                    tmpIndex++;
-                    continue;
-                }
-
-                // exit if object ended
-                if (currentToken.TokenType == JSONTokenType.OBJECT_END)
-                {
-                    tmpIndex++;
-                    continue;
-                }
-
-                // stp while no identitifer
-                if (currentToken.TokenType != JSONTokenType.IDENTIFIER)
-                {
-                    tmpIndex++;
-                    continue;
-                }
-                
-                // key found
-                string key = currentToken.ToString();
-
-                // skip until the first colon
-                while (parseState.Tokens[tmpIndex].TokenType != JSONTokenType.COLON)
-                {
-                    tmpIndex++;
-                    continue;
-                }
-
-                tmpIndex++;
-
-                currentToken = parseState.Tokens[tmpIndex];
-
-                // check for caching
-                if (key == "$id")
-                {
-                    int id = int.Parse(currentToken.ToString());
-                    context.TryGetCached(id, out var cached);
-
-                    // todo : make sure we do the "jump over" thing in the rest of the converters
-                    // just over the value
-                    tmpIndex++;
-                    // just over the }
-                    tmpIndex++;
-
-                    parseState.CurrentTokenIndex = tmpIndex;
-
-                    return cached;
-                }
-
-                Assert.AreEqual("$type" , key);
-
-                // now we are at the type identfier
-                string typeAsString = currentToken.ToString();
-                string trimmedTypeName = typeAsString.Substring(1, typeAsString.Length - 2);
-
-                Type concreteType = Type.GetType(trimmedTypeName);
-
-                IBJsonConverterInternal c =  Provider.GetConverter(concreteType);
-
-                object actualInstance = c.Deserialize_Internal(instance, ref parseState, context, settings);
-
-                return actualInstance;
+                return cached;
             }
 
-            throw new InvalidOperationException($"Couldn't correctly serialize the Interface or Abstract instance of type {ConvertType.FullName}");
+            Type concreteType = BJsonUtils.GetConcreteType(parseState);
+
+            Assert.IsNotNull(concreteType);
+
+            IBJsonConverterInternal c = Provider.GetConverter(concreteType);
+
+            object actualInstance = c.Populate_Internal(instance, ref parseState, context, settings);
+
+            return actualInstance;
         }
 
 

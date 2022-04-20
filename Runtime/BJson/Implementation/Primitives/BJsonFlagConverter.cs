@@ -1,4 +1,3 @@
-using Bloodthirst.Core.Utils;
 using System;
 using System.Text;
 
@@ -31,46 +30,32 @@ namespace Bloodthirst.BJson
         {
             Enum casted = (Enum)instance;
 
-            int flag = 0;
+            int val = (int)Enum.Parse(ConvertType, instance.ToString());
 
-            for (int i = 0; i < enumValues.Length; i++)
-            {
-                Enum curr = (Enum)enumValues[i];
-
-                bool isTrue = casted.HasFlag(curr);
-
-                int asInt = Convert.ToInt32(isTrue);
-
-                flag |= asInt << i;
-            }
-
-            IntJsonConverter.Serialize_Formatted_Internal(flag, jsonBuilder, context, settings);
+            IntJsonConverter.Serialize_NonFormatted_Internal(val, jsonBuilder, context, settings);
         }
 
         public override void Serialize_NonFormatted_Internal(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)
         {
             Enum casted = (Enum)instance;
 
-            int flag = 0;
+            int val = (int)Enum.Parse(ConvertType, instance.ToString());
 
-            for (int i = 0; i < enumValues.Length; i++)
-            {
-                Enum curr = (Enum)enumValues[i];
-
-                bool isTrue = casted.HasFlag(curr);
-
-                int asInt = Convert.ToInt32(isTrue);
-
-                flag |= asInt << i;
-            }
-
-            IntJsonConverter.Serialize_NonFormatted_Internal(flag, jsonBuilder, context, settings);
+            IntJsonConverter.Serialize_NonFormatted_Internal(val, jsonBuilder, context, settings);
         }
 
 
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
-            int flagValue = (int)IntJsonConverter.Deserialize_Internal(instance, ref parseState, context, settings);
+            int flagValue = (int)IntJsonConverter.Deserialize_Internal(ref parseState, context, settings);
+
+            object val = Enum.ToObject(ConvertType, flagValue);
+
+            return val;
+        }
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            int flagValue = (int)IntJsonConverter.Populate_Internal(instance, ref parseState, context, settings);
 
             object val = Enum.ToObject(ConvertType, flagValue);
 

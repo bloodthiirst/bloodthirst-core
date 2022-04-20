@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Bloodthirst.Core.ServiceProvider
+namespace Bloodthirst.Core.BProvider
 {
     internal class TypeInfo
     {
@@ -17,12 +17,12 @@ namespace Bloodthirst.Core.ServiceProvider
         /// <summary>
         /// Reference to the tree cvontaining the instances
         /// </summary>
-        internal TreeList<Type,List<object>> InstanceTree { get; set; }
+        internal TreeList<Type, List<object>> InstanceTree { get; set; }
 
         /// <summary>
         /// A cached reference to the leaf of the instances list of MainType
         /// </summary>
-        internal TreeLeaf<Type,List<object>> InstanceLeaf { get; set; }
+        internal TreeLeaf<Type, List<object>> InstanceLeaf { get; set; }
 
         /// <summary>
         /// Reference to the tree cvontaining the singletons

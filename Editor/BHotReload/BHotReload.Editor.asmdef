@@ -1,0 +1,21 @@
+{
+    "name": "BHotReload.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:471f59b4eb7e42b40acbb4c5122a3b60",
+        "GUID:99c2d3536ee4d3249898c33dc761839f",
+        "GUID:12e5c912b42f2454ab6e7e789904681c",
+        "GUID:2a59dd6c1e6f83544b0460268cf8dc4a",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

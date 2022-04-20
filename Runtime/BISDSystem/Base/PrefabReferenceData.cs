@@ -7,7 +7,7 @@ namespace Bloodthirst.Core.BISDSystem
     public class PrefabReferenceData : ScriptableObject
     {
         [SerializeField]
-        [PreviewField( 200f , ObjectFieldAlignment.Right)]
+        [PreviewField(200f, ObjectFieldAlignment.Right)]
         private GameObject prefabReference;
 
         public GameObject PrefabReference => prefabReference;

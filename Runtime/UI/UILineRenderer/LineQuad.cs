@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Packages.com.bloodthirst.bloodthirst_core.Runtime.UI.UILineRenderer
+namespace Bloodthirst.Core.UI
 {
     public class LineQuad
     {

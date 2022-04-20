@@ -1,6 +1,6 @@
 ﻿using Bloodthirst.Core.TreeList;
 using Bloodthirst.Core.Utils;
-using Bloodthirst.Editor.BInspector;
+using Bloodthirst.Runtime.BInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;

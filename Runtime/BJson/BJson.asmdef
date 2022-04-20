@@ -1,0 +1,19 @@
+{
+    "name": "BJson",
+    "rootNamespace": "",
+    "references": [
+        "GUID:12e5c912b42f2454ab6e7e789904681c",
+        "GUID:99c2d3536ee4d3249898c33dc761839f",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

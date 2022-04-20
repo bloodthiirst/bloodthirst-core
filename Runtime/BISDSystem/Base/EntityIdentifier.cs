@@ -1,7 +1,7 @@
-﻿using Sirenix.OdinInspector;
+﻿using Bloodthirst.Core.AdvancedPool;
+using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
-using Bloodthirst.Core.AdvancedPool;
 
 namespace Bloodthirst.Core.BISDSystem
 {

@@ -1,7 +1,7 @@
 ﻿namespace Bloodthirst.Scripts.Core.GamePassInitiator
 {
-    public interface ISetupSingletonPass : IGamePass
+    public interface ISetupSingletonPass
     {
-        new void Execute();
+        void Execute();
     }
 }

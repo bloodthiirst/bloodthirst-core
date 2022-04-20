@@ -1,7 +1,6 @@
 ﻿using Bloodthirst.BType;
-using Bloodthirst.Core.Utils;
+using Bloodthirst.Runtime.BInspector;
 using System;
-using System.Collections.Generic;
 
 namespace Bloodthirst.Editor.BInspector
 {

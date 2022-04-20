@@ -1,19 +1,17 @@
+using Bloodthirst.Core.UI;
 using Bloodthirst.Scripts.Utils;
 using Bloodthirst.Utils;
-using Packages.com.bloodthirst.bloodthirst_core.Runtime.UI.UILineRenderer;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using static Bloodthirst.Scripts.Utils.VectorUtils;
 
 namespace Bloodthirst
 {
     [RequireComponent(typeof(CanvasRenderer))]
     public class PathMeshGenerator : MonoBehaviour
     {
-
         /// <summary>
         /// Renderer used to show the mesh
         /// </summary>
@@ -65,9 +63,9 @@ namespace Bloodthirst
         /// <summary>
         /// Method used for UV smoothing
         /// </summary>
-        public UV_SMOOTHING UVSmoothing;
+        public UVSmoothingType UVSmoothing;
 
-        [ShowIf(nameof(UVSmoothing), Value = UV_SMOOTHING.LERP)]
+        [ShowIf(nameof(UVSmoothing), Value = UVSmoothingType.LERP)]
         [Range(0f, 1f)]
         public float uvSmoothLerp;
 
@@ -437,9 +435,9 @@ namespace Bloodthirst
 
                 switch (UVSmoothing)
                 {
-                    case UV_SMOOTHING.NONE:
+                    case UVSmoothingType.NONE:
                         break;
-                    case UV_SMOOTHING.INVERT:
+                    case UVSmoothingType.INVERT:
                         {
                             // swap
                             float tmp = p1.uv0.x;
@@ -451,7 +449,7 @@ namespace Bloodthirst
                             p4.uv0.x = tmp;
                         }
                         break;
-                    case UV_SMOOTHING.LERP:
+                    case UVSmoothingType.LERP:
                         {
                             // swap
                             var tmp = Mathf.Lerp(p1.uv0.x, p3.uv0.x, uvSmoothLerp);

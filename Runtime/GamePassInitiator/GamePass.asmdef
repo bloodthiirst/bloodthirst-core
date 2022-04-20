@@ -1,0 +1,20 @@
+{
+    "name": "GamePass",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:105b36e8dd7e5d34f9bef5d2a7e5087b",
+        "GUID:315fc73ff153fb24a8d896a4a2b90157",
+        "GUID:5312972b1d3a8464c89ba3f6181dabeb",
+        "GUID:dd44095b6a60eb34fb6d7a9b68c20e65"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

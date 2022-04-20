@@ -39,11 +39,11 @@ public class JSONParser
         int length = state.CurrentIndex - state.StartIndex;
 
         // null check
-        if(length == 4 &&
-            state.Text[state.StartIndex]        == 'n' &&
-            state.Text[state.StartIndex + 1]    == 'u' &&
-            state.Text[state.StartIndex + 2]    == 'l' &&
-            state.Text[state.StartIndex + 3]    == 'l'
+        if (length == 4 &&
+            state.Text[state.StartIndex] == 'n' &&
+            state.Text[state.StartIndex + 1] == 'u' &&
+            state.Text[state.StartIndex + 2] == 'l' &&
+            state.Text[state.StartIndex + 3] == 'l'
             )
         {
             tokenType = JSONTokenType.NULL;
@@ -70,7 +70,10 @@ public class JSONParser
 
         // txt ended
         if (state.CurrentIndex > txt.Length - 1)
+        {
+            ConsumeIdentifier(ref state);
             return true;
+        }
 
         char curr = txt[state.CurrentIndex];
 
@@ -120,7 +123,7 @@ public class JSONParser
 
                 ConsumeIdentifier(ref state);
 
- 
+
                 state.Tokens.Add(new Token<JSONTokenType>() { Length = 1, StartIndex = state.CurrentIndex, Text = txt, TokenType = JSONTokenType.ARRAY_START });
                 state.ArrayBrackets++;
                 state.CurrentIndex++;
@@ -178,7 +181,7 @@ public class JSONParser
 
                 ConsumeIdentifier(ref state);
 
-                
+
                 state.Tokens.Add(new Token<JSONTokenType>() { Length = 1, StartIndex = state.CurrentIndex, Text = txt, TokenType = JSONTokenType.SPACE });
 
                 state.CurrentIndex++;

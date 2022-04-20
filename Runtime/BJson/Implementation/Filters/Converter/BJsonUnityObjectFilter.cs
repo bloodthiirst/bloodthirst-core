@@ -1,6 +1,5 @@
 ﻿using Bloodthirst.Core.Utils;
 using System;
-using System.Collections;
 
 namespace Bloodthirst.BJson
 {

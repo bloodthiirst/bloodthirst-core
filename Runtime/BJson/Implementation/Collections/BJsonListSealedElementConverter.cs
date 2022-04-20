@@ -1,28 +1,26 @@
 using Bloodthirst.Core.Utils;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace Bloodthirst.BJson
 {
     internal class BJsonListSealedElementConverter : BJsonComplexBaseConverter
     {
         private Func<object> Constructor { get; set; }
-
         private Type ElementType { get; set; }
 
         private IBJsonConverterInternal ElementConverter { get; set; }
         public BJsonListSealedElementConverter(Type t) : base(t)
         {
-       
+
         }
 
         public override void Initialize()
         {
-            ElementType = ConvertType.GetGenericArguments()[0];
+            Type[] listParams = ConvertType.GetGenericArguments();
+            ElementType = listParams[0];
+
             Constructor = ReflectionUtils.GetParameterlessConstructor(ConvertType);
             ElementConverter = Provider.GetConverter(ElementType);
         }
@@ -40,7 +38,7 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            if (BJsonUtils.WriteIdNonFormatter(instance, jsonBuilder, context, settings))
+            if (BJsonUtils.WriteIdNonFormatted(instance, jsonBuilder, context, settings))
             {
                 return;
             }
@@ -73,7 +71,7 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            if (BJsonUtils.WriteIdFormatter(instance, jsonBuilder, context, settings))
+            if (BJsonUtils.WriteIdFormatted(instance, jsonBuilder, context, settings))
             {
                 return;
             }
@@ -111,9 +109,9 @@ namespace Bloodthirst.BJson
             jsonBuilder.Append(']');
         }
 
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
-            if (BJsonUtils.IsCachedOrNull(instance, ref parseState, context, settings, out object cached))
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
             {
                 return cached;
             }
@@ -126,41 +124,39 @@ namespace Bloodthirst.BJson
             // so basically skip until the first ',' or ']'
             parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
 
+            IList resultList = CreateEmpty();
 
-            IList lst = null;
-
-            if (instance == null)
-            {
-                lst = (IList)Constructor();
-            }
-            else
-            {
-                lst = (IList)instance;
-                lst.Clear();
-            }
-
-            context.Register(lst);
+            int registerId = context.Register(resultList);
 
             if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
             {
                 parseState.CurrentTokenIndex++;
-                return lst;
+                return resultList;
             }
 
             // skip the comma
             parseState.CurrentTokenIndex++;
 
+            int currentIndex = 0;
 
             while (parseState.CurrentTokenIndex < parseState.Tokens.Count)
             {
-                object elem = ElementConverter.Deserialize_Internal(instance , ref parseState, context, settings);
-                
-                lst.Add(elem);
-                
+                IBJsonConverterInternal cnv = null;
+
+                if (!settings.HasCustomConverter(ElementType, out cnv))
+                {
+                    cnv = ElementConverter;
+                }
+
+                object elem = cnv.Deserialize_Internal(ref parseState, context, settings);
+
+                resultList.Add(elem);
+                currentIndex++;
+
                 // skip until the first comma or object end
                 parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
-                
-                if(parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
+
+                if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
                 {
                     parseState.CurrentTokenIndex++;
                     break;
@@ -169,9 +165,95 @@ namespace Bloodthirst.BJson
                 parseState.CurrentTokenIndex++;
             }
 
-            return lst;
+            return resultList;
+        }
+
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
+            {
+                return cached;
+            }
+
+            // skip [
+            parseState.CurrentTokenIndex++;
+
+            // skip $type
+            // OR if the array is empty , then just skip to the end of the array
+            // so basically skip until the first ',' or ']'
+            parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
+
+            IList originalList = (IList)instance;
+            IList resultList = originalList;
+
+            if (resultList == null)
+            {
+                resultList = CreateEmpty();
+            }
+
+            int registerId = context.Register(resultList);
+
+            if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
+            {
+                parseState.CurrentTokenIndex++;
+                return resultList;
+            }
+
+            // skip the comma
+            parseState.CurrentTokenIndex++;
+
+            int currentIndex = 0;
+
+            while (parseState.CurrentTokenIndex < parseState.Tokens.Count)
+            {
+                IBJsonConverterInternal cnv = null;
+
+                if (!settings.HasCustomConverter(ElementType, out cnv))
+                {
+                    cnv = ElementConverter;
+                }
+
+                object currElement = null;
+
+                if (originalList != null && currentIndex < originalList.Count)
+                {
+                    currElement = originalList[currentIndex];
+                }
+
+
+                object elem = cnv.Populate_Internal(currElement, ref parseState, context, settings);
+
+                if (currentIndex < resultList.Count)
+                {
+                    resultList[currentIndex] = elem;
+                }
+                else
+                {
+                    resultList.Add(elem);
+                }
+                currentIndex++;
+
+                // skip until the first comma or object end
+                parseState.SkipUntil(ParserUtils.IsPropertyEndInArray);
+
+                if (parseState.CurrentToken.TokenType == JSONTokenType.ARRAY_END)
+                {
+                    parseState.CurrentTokenIndex++;
+                    break;
+                }
+
+                parseState.CurrentTokenIndex++;
+            }
+
+            return resultList;
         }
 
 
+        private IList CreateEmpty()
+        {
+            IList lst = (IList)Constructor();
+
+            return lst;
+        }
     }
 }

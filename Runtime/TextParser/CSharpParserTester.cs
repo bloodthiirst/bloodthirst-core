@@ -1,6 +1,5 @@
 using Bloodthirst.Core.Tokenizer;
 using Bloodthirst.Core.Tokenizer.CSharp;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -53,7 +52,7 @@ public class CSharpParserTester : MonoBehaviour
             new ClassTokenProcessor()
         };
 
-        TextTokenizer<TokenBase,CustomIdentifierToken> tokenizer = new TextTokenizer<TokenBase, CustomIdentifierToken>();
+        TextTokenizer<TokenBase, CustomIdentifierToken> tokenizer = new TextTokenizer<TokenBase, CustomIdentifierToken>();
 
         tokenizer.Tokenize(script.text, tokenProcessors, tokens);
 

@@ -13,7 +13,7 @@ namespace Bloodthirst.Core.UI
     public class UIListCreator<UI, INSTANCE> where UI : MonoBehaviour, IUIElement<INSTANCE>
     {
         private IList<UI> cachedUIs;
-        private Pool<UI> pool;
+        private UnityPool<UI> pool;
         private RectTransform container;
         private int fixedUICount;
 
@@ -21,7 +21,7 @@ namespace Bloodthirst.Core.UI
 
         public int FixedUICount { get => fixedUICount; set => fixedUICount = value; }
 
-        public UIListCreator(Pool<UI> pool, RectTransform container, IList<UI> cachedUIs = null , int fixedUICount = -1)
+        public UIListCreator(UnityPool<UI> pool, RectTransform container, IList<UI> cachedUIs = null, int fixedUICount = -1)
         {
             // if not list is supplied , create one on the fly
             this.cachedUIs = cachedUIs == null ? new List<UI>() : cachedUIs;
@@ -75,7 +75,7 @@ namespace Bloodthirst.Core.UI
                 cachedUIs[i].CleanupUI();
 
                 cachedUIs[i].transform.SetParent(container);
-                
+
                 cachedUIs[i].SetupUI(inst);
 
             }

@@ -1,3 +1,5 @@
+using System;
+
 namespace Bloodthirst.BJson.Tests
 {
     internal enum SomeEnum
@@ -6,6 +8,16 @@ namespace Bloodthirst.BJson.Tests
         Second,
         Third
     }
+
+    [Flags]
+    internal enum SomeFlags
+    {
+        None,
+        One,
+        Two,
+        Three
+    }
+    
     internal class SomeClass
     {
         public int Id { get; set; }

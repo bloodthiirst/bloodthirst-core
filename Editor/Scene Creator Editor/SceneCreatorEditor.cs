@@ -1,8 +1,6 @@
-using Bloodthirst.Core.Consts;
 using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
-using Bloodthirst.Utils.EditorOpenTracker;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,21 +16,6 @@ public class SceneCreatorEditor : EditorWindow
     private const string SCENE_MANAGER_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Creator Editor/Template.SceneManager.cs.txt";
 
     private const string REPLACE_KEYWORD = "[SCENENAME]";
-
-    [UnityEditor.Callbacks.DidReloadScripts(BloodthirstCoreConsts.SCENE_CREATOR)]
-    public static void OnReloadScripts()
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode)
-            return;
-
-        if (EditorStartupTracker.IsFirstTime())
-        {
-            return;
-        }
-
-        EditorApplication.update -= SetupTheSceneManagers;
-        EditorApplication.update += SetupTheSceneManagers;
-    }
 
     [MenuItem("Bloodthirst Tools/Scene Management/Refresh Scene Setup")]
     private static void SetupTheSceneManagers()

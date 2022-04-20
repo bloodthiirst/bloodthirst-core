@@ -1,11 +1,9 @@
-﻿using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Core.Singleton;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
+﻿using Bloodthirst.Core.Singleton;
 using UnityEngine;
 
 namespace Bloodthirst.Systems.CameraSystem
 {
-    public abstract class CameraControllerBase<T> : UnitySingleton<T>, ICameraController, IQuerySingletonPass  where T : CameraControllerBase<T>
+    public abstract class CameraControllerBase<T> :BSingleton<T>, ICameraController where T : CameraControllerBase<T>
     {
         public bool isEnabled { get; set; }
 
@@ -13,10 +11,8 @@ namespace Bloodthirst.Systems.CameraSystem
 
         protected CameraManager _cameraManager;
 
-        void IQuerySingletonPass.Execute()
+        void ICameraController.Initialize(CameraManager cameraManager)
         {
-            _cameraManager = BProviderRuntime.Instance.GetSingleton<CameraManager>();
-
             _cameraManager.RemoveCamera(this);
             _cameraManager.RegisterCamera(this);
 

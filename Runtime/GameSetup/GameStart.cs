@@ -1,11 +1,11 @@
 using Bloodthirst.Core.SceneManager;
-using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Core.Utils;
+using Bloodthirst.Core.BProvider;
 using Bloodthirst.Scripts.Core.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Bloodthirst.Core.Utils;
 
 namespace Bloodthirst.Core.Setup
 {
@@ -35,7 +35,7 @@ namespace Bloodthirst.Core.Setup
             List<GameObject> allGos = GameObjectUtils.GetAllRootGameObjects();
 
             // pre
-            GameObjectUtils.GetAllComponents<IPreGameSetup>(allGos, true).OrderBy( p => p.Order).ToList().ForEach((e) => e.Execute());
+            GameObjectUtils.GetAllComponents<IPreGameSetup>(allGos, true).OrderBy(p => p.Order).ToList().ForEach((e) => e.Execute());
 
             // setup
             LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();

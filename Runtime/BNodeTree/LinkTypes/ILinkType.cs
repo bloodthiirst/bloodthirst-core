@@ -1,5 +1,5 @@
 ﻿using Bloodthirst.BJson;
-using Bloodthirst.Editor.BInspector;
+using Bloodthirst.Runtime.BInspector;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {

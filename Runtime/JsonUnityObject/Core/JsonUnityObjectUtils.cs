@@ -1,11 +1,5 @@
 ﻿using Bloodthirst.BJson;
-using Bloodthirst.Core.Utils;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.Serialization;
-using UnityEngine;
 
 namespace Bloodthirst.JsonUnityObject
 {
@@ -27,7 +21,7 @@ namespace Bloodthirst.JsonUnityObject
             settings.CustomContext = new UnityObjectContext() { UnityObjects = unityRefsList };
 
             // deserialize into the object
-            BJsonConverter.PopulateFromJson(unityObjectThis, jsonString , settings);
+            BJsonConverter.PopulateFromJson(unityObjectThis, jsonString, settings);
         }
 
         /// <summary>

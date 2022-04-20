@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using Bloodthirst.Core.ServiceProvider;
+﻿using Bloodthirst.Core.BProvider;
+using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
@@ -27,7 +27,7 @@ namespace Bloodthirst.Core.BISDSystem
         {
             BProviderRuntime.Instance.
                 GetSingleton<EntitySpawner>().
-                InjectStates<EntityIdentifier>( gameObject.GetComponent<EntityIdentifier>());
+                InjectStates<EntityIdentifier>(gameObject.GetComponent<EntityIdentifier>());
         }
     }
 }

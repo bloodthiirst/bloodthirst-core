@@ -9,9 +9,14 @@ namespace Bloodthirst.BJson
 
         internal int CachingCount => IdToInstance.Count;
 
-        public bool TryGetCached(int id , out object cached)
+        public bool TryGetCached(int id, out object cached)
         {
             return IdToInstance.TryGetValue(id, out cached);
+        }
+
+        public void Replace(int id, object newInstance)
+        {
+            IdToInstance[id] = newInstance;
         }
 
         public int Register(object original)
@@ -21,12 +26,12 @@ namespace Bloodthirst.BJson
 
             return id;
         }
-        
-        public bool IsCached(object instance , out int id)
+
+        public bool IsCached(object instance, out int id)
         {
-            foreach(KeyValuePair<int, object> kv in IdToInstance)
-            { 
-                if(kv.Value == instance)
+            foreach (KeyValuePair<int, object> kv in IdToInstance)
+            {
+                if (kv.Value == instance)
                 {
                     id = kv.Key;
                     return true;

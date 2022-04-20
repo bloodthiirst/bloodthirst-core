@@ -10,12 +10,12 @@
     {
         public override bool IsValid(string text, int currentIndex)
         {
-            if (text[currentIndex] != '"' )
+            if (text[currentIndex] != '"')
                 return false;
 
-            for(int i = currentIndex + 1; i < text.Length; i++)
+            for (int i = currentIndex + 1; i < text.Length; i++)
             {
-                if(text[i] == '"')
+                if (text[i] == '"')
                 {
                     return true;
                 }
@@ -35,11 +35,11 @@
                 if (text[i] == '"')
                 {
                     break;
-                } 
+                }
             }
 
             indexOffset = length;
-            return new LiteralStringToken() { SourceText = text.Substring(currentIndex , length) , StartIndex = currentIndex };
+            return new LiteralStringToken() { SourceText = text.Substring(currentIndex, length), StartIndex = currentIndex };
         }
     }
 }

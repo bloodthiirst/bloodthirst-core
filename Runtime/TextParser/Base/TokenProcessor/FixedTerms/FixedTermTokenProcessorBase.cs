@@ -1,9 +1,9 @@
 ﻿namespace Bloodthirst.Core.Tokenizer.CSharp
 {
-    public abstract class FixedTermTokenProcessorBase<TToken ,TBase> : TokenProcessorBase<TToken , TBase>
-        where TToken : TBase , new() 
+    public abstract class FixedTermTokenProcessorBase<TToken, TBase> : TokenProcessorBase<TToken, TBase>
+        where TToken : TBase, new()
         where TBase : IToken
-    { 
+    {
         public abstract string FixedTerm { get; }
 
         protected override TToken GetToken(string text, int currentIndex, out int indexOffset)
@@ -24,7 +24,7 @@
 
             for (int i = 0; i < FixedTerm.Length; i++)
             {
-                if (text[ currentIndex + i] != FixedTerm[i])
+                if (text[currentIndex + i] != FixedTerm[i])
                     return false;
             }
 

@@ -1,6 +1,6 @@
 using UnityEngine.Assertions;
 
-namespace Bloodthirst.Core.ServiceProvider
+namespace Bloodthirst.Core.BProvider
 {
     public class BProviderRuntime
     {
@@ -17,7 +17,7 @@ namespace Bloodthirst.Core.ServiceProvider
         {
             get
             {
-                if(instance == null)
+                if (instance == null)
                 {
                     instance = new BProvider();
                 }

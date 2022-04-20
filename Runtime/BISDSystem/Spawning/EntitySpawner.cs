@@ -1,28 +1,19 @@
 ﻿using Bloodthirst.Core.AdvancedPool.Pools;
-using Bloodthirst.Core.ServiceProvider;
 using Bloodthirst.Core.Singleton;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public class EntitySpawner : UnitySingleton<EntitySpawner>, IQuerySingletonPass, IEntitySpawner
+    public class EntitySpawner : BSingleton<EntitySpawner>, IEntitySpawner
     {
-        private IGlobalPool _genericUnityPool;
-
-        void IQuerySingletonPass.Execute()
-        {
-            // globalpoolcontainer is in the project asembly and not the package , so create a pool container interface
-            _genericUnityPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>();
-        }
+        public IGlobalPool GenericUnityPool { get; set; }
 
         #region spawn
         public T SpawnEntity<T>() where T : MonoBehaviour
         {
-            T entity = _genericUnityPool.Get<T>();
+            T entity = GenericUnityPool.Get<T>();
 
             entity = SetupEntity(entity);
 
@@ -31,7 +22,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         public T SpawnEntity<T>(Predicate<T> filter) where T : MonoBehaviour
         {
-            T entity = _genericUnityPool.Get(filter);
+            T entity = GenericUnityPool.Get(filter);
             entity = SetupEntity(entity);
 
             return entity;
@@ -143,7 +134,7 @@ namespace Bloodthirst.Core.BISDSystem
 
             identifier.TriggerRemoved();
 
-            _genericUnityPool.Return(player);
+            GenericUnityPool.Return(player);
         }
         #endregion
 

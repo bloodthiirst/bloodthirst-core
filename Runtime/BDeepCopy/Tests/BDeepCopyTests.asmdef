@@ -1,5 +1,5 @@
 {
-    "name": "BDeepCopyTests",
+    "name": "BDeepCopy.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",

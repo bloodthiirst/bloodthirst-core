@@ -16,10 +16,17 @@ namespace Bloodthirst.BJson
                 new BJsonIntFilter(),
                 new BJsonFloatFilter(),
                 new BJsonBooleanFilter(),
+
                 new BJsonFlagFilter(),
                 new BJsonEnumFilter(),
+
                 new BJsonByteFilter(),
                 new BJsonUIntFilter(),
+                new BJsonULongFilter(),
+                new BJsonCharFilter(),
+
+                // system.object
+                new BJsonObjectFilter(),
 
 
                 // type
@@ -29,9 +36,11 @@ namespace Bloodthirst.BJson
                 new BJsonUnityObjectFilter(),
 
                 // collections
-                new BJsonDictionaryFilter(),
+                new BJsonArraySealedElementFilter(),
+                new BJsonArrayFilter(),
                 new BJsonListSealedElementFilter(),
                 new BJsonListFilter(),
+                new BJsonDictionaryFilter(),
 
                 // interface or abstract
                 new BJsonInterfaceOrAbstractFilter()

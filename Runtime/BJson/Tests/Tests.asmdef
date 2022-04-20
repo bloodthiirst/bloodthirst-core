@@ -4,7 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "com.bloodthirst.bloodthirst-core"
+        "BJson"
     ],
     "includePlatforms": [
         "Editor"

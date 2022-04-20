@@ -1,6 +1,4 @@
-﻿using Bloodthirst.Core.Pooling;
-using Bloodthirst.Core.Singleton;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
+﻿using Bloodthirst.Core.Singleton;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
@@ -9,7 +7,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Systems.CameraSystem
 {
-    public class CameraManager : UnitySingleton<CameraManager>, IAwakePass
+    public class CameraManager : BSingleton<CameraManager>
     {
 
         [ShowInInspector]
@@ -41,12 +39,8 @@ namespace Bloodthirst.Systems.CameraSystem
         private bool pause;
         public bool Pause { get => pause; set => pause = value; }
 
-        void IAwakePass.Execute()
-        {
-            Execute();
-        }
 
-        private void Execute()
+        public override void OnSetupSingleton()
         {
             DisableAllCameras();
 
@@ -206,7 +200,7 @@ namespace Bloodthirst.Systems.CameraSystem
 
             ActiveCamera.ApplyTransform(out pos, out rot);
 
-            sceneCamera.transform.SetPositionAndRotation( pos , rot);
+            sceneCamera.transform.SetPositionAndRotation(pos, rot);
         }
     }
 }

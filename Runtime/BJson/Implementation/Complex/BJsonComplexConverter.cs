@@ -1,11 +1,8 @@
 using Bloodthirst.BType;
-using Bloodthirst.Core.Utils;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine.Assertions;
 
 namespace Bloodthirst.BJson
 {
@@ -46,7 +43,7 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            if (BJsonUtils.WriteIdNonFormatter(instance, jsonBuilder, context, settings))
+            if (BJsonUtils.WriteIdNonFormatted(instance, jsonBuilder, context, settings))
             {
                 return;
             }
@@ -88,7 +85,7 @@ namespace Bloodthirst.BJson
                 return;
             }
 
-            if (BJsonUtils.WriteIdFormatter(instance, jsonBuilder, context, settings))
+            if (BJsonUtils.WriteIdFormatted(instance, jsonBuilder, context, settings))
             {
                 return;
             }
@@ -141,9 +138,84 @@ namespace Bloodthirst.BJson
             jsonBuilder.Append('}');
         }
 
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
-            if (BJsonUtils.IsCachedOrNull(instance, ref parseState, context, settings, out object cached))
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
+            {
+                return cached;
+            }
+
+            object instance = CreateInstance_Internal();
+
+            context.Register(instance);
+
+            // skip the first object start
+            parseState.CurrentTokenIndex++;
+
+            while (parseState.CurrentTokenIndex < parseState.Tokens.Count)
+            {
+                Token<JSONTokenType> currentToken = parseState.Tokens[parseState.CurrentTokenIndex];
+
+                // skip spaces
+                if (currentToken.TokenType == JSONTokenType.SPACE)
+                {
+                    parseState.CurrentTokenIndex++;
+                    continue;
+                }
+
+                // exit if object ended
+                if (currentToken.TokenType == JSONTokenType.OBJECT_END)
+                {
+                    parseState.CurrentTokenIndex++;
+                    continue;
+                }
+
+                // stp while no identitifer
+                if (currentToken.TokenType != JSONTokenType.IDENTIFIER)
+                {
+                    parseState.CurrentTokenIndex++;
+                    continue;
+                }
+
+                // key found
+                string key = currentToken.ToString();
+
+                // skip until the first colon
+                parseState.SkipUntil(ParserUtils.IsColon);
+
+                parseState.CurrentTokenIndex++;
+                currentToken = parseState.Tokens[parseState.CurrentTokenIndex];
+
+                // skip space
+                parseState.SkipWhile(ParserUtils.IsSkippableSpace);
+
+                if (MemberToDataDictionary.TryGetValue(key, out BMemberData memData))
+                {
+                    if (!settings.HasCustomConverter(memData.Type, out IBJsonConverterInternal cnv))
+                    {
+                        cnv = Provider.GetConverter(memData.Type);
+                    }
+
+                    object newVal = cnv.Deserialize_Internal(ref parseState, context, settings);
+
+                    memData.MemberSetter(instance, newVal);
+                }
+
+                // skip until the first comma or object end
+                parseState.SkipUntil(ParserUtils.IsPropertyEndObject);
+
+                if (parseState.CurrentToken.TokenType == JSONTokenType.OBJECT_END)
+                {
+                    parseState.CurrentTokenIndex++;
+                    break;
+                }
+            }
+
+            return instance;
+        }
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            if (BJsonUtils.IsCachedOrNull(ref parseState, context, settings, out object cached))
             {
                 return cached;
             }
@@ -197,10 +269,27 @@ namespace Bloodthirst.BJson
 
                 if (MemberToDataDictionary.TryGetValue(key, out BMemberData memData))
                 {
-                    IBJsonConverterInternal c = Provider.GetConverter(memData.Type);
+                    if (!settings.HasCustomConverter(memData.Type, out IBJsonConverterInternal cnv))
+                    {
+                        cnv = Provider.GetConverter(memData.Type);
+                    }
 
-                    object oldVal = instance == null ? null : memData.MemberGetter(instance);
-                    object newVal = c.Deserialize_Internal(oldVal, ref parseState, context, settings);
+                    object oldVal = memData.MemberGetter(instance);
+
+                    object newVal = null;
+
+                    // if the old value is not null
+                    // then we fill it
+                    if (oldVal != null)
+                    {
+                        newVal = cnv.Populate_Internal(oldVal, ref parseState, context, settings);
+                    }
+
+                    // else we create a new instance
+                    else
+                    {
+                        newVal = cnv.Deserialize_Internal(ref parseState, context, settings);
+                    }
 
                     memData.MemberSetter(instance, newVal);
                 }

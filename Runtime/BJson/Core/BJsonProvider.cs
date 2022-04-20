@@ -15,10 +15,11 @@ namespace Bloodthirst.BJson
 
         public IBJsonConverterInternal GetConverter(Type t)
         {
-            if(Converters.TryGetValue(t , out IBJsonConverterInternal cnv))
+            if (Converters.TryGetValue(t, out IBJsonConverterInternal cnv))
             {
                 return cnv;
             }
+
 
             cnv = Factory.CreateConverter(t);
             cnv.Provider = this;

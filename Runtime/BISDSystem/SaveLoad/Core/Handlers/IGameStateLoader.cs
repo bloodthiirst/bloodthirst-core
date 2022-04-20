@@ -1,9 +1,8 @@
-﻿using Bloodthirst.Core.BISDSystem;
-using System;
+﻿using System;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public interface IGameStateLoader<TSave, TState> : IGameStateLoader 
+    public interface IGameStateLoader<TSave, TState> : IGameStateLoader
         where TState : ISavableState
         where TSave : ISavableGameSave
     {
@@ -16,6 +15,6 @@ namespace Bloodthirst.Core.BISDSystem
         Type From { get; }
         Type To { get; }
         ISavableState GetState(ISavableGameSave save, LoadingContext context);
-        void LinkReferences(ISavableGameSave save , ISavableState state, LoadingContext context);
+        void LinkReferences(ISavableGameSave save, ISavableState state, LoadingContext context);
     }
 }

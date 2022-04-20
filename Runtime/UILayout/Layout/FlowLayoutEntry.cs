@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace Bloodthirst.Core.UILayout
 {
     public static class FlowLayoutEntry
@@ -39,7 +35,7 @@ namespace Bloodthirst.Core.UILayout
         {
             layoutBox.PostFlow();
 
-            foreach(ILayoutBox c in layoutBox.ChildLayouts)
+            foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
                 PostFlowRecursive(c);
             }
@@ -54,7 +50,7 @@ namespace Bloodthirst.Core.UILayout
                 return;
 
             int layoutIndex = (int)layoutBox.LayoutStyle.DisplayType.DisplayKeyword;
-            
+
             flowEnumLookup[layoutIndex].FlowWidth(layoutBox, context);
         }
 

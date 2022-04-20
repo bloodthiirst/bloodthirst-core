@@ -38,11 +38,11 @@ namespace Bloodthirst.BJson
             return TypeUtils.IsSubTypeOf(t, typeof(UnityEngine.Object));
         }
 
-        BTypeData IBJsonPropertyFilter.FilteredProperties (BTypeData typeData)
+        BTypeData IBJsonPropertyFilter.FilteredProperties(BTypeData typeData)
         {
             BTypeData cpy = BTypeData.Copy(typeData);
 
-            for(int i = cpy.MemberDatas.Count - 1; i >= 0; i--)
+            for (int i = cpy.MemberDatas.Count - 1; i >= 0; i--)
             {
                 BMemberData curr = cpy.MemberDatas[i];
 

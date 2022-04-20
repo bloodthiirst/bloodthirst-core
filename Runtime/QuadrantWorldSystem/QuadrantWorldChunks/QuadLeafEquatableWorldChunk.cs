@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Bloodthirst.System.Quadrant
 {
@@ -7,12 +6,12 @@ namespace Bloodthirst.System.Quadrant
     {
         [SerializeField]
         private bool isCulled;
-        public bool IsCulled 
-        { 
+        public bool IsCulled
+        {
             get => isCulled;
             set
             {
-                if(isCulled != value)
+                if (isCulled != value)
                 {
                     isCulled = value;
                     OnCullingChanged();
@@ -22,7 +21,7 @@ namespace Bloodthirst.System.Quadrant
 
         private void OnCullingChanged()
         {
-            foreach(QuadrantEntityBehaviour e in Elements)
+            foreach (QuadrantEntityBehaviour e in Elements)
             {
                 e.OnCulledStatusChanged(isCulled);
             }

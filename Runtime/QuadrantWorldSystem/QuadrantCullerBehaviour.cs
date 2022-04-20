@@ -1,5 +1,5 @@
-﻿using Bloodthirst.Scripts.Utils;
-using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.Utils;
+using Bloodthirst.Scripts.Utils;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +59,7 @@ namespace Bloodthirst.System.Quadrant
 
             HashSet<QuadLeafEquatableWorldChunk> allLeafts = quadrantManagerBehaviour.QuadrantManager.QuadTree.GetFinalLeafs();
 
-            foreach(QuadLeafEquatableWorldChunk q in allLeafts)
+            foreach (QuadLeafEquatableWorldChunk q in allLeafts)
             {
                 q.IsCulled = IsCulled(q);
             }
@@ -79,7 +79,7 @@ namespace Bloodthirst.System.Quadrant
             Bounds b = new Bounds(center, quadrantManagerBehaviour.QuadrantManager.CubeSize);
 
             return !GeometryUtility.TestPlanesAABB(planes, b);
-            
+
         }
 
         private Color GetColor(List<int> keys)
@@ -98,7 +98,7 @@ namespace Bloodthirst.System.Quadrant
 
             b.GetCorners(boundsCorners);
 
-            if(!GeometryUtility.TestPlanesAABB(planes, b))
+            if (!GeometryUtility.TestPlanesAABB(planes, b))
             {
                 return gizmosCulledColor;
             }

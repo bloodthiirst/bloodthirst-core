@@ -1,4 +1,4 @@
-﻿using Bloodthirst.Core.ServiceProvider;
+﻿using Bloodthirst.Core.BProvider;
 using Bloodthirst.Models;
 using Bloodthirst.Socket;
 using Bloodthirst.Socket.Core;

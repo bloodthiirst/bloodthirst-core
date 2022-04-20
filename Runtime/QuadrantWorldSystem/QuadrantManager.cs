@@ -10,7 +10,7 @@ namespace Bloodthirst.System.Quadrant
     /// A quadrant system manager that hepls group the game entities by grouping them into cubes in world space
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class QuadrantManager<T,TLeaf> where T : IQuadrantEntity<T> where TLeaf : QuadLeafEquatableBase<int,T,TLeaf> , new()
+    public class QuadrantManager<T, TLeaf> where T : IQuadrantEntity<T> where TLeaf : QuadLeafEquatableBase<int, T, TLeaf>, new()
     {
         public event Action<T> OnEntityAdded;
 
@@ -36,13 +36,13 @@ namespace Bloodthirst.System.Quadrant
         /// <summary>
         /// Container for all the entities that need to be grouped by cube
         /// </summary>
-        private QuadTreeEquatableBase<int, T , TLeaf> quadTree;
+        private QuadTreeEquatableBase<int, T, TLeaf> quadTree;
 
-        public QuadTreeEquatableBase<int, T , TLeaf> QuadTree => quadTree;
+        public QuadTreeEquatableBase<int, T, TLeaf> QuadTree => quadTree;
 
         public QuadrantManager()
         {
-            quadTree = new QuadTreeEquatableBase<int, T , TLeaf>();
+            quadTree = new QuadTreeEquatableBase<int, T, TLeaf>();
         }
 
         public void Clear()

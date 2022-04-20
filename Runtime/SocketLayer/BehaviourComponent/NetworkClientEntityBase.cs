@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Core.Pooling;
-using Bloodthirst.Core.ServiceProvider;
+﻿using Bloodthirst.Core.BProvider;
 using Bloodthirst.Core.Singleton;
 using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
@@ -14,7 +13,7 @@ using UnityEngine.Events;
 namespace Bloodthirst.Socket.Core
 {
     public abstract class NetworkClientEntityBase<TClient, TIdentifier> :
-        UnitySingleton<NetworkClientEntityBase<TClient, TIdentifier>>,
+        Bloodthirst.Core.Singleton.BSingleton<NetworkClientEntityBase<TClient, TIdentifier>>,
         ISocketClientInjector<TClient, TIdentifier>,
         INetworkInjector,
         IAwakePass
@@ -72,11 +71,6 @@ namespace Bloodthirst.Socket.Core
         private ThreadCommandProcessor _threadCommandProcessor;
 
         void IAwakePass.Execute()
-        {
-            Execute();
-        }
-
-        private void Execute()
         {
             _threadCommandProcessor = BProviderRuntime.Instance.GetSingleton<ThreadCommandProcessor>();
 

@@ -41,7 +41,7 @@ namespace Bloodthirst.BType
             {
                 Assert.IsFalse(TypeUtils.PrimitiveTypes.Contains(t));
             }
-            catch
+            catch (Exception ex)
             {
 
             }
@@ -54,7 +54,14 @@ namespace Bloodthirst.BType
         {
             List<MemberInfo> MemberInfos = GetMembers().ToList();
 
-            Constructor = ReflectionUtils.GetParameterlessConstructor(Type);
+            if (Type.IsValueType)
+            {
+                Constructor = ReflectionUtils.GetDefaultValue(Type);
+            }
+            else
+            {
+                Constructor = ReflectionUtils.GetParameterlessConstructor(Type);
+            }
 
             for (int i = 0; i < MemberInfos.Count; i++)
             {
@@ -67,13 +74,19 @@ namespace Bloodthirst.BType
                 Action<object, object> setter = MemberSetter(curr);
 
                 // direct attr
+                // todo : make this a dict of type , list<attr> 
                 Dictionary<Type, Attribute> directAttrs = new Dictionary<Type, Attribute>();
                 IEnumerable<Attribute> directAttrList = curr.GetCustomAttributes(typeof(Attribute), true).Cast<Attribute>();
+
 
                 foreach (Attribute attributeValue in directAttrList)
                 {
                     Type attrType = attributeValue.GetType();
-                    directAttrs.Add(attrType, attributeValue);
+
+                    if (!directAttrs.ContainsKey(attrType))
+                    {
+                        directAttrs.Add(attrType, attributeValue);
+                    }
                 }
 
 
@@ -85,7 +98,7 @@ namespace Bloodthirst.BType
                 {
                     Type attrType = a.GetType();
 
-                    if(!inheritedAttrs.TryGetValue(attrType , out var lst ))
+                    if (!inheritedAttrs.TryGetValue(attrType, out var lst))
                     {
                         lst = new List<Attribute>();
                         inheritedAttrs.Add(attrType, lst);
@@ -130,7 +143,7 @@ namespace Bloodthirst.BType
             foreach (FieldInfo f in fields)
             {
                 // to skip events
-                if (TypeUtils.IsSubTypeOf(f.FieldType, typeof(Delegate)) )
+                if (TypeUtils.IsSubTypeOf(f.FieldType, typeof(Delegate)))
                     continue;
 
                 if (!f.Name.EndsWith("__BackingField"))

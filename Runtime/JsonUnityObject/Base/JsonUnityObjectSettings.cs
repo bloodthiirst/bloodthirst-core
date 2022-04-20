@@ -1,10 +1,5 @@
 ﻿using Bloodthirst.BJson;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEditor;
-using UnityEngine;
 
 namespace Bloodthirst.JsonUnityObject
 {

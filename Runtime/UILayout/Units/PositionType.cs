@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Bloodthirst.Core.UILayout
@@ -32,7 +28,7 @@ namespace Bloodthirst.Core.UILayout
             this.positionValue = default;
         }
 
-        public PositionType(PositionKeyword positionKeyword , Vector2 positionValue)
+        public PositionType(PositionKeyword positionKeyword, Vector2 positionValue)
         {
             this.positionKeyword = positionKeyword;
             this.positionValue = positionValue;

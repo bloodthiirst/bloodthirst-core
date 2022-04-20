@@ -21,7 +21,7 @@ public class BRecorderBehaviour : MonoBehaviour
 
     private IBRecorderCommand nextCommand;
 
-   
+
 
     private void Awake()
     {
@@ -34,7 +34,7 @@ public class BRecorderBehaviour : MonoBehaviour
 
         assetCopy = BCopier<BRecorderAsset>.Instance.Copy(recorderAsset);
 
-        foreach(IBRecorderCommand cmd in assetCopy.Session.Commands)
+        foreach (IBRecorderCommand cmd in assetCopy.Session.Commands)
         {
             cmd.Setup();
         }
@@ -42,7 +42,7 @@ public class BRecorderBehaviour : MonoBehaviour
 
     private void Update()
     {
-        while ( (nextCommand != null) && (nextCommand.GameTime <= Time.time) && (isPlaying) )
+        while ((nextCommand != null) && (nextCommand.GameTime <= Time.time) && (isPlaying))
         {
             nextCommand.PreExecute();
             nextCommand.Execute();

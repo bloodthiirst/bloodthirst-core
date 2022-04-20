@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using Bloodthirst.BJson;
 using System;
 using System.Text;
 using UnityEngine;
@@ -18,7 +18,7 @@ namespace Bloodthirst.Socket.Serializer
 
             try
             {
-                return JsonConvert.DeserializeObject<T>(json);
+                return BJsonConverter.FromJson<T>(json);
             }
             catch (Exception ex)
             {
@@ -31,7 +31,7 @@ namespace Bloodthirst.Socket.Serializer
 
         public override byte[] Serialize(T t)
         {
-            string JSONString = JsonConvert.SerializeObject(t);
+            string JSONString = BJsonConverter.ToJson(t);
 
             return Encoding.UTF8.GetBytes(JSONString);
         }

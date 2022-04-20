@@ -2,7 +2,7 @@
 
 namespace Bloodthirst.Runtime.BNodeTree
 {
-    public abstract class PortWithType<T,TNode> : IPortType<TNode> where TNode : INodeType<TNode>
+    public abstract class PortWithType<T, TNode> : IPortType<TNode> where TNode : INodeType<TNode>
     {
         private static Type type = typeof(T);
 

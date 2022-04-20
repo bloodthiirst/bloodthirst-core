@@ -1,7 +1,5 @@
-﻿using Sirenix.OdinInspector;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {
@@ -90,7 +88,7 @@ namespace Bloodthirst.Runtime.BNodeTree
             if (!Ports.Remove(port))
                 return;
 
-            OnPortRemoved?.Invoke(port) ;
+            OnPortRemoved?.Invoke(port);
             OnPortRemovedTyped?.Invoke(port as IPortType<T>);
         }
     }

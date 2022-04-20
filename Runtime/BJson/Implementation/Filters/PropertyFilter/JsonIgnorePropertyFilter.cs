@@ -1,7 +1,5 @@
 ﻿using Bloodthirst.BType;
-using Bloodthirst.Core.Utils;
 using System;
-using System.Collections.Generic;
 
 namespace Bloodthirst.BJson
 {
@@ -13,15 +11,15 @@ namespace Bloodthirst.BJson
             return true;
         }
 
-        BTypeData IBJsonPropertyFilter.FilteredProperties (BTypeData typeData)
+        BTypeData IBJsonPropertyFilter.FilteredProperties(BTypeData typeData)
         {
             BTypeData cpy = BTypeData.Copy(typeData);
 
-            for(int i = cpy.MemberDatas.Count - 1; i >= 0; i--)
+            for (int i = cpy.MemberDatas.Count - 1; i >= 0; i--)
             {
                 BMemberData curr = cpy.MemberDatas[i];
 
-                if(curr.DirectAttributes.ContainsKey(ignoreType))
+                if (curr.DirectAttributes.ContainsKey(ignoreType))
                 {
                     cpy.MemberDatas.RemoveAt(i);
                 }

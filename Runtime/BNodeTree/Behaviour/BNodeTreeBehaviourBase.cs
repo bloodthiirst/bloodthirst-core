@@ -9,7 +9,7 @@ namespace Bloodthirst.Runtime.BNodeTree
     /// <summary>
     /// Base class for all the typed treenode behaviours
     /// </summary>
-    public abstract class BNodeTreeBehaviourBase : MonoBehaviour , IBNodeTreeBehaviour
+    public abstract class BNodeTreeBehaviourBase : MonoBehaviour, IBNodeTreeBehaviour
     {
         /// <summary>
         /// the data asset of the treenode
@@ -49,7 +49,7 @@ namespace Bloodthirst.Runtime.BNodeTree
     /// Wrapper class that define a treenode behaviour with a specific node base class
     /// </summary>
     /// <typeparam name="TNodeType"></typeparam>
-    public abstract class BNodeTreeBehaviourBase<TNode> : BNodeTreeBehaviourBase where TNode : INodeType<TNode> , INodeType
+    public abstract class BNodeTreeBehaviourBase<TNode> : BNodeTreeBehaviourBase where TNode : INodeType<TNode>, INodeType
     {
 #if UNITY_EDITOR
         private const string TYPE_WARNING_MESSAGE = "The type of the node data needs to match the type of the tree behaviour";
@@ -62,10 +62,10 @@ namespace Bloodthirst.Runtime.BNodeTree
         public static Type Type => type;
 
         public List<TNode> Roots { get; private set; }
-        
+
         [SerializeField]
 #if UNITY_EDITOR
-        [InfoBox(TYPE_WARNING_MESSAGE  , nameof(ShowTypeWarning), InfoMessageType = InfoMessageType.Error)]
+        [InfoBox(TYPE_WARNING_MESSAGE, nameof(ShowTypeWarning), InfoMessageType = InfoMessageType.Error)]
 #endif
         private NodeTreeData treeData;
 
@@ -83,11 +83,11 @@ namespace Bloodthirst.Runtime.BNodeTree
         {
             get => activeNodeTyped;
             set
-            {      
+            {
                 if (EqualityComparer<TNode>.Default.Equals(activeNodeTyped, value))
                     return;
 
-                ActiveNode = (INodeType) value;
+                ActiveNode = (INodeType)value;
                 activeNodeTyped = value;
                 OnActiveNodeTypedChanged?.Invoke(activeNodeTyped);
             }
@@ -124,7 +124,7 @@ namespace Bloodthirst.Runtime.BNodeTree
         /// <returns></returns>
         public IEnumerable<TNode> RootNodesTyped()
         {
-            foreach(TNode n in Roots)
+            foreach (TNode n in Roots)
             {
                 yield return n;
             }

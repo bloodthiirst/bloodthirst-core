@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Bloodthirst.Core.UILayout
@@ -38,9 +35,9 @@ namespace Bloodthirst.Core.UILayout
             return sum;
         }
 
-        public static void DrawSingleLayout(ILayoutBox layoutBox , SceneView sv, UICanvasInfoBase canvasInfo)
+        public static void DrawSingleLayout(ILayoutBox layoutBox, SceneView sv, UICanvasInfoBase canvasInfo)
         {
-            DrawRect(layoutBox.Rect , sv, canvasInfo);
+            DrawRect(layoutBox.Rect, sv, canvasInfo);
         }
         public static void DrawRect(Rect rect, SceneView sv, UICanvasInfoBase canvasInfo)
         {
@@ -110,11 +107,11 @@ namespace Bloodthirst.Core.UILayout
             }
         }
 
-        public static void DrawLayoutOutlines(ILayoutBox layoutBox ,SceneView sv, UICanvasInfoBase canvasInfo)
+        public static void DrawLayoutOutlines(ILayoutBox layoutBox, SceneView sv, UICanvasInfoBase canvasInfo)
         {
             Color elemCol = Color.white;
 
-            DrawSingleLayout(layoutBox , sv , canvasInfo);
+            DrawSingleLayout(layoutBox, sv, canvasInfo);
 
             int fontSize = 12;
 
@@ -134,7 +131,7 @@ namespace Bloodthirst.Core.UILayout
 
             foreach (ILayoutBox c in layoutBox.ChildLayouts)
             {
-                DrawLayoutOutlines(c , sv, canvasInfo);
+                DrawLayoutOutlines(c, sv, canvasInfo);
             }
         }
 

@@ -1,12 +1,6 @@
-using Bloodthirst.Core.EnumLookup;
 using Bloodthirst.Core.Utils;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace Bloodthirst.BJson
 {
@@ -45,12 +39,22 @@ namespace Bloodthirst.BJson
             IntJsonConverter.Serialize_NonFormatted_Internal(index, jsonBuilder, context, settings);
         }
 
-
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
-            int enumIndex = (int)IntJsonConverter.Deserialize_Internal(instance, ref parseState, context, settings);
+            int enumIndex = (int)IntJsonConverter.Populate_Internal(instance, ref parseState, context, settings);
 
-            return enumValues[enumIndex];
+            object val = enumValues[enumIndex];
+
+            return Enum.ToObject(ConvertType, val);
+        }
+
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            int enumIndex = (int)IntJsonConverter.Deserialize_Internal(ref parseState, context, settings);
+
+            object val = enumValues[enumIndex];
+
+            return Enum.ToObject(ConvertType, val);
         }
 
     }

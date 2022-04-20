@@ -16,7 +16,7 @@ namespace Bloodthirst.Socket.Core
         SCAN_COMPONENTS
     }
 
-    public abstract class NetworkServerEntityBase<TServer, TIdentifier> : UnitySingleton<NetworkServerEntityBase<TServer, TIdentifier>>, ISocketServerInjector<TIdentifier>
+    public abstract class NetworkServerEntityBase<TServer, TIdentifier> : BSingleton<NetworkServerEntityBase<TServer, TIdentifier>>, ISocketServerInjector<TIdentifier>
         where TServer : ManagedSocketServer<TIdentifier>
         where TIdentifier : IComparable<TIdentifier>
     {

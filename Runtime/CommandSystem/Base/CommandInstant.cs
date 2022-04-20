@@ -15,7 +15,7 @@ namespace Bloodthirst.System.CommandSystem
     }
 
 
-    public abstract class CommandInstant<T> : ICommandBase , ICommandInstant where T : CommandInstant<T>
+    public abstract class CommandInstant<T> : ICommandBase, ICommandInstant where T : CommandInstant<T>
     {
 #if UNITY_EDITOR && ODIN_INSPECTOR
         [HideInEditorMode]
@@ -186,16 +186,16 @@ namespace Bloodthirst.System.CommandSystem
         #endregion
 
     }
-    public abstract class CommandInstant<T,TResult> : CommandInstant<T> , IResult<TResult> , ICommandInstant<TResult> where T : CommandInstant<T,TResult>
+    public abstract class CommandInstant<T, TResult> : CommandInstant<T>, IResult<TResult>, ICommandInstant<TResult> where T : CommandInstant<T, TResult>
     {
-        public bool IsReady => CommandState == COMMAND_STATE.SUCCESS; 
+        public bool IsReady => CommandState == COMMAND_STATE.SUCCESS;
         public TResult Result { get; protected set; }
         protected abstract TResult GetResult();
 
         TResult ICommandInstant<TResult>.GetResult()
         {
             return GetResult();
-        }    
+        }
 
         protected override void Execute()
         {

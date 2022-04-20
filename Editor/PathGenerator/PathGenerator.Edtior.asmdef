@@ -1,0 +1,16 @@
+{
+    "name": "PathGenerator.Edtior",
+    "rootNamespace": "",
+    "references": [
+        "GUID:502dddd442e283249b7d69ed814b8bfb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

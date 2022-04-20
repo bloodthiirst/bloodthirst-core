@@ -80,7 +80,7 @@ namespace Bloodthirst.System.CommandSystem
             }
 
             // todo : check if it's done in start before going to the tick
-            if(cmd.Command.IsDone)
+            if (cmd.Command.IsDone)
             {
                 return;
             }

@@ -1,5 +1,4 @@
-﻿using Bloodthirst.BJson;
-using Bloodthirst.Editor.BInspector;
+﻿using Bloodthirst.Runtime.BInspector;
 using System;
 using System.Collections.Generic;
 

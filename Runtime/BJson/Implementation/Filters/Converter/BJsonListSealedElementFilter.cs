@@ -8,11 +8,17 @@ namespace Bloodthirst.BJson
     {
         public bool CanConvert(Type t)
         {
-            Type[] args = t.GetGenericArguments();
+            if (!TypeUtils.IsSubTypeOf(t, typeof(IList)))
+                return false;
 
-            return TypeUtils.IsSubTypeOf(t, typeof(IList)) &&
-                    args.Length != 0 &&
-                    TypeUtils.IsPureValueType(args[0]);
+            Type[] allListArgs = t.GetGenericArguments();
+
+            if (allListArgs.Length == 0)
+                return false;
+
+            Type elemType = allListArgs[0];
+
+            return TypeUtils.IsPureValueType(elemType);
         }
 
         public IBJsonConverterInternal GetConverter_Internal(Type t)

@@ -1,11 +1,4 @@
-using Bloodthirst.Core.Utils;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using UnityEngine;
-using UnityEngine.Pool;
 
 namespace Bloodthirst.BJson
 {
@@ -20,13 +13,27 @@ namespace Bloodthirst.BJson
             return string.Empty;
         }
 
-        public override object Deserialize_Internal( object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
             string t = parseState.CurrentToken.ToString();
 
             parseState.CurrentTokenIndex++;
 
-            if (t == "null")
+            if (t == BJsonUtils.NULL_IDENTIFIER)
+            {
+                return null;
+            }
+
+            return t.Substring(1, t.Length - 2);
+        }
+
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            string t = parseState.CurrentToken.ToString();
+
+            parseState.CurrentTokenIndex++;
+
+            if (t == BJsonUtils.NULL_IDENTIFIER)
             {
                 return null;
             }
@@ -36,7 +43,7 @@ namespace Bloodthirst.BJson
 
         public override void Serialize_Formatted_Internal(object instance, StringBuilder jsonBuilder, BJsonContext context, BJsonSettings settings)
         {
-            if(instance == null)
+            if (instance == null)
             {
                 jsonBuilder.Append(BJsonUtils.NULL_IDENTIFIER);
                 return;

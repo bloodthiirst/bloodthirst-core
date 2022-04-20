@@ -5,7 +5,7 @@
 
 
     }
-    public class ClassTokenProcessor : FixedTermTokenProcessorBase<ClassToken , TokenBase>
+    public class ClassTokenProcessor : FixedTermTokenProcessorBase<ClassToken, TokenBase>
     {
         private const string FIXED_TERM = "class";
 

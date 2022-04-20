@@ -1,6 +1,4 @@
-﻿using Bloodthirst.System.CommandSystem;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.Core.Setup

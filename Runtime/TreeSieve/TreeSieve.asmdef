@@ -1,0 +1,17 @@
+{
+    "name": "TreeSieve",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a2cb5e05049083b488db9c2ceb41459d",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

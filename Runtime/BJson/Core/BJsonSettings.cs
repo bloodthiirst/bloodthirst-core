@@ -39,8 +39,8 @@ namespace Bloodthirst.BJson
                     converter.Provider = Provider;
                     converter.Initialize();
 
-                    Converters.Add(t , converter);
-                    
+                    Converters.Add(t, converter);
+
                     return true;
                 }
             }

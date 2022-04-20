@@ -1,0 +1,24 @@
+{
+    "name": "BAdapter",
+    "rootNamespace": "",
+    "references": [
+        "GUID:fd814e9e73b7a0141a10398a5b1bade8",
+        "GUID:5312972b1d3a8464c89ba3f6181dabeb",
+        "GUID:399acc38f79c20d4c87fec7d1a9c7f20",
+        "GUID:296e6568d430ab54bb90ea9ee589625c",
+        "GUID:3da459fe7e92dc7448c122ceb8b69e06",
+        "GUID:105b36e8dd7e5d34f9bef5d2a7e5087b",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:315fc73ff153fb24a8d896a4a2b90157",
+        "GUID:d983ac3ec07efcb439d43ca3e8c2aa3a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

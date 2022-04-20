@@ -1,11 +1,4 @@
-using Bloodthirst.Core.Utils;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using UnityEngine;
-using UnityEngine.Pool;
 
 namespace Bloodthirst.BJson
 {
@@ -21,7 +14,15 @@ namespace Bloodthirst.BJson
             return 0;
         }
 
-        public override object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        public override object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
+        {
+            Token<JSONTokenType> t = parseState.CurrentToken;
+            string str = t.ToString();
+            parseState.CurrentTokenIndex++;
+
+            return uint.Parse(str);
+        }
+        public override object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings)
         {
             Token<JSONTokenType> t = parseState.CurrentToken;
             string str = t.ToString();

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.BProvider;
 using NUnit.Framework;
 
 public class BProviderTestCases

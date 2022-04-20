@@ -4,11 +4,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using System.Linq;
 using System;
-using Bloodthirst.Core.ServiceProvider;
 
-#if UNITY_EDITOR
-using Bloodthirst.Core.AdvancedPool.Editor;
-#endif
 
 namespace Bloodthirst.Core.AdvancedPool.Pools
 {
@@ -86,7 +82,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
             return GetByType<T>().PoolWithType.Get<T>(filter);
         }
 
-        protected override void OnSetupSingletonPass()
+        public override void OnSetupSingleton()
         {
             // [LOAD_IN_LIST_START]
 

@@ -1,12 +1,10 @@
-﻿using Bloodthirst.Core.Consts;
-using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.Callbacks;
 #endif
 using UnityEngine;
 
@@ -20,17 +18,7 @@ namespace Bloodthirst.Core.PersistantAsset
         [MenuItem("Bloodthirst Tools/ScriptableObjectSingletons/Refresh")]
         public static void OpenFromMenu()
         {
-
-        }
-        
-        [DidReloadScripts(BloodthirstCoreConsts.SINGLETONS_CREATION_CHECK)]
-        public static void OnDidReloadScripts()
-        {
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                return;
-
             ReloadSingletons();
-
         }
 
         private static void ReloadSingletons()

@@ -1,12 +1,7 @@
 ﻿using Bloodthirst.Core.EnumLookup;
-using Bloodthirst.System.Quadrant;
 using System;
-using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bloodthirst.Core.Collections
 {
@@ -21,10 +16,10 @@ namespace Bloodthirst.Core.Collections
         internal List<TEntity> allEntities = new List<TEntity>();
 
         public Action<TEntity> OnEntityAdded;
-        public Action<TEntity,int> OnEntityAddedWithMask;
+        public Action<TEntity, int> OnEntityAddedWithMask;
 
         public Action<TEntity> OnEntityRemoved;
-        public Action<TEntity,int> OnEntityRemovedWithMask;
+        public Action<TEntity, int> OnEntityRemovedWithMask;
 
         public EnumSieve()
         {
@@ -36,7 +31,7 @@ namespace Bloodthirst.Core.Collections
             }
         }
 
-        public void SetCondition(TEnum flag , Predicate<TEntity> condition)
+        public void SetCondition(TEnum flag, Predicate<TEntity> condition)
         {
             enumToCondition[flag] = condition;
         }

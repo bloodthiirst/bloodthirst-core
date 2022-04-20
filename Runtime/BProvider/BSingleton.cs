@@ -1,17 +1,18 @@
 ﻿using System;
 
-namespace Bloodthirst.Core.ServiceProvider
+namespace Bloodthirst.Core.BProvider
 {
     public class BSingleton<T> where T : class
     {
         public event Action<T> OnSingletonChanged;
+
         private T val;
         internal T Value
         {
             get => val;
             set
             {
-                if(val != value)
+                if (val != value)
                 {
                     val = value;
                     OnSingletonChanged?.Invoke(val);
@@ -27,7 +28,7 @@ namespace Bloodthirst.Core.ServiceProvider
                 {
                     val = (T)value;
                     OnSingletonChanged?.Invoke(val);
-                }      
+                }
             }
         }
 

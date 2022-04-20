@@ -28,5 +28,5 @@ namespace Bloodthirst.System.CommandSystem
         ICommandBase GetExcutingCommand();
 
         void Interrupt();
-    }    
+    }
 }

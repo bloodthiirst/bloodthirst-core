@@ -17,7 +17,7 @@ namespace Bloodthirst.Core.SceneManager
 
         private float progress;
 
-        public float Progress 
+        public float Progress
         {
             get => progress;
             private set

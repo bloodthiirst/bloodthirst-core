@@ -1,0 +1,23 @@
+{
+    "name": "BISD.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a3dbf460a21998748b81fc4dc39d3590",
+        "GUID:105b36e8dd7e5d34f9bef5d2a7e5087b",
+        "GUID:296e6568d430ab54bb90ea9ee589625c",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:12e5c912b42f2454ab6e7e789904681c",
+        "GUID:478a2357cc57436488a56e564b08d223",
+        "GUID:42a335acf87877440a1b5159a0b947ad"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

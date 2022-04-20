@@ -176,7 +176,7 @@ namespace Bloodthirst.Core.BISDSystem
                 return;
             }
 
-            if(State == null)
+            if (State == null)
             {
                 STATE state = new STATE();
                 state.Data = TagData;

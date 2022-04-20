@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bloodthirst.BEventSystem
 {
@@ -24,7 +22,7 @@ namespace Bloodthirst.BEventSystem
                 .Where(t => TypeUtils.IsSubTypeOf(t, EventBaseType))
                 .ToList();
 
-            foreach(Type t in eventTypes)
+            foreach (Type t in eventTypes)
             {
                 EventSubsriptions.Add(t, new List<Delegate>());
             }
@@ -41,7 +39,7 @@ namespace Bloodthirst.BEventSystem
 
             List<Delegate> list = EventSubsriptions[eventType];
 
-            foreach(Delegate callback in list)
+            foreach (Delegate callback in list)
             {
                 callback.DynamicInvoke(eventArgs);
             }
@@ -77,7 +75,7 @@ namespace Bloodthirst.BEventSystem
 
         public void UnlistenAll()
         {
-            foreach(KeyValuePair<Type, List<Delegate>> kv in EventSubsriptions)
+            foreach (KeyValuePair<Type, List<Delegate>> kv in EventSubsriptions)
             {
                 kv.Value.Clear();
             }

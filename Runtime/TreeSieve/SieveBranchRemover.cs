@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 namespace Bloodthirst.Core.Collections
 {
@@ -50,9 +49,9 @@ namespace Bloodthirst.Core.Collections
             targetSieve.quadTree.Remove(keys);
 
             // remove from the flat dictionary
-            foreach(TEnum k in keys)
+            foreach (TEnum k in keys)
             {
-                targetSieve.flatDictionary.Remove(k);   
+                targetSieve.flatDictionary.Remove(k);
             }
         }
     }

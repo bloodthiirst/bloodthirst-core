@@ -5,7 +5,7 @@ using UnityEngine.Assertions;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public abstract class EntityInstance<DATA, STATE, INSTANCE> : IEntityInstance , ISavable
+    public abstract class EntityInstance<DATA, STATE, INSTANCE> : IEntityInstance, ISavable
         where DATA : EntityData
         where STATE : class, IEntityState<DATA>
         where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>
@@ -30,7 +30,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         void ISavable.ApplyState(ISavableState state)
         {
-            State = (STATE) state;
+            State = (STATE)state;
         }
         #endregion
 

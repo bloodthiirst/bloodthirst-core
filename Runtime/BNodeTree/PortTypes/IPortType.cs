@@ -1,7 +1,5 @@
 ﻿using Bloodthirst.BJson;
-using Bloodthirst.Editor.BInspector;
-using Bloodthirst.Runtime.BNodeTree;
-using Newtonsoft.Json;
+using Bloodthirst.Runtime.BInspector;
 using System;
 
 namespace Bloodthirst.Runtime.BNodeTree
@@ -19,7 +17,7 @@ namespace Bloodthirst.Runtime.BNodeTree
     public interface IPortType<TNode> where TNode : INodeType<TNode>
     {
         [BInspectorIgnore]
-        Type PortValueType { get;}
+        Type PortValueType { get; }
 
         [BInspectorIgnore]
         string PortName { get; set; }
@@ -46,7 +44,7 @@ namespace Bloodthirst.Runtime.BNodeTree
     public interface IPortType
     {
         [BInspectorIgnore]
-        Type PortValueType { get;  }
+        Type PortValueType { get; }
 
         [BInspectorIgnore]
         string PortName { get; set; }

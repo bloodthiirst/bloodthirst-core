@@ -1,4 +1,4 @@
-﻿using Bloodthirst.Core.ServiceProvider;
+﻿using Bloodthirst.Core.BProvider;
 using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;

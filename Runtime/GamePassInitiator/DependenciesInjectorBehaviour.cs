@@ -1,21 +1,20 @@
 ﻿using Bloodthirst.Core.Setup;
-using Bloodthirst.Core.SceneManager.DependencyInjector;
-using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Bloodthirst.Scripts.Core.Utils;
+using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.Utils;
+using Bloodthirst.Core.SceneManager.DependencyInjector;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace Bloodthirst.Core.GameInitPass
 {
-    public class DependenciesInjectorBehaviour : MonoBehaviour , IPreGameSetup , IPostGameSetup
+    public class DependenciesInjectorBehaviour : MonoBehaviour, IPreGameSetup, IPostGameSetup
     {
         [ReadOnly]
         [SerializeField]
@@ -29,15 +28,15 @@ namespace Bloodthirst.Core.GameInitPass
         [Button]
         private void FetchAllScriptableObjects()
         {
-            allScriptables = AssetDatabase.FindAssets($"t:{nameof(ScriptableObject)}" , searchInFolders)
-                .Select( g => AssetDatabase.GUIDToAssetPath(g))
+            allScriptables = AssetDatabase.FindAssets($"t:{nameof(ScriptableObject)}", searchInFolders)
+                .Select(g => AssetDatabase.GUIDToAssetPath(g))
                 .Select(p => AssetDatabase.LoadAssetAtPath<ScriptableObject>(p))
                 .ToList();
         }
 #endif
         int IPreGameSetup.Order => 0;
 
-        void IPreGameSetup.Execute() 
+        void IPreGameSetup.Execute()
         {
             ScriptableObjects();
         }
@@ -51,7 +50,7 @@ namespace Bloodthirst.Core.GameInitPass
 
         private void ScriptableObjects()
         {
-            BProvider scProvider = new BProvider();
+            BProvider.BProvider scProvider = new BProvider.BProvider();
 
             List<IScriptableObject> scInstances = allScriptables.OfType<IScriptableObject>().ToList();
             List<IScriptableObjectSingleton> scSingletons = allScriptables.OfType<IScriptableObjectSingleton>().ToList();
@@ -105,11 +104,11 @@ namespace Bloodthirst.Core.GameInitPass
             List<GameObject> allGOs = GameObjectUtils.GetAllRootGameObjects();
 
             // scene dependency for single scene stuff
-            List<ISceneDependencyInjector> sceneDependencyInjector = GameObjectUtils.GetAllComponents<ISceneDependencyInjector>(allGOs , false);
+            List<ISceneDependencyInjector> sceneDependencyInjector = GameObjectUtils.GetAllComponents<ISceneDependencyInjector>(allGOs, false);
 
             foreach (ISceneDependencyInjector inj in sceneDependencyInjector)
             {
-                BProvider injectionProvider = inj.GetProvider();
+                BProvider.BProvider injectionProvider = inj.GetProvider();
                 BProviderRuntime.Instance.MergeWith(injectionProvider);
             }
         }

@@ -1,0 +1,20 @@
+{
+    "name": "BNodeTree",
+    "rootNamespace": "",
+    "references": [
+        "GUID:471f59b4eb7e42b40acbb4c5122a3b60",
+        "GUID:0b078037fc2dde348a453eee6948f4b5",
+        "GUID:c5f2f490c16633b48a70fb10cc439499",
+        "GUID:21e9fa1573f98384ca51f162b5d39574",
+        "GUID:12e5c912b42f2454ab6e7e789904681c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

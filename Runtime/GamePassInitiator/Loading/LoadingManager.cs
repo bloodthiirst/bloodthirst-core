@@ -1,10 +1,7 @@
-﻿using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Core.Setup;
+﻿using Bloodthirst.Core.Setup;
 using Bloodthirst.System.CommandSystem;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -18,7 +15,7 @@ namespace Bloodthirst.Core.SceneManager
         FREE,
         LOADING
     }
-    public class LoadingManager : MonoBehaviour, IPreGameSetup, IPreGameEnd
+    public class LoadingManager : MonoBehaviour
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport
 #endif
@@ -40,6 +37,19 @@ namespace Bloodthirst.Core.SceneManager
 
         [SerializeField]
         private LOADDING_STATE state;
+
+        public void Initialize(CommandManagerBehaviour commandManager)
+        {
+            State = LOADDING_STATE.FREE;
+            Progress = 0;
+
+            runningCommands = new List<AsyncOperationsCommand>();
+
+            loadingQueue = commandManager.AppendBatch<CommandBatchQueue>(this, false);
+            loadingQueue.OnCommandAdded += HandleCommandAdded;
+            loadingQueue.OnCommandRemoved += HandleCommandRemoved;
+
+        }
 
         /// <summary>
         /// Progress value between 0 -> 1
@@ -66,22 +76,8 @@ namespace Bloodthirst.Core.SceneManager
 
         private List<AsyncOperationsCommand> runningCommands;
 
-        int IPreGameSetup.Order => 1;
-        void IPreGameSetup.Execute()
-        {
-            State = LOADDING_STATE.FREE;
-            Progress = 0;
-
-            runningCommands = new List<AsyncOperationsCommand>();
-
-            loadingQueue = BProviderRuntime.Instance.GetSingleton<CommandManagerBehaviour>().AppendBatch<CommandBatchQueue>(this, false);
-            loadingQueue.OnCommandAdded += HandleCommandAdded;
-            loadingQueue.OnCommandRemoved += HandleCommandRemoved;
-
-            BProviderRuntime.Instance.RegisterSingleton(this);
-        }
-
-        void IPreGameEnd.Execute()
+      
+        public void Interrupt()
         {
             loadingQueue.Interrupt();
             loadingQueue.OnCommandAdded -= HandleCommandAdded;
@@ -95,7 +91,7 @@ namespace Bloodthirst.Core.SceneManager
                 SetStateAndProgress(LOADDING_STATE.FREE, 0);
                 return;
             }
-            
+
             float progressSum = 0f;
             float totalOpsSum = 0f;
 
@@ -123,11 +119,11 @@ namespace Bloodthirst.Core.SceneManager
             SetStateAndProgress(LOADDING_STATE.FREE, 0);
         }
 
-        private void SetStateAndProgress(LOADDING_STATE state , float progress)
+        private void SetStateAndProgress(LOADDING_STATE state, float progress)
         {
             bool stateChanged = false;
             bool progressChanged = false;
-            if(state != State)
+            if (state != State)
             {
                 stateChanged = true;
                 State = state;
@@ -139,12 +135,12 @@ namespace Bloodthirst.Core.SceneManager
                 Progress = progress;
             }
 
-            if(stateChanged)
+            if (stateChanged)
             {
                 OnLoadingStatusChanged?.Invoke(this);
             }
 
-            if(progressChanged)
+            if (progressChanged)
             {
                 OnLoadingProgressChanged?.Invoke(this);
             }

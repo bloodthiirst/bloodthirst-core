@@ -11,9 +11,9 @@ namespace Bloodthirst.Core.BISDSystem
 
         public IEnumerable<ISavable> AllInstances()
         {
-            foreach(KeyValuePair<Type, List<ISavable>> kv in instancesPerType)
-            { 
-                foreach(ISavable v in kv.Value)
+            foreach (KeyValuePair<Type, List<ISavable>> kv in instancesPerType)
+            {
+                foreach (ISavable v in kv.Value)
                 {
                     yield return v;
                 }
@@ -23,8 +23,8 @@ namespace Bloodthirst.Core.BISDSystem
         public void AddInstance(ISavable instance)
         {
             Type t = instance.GetType();
-            
-            if(!instancesPerType.TryGetValue(t, out List<ISavable> inst))
+
+            if (!instancesPerType.TryGetValue(t, out List<ISavable> inst))
             {
                 inst = new List<ISavable>();
                 instancesPerType.Add(t, inst);
@@ -37,7 +37,7 @@ namespace Bloodthirst.Core.BISDSystem
         {
             Type t = typeof(T);
             instancesPerType.TryGetValue(t, out List<ISavable> inst);
-            return (T) inst.Cast<T>().FirstOrDefault(i => condition(i));
+            return (T)inst.Cast<T>().FirstOrDefault(i => condition(i));
         }
     }
 }

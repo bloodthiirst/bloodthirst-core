@@ -1,11 +1,11 @@
-﻿using Bloodthirst.Scripts.Utils;
-using Bloodthirst.Runtime.BNodeTree;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Bloodthirst.Editor.BNodeTree;
+using Bloodthirst.Scripts.Utils;
+using Bloodthirst;
 
 public class UILinelement : VisualElement
 {
@@ -103,7 +103,7 @@ public class UILinelement : VisualElement
         List<UIVertex> curve = VectorUtils.LineToCurve
             (
             points,
-            VectorUtils.UV_SMOOTHING.LERP,
+           UVSmoothingType.LERP,
             ref lineLenght,
              uvSmoothLerp: 0.5f,
              cornerSmoothing: 1,

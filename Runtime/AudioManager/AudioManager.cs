@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.Audio
 {
-    public class AudioManager : UnitySingleton<AudioManager>
+    public class AudioManager : BSingleton<AudioManager>
     {
         [SerializeField]
         private bool isPreload = default;

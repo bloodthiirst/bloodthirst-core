@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloodthirst.Core.Utils;
+using System;
 
 namespace Bloodthirst.BJson
 {
@@ -6,7 +7,7 @@ namespace Bloodthirst.BJson
     {
         public bool CanConvert(Type t)
         {
-            return t == typeof(Type);
+            return TypeUtils.IsSubTypeOf(t, typeof(Type));
         }
 
         public IBJsonConverterInternal GetConverter_Internal(Type t)

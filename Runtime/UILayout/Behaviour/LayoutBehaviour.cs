@@ -1,13 +1,11 @@
-using Bloodthirst.Core.UILayout;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Text;
-using UnityEditor;
 using UnityEngine;
 
 namespace Bloodthirst.Core.UILayout
 {
-    public class LayoutBehaviour : MonoBehaviour , ILayoutBox
+    public class LayoutBehaviour : MonoBehaviour, ILayoutBox
     {
         [SerializeField]
         protected LayoutStyle layoutStyle = new LayoutStyle();

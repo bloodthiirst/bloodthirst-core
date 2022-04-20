@@ -1,0 +1,21 @@
+{
+    "name": "SceneCreator.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:fc39af5560e2f0d45a684977ceb06a77",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:fd814e9e73b7a0141a10398a5b1bade8",
+        "GUID:12e5c912b42f2454ab6e7e789904681c",
+        "GUID:315fc73ff153fb24a8d896a4a2b90157",
+        "GUID:1478484f9b40b6d45a287fbbd767ac8a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

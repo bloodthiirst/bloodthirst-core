@@ -1,6 +1,6 @@
 ﻿namespace Bloodthirst.Core.Tokenizer
 {
-    public abstract class TokenProcessorBase<TToken , TBase> : TokenProcessorBase<TBase> where TToken : TBase where TBase : IToken
+    public abstract class TokenProcessorBase<TToken, TBase> : TokenProcessorBase<TBase> where TToken : TBase where TBase : IToken
     {
         public override TBase GetBaseToken(string text, int currentIndex, out int indexOffset)
         {

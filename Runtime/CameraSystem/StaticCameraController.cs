@@ -1,11 +1,10 @@
-﻿using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
+﻿using Bloodthirst.Core.BProvider;
 using Bloodthirst.Scripts.Core.Utils;
 using Bloodthirst.Systems.CameraSystem;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class StaticCameraController : CameraControllerBase<StaticCameraController>, IQuerySingletonPass
+public class StaticCameraController : CameraControllerBase<StaticCameraController>
 {
     [BoxGroup("Horizontal Rotation")]
     [SerializeField]
@@ -35,7 +34,7 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
 
     private MouseUtils _mouseUtils;
 
-    void IQuerySingletonPass.Execute()
+    public override void OnSetupSingleton()
     {
         _mouseUtils = BProviderRuntime.Instance.GetSingleton<MouseUtils>();
     }
@@ -77,6 +76,6 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
 
     public override void OnCameraControllerSelected(bool isImmidiate)
     {
-        
+
     }
 }

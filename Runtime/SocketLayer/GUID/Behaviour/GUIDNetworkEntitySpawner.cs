@@ -1,5 +1,5 @@
 ﻿using Bloodthirst.Core.SceneManager;
-using Bloodthirst.Core.ServiceProvider;
+using Bloodthirst.Core.BProvider;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
 using Bloodthirst.Scripts.SocketLayer.Commands;
@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Socket.BehaviourComponent
 {
-    public class GUIDNetworkEntitySpawner : NetworkEntitySpawnerBase<Guid> , IAwakePass
+    public class GUIDNetworkEntitySpawner : NetworkEntitySpawnerBase<Guid>, IAwakePass
     {
         private static bool IsServer => SocketConfig.Instance.IsServer;
 

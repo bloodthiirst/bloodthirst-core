@@ -48,7 +48,7 @@ namespace Bloodthirst.BJson
 
             object instance = CreateInstance_Internal();
 
-            return Deserialize_Internal(instance, ref state, context, settings);
+            return Deserialize_Internal(ref state, context, settings);
         }
 
         public object Populate(object instance, string json, BJsonContext context, BJsonSettings settings)
@@ -57,10 +57,11 @@ namespace Bloodthirst.BJson
             ParserState<JSONTokenType> state = new ParserState<JSONTokenType>(tokens);
             ParserUtils.RemoveSpaces(ref state);
 
-            return Deserialize_Internal(instance, ref state, context, settings);
+            return Populate_Internal(instance, ref state, context, settings);
         }
 
-        public abstract object Deserialize_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings);
+        public abstract object Deserialize_Internal(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings);
+        public abstract object Populate_Internal(object instance, ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings);
         #endregion
     }
 }

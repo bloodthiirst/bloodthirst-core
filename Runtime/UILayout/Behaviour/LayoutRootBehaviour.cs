@@ -1,8 +1,6 @@
 using Bloodthirst.Core.UILayout;
 using Sirenix.OdinInspector;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -119,7 +117,7 @@ public class LayoutRootBehaviour : LayoutBehaviour
         }
 
         Handles.color = Color.red;
-        foreach(ILayoutBox l in layouts)
+        foreach (ILayoutBox l in layouts)
         {
             LayoutBoxUtils.DrawSingleLayout(l, sv, canvasInfo);
         }
@@ -133,9 +131,9 @@ public class LayoutRootBehaviour : LayoutBehaviour
             layouts.Add(layoutBox);
         }
 
-        foreach(ILayoutBox c in layoutBox.ChildLayouts)
+        foreach (ILayoutBox c in layoutBox.ChildLayouts)
         {
-            RecursiveFindRectThatContainPoint(c, canvasPos , layouts);
+            RecursiveFindRectThatContainPoint(c, canvasPos, layouts);
         }
     }
 

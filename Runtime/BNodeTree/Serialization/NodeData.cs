@@ -1,7 +1,4 @@
-﻿using Bloodthirst.Runtime.BNodeTree;
-using Newtonsoft.Json;
-using Sirenix.OdinInspector;
-using System;
+﻿using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Bloodthirst.Runtime.BNodeTree
@@ -10,16 +7,13 @@ namespace Bloodthirst.Runtime.BNodeTree
     {
         [Title("Canvas UI info")]
         [SerializeField]
-        [JsonIgnore]
         private Vector2 size;
 
-        [JsonIgnore]
         [SerializeField]
         private Vector2 position;
 
         [Title("Node Data")]
         [ShowInInspector]
-        [JsonIgnore]
         private INodeType nodeType;
 
         public Vector2 Size
@@ -55,25 +49,21 @@ namespace Bloodthirst.Runtime.BNodeTree
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private int fromNodeIndex;
 
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private int fromPortIndex;
 
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private PORT_DIRECTION fromPortDirection;
 
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private PORT_TYPE fromPortType;
 
         #endregion
@@ -83,38 +73,33 @@ namespace Bloodthirst.Runtime.BNodeTree
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private int toNodeIndex;
 
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private int toPortIndex;
 
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private PORT_DIRECTION toPortDirection;
 
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
         [SerializeField]
-        [JsonIgnore]
         private PORT_TYPE toPortType;
 
         #endregion
 
         [Title("Link Data")]
         [SerializeField]
-        [JsonIgnore]
         private ILinkType linkType;
 
         #region accessors
 
-        private ILinkType LinkType 
-        { 
+        private ILinkType LinkType
+        {
             get => linkType;
             set => linkType = value;
         }
@@ -143,17 +128,17 @@ namespace Bloodthirst.Runtime.BNodeTree
             set => toPortIndex = value;
         }
         public PORT_DIRECTION FromPortDirection
-        { 
+        {
             get => fromPortDirection;
             set => fromPortDirection = value;
         }
-        
+
         public PORT_TYPE FromPortType
-        { 
+        {
             get => fromPortType;
             set => fromPortType = value;
         }
-        
+
         public PORT_DIRECTION ToPortDirection
         {
             get => toPortDirection;
@@ -161,7 +146,7 @@ namespace Bloodthirst.Runtime.BNodeTree
         }
 
         public PORT_TYPE ToPortType
-        { 
+        {
             get => toPortType;
             set => toPortType = value;
         }

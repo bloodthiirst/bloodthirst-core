@@ -22,7 +22,7 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="owner"></param>
         /// <param name="removeWhenDone"></param>
         /// <returns></returns>
-        public T AppendBatch<T>(object owner, bool removeWhenDone = false , int updateOrder = 0) where T : ICommandBatch , new()
+        public T AppendBatch<T>(object owner, bool removeWhenDone = false, int updateOrder = 0) where T : ICommandBatch, new()
         {
             T batch = new T();
             batch.RemoveWhenDone = removeWhenDone;
@@ -31,7 +31,7 @@ namespace Bloodthirst.System.CommandSystem
 
             int layersDiff = updateOrder - (commandBatches.Count - 1);
 
-            for(int i = 0; i < layersDiff; i++)
+            for (int i = 0; i < layersDiff; i++)
             {
                 commandBatches.Add(new List<ICommandBatch>());
             }

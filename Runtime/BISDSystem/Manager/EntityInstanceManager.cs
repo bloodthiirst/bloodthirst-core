@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Core.ServiceProvider;
-using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.BProvider;
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
@@ -12,19 +11,19 @@ namespace Bloodthirst.Core.BISDSystem
         IEntityInstanceProviderBehaviour, IEntityInstanceProvider
     {
         [ShowInInspector]
-        private BProvider instanceProvider;
+        private BProvider.BProvider instanceProvider;
 
         public event Action<object> OnRegistered;
 
         public event Action<object> OnUnregistered;
 
-        private BProvider Provider
+        private BProvider.BProvider Provider
         {
             get
             {
                 if (instanceProvider == null)
                 {
-                    instanceProvider = new BProvider();
+                    instanceProvider = new BProvider.BProvider();
                 }
                 return instanceProvider;
             }

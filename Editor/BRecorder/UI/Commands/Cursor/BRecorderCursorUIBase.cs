@@ -1,6 +1,4 @@
-﻿using Bloodthirst.Editor.BInspector;
-using Bloodthirst.Runtime.BRecorder;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BRecorder

@@ -1,13 +1,4 @@
-﻿using Bloodthirst.BDeepCopy;
-using Bloodthirst.Core.Utils;
-using Bloodthirst.JsonUnityObject;
-using Newtonsoft.Json;
-using Sirenix.OdinInspector;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {

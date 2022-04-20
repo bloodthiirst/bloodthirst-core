@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bloodthirst.Core.EnumLookup
 {
@@ -15,7 +12,7 @@ namespace Bloodthirst.Core.EnumLookup
         {
             elements = new List<TElement>(EnumUtils<TEnum>.EnumCount);
 
-            for(int i = 0; i < EnumUtils<TEnum>.EnumCount; i++)
+            for (int i = 0; i < EnumUtils<TEnum>.EnumCount; i++)
             {
                 elements[i] = default;
             }

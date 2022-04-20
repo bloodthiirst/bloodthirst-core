@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Editor.BInspector;
-using Newtonsoft.Json;
+﻿using Bloodthirst.Runtime.BInspector;
 using System;
 
 namespace Bloodthirst.Runtime.BNodeTree
@@ -38,8 +37,8 @@ namespace Bloodthirst.Runtime.BNodeTree
         TNode IPortType<TNode>.ParentNode { get => ParentNode; set => ParentNode = value; }
 
         [BInspectorIgnore]
-        ILinkType<TNode> IPortType<TNode>.LinkAttached 
-        { 
+        ILinkType<TNode> IPortType<TNode>.LinkAttached
+        {
             get => LinkAttached;
             set => LinkAttached = value;
         }
@@ -65,7 +64,7 @@ namespace Bloodthirst.Runtime.BNodeTree
 
         [BInspectorIgnore]
         ILinkType IPortType.LinkAttached
-        { 
+        {
             get => LinkAttached;
             set => LinkAttached = (ILinkType<TNode>)value;
         }

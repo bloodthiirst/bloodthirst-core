@@ -78,6 +78,7 @@ namespace Bloodthirst.Core.UI
             // Grab a free Sequence to use
             Sequence mySequence = DOTween.Sequence();
 
+
             mySequence
                 .AppendCallback(() => IsAnimating = true)
                 .Append(rectTransform.DOSizeDelta(deltaSize, speed))

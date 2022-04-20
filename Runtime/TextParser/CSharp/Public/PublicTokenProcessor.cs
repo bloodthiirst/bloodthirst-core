@@ -5,7 +5,7 @@
 
     }
 
-    public class PublicTokenProcessor : FixedTermTokenProcessorBase<PublicToken , TokenBase>
+    public class PublicTokenProcessor : FixedTermTokenProcessorBase<PublicToken, TokenBase>
     {
         private const string FIXED_TERM = "public";
 

@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bloodthirst.Core.ServiceProvider
+namespace Bloodthirst.Core.BProvider
 {
     public class BProvider
     {
+        private Dictionary<Type , InjectionInfo> TypeToInjection { get; set; }
+
         /// <summary>
         /// Dictionary cache containing info about the types
         /// </summary>
@@ -60,7 +62,7 @@ namespace Bloodthirst.Core.ServiceProvider
                 info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            return (TSingletonType) info.SingletonLeaf.Value;
+            return (TSingletonType)info.SingletonLeaf.Value;
         }
 
         public IEnumerable<TSingletonType> GetSingletons<TSingletonType>() where TSingletonType : class
@@ -110,7 +112,7 @@ namespace Bloodthirst.Core.ServiceProvider
             return true;
         }
 
-        public bool RegisterSingleton(Type t , object instance)
+        public bool RegisterSingleton(Type t, object instance)
         {
             TypeInfo info = GetOrCreateInfo(t);
 
@@ -154,7 +156,7 @@ namespace Bloodthirst.Core.ServiceProvider
             }
 
             // check if it's the same instance of not
-            return info.SingletonLeaf.Value == (ISingletonType) instance;
+            return info.SingletonLeaf.Value == (ISingletonType)instance;
         }
 
         /// <summary>
@@ -166,6 +168,23 @@ namespace Bloodthirst.Core.ServiceProvider
         public bool RegisterSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
             return RegisterSingleton<TInstanceType, TInstanceType>(instance);
+        }
+
+        public void RemoveSingleton(Type t , object instance)
+        {
+            TypeInfo info = GetOrCreateInfo(t);
+
+            if (info.SingletonLeaf == null)
+            {
+                info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
+            }
+
+            if (info.SingletonLeaf.Value == null)
+            {
+                return;
+            }
+
+            info.SingletonLeaf.Value = null;
         }
 
         public void RemoveSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
@@ -263,7 +282,7 @@ namespace Bloodthirst.Core.ServiceProvider
             info.InstanceLeaf.Value.Add(instance);
         }
 
-        public void RegisterInstance(Type t , object instance)
+        public void RegisterInstance(Type t, object instance)
         {
             TypeInfo info = GetOrCreateInfo(t);
 
@@ -366,7 +385,7 @@ namespace Bloodthirst.Core.ServiceProvider
 
         public BProvider MergeWith(BProvider mergeWith)
         {
-            foreach(KeyValuePair<Type, TypeInfo> kv in mergeWith.TypeToInfoHash)
+            foreach (KeyValuePair<Type, TypeInfo> kv in mergeWith.TypeToInfoHash)
             {
                 if (TypeToInfoHash.ContainsKey(kv.Key))
                     continue;
@@ -420,6 +439,11 @@ namespace Bloodthirst.Core.ServiceProvider
                     firstThis = firstThis.Parent;
                 }
             }
+        }
+
+        public void Inject(object instance)
+        {
+
         }
 
         private void CopyTreeSingle(TreeList<Type, object> src, TreeList<Type, object> dest)
