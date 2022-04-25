@@ -9,6 +9,8 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(SceneStartup))]
+    [RequireComponent(typeof(SceneStartup))]
     public class SceneStartupAdapter : MonoBehaviour, IPreGameSetup, IGameSetup, IPostGameSetup
     {
         int IPreGameSetup.Order => 0;

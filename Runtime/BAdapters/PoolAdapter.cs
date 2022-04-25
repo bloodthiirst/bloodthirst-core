@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(IPoolBehaviour))]
+    [RequireComponent(typeof(IPoolBehaviour))]
     public class PoolAdapter : MonoBehaviour, IBeforeAllScenesInitializationPass
     {
         void IBeforeAllScenesInitializationPass.Execute()

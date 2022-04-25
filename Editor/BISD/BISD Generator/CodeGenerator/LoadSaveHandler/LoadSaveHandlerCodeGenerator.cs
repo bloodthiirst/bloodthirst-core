@@ -31,16 +31,16 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         /// <summary>
         /// path to templete to for GetSave method
         /// </summary>
-        private const string GET_SAVE_FIELD_MANY_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetSave.GameDataProperty.Many.cs.txt";
-        private const string GET_SAVE_FIELD_SINGLE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetSave.GameDataProperty.Single.cs.txt";
-        private const string GET_SAVE_FIELD_VALUE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetSave.GameDataProperty.Value.cs.txt";
+        private const string GET_SAVE_FIELD_MANY_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetSave.GameDataProperty.Many.cs.txt";
+        private const string GET_SAVE_FIELD_SINGLE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetSave.GameDataProperty.Single.cs.txt";
+        private const string GET_SAVE_FIELD_VALUE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetSave.GameDataProperty.Value.cs.txt";
         
         /// <summary>
         /// path to templete to for GetSave method
         /// </summary>
-        private const string GET_STATE_FIELD_MANY_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetState.GameDataProperty.Many.cs.txt";
-        private const string GET_STATE_FIELD_SINGLE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetState.GameDataProperty.Single.cs.txt";
-        private const string GET_STATE_FIELD_VALUE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetState.GameDataProperty.Value.cs.txt";
+        private const string GET_STATE_FIELD_MANY_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetState.GameDataProperty.Many.cs.txt";
+        private const string GET_STATE_FIELD_SINGLE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetState.GameDataProperty.Single.cs.txt";
+        private const string GET_STATE_FIELD_VALUE_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/CodeGenerator/LoadSaveHandler/Template.GetState.GameDataProperty.Value.cs.txt";
 
         private const string STATE_FIELD_NAME = "[STATE_FIELD_NAME]";
         private const string SAVE_FIELD_NAME = "[SAVE_FIELD_NAME]";

@@ -7,25 +7,39 @@ using System;
 
 
 namespace Bloodthirst.Core.AdvancedPool.Pools
-{
-    /// <summary>
+{    /// <summary>
     /// <para> This class is an auto-generated pools of the prefabs marked with the <see cref="GeneratePool"></see></para>
     /// <para> The pools are created in the "PoolScene" , a scene that is specifically made to contain thses auto-generated pools</para>
     /// <para> The pool generation is done by the <see cref="PoolGenerator"> class</see></para>
     /// </summary>
-    public class GlobalPoolContainer : UnitySingleton<GlobalPoolContainer, IGlobalPool>, IGlobalPool
+    public class GlobalPoolContainer : BSingleton<GlobalPoolContainer, IGlobalPool>, IGlobalPool
     {
         #region fields for the auto-generated pools
 
         // [START_POOLS]
 
-        // [END_POOLS]
+		/// <summary>
+		/// <para> this field is auto-generated , returns a pool for the prefab named : <c>PoolablePrefab</c></para>
+		/// </summary>
+		public PoolableTestPool PoolableTestPoolForPoolableprefab;
+
+		/// <summary>
+		/// <para> this field is auto-generated , returns a pool for the prefab named : <c>PoolablePrefab 1</c></para>
+		/// </summary>
+		public PoolableTestPool PoolableTestPoolForPoolableprefab1;
+
+		/// <summary>
+		/// <para> this field is auto-generated , returns a pool for the prefab named : <c>PR_Player</c></para>
+		/// </summary>
+		public EntityIdentifierPool EntityIdentifierPoolForPR_Player;
+
+		// [END_POOLS]
 
         #endregion
-
-        [ShowInInspector]
+        
         private List<IPoolBehaviour> allPools;
 
+        [ShowInInspector]
         public List<IPoolBehaviour> AllPools 
         {
             get
@@ -43,7 +57,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
         {
             IPoolBehaviour pool = AllPools.Where(p => p.Type == typeof(T)).FirstOrDefault(p => p.Prefab == prefab);
 
-            return (PoolBehaviour<T>) pool;
+            return (IPoolBehaviour<T>) pool;
         }
 
         public IPoolBehaviour GetByPrefab(GameObject prefab)
@@ -55,7 +69,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
 
         public IPoolBehaviour<T> GetByType<T>() where T : Component
         {
-            PoolBehaviour<T> pool = AllPools.FirstOrDefault(p => p.Type == typeof(T)) as PoolBehaviour<T>;
+            IPoolBehaviour<T> pool = AllPools.FirstOrDefault(p => p.Type == typeof(T)) as IPoolBehaviour<T>;
 
             return pool;
         }

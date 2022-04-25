@@ -15,6 +15,7 @@ namespace Bloodthirst.Core.SceneManager
         FREE,
         LOADING
     }
+
     public class LoadingManager : MonoBehaviour
 #if UNITY_EDITOR
         , IPreprocessBuildWithReport

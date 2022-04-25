@@ -6,14 +6,16 @@ using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(IEntitySpawner))]
+    [RequireComponent(typeof(IEntitySpawner))]
     public class EntitySpawnerAdapter : MonoBehaviour , IQuerySingletonPass
     {
         void IQuerySingletonPass.Execute()
         {
             IEntitySpawner spawner = GetComponent<IEntitySpawner>();
 
-            // globalpoolcontainer is in the project asembly and not the package , so create a pool container interface
-            spawner.GenericUnityPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>();
+            IGlobalPool globalPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>();
+            spawner.GenericUnityPool = globalPool;
         }
     }
 }

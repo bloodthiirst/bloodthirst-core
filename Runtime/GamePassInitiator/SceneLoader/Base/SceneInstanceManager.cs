@@ -247,8 +247,6 @@ namespace Bloodthirst.Core.SceneManager
             OnSceneStateChanged?.Invoke((T)this);
         }
 
-
-
         [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
         [HorizontalGroup("ShowHide/H")]
         [Button(ButtonSizes.Large)]
@@ -318,7 +316,6 @@ namespace Bloodthirst.Core.SceneManager
 
             OnSceneVisibilityChanged?.Invoke((T)this);
         }
-
 
         [TitleGroup("Unload the scene", GroupID = "Unload")]
         [HorizontalGroup("Unload/H")]

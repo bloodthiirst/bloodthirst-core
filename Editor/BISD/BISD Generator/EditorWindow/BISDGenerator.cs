@@ -20,9 +20,9 @@ namespace Bloodthirst.Core.BISD.Editor
 {
     public class BISDGenerator : EditorWindow
     {
-        private const string UXML_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/EditorWindow/BISDGenerator.uxml";
+        private const string UXML_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/EditorWindow/BISDGenerator.uxml";
 
-        private const string USS_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/EditorWindow/BISDGenerator.uss";
+        private const string USS_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/EditorWindow/BISDGenerator.uss";
 
         [MenuItem("Bloodthirst Tools/BISD Pattern/BISD Generator")]
         public static void ShowWindow()

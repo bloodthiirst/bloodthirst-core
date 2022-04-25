@@ -9,7 +9,7 @@ namespace Bloodthirst.Core.BISD.Editor
 {
     public class CodeGenerationOptionUI
     {
-        private const string UXML_INFO_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/EditorWindow/CodeGenerationOptionUI.uxml";
+        private const string UXML_INFO_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/EditorWindow/CodeGenerationOptionUI.uxml";
         private const string IS_UP_TO_DATE = "is-up-to-date";
         private const string IS_DIRTY = "is-dirty";
         public VisualElement VisualElement { get; private set; }

@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(ICameraController))]
+    [RequireComponent(typeof(ICameraController))]
     public class CameraControllerAdapter : MonoBehaviour, IQuerySingletonPass
     {
         void IQuerySingletonPass.Execute()

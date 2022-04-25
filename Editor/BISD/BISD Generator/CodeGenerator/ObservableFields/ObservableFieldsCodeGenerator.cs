@@ -18,7 +18,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         /// <summary>
         /// Path to the template text file
         /// </summary>
-        private const string STATE_PROPERTY_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/CodeGenerator/ObservableFields/Template.StateProperty.cs.txt";
+        private const string STATE_PROPERTY_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/CodeGenerator/ObservableFields/Template.StateProperty.cs.txt";
 
         /// <summary>
         /// The start of the part of the script to inject the auto-generated observables

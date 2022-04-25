@@ -116,7 +116,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 return false;
             }
 
-            if (!HasPrefabPools())
+            if (!HasAllPrefabPoolScripts())
             {
                 return false;
             }
@@ -199,9 +199,9 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             // create folder for the pool scripts
             EditorUtils.CreateFoldersFromPath(POOL_SCRIPTS_PATH);
 
-            if (!HasPrefabPools())
+            if (!HasAllPrefabPoolScripts())
             {
-                CreatePrefabPools();
+                CreateAllPrefabPoolScripts();
                 isReadyToLinkReferences = false;
             }
 
@@ -262,11 +262,15 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             return manager != null;
         }
 
-        private static bool HasPrefabPools()
+        private static bool HasAllPrefabPoolScripts()
         {
-            List<MonoScript> scripts = EditorUtils.FindScriptAssets().Where(p => p != null).Where(p => p.GetClass() != null ).ToList();
+            // get all the scripts in the project
+            List<MonoScript> scripts = EditorUtils.FindScriptAssets()
+                .Where(p => p != null)
+                .Where(p => p.GetClass() != null )
+                .ToList();
 
-            // generate the scripts
+            // look to see if there's a poolable type that doesnt't have it's pool script generated yet
             for (int i = 0; i < PoolableTypes.Count; i++)
             {
                 Type t = PoolableTypes[i];
@@ -282,7 +286,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             return true;
         }
 
-        private static void CreatePrefabPools()
+        private static void CreateAllPrefabPoolScripts()
         {
             List<MonoScript> scripts = EditorUtils.FindScriptAssets()
                 .Where(s => s != null)
@@ -299,7 +303,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                     continue;
 
                 string relativePath = $"{POOL_SCRIPTS_PATH}/{$"{t.Name}Pool.cs"}";
-                string pathToProject = EditorUtils.PathToProject;
+                string absolutePath = EditorUtils.RelativeToAbsolutePath(relativePath);
 
                 TextAsset poolTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(POOL_TEMPLATE);
                 string scriptText = poolTemplate
@@ -307,7 +311,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                                 .Replace(CLASS_NAME_REPLACE_KEYWORD, t.Name)
                                 .Replace(CLASS_NAMESPACE_REPLACE_KEYWORD, t.Namespace == null ? string.Empty : $"using {t.Namespace};");
 
-                File.WriteAllText(pathToProject + "/" + relativePath, scriptText);
+                File.WriteAllText(absolutePath, scriptText);
 
                 AssetDatabase.ImportAsset(relativePath);
             }
@@ -338,26 +342,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         /// <returns></returns>
         private static bool HasPoolScene()
         {
-            /*
-            string res = null;
-
-            for (int i = 0; i < EditorBuildSettings.scenes.Length; i++)
-            {
-                res = EditorBuildSettings.scenes[i].path;
-
-                string sceneName = res.Remove(res.Length - 6).Split('/').Last();
-
-                if (sceneName.Equals("PoolScene"))
-                {
-                    poolScenePath = res;
-                    return true;
-                }
-            }
-
-            poolScenePath = null;
-            return false;
-            */
-            return AssetDatabase.IsValidFolder(POOL_SCENE_FOLDER_PATH);
+            return AssetDatabase.LoadAssetAtPath<SceneAsset>($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity");
         }
 
         /// <summary>
@@ -417,8 +402,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             {
                 FieldInfo field = poolFields[i];
 
-                // todo : IPoolBehaviour correctPool = poolsInScene.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.Prefab.gameObject.name.RemoveWhitespace())));
-                IPoolBehaviour correctPool = poolsInScene.FirstOrDefault();
+               IPoolBehaviour correctPool = poolsInScene.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.Prefab.gameObject.name.RemoveWhitespace())));
 
                 if (correctPool == null)
                 {
@@ -439,7 +423,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             List<IPoolBehaviour> poolsInScene = new List<IPoolBehaviour>();
 
-            // TODO : generate a pool for each prefab and all it to the "Pools" scene
+            // generate a pool for each prefab and add all of of the pools to the "Pools" scene
             foreach (Component poolablePrefab in PoolablePrefabs)
             {
                 IPoolBehaviour pool = allPools.FirstOrDefault(p => p.Prefab == poolablePrefab.gameObject);

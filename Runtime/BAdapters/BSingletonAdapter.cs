@@ -5,21 +5,25 @@ using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(IBSingleton))]
+    [RequireComponent(typeof(IBSingleton))]
     public class BSingletonAdapter : MonoBehaviour, ISetupSingletonPass
     {
         void ISetupSingletonPass.Execute()
         {
-            // todo : make this attached to spawned singletons
-            IBSingleton singleton = GetComponent<IBSingleton>();
+            IBSingleton[] allSingletons = GetComponents<IBSingleton>();
 
-            BProviderRuntime.Instance.RegisterSingleton(singleton.Concrete , singleton);
-
-            if (singleton.Concrete != singleton.Interface)
+            foreach (IBSingleton singleton in allSingletons)
             {
-                BProviderRuntime.Instance.RegisterSingleton(singleton.Interface, singleton);
-            }
+                BProviderRuntime.Instance.RegisterSingleton(singleton.Concrete, singleton);
 
-            singleton.OnSetupSingleton();
+                if (singleton.Concrete != singleton.Interface)
+                {
+                    BProviderRuntime.Instance.RegisterSingleton(singleton.Interface, singleton);
+                }
+
+                singleton.OnSetupSingleton();
+            }
         }
     }
 }

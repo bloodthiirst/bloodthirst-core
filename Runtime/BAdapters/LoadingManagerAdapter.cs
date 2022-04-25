@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(LoadingManager))]
+    [RequireComponent(typeof(LoadingManager))]
     public class LoadingManagerAdapter : MonoBehaviour, IPreGameSetup , IPreGameEnd
     {
         int IPreGameSetup.Order => 1;

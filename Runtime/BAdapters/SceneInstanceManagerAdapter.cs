@@ -6,6 +6,8 @@ using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(ISceneInstanceManager))]
+    [RequireComponent(typeof(ISceneInstanceManager))]
     public class SceneInstanceManagerAdapter : MonoBehaviour, ISceneInitializationPass, IPostSceneInitializationPass, IBeforeSceneUnload
     {
         void ISceneInitializationPass.Execute()
@@ -20,7 +22,9 @@ namespace Bloodthirst.Runtime.BAdapter
 
         void IPostSceneInitializationPass.Execute()
         {
-            throw new global::System.NotImplementedException();
+            ISceneInstanceManager sceneManager = GetComponent<ISceneInstanceManager>();
+
+            sceneManager.OnPostInitialization();
         }
 
         void IBeforeSceneUnload.Execute()

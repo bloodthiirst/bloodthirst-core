@@ -15,7 +15,7 @@ namespace Bloodthirst.Core.BISD.Editor
 {
     public class BISDInfoUI
     {
-        private const string UXML_INFO_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/EditorWindow/BISDInfoUI.uxml";
+        private const string UXML_INFO_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/EditorWindow/BISDInfoUI.uxml";
         public VisualElement VisualElement { get; private set; }
 
         private List<ICodeGenerator> codeGenerators;

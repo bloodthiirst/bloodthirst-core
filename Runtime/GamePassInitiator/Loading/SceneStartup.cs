@@ -12,9 +12,9 @@ namespace Bloodthirst.Core.SceneManager
 #endif
     {
 #if UNITY_EDITOR
-        public int callbackOrder => 100;
+        int IOrderedCallback.callbackOrder => 100;
 
-        public void OnPreprocessBuild(BuildReport report)
+        void IPreprocessBuildWithReport.OnPreprocessBuild(BuildReport report)
         {
             ScenesListData.Instance.LoadAllScenesAvailable();
         }

@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
+    [BAdapterFor(typeof(CommandManagerBehaviour))]
+    [RequireComponent(typeof(CommandManagerBehaviour))]
     public class CommandManagerAdapter : MonoBehaviour, IPreGameSetup
     {
         int IPreGameSetup.Order => 0;
