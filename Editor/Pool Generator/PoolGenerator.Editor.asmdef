@@ -1,0 +1,23 @@
+{
+    "name": "PoolGenerator.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3da459fe7e92dc7448c122ceb8b69e06",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:02d1544353a0c884e9af892bcc030597",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77",
+        "GUID:12e5c912b42f2454ab6e7e789904681c",
+        "GUID:db0ea49d14eadb245afa192ac9e0e422"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

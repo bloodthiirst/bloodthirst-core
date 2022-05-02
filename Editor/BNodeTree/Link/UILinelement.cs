@@ -98,28 +98,29 @@ public class UILinelement : VisualElement
             end
         };
 
-        float lineLenght = 0;
+        float lineLength = 0;
 
-        List<UIVertex> curve = VectorUtils.LineToCurve
-            (
-            points,
-           UVSmoothingType.LERP,
-            ref lineLenght,
-             uvSmoothLerp: 0.5f,
-             cornerSmoothing: 1,
-             LineThikness: Thickness,
-             handlesLength: (end - start).magnitude * 0.3f,
-             detailPerSegment: 10,
-             normalizeHandles: false,
-             invertHandles: false
-            );
+        VectorUtils.CurveSettings settings = new VectorUtils.CurveSettings()
+        {
+            UVSmoothing = UVSmoothingType.LERP,
+            UVSmoothLerp = 0.5f,
+            CornerSmoothing = 1,
+            LineThikness = Thickness,
+            HandlesLength = (end - start).magnitude * 0.3f,
+            DetailPerSegment = 10,
+            NormalizeHandles = false,
+            InvertHandles = false
+        };
+
+
+        List<UIVertex> curve = VectorUtils.LineToCurve(points,settings,out lineLength);
 
         MeshWriteData mwd = cxt.Allocate(curve.Count, curve.Count, arrowTexture);
 
         // the vertices are setup with the center (0,0) being the top left corner of the rect of the VisualElement
         Vertex[] curveToVerts = curve.Select(v => new Vertex() { position = v.position, uv = v.uv0, tint = Color.white }).ToArray();
 
-        float uvSliceX = lineLenght / Thickness;
+        float uvSliceX = lineLength / Thickness;
 
         for (int i = 0; i < curveToVerts.Length; i++)
         {

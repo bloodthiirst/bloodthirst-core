@@ -17,6 +17,11 @@
     -unity-text-align: middle-left
 }
 
+.text-center-xy
+{
+    -unity-text-align: middle-center
+}
+
 .center {
     justify-content: center;
 }

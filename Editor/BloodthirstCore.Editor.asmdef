@@ -1,0 +1,34 @@
+{
+    "name": "BloodthirstCore.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8db57ae91f0446b4abaafcfc35807b3b",
+        "GUID:19d5d9338f99ce5409937608604b89d7",
+        "GUID:24b9e271d5028fe428bd217d1f66aa60",
+        "GUID:6e26bada136b92148a223a438dc8d939",
+        "GUID:461e5d39f8824fa4bb3e429bad981bcf",
+        "GUID:8a76435fb14686746940cd2ff705fd6a",
+        "GUID:031f92d5bde2118418e50e66ad5195af",
+        "GUID:89e2e8e3c6597f945a3d33bb53de0954",
+        "GUID:a3dbf460a21998748b81fc4dc39d3590",
+        "GUID:cf769e3d59a2ac048bce57c386a2ade5",
+        "GUID:1f2960579a7cd2f408703465509c90d0",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77",
+        "GUID:24210f22051147b4da1da34b04a9d436",
+        "GUID:db0ea49d14eadb245afa192ac9e0e422",
+        "GUID:f2d31b1e126b02b47b6c762211d7b387",
+        "GUID:1478484f9b40b6d45a287fbbd767ac8a",
+        "GUID:5806a3000d8e85b41a31982c0b3d9cd3"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

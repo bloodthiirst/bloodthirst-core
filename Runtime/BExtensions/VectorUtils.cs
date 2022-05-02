@@ -6,6 +6,8 @@ namespace Bloodthirst.Scripts.Utils
 {
     public static class VectorUtils
     {
+       
+
         private class LineQuad
         {
             public Vector3 LeftUpPos { get; set; }
@@ -23,61 +25,71 @@ namespace Bloodthirst.Scripts.Utils
             return point; // return it
         }
 
-        public static List<UIVertex> LineToCurve(List<Vector2> points, UVSmoothingType UVSmoothing, ref float lineLength, float uvSmoothLerp, int cornerSmoothing, float LineThikness, float handlesLength, float detailPerSegment, bool normalizeHandles = true, bool invertHandles = false)
+
+        public static Vector2 NormalizedToLayoutSpace(RectTransform rectTransform, Vector2 normalizedInLayout)
+        {
+            var sizeX = rectTransform.rect.width;
+            var sizeY = rectTransform.rect.height;
+            var offsetX = -rectTransform.pivot.x * rectTransform.rect.width;
+            var offsetY = -rectTransform.pivot.y * rectTransform.rect.height;
+
+            return new Vector2(normalizedInLayout.x * sizeX + offsetX, normalizedInLayout.y * sizeY + offsetY);
+        }
+
+        public static Vector2 LayoutToNormalizedSpace(RectTransform rectTransform, Vector2 layout)
+        {
+            var sizeX = rectTransform.rect.width;
+            var sizeY = rectTransform.rect.height;
+            var offsetX = -rectTransform.pivot.x * rectTransform.rect.width;
+            var offsetY = -rectTransform.pivot.y * rectTransform.rect.height;
+
+            return new Vector2((layout.x - offsetX) / sizeX, (layout.y - offsetY) / sizeY);
+        }
+
+        public struct CurveSettings
+        {
+            [SerializeField]
+            private UVSmoothingType uVSmoothing;
+
+            [SerializeField]
+            private float uVSmoothLerp;
+
+            [SerializeField]
+            private int cornerSmoothing;
+
+            [SerializeField]
+            private float lineThikness;
+
+            [SerializeField]
+            private float handlesLength;
+
+            [SerializeField]
+            private float detailPerSegment;
+
+            [SerializeField]
+            private bool normalizeHandles;
+
+            [SerializeField]
+            private bool invertHandles;
+
+            public UVSmoothingType UVSmoothing { get => uVSmoothing; set => uVSmoothing = value; }
+            public float UVSmoothLerp { get => uVSmoothLerp; set => uVSmoothLerp = value; }
+            public int CornerSmoothing { get => cornerSmoothing; set => cornerSmoothing = value; }
+            public float LineThikness { get => lineThikness; set => lineThikness = value; }
+            public float HandlesLength { get => handlesLength; set => handlesLength = value; }
+            public float DetailPerSegment { get => detailPerSegment; set => detailPerSegment = value; }
+            public bool NormalizeHandles { get => normalizeHandles; set => normalizeHandles = value; }
+            public bool InvertHandles { get => invertHandles; set => invertHandles = value; }
+        }
+
+        public static List<UIVertex> SplineToCurve(IReadOnlyList<Vector2> InterpolatedPoints, CurveSettings curveSettings, out float lineLength)
         {
             List<LineQuad> finaleVerts = new List<LineQuad>();
 
-            if (points == null || points.Count < 2)
-                points = new List<Vector2> { new Vector2(0, 0), new Vector2(1, 1) };
-
-            Vector2 prevVUp = Vector2.zero;
-            Vector2 prevVBottom = Vector2.zero;
-
-            float totalLength = 0;
-            Spline<Node2D> spline = new Spline<Node2D>();
-            List<Vector2> InterpolatedPoints = new List<Vector2>();
-
-
-            List<Node2D> nodes = new List<Node2D>();
-
-            for (int i = 0; i < points.Count; i++)
-            {
-                Vector2 curr = points[i];
-                nodes.Add(curr);
-            }
-
-
-            spline.NormalizeHandles = normalizeHandles;
-            spline.HandleLength = handlesLength;
-            spline.InvertHandlesLengths = invertHandles;
-
-            spline.Initialize(nodes, null, null, true);
-
-            totalLength = spline.GetTotalLength();
-
-
-            for (int i = 0; i < spline.SegmentCount; i++)
-            {
-                for (int j = 0; j < detailPerSegment; j++)
-                {
-                    float t = j / (float)(detailPerSegment);
-                    Vector2 v2 = spline[i].GetPoint(t);
-                    InterpolatedPoints.Add(v2);
-                }
-
-                InterpolatedPoints.Add(spline[i].GetPoint(1f));
-            }
-
             float prevLength = 0;
             float currentLength = 0;
-            /*
-            // makes the points from 0 -> 1 into actual 2d points
-            for (int i = 0; i < InterpolatedPoints.Count; i++)
-            {
-                Vector2 curr = InterpolatedPoints[i];
-                InterpolatedPoints[i] 
-            }
-            */
+
+
             for (int i = 1; i < InterpolatedPoints.Count; i++)
             {
                 Vector2 prev = InterpolatedPoints[i - 1];
@@ -92,10 +104,10 @@ namespace Bloodthirst.Scripts.Utils
 
                 currentLength += (cur - prev).magnitude;
 
-                var prevBottom = prev + new Vector2(0, -LineThikness / 2);
-                var prevUp = prev + new Vector2(0, +LineThikness / 2);
-                var currentUp = cur + new Vector2(0, +LineThikness / 2);
-                var currentBottom = cur + new Vector2(0, -LineThikness / 2);
+                var prevBottom = prev + new Vector2(0, -curveSettings.LineThikness / 2);
+                var prevUp = prev + new Vector2(0, +curveSettings.LineThikness / 2);
+                var currentUp = cur + new Vector2(0, +curveSettings.LineThikness / 2);
+                var currentBottom = cur + new Vector2(0, -curveSettings.LineThikness / 2);
 
                 prevBottom = RotatePointAroundPivot(prevBottom, prev, new Vector3(0, 0, angle));
                 prevUp = RotatePointAroundPivot(prevUp, prev, new Vector3(0, 0, angle));
@@ -158,7 +170,7 @@ namespace Bloodthirst.Scripts.Utils
 
                     // hyp = opp / sin(angle)
 
-                    float hyp = (LineThikness * 0.5f) / Mathf.Sin(angle);
+                    float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Sin(angle);
 
                     Vector3 convergeancePoint = trueMiddle + (((middleOfLineThrough - trueMiddle).normalized) * hyp);
 
@@ -196,12 +208,12 @@ namespace Bloodthirst.Scripts.Utils
                     bottomRow.Add(prevQuad.RightDownPos);
 
 
-                    for (int j = 1; j < cornerSmoothing; j++)
+                    for (int j = 1; j < curveSettings.CornerSmoothing; j++)
                     {
 
-                        float t = j / (float)cornerSmoothing;
+                        float t = j / (float)curveSettings.CornerSmoothing;
                         Vector2 l = Vector2.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, t);
-                        l = inter + ((l - inter).normalized * LineThikness);
+                        l = inter + ((l - inter).normalized * curveSettings.LineThikness);
 
                         // add interpolation
                         bottomRow.Add(l);
@@ -220,7 +232,7 @@ namespace Bloodthirst.Scripts.Utils
 
                     // hyp = opp / sin(angle)
 
-                    float hyp = (LineThikness * 0.5f) / Mathf.Sin(angle);
+                    float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Sin(angle);
 
                     Vector3 convergeancePoint = trueMiddle + (((middleOfLineThrough - trueMiddle).normalized) * hyp);
 
@@ -258,12 +270,12 @@ namespace Bloodthirst.Scripts.Utils
                     bottomRow.Add(prevQuad.RightDownPos);
 
 
-                    for (int j = 1; j < cornerSmoothing; j++)
+                    for (int j = 1; j < curveSettings.CornerSmoothing; j++)
                     {
 
-                        float t = j / (float)cornerSmoothing;
+                        float t = j / (float)curveSettings.CornerSmoothing;
                         Vector2 l = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, t);
-                        l = inter + ((l - inter).normalized * LineThikness);
+                        l = inter + ((l - inter).normalized * curveSettings.LineThikness);
 
                         // add interpolation
                         topRow.Add(l);
@@ -342,7 +354,7 @@ namespace Bloodthirst.Scripts.Utils
 
                 // TODO : multiple ways to calculate uv
 
-                switch (UVSmoothing)
+                switch (curveSettings.UVSmoothing)
                 {
                     case UVSmoothingType.NONE:
                         break;
@@ -361,13 +373,13 @@ namespace Bloodthirst.Scripts.Utils
                     case UVSmoothingType.LERP:
                         {
                             // swap
-                            var tmp = Mathf.Lerp(p1.uv0.x, p3.uv0.x, uvSmoothLerp);
-                            var inv = Mathf.Lerp(p1.uv0.x, p3.uv0.x, 1 - uvSmoothLerp);
+                            var tmp = Mathf.Lerp(p1.uv0.x, p3.uv0.x, curveSettings.UVSmoothLerp);
+                            var inv = Mathf.Lerp(p1.uv0.x, p3.uv0.x, 1 - curveSettings.UVSmoothLerp);
                             p1.uv0.x = tmp;
                             p3.uv0.x = inv;
 
-                            tmp = Mathf.Lerp(p2.uv0.x, p4.uv0.x, uvSmoothLerp);
-                            inv = Mathf.Lerp(p2.uv0.x, p4.uv0.x, 1 - uvSmoothLerp);
+                            tmp = Mathf.Lerp(p2.uv0.x, p4.uv0.x, curveSettings.UVSmoothLerp);
+                            inv = Mathf.Lerp(p2.uv0.x, p4.uv0.x, 1 - curveSettings.UVSmoothLerp);
                             p2.uv0.x = tmp;
                             p4.uv0.x = inv;
                         }
@@ -393,6 +405,12 @@ namespace Bloodthirst.Scripts.Utils
             return tris;
         }
 
+        public static List<UIVertex> LineToCurve(List<Vector2> points, CurveSettings curveSettings, out float lineLength)
+        {
+            List<UIVertex> curve = SplineToCurve(points, curveSettings, out lineLength);
+
+            return curve;
+        }
 
         /// <summary>
         /// Find some projected angle measure off some forward around some axis.

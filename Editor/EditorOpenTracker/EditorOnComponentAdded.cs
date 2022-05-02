@@ -1,33 +1,77 @@
-﻿using UnityEditor;
-using UnityEngine.UI;
+﻿using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 namespace Bloodthirst.Utils.EditorOpenTracker
 {
     [InitializeOnLoad]
     public class EditorOnComponentAdded
     {
+        private static IOnComponentAdded[] componentAddedHandlers = new IOnComponentAdded[]
+        {
+            new DisableRaycastTargetAndMaskOnComponentAdded(),
+        };
+        
+        private static IOnGameObjectAdded[] gameObjectAddedHandlers = new IOnGameObjectAdded[]
+        {
+            new DisableRaycasTargetAndMaskOnGameObjectAdded(),
+            new SetupButtonOnGameObjectAdded()
+        };
+
         static EditorOnComponentAdded()
         {
             ObjectFactory.componentWasAdded -= HandleComponentAdded;
             ObjectFactory.componentWasAdded += HandleComponentAdded;
 
+            ObjectChangeEvents.changesPublished -= HandleObjectChange;
+            ObjectChangeEvents.changesPublished += HandleObjectChange;
+
             EditorApplication.quitting -= OnEditorQuiting;
             EditorApplication.quitting += OnEditorQuiting;
         }
+
+        private static void HandleObjectChange(ref ObjectChangeEventStream stream)
+        {
+            for(int i = 0; i < stream.length; i++)
+            {
+                ObjectChangeKind evtType = stream.GetEventType(i);
+
+                if(evtType == ObjectChangeKind.ChangeGameObjectParent)
+                {
+                    stream.GetChangeGameObjectParentEvent(i, out ChangeGameObjectParentEventArgs data);
+                    GameObject go = (GameObject)EditorUtility.InstanceIDToObject(data.instanceId);
+
+                    for (int j = 0; j < gameObjectAddedHandlers.Length; j++)
+                    {
+                        gameObjectAddedHandlers[j].HandleGameObjectAdded(go);
+                    }
+                }
+
+                if(evtType == ObjectChangeKind.ChangeGameObjectStructureHierarchy)
+                {
+                    stream.GetChangeGameObjectStructureHierarchyEvent(i, out ChangeGameObjectStructureHierarchyEventArgs data);
+                    GameObject go = (GameObject)EditorUtility.InstanceIDToObject(data.instanceId);
+                }
+                if(evtType == ObjectChangeKind.CreateGameObjectHierarchy)
+                {
+                    stream.GetCreateGameObjectHierarchyEvent(i, out CreateGameObjectHierarchyEventArgs data);
+                    GameObject go = (GameObject) EditorUtility.InstanceIDToObject(data.instanceId);
+
+                }
+            }
+        }
+
         private static void HandleComponentAdded(UnityEngine.Component obj)
         {
-            if (obj is Graphic graphic)
+            for (int i = 0; i < componentAddedHandlers.Length; i++)
             {
-                graphic.raycastTarget = false;
-            }
-            if (obj is MaskableGraphic maskable)
-            {
-                maskable.maskable = false;
+                componentAddedHandlers[i].HandleComponentAdded(obj);
             }
         }
 
         private static void OnEditorQuiting()
         {
+            ObjectChangeEvents.changesPublished -= HandleObjectChange;
             ObjectFactory.componentWasAdded -= HandleComponentAdded;
             EditorApplication.quitting -= OnEditorQuiting;
         }

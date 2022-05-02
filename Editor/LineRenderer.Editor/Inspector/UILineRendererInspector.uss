@@ -1,0 +1,14 @@
+﻿.small-cell
+{
+	width : 100px;
+}
+
+.point-bg
+{
+	background-color : #48b069;
+}
+
+.handle-bg
+{
+	background-color : #ad4e47;
+}

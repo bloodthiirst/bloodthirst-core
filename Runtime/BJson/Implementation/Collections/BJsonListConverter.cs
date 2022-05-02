@@ -259,14 +259,7 @@ namespace Bloodthirst.BJson
                 }
                 else
                 {
-                    try
-                    {
-                        resultList.Add(elem);
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
+                    resultList.Add(elem);
                 }
                 currentIndex++;
 
