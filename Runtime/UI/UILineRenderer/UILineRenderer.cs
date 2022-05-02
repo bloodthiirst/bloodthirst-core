@@ -10,6 +10,9 @@ namespace Bloodthirst.Core.UI
     [RequireComponent(typeof(CanvasRenderer))]
     public class UILineRenderer : MaskableGraphic
     {
+        [SerializeField]
+        private CanvasRenderer canvasRenderer;
+
         /// <summary>
         /// Number of sub-parts (segements) in between each point
         /// </summary>
@@ -48,21 +51,35 @@ namespace Bloodthirst.Core.UI
 
         protected override void Awake()
         {
+            base.Awake();
             InitPoints();
             spline = new BSpline(points);
+
+            SetVerticesDirty();
+            this.UpdateGeometry();
         }
 
         protected override void OnEnable()
         {
+            base.OnEnable();
+
             if (spline == null)
             {
                 spline = new BSpline(points);
             }
+
+            SetVerticesDirty();
+            this.UpdateGeometry();
         }
 
         protected override void OnValidate()
         {
             base.OnValidate();
+
+            if(canvasRenderer == null)
+            {
+                canvasRenderer = GetComponent<CanvasRenderer>();
+            }
 
             if (!enabled)
                 return;
@@ -94,12 +111,16 @@ namespace Bloodthirst.Core.UI
         public void RemovePoint(int index)
         {
             spline.RemovePoint(index);
+
+            SetVerticesDirty();
             this.UpdateGeometry();
         }
 
         public void UpdatePoint(Vector2 point, int index)
         {
             spline.UpdatePoint(point, index);
+
+            SetVerticesDirty();
             this.UpdateGeometry();
         }
 
@@ -107,7 +128,6 @@ namespace Bloodthirst.Core.UI
         public void AddPoint(Vector2 point)
         {
             spline.AddPoint(point);
-            this.UpdateGeometry();
         }
 
 
@@ -149,7 +169,6 @@ namespace Bloodthirst.Core.UI
 
             vbo.Clear();
             vbo.AddUIVertexTriangleStream(tris);
-
         }
 
     }

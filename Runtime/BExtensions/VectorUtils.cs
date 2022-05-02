@@ -86,10 +86,12 @@ namespace Bloodthirst.Scripts.Utils
         {
             List<LineQuad> finaleVerts = new List<LineQuad>();
 
-            float prevLength = 0;
-            float currentLength = 0;
+            lineLength = 0;
 
+            float haffThicnessPlus = curveSettings.LineThikness / 2;
+            float haffThicnessMinus = -curveSettings.LineThikness / 2;
 
+            // create the quads that define the line width
             for (int i = 1; i < InterpolatedPoints.Count; i++)
             {
                 Vector2 prev = InterpolatedPoints[i - 1];
@@ -99,24 +101,24 @@ namespace Bloodthirst.Scripts.Utils
                     continue;
 
 
+                float angle = Mathf.Atan2(cur.y - prev.y, cur.x - prev.x) * Mathf.Rad2Deg;
 
-                float angle = Mathf.Atan2(cur.y - prev.y, cur.x - prev.x) * 180f / Mathf.PI;
+                float currentLength = (cur - prev).magnitude;
+                
+                // form the thickness vertices
+                // at this point they are not yet rotated to have the same direction as the segmenet
+                Vector2 prevBottom = prev + new Vector2(0, haffThicnessMinus);
+                Vector2 prevUp = prev + new Vector2(0, haffThicnessPlus);
 
-                currentLength += (cur - prev).magnitude;
+                Vector2 currentBottom = cur + new Vector2(0, haffThicnessMinus);
+                Vector2 currentUp = cur + new Vector2(0, haffThicnessPlus);
 
-                var prevBottom = prev + new Vector2(0, -curveSettings.LineThikness / 2);
-                var prevUp = prev + new Vector2(0, +curveSettings.LineThikness / 2);
-                var currentUp = cur + new Vector2(0, +curveSettings.LineThikness / 2);
-                var currentBottom = cur + new Vector2(0, -curveSettings.LineThikness / 2);
-
-                prevBottom = RotatePointAroundPivot(prevBottom, prev, new Vector3(0, 0, angle));
-                prevUp = RotatePointAroundPivot(prevUp, prev, new Vector3(0, 0, angle));
-                currentUp = RotatePointAroundPivot(currentUp, cur, new Vector3(0, 0, angle));
-                currentBottom = RotatePointAroundPivot(currentBottom, cur, new Vector3(0, 0, angle));
-
-                float ratioBeforePrev = (i - 2) / (float)(InterpolatedPoints.Count - 1);
-                float ratioPrev = (i - 1) / (float)(InterpolatedPoints.Count - 1);
-                float ratioCurr = (i) / (float)(InterpolatedPoints.Count - 1);
+                // here we rotate them
+                Vector3 rotateBy = new Vector3(0, 0, angle);
+                prevBottom = RotatePointAroundPivot(prevBottom, prev, rotateBy);
+                prevUp = RotatePointAroundPivot(prevUp, prev, rotateBy);
+                currentUp = RotatePointAroundPivot(currentUp, cur, rotateBy);
+                currentBottom = RotatePointAroundPivot(currentBottom, cur, rotateBy);
 
                 LineQuad quad = new LineQuad()
                 {
@@ -127,10 +129,8 @@ namespace Bloodthirst.Scripts.Utils
                 };
 
                 finaleVerts.Add(quad);
-                prevLength = currentLength;
+                lineLength += currentLength;
             }
-
-            lineLength = currentLength;
 
 
             ///// sow the middle parts 
@@ -147,21 +147,23 @@ namespace Bloodthirst.Scripts.Utils
 
             LineQuad prevQuad = null;
             LineQuad currQuad = null;
-            // TODO handle opposite angle
+            
+            // here we treat the overlap between the quads
+            // by pushing them enough to create a gap where we can insert a clean triangle
             for (int i = 1; i < finaleVerts.Count; i++)
             {
                 prevQuad = finaleVerts[i - 1];
                 currQuad = finaleVerts[i];
 
-                Vector3 trueMiddle = Vector2.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
+                Vector3 middleIntersectopBothQuads = Vector2.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
 
-                Vector3 middleOfLineThrough = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
+                Vector3 middleOfFreeSpace = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
 
-                float angle = Vector2.SignedAngle(middleOfLineThrough - trueMiddle, currQuad.LeftUpPos - trueMiddle);
+                float angle = Vector2.SignedAngle(middleOfFreeSpace - middleIntersectopBothQuads, currQuad.LeftUpPos - middleIntersectopBothQuads);
 
                 if (angle > 0)
                 {
-                    middleOfLineThrough = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
+                    middleOfFreeSpace = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
 
                     angle = 180 - 90 - angle;
 
@@ -172,7 +174,7 @@ namespace Bloodthirst.Scripts.Utils
 
                     float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Sin(angle);
 
-                    Vector3 convergeancePoint = trueMiddle + (((middleOfLineThrough - trueMiddle).normalized) * hyp);
+                    Vector3 convergeancePoint = middleIntersectopBothQuads + (((middleOfFreeSpace - middleIntersectopBothQuads).normalized) * hyp);
 
                     Vector2 inter = convergeancePoint;
 
@@ -223,7 +225,7 @@ namespace Bloodthirst.Scripts.Utils
 
                 else
                 {
-                    middleOfLineThrough = Vector2.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, 0.5f);
+                    middleOfFreeSpace = Vector2.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, 0.5f);
 
                     angle = 180 - 90 - angle;
 
@@ -234,7 +236,7 @@ namespace Bloodthirst.Scripts.Utils
 
                     float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Sin(angle);
 
-                    Vector3 convergeancePoint = trueMiddle + (((middleOfLineThrough - trueMiddle).normalized) * hyp);
+                    Vector3 convergeancePoint = middleIntersectopBothQuads + (((middleOfFreeSpace - middleIntersectopBothQuads).normalized) * hyp);
 
                     Vector2 inter = convergeancePoint;
 
@@ -292,9 +294,7 @@ namespace Bloodthirst.Scripts.Utils
             bottomRow.Add(currQuad.LeftDownPos);
             bottomRow.Add(currQuad.RightDownPos);
 
-            // TODO : massage the UVs down
             // group all verts that belong to topline and bottomline together
-
             int topIndex = 0;
             int bottomIndex = 0;
 
