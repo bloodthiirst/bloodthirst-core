@@ -10,11 +10,11 @@ namespace Bloodthirst.Scripts.Utils
 
         private class LineQuad
         {
-            public Vector3 LeftUpPos { get; set; }
-            public Vector3 LeftDownPos { get; set; }
-            public Vector3 RightUpPos { get; set; }
-            public Vector3 RightDownPos { get; set; }
-            public Vector3 Normal { get; set; }
+            public Vector2 LeftUpPos { get; set; }
+            public Vector2 LeftDownPos { get; set; }
+            public Vector2 RightUpPos { get; set; }
+            public Vector2 RightDownPos { get; set; }
+            public Vector2 Normal { get; set; }
         }
 
         private static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
@@ -146,63 +146,57 @@ namespace Bloodthirst.Scripts.Utils
             List<Vector2> bottomRow = new List<Vector2>();
 
             LineQuad prevQuad = null;
-            LineQuad currQuad = null;
+            LineQuad nextQuad = null;
             
             // here we treat the overlap between the quads
             // by pushing them enough to create a gap where we can insert a clean triangle
             for (int i = 1; i < finaleVerts.Count; i++)
             {
                 prevQuad = finaleVerts[i - 1];
-                currQuad = finaleVerts[i];
+                nextQuad = finaleVerts[i];
 
-                Vector3 middleIntersectopBothQuads = Vector2.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
+                Vector2 middleIntersectopBothQuads = Vector2.Lerp(prevQuad.RightDownPos, prevQuad.RightUpPos, 0.5f);
 
-                Vector3 middleOfFreeSpace = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
+                Vector2 middleOfFreeSpace = Vector2.Lerp(prevQuad.RightUpPos, nextQuad.LeftUpPos, 0.5f);
 
-                float angle = Vector2.SignedAngle(middleOfFreeSpace - middleIntersectopBothQuads, currQuad.LeftUpPos - middleIntersectopBothQuads);
+                Vector2 middleLine = (middleOfFreeSpace - middleIntersectopBothQuads).normalized;
+                Vector2 middleToNext = (nextQuad.LeftUpPos - middleIntersectopBothQuads).normalized;
 
-                if (angle > 0)
+                // this is angle going from the middle line towards the next quad (if we're going from left to right , it would be the one of the right)
+                float angleInDegrees = Vector2.SignedAngle(middleLine, middleToNext);
+
+                // if angle is more than than 0
+                // that means that the gap is on the bottom , and the intersection is at the top
+                // so we need to push the verts at the top first
+                if (angleInDegrees > 0)
                 {
-                    middleOfFreeSpace = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, 0.5f);
+                    float angleInRads = (angleInDegrees ) * Mathf.Deg2Rad;
 
-                    angle = 180 - 90 - angle;
+                    // hyp = adj / cos(angle)
+                    float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Cos(angleInRads);
 
+                    Vector2 topCuttingPointForBothQuads = middleIntersectopBothQuads + (middleLine * hyp);
 
-                    angle *= Mathf.Deg2Rad;
-
-                    // hyp = opp / sin(angle)
-
-                    float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Sin(angle);
-
-                    Vector3 convergeancePoint = middleIntersectopBothQuads + (((middleOfFreeSpace - middleIntersectopBothQuads).normalized) * hyp);
-
-                    Vector2 inter = convergeancePoint;
+                    Vector2 inter = topCuttingPointForBothQuads;
 
                     // calculate new segment lengths
-                    float newPrevLength = Vector2.Distance(prevQuad.LeftUpPos, inter);
-                    float newCurrLength = Vector2.Distance(currQuad.RightUpPos, inter);
+                    Vector2 prevPush = inter - prevQuad.RightUpPos;
+                    Vector2 nextPush = inter - nextQuad.LeftUpPos;
 
                     // replace with new intersection point
                     prevQuad.RightUpPos = inter;
-                    currQuad.LeftUpPos = inter;
+                    nextQuad.LeftUpPos = inter;
 
-                    // push back the other row to align it with the new modified one
-                    // prev segment 
-                    Vector3 directionPrev = (prevQuad.RightDownPos - prevQuad.LeftDownPos).normalized;
-                    prevQuad.RightDownPos = prevQuad.LeftDownPos + (directionPrev * newPrevLength);
+                    // push prev
+                    prevQuad.RightDownPos += prevPush;
 
-                    // current segment
-                    Vector3 directionCurr = (currQuad.RightDownPos - currQuad.LeftDownPos).normalized;
-                    currQuad.LeftDownPos = currQuad.RightDownPos - (directionCurr * newCurrLength);
+                    // push next
+                    nextQuad.LeftDownPos += nextPush;
 
-
-                    // TODO : use circle to define edges
-                    // Add the triangle
-
-                    // add rows and corners
-
+                    // mark as corner looking down
                     cornerIsUp.Add(false);
 
+                    // add points to up or down rows
                     topRow.Add(prevQuad.LeftUpPos);
                     topRow.Add(prevQuad.RightUpPos);
 
@@ -210,11 +204,12 @@ namespace Bloodthirst.Scripts.Utils
                     bottomRow.Add(prevQuad.RightDownPos);
 
 
+                    // use circle to define edges
                     for (int j = 1; j < curveSettings.CornerSmoothing; j++)
                     {
 
                         float t = j / (float)curveSettings.CornerSmoothing;
-                        Vector2 l = Vector2.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, t);
+                        Vector2 l = Vector2.Lerp(prevQuad.RightDownPos, nextQuad.LeftDownPos, t);
                         l = inter + ((l - inter).normalized * curveSettings.LineThikness);
 
                         // add interpolation
@@ -223,60 +218,50 @@ namespace Bloodthirst.Scripts.Utils
 
                 }
 
+                // if angle is less than than 0
+                // that means that the gap is one top , and the intersection is at the bottom
+                // so we need to push the verts at the bottom first
                 else
                 {
-                    middleOfFreeSpace = Vector2.Lerp(prevQuad.RightDownPos, currQuad.LeftDownPos, 0.5f);
+                    float angleInRads = (angleInDegrees) * Mathf.Deg2Rad;
 
-                    angle = 180 - 90 - angle;
+                    // hyp = adj / cos(angle)
+                    float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Cos(angleInRads);
 
+                    Vector2 bottomCuttingPointForBothQuads = middleIntersectopBothQuads - (middleLine * hyp);
 
-                    angle *= Mathf.Deg2Rad;
-
-                    // hyp = opp / sin(angle)
-
-                    float hyp = (curveSettings.LineThikness * 0.5f) / Mathf.Sin(angle);
-
-                    Vector3 convergeancePoint = middleIntersectopBothQuads + (((middleOfFreeSpace - middleIntersectopBothQuads).normalized) * hyp);
-
-                    Vector2 inter = convergeancePoint;
+                    Vector2 inter = bottomCuttingPointForBothQuads;
 
                     // calculate new segment lengths
-                    float newPrevLength = Vector2.Distance(prevQuad.LeftDownPos, inter);
-                    float newCurrLength = Vector2.Distance(currQuad.RightDownPos, inter);
+                    Vector2 prevPush = inter - prevQuad.RightDownPos;
+                    Vector2 nextPush = inter - nextQuad.LeftDownPos;
 
                     // replace with new intersection point
                     prevQuad.RightDownPos = inter;
-                    currQuad.LeftDownPos = inter;
+                    nextQuad.LeftDownPos = inter;
 
-                    // push back the other row to align it with the new modified one
-                    // prev segment 
-                    Vector3 directionPrev = (prevQuad.RightUpPos - prevQuad.LeftUpPos).normalized;
-                    prevQuad.RightUpPos = prevQuad.LeftUpPos + (directionPrev * newPrevLength);
+                    // push prev
+                    prevQuad.RightUpPos += prevPush;
 
-                    // current segment
-                    Vector3 directionCurr = (currQuad.RightUpPos - currQuad.LeftUpPos).normalized;
-                    currQuad.LeftUpPos = currQuad.RightUpPos - (directionCurr * newCurrLength);
+                    // push next
+                    nextQuad.LeftUpPos += nextPush;
 
-
-                    // TODO : use circle to define edges
-                    // Add the triangle
-
-                    // add rows and corners
-
+                    // mark as corner looking down
                     cornerIsUp.Add(true);
 
+                    // add points to up or down rows
                     topRow.Add(prevQuad.LeftUpPos);
                     topRow.Add(prevQuad.RightUpPos);
 
                     bottomRow.Add(prevQuad.LeftDownPos);
                     bottomRow.Add(prevQuad.RightDownPos);
 
-
+                    // use circle to define edges
                     for (int j = 1; j < curveSettings.CornerSmoothing; j++)
                     {
 
                         float t = j / (float)curveSettings.CornerSmoothing;
-                        Vector2 l = Vector2.Lerp(prevQuad.RightUpPos, currQuad.LeftUpPos, t);
+                        Vector2 l = Vector2.Lerp(prevQuad.RightUpPos, nextQuad.LeftUpPos, t);
                         l = inter + ((l - inter).normalized * curveSettings.LineThikness);
 
                         // add interpolation
@@ -288,15 +273,12 @@ namespace Bloodthirst.Scripts.Utils
 
             }
 
-            topRow.Add(currQuad.LeftUpPos);
-            topRow.Add(currQuad.RightUpPos);
+            topRow.Add(nextQuad.LeftUpPos);
+            topRow.Add(nextQuad.RightUpPos);
 
-            bottomRow.Add(currQuad.LeftDownPos);
-            bottomRow.Add(currQuad.RightDownPos);
+            bottomRow.Add(nextQuad.LeftDownPos);
+            bottomRow.Add(nextQuad.RightDownPos);
 
-            // group all verts that belong to topline and bottomline together
-            int topIndex = 0;
-            int bottomIndex = 0;
 
             // top uv
             float topRowLength = 0;
@@ -334,7 +316,14 @@ namespace Bloodthirst.Scripts.Utils
             }
 
 
+            // TODO : weave the vertices correctly in a way that knits the corners correctly
+            // also structure everything more in array and fixed count stuff instead of creating lists everywhere like a retard
+            // IDEA : create vertices index buffer where we assign the indices as we go when we create the quads and corners
             // create the triangles
+
+            // group all verts that belong to topline and bottomline together
+            int topIndex = 0;
+            int bottomIndex = 0;
             while (bottomIndex < bottomRow.Count - 1)
             {
 

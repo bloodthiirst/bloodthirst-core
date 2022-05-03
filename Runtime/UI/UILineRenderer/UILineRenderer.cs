@@ -139,11 +139,13 @@ namespace Bloodthirst.Core.UI
         {
             cachedInterpolatedPoints.Clear();
 
+            cachedInterpolatedPoints.Add(spline.VertexData[0]);
+
             for (int i = 0; i < spline.VertexData.Count - 3; i += 3)
             {
                 for (int d = 0; d < resolution; d++)
                 {
-                    float t = d / (float)(resolution - 1);
+                    float t = (d + 1) / (float)(resolution);
 
                     Vector3 a = spline.GetPosition(i, t);
 
