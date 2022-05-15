@@ -1,0 +1,15 @@
+.search-height
+{
+	height : 20px;
+}
+
+.clear-btn
+{
+	height : 20px;
+	width : 20px;
+}
+
+.container-max
+{
+	max-height : 400px;
+}

@@ -1,0 +1,4 @@
+.item-container
+{
+	height : 30px;
+}

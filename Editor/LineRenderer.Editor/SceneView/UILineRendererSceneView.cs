@@ -80,10 +80,10 @@ public class UILineRendererSceneView
     {
         for (int i = 0; i < LineRenderer.spline.VertexData.Count - 3; i += 3)
         {
-            for (int d = 0; d < LineRenderer.resolution - 1; d++)
+            for (int d = 0; d < LineRenderer.resolution; d++)
             {
-                float t1 = d / (float)(LineRenderer.resolution - 1);
-                float t2 = (d + 1) / (float)(LineRenderer.resolution - 1);
+                float t1 = d / (float)(LineRenderer.resolution);
+                float t2 = (d + 1) / (float)(LineRenderer.resolution);
 
                 Vector3 a = LineRenderer.spline.GetPosition(i, t1);
                 Vector3 b = LineRenderer.spline.GetPosition(i, t2);

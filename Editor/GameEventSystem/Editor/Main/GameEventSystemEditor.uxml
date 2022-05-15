@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:TwoPaneSplitView name="PanelSplit" >
+        
+        <!-- MAIN CONTAINER -->
+        <engine:VisualElement name="MainContainer" class="col grow-1 p-5" >
+            
+            <!-- DATA OBJECT FIELD -->
+            <engine:VisualElement name="DropdownContainer" />
+
+        </engine:VisualElement>
+
+        <!-- ALL EVENTS AVAILABLE -->
+        <engine:VisualElement name="SearchColumn" class="col grow-1 p-5">
+            
+            <engine:VisualElement class="row searchbar-style">
+            
+                <editor:Toolbar class="unity-toolbar grow-1 shrink-1">
+
+                    <!-- SEARCH BAR -->
+                    <editor:ToolbarSearchField class="unity-search-field-base unity-toolbar-search-field unity-style-debugger-search grow-1 shrink-1"/>           
+
+                    <!-- SHOW ALL -->
+                    <editor:ToolbarToggle class="unity-base-field unity-base-field--no-label unity-toolbar-toggle unity-style-debugger-toggle">
+
+                      <engine:VisualElement class="unity-base-field__input unity-toggle__input">
+                       
+                        <engine:VisualElement name="unity-checkmark" class="unity-toggle__checkmark" />
+                        <engine:Label text="Show all" class="unity-text-element unity-label unity-toggle__text" />
+                      
+                      </engine:VisualElement>
+
+                    </editor:ToolbarToggle>
+
+                </editor:Toolbar>
+            
+            </engine:VisualElement>
+
+            <engine:ListView name="AllEventsList"/>
+        
+        </engine:VisualElement>
+        
+
+
+    </engine:TwoPaneSplitView>
+
+</engine:UXML>

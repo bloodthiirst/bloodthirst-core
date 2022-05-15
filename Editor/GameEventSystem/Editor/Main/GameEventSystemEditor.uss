@@ -1,0 +1,10 @@
+.searchbar-style
+{
+	height : 20px;
+}
+
+.searchbar-btn
+{
+	height : 20px;
+	width : 20px;
+}

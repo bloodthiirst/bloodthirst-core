@@ -1,0 +1,10 @@
+.item-container
+{
+	height : 50px;
+}
+
+.item-icon
+{
+	height : 50px;
+	width : 50px;
+}

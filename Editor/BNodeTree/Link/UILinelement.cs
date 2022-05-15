@@ -100,20 +100,21 @@ public class UILinelement : VisualElement
 
         float lineLength = 0;
 
-        VectorUtils.CurveSettings settings = new VectorUtils.CurveSettings()
+        LineUtils.CurveSettings settings = new LineUtils.CurveSettings()
         {
             UVSmoothing = UVSmoothingType.LERP,
             UVSmoothLerp = 0.5f,
             CornerSmoothing = 1,
             LineThikness = Thickness,
             HandlesLength = (end - start).magnitude * 0.3f,
-            DetailPerSegment = 10,
+            Resolution = 10,
             NormalizeHandles = false,
             InvertHandles = false
         };
 
 
-        List<UIVertex> curve = VectorUtils.LineToCurve(points,settings,out lineLength);
+        // List<UIVertex> curve = VectorUtils.PointsToCurve(points,settings,out lineLength);
+        List<UIVertex> curve = null;
 
         MeshWriteData mwd = cxt.Allocate(curve.Count, curve.Count, arrowTexture);
 

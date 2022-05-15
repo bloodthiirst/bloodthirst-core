@@ -1,7 +1,18 @@
-﻿namespace Bloodthirst.Scripts.Utils
+﻿using System;
+using System.Runtime.CompilerServices;
+
+namespace Bloodthirst.Scripts.Utils
 {
-    static class BitUtils
+    public static class BitUtils
     {
+        public static int BoolToInt(bool val)
+        {
+            //basically "return *(Int*)&val;" but i guess "safer" ?
+            int asInt = Unsafe.As<bool, int>(ref val);
+
+            return asInt;
+        }
+
         public static int SetBitTo1(this int value, int position)
         {
             // Set a bit at position to 1.

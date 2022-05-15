@@ -24,6 +24,13 @@ namespace Bloodthirst.System.CommandSystem
             isActive = true;
         }
 
+        private void Reset()
+        {
+            commandManager = new CommandManager();
+            globalCommandBatch = AppendBatch<CommandBatchList>(this);
+            isActive = true;
+        }
+
         /// <summary>
         /// Run the command and run it globally
         /// </summary>

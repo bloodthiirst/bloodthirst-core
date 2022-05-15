@@ -3,6 +3,7 @@ using Bloodthirst.Utils;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.UI;
 
 namespace Bloodthirst.Core.UI
@@ -10,8 +11,7 @@ namespace Bloodthirst.Core.UI
     [RequireComponent(typeof(CanvasRenderer))]
     public class UILineRenderer : MaskableGraphic
     {
-        [SerializeField]
-        private CanvasRenderer canvasRenderer;
+        private readonly int LineLengthID =  Shader.PropertyToID("_LineLength");
 
         /// <summary>
         /// Number of sub-parts (segements) in between each point
@@ -76,11 +76,6 @@ namespace Bloodthirst.Core.UI
         {
             base.OnValidate();
 
-            if(canvasRenderer == null)
-            {
-                canvasRenderer = GetComponent<CanvasRenderer>();
-            }
-
             if (!enabled)
                 return;
 
@@ -128,6 +123,9 @@ namespace Bloodthirst.Core.UI
         public void AddPoint(Vector2 point)
         {
             spline.AddPoint(point);
+
+            SetVerticesDirty();
+            this.UpdateGeometry();
         }
 
 
@@ -153,24 +151,34 @@ namespace Bloodthirst.Core.UI
                 }
             }
 
-            VectorUtils.CurveSettings settings = new VectorUtils.CurveSettings()
+            LineUtils.CurveSettings settings = new LineUtils.CurveSettings()
             {
                 UVSmoothing = uvSmoothing,
                 UVSmoothLerp = uvSmoothLerp,
                 CornerSmoothing = cornerSmoothing,
                 LineThikness = lineThickness,
                 HandlesLength = 0,
-                DetailPerSegment = resolution,
+                Resolution = resolution,
                 NormalizeHandles = false,
                 InvertHandles = false
             };
 
-            List<UIVertex> tris = VectorUtils.SplineToCurve(cachedInterpolatedPoints, settings, out float lineLength);
+            // get pooled
+            List<UIVertex> pooledVerts = ListPool<UIVertex>.Get();
+            List<int> pooledIndices = ListPool<int>.Get();
 
-            material.SetFloat("_LineLength", lineLength);
+            // calculate
+            LineUtils.PointsToCurve(cachedInterpolatedPoints, settings, out float lineLength , ref pooledVerts , ref pooledIndices);
 
+            materialForRendering.SetFloat(LineLengthID, lineLength);
+
+            // send
             vbo.Clear();
-            vbo.AddUIVertexTriangleStream(tris);
+            vbo.AddUIVertexStream(pooledVerts, pooledIndices);
+
+            // clean
+            ListPool<UIVertex>.Release(pooledVerts);
+            ListPool<int>.Release(pooledIndices);
         }
 
     }

@@ -1,0 +1,16 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+
+  <ui:VisualElement name="SelectorBtn" class="unity-base-field unity-base-popup-field unity-popup-field">
+
+    <ui:Label name="FieldName" text="UXML Field" class="unity-text-element unity-label unity-base-field__label unity-base-popup-field__label unity-popup-field__label" />
+
+    <ui:VisualElement class="unity-base-field__input unity-base-popup-field__input unity-popup-field__input">
+
+      <ui:Label name="CurrentValueTxt" text="Option 1" class="unity-text-element unity-base-popup-field__text" />
+      <ui:VisualElement class="unity-base-popup-field__arrow" />
+
+    </ui:VisualElement>
+
+  </ui:VisualElement>
+
+</UXML>

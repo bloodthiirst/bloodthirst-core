@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UIElements;
@@ -16,10 +17,16 @@ namespace Bloodthirst.Core.Utils
     public static class EditorUtils
     {
 
+        public static Texture GetIcon(UnityEngine.Object obj)
+        {
+            Texture tex = AssetPreview.GetMiniThumbnail(obj);
+            return tex;
+        }
+
         public static List<T> FindAssets<T>() where T : UnityEngine.Object
         {
             List<T> queryResults = AssetDatabase
-                .FindAssets($"t:{typeof(T).Name }")
+                .FindAssets($"t:{typeof(T).Name}")
                 .Select(g => AssetDatabase.GUIDToAssetPath(g))
                 .Select(p => AssetDatabase.LoadAssetAtPath<T>(p))
                 .ToList();
@@ -77,7 +84,7 @@ namespace Bloodthirst.Core.Utils
         {
             List<string> folders = folderPath.Split('/').ToList();
 
-            if(folders.Last().Contains('.'))
+            if (folders.Last().Contains('.'))
             {
                 folders.RemoveAt(folders.Count - 1);
             }
@@ -143,7 +150,7 @@ namespace Bloodthirst.Core.Utils
                 if (string.IsNullOrEmpty(pathToProject))
                 {
                     pathToProject = Application.dataPath;
-                    pathToProject = pathToProject.Substring(0 , pathToProject.Length - "/Assets".Length);
+                    pathToProject = pathToProject.Substring(0, pathToProject.Length - "/Assets".Length);
                 }
 
                 return pathToProject;
