@@ -1,6 +1,5 @@
 ﻿using Bloodthirst.Core.BISD.CodeGeneration;
 using Bloodthirst.Core.Utils;
-using Bloodthirst.Editor;
 using Bloodthirst.System.CommandSystem;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -46,8 +45,11 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 
         private IEnumerable<TextAssetPathPair> FetchUnityAssets()
         {
-            foreach(TextAsset t in EditorUtils.FindScriptAssets())
+            List<MonoScript> list = EditorUtils.FindScriptAssets();
+            
+            for (int i = 0; i < list.Count; i++)
             {
+                TextAsset t = list[i];
                 yield return new TextAssetPathPair() { TextAsset = t, AssetPath = AssetDatabase.GetAssetPath(t) , TextContent = t.text };
             }
         }
@@ -60,6 +62,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
             Success();
         }
 
+
         /// <summary>
         /// Extracts info about the classes that follow the BISD pattern
         /// </summary>
@@ -67,6 +70,8 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
         /// <param name="TextList"></param>
         private Dictionary<string, BISDInfoContainer> ExtractBISDInfoThreaded(List<TextAssetPathPair> deps)
         {
+            CSharpCodeProvider provider = new CSharpCodeProvider();
+
             try
             {
                 Dictionary<string, BISDInfoContainer> typeList = new Dictionary<string, BISDInfoContainer>();
@@ -75,7 +80,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 
                 typeList = new Dictionary<string, BISDInfoContainer>();
 
-                CSharpCodeProvider provider = new CSharpCodeProvider();
+
 
                 Dictionary<TextAsset, Type> fileToType = new Dictionary<TextAsset, Type>();
 
@@ -229,6 +234,10 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
             catch(Exception ex)
             {
                 Debug.Log($"An exception occured during the threaded scripts scanning :\n{ex.Message}");
+            }
+            finally
+            {
+                provider.Dispose();
             }
 
             return null;

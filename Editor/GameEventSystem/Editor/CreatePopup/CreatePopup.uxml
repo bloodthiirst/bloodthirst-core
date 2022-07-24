@@ -1,0 +1,22 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+
+	<ui:VisualElement class="col grow-">
+		
+		<ui:TextField  name="NamespaceTxt" label="Namespace" />
+
+		<ui:TextField  name="EnumName" label="GameEvent Enum Name" />
+
+		<ui:VisualElement class="row grow-1">
+			
+			<ui:TextField name="GameEventPathTxt" label="GameEvent path" class="grow-1 shrink-0"/>
+
+			<ui:Button name="GameEventPathBtn" text="Browse" />
+
+		</ui:VisualElement>
+
+
+		<ui:Button name="CreateBtn" text="Create" />
+
+	</ui:VisualElement>
+
+</UXML>

@@ -51,9 +51,10 @@ namespace Bloodthirst.Editor.BRecorder
             return true;
         }
 
+
         private static IEnumerator WaitUntilLayoutDone(BRecorderEditor wnd)
         {
-            while (float.IsNaN(wnd.Timeline.layout.width))
+            while (!EditorUtils.IsLayoutBuilt(wnd.Root))
             {
                 yield return null;
             }
@@ -226,6 +227,8 @@ namespace Bloodthirst.Editor.BRecorder
 
         public void CreateGUI()
         {
+            isLoaded = false;
+
             // Each editor window contains a root VisualElement object
             Root = rootVisualElement;
 
@@ -248,6 +251,11 @@ namespace Bloodthirst.Editor.BRecorder
             ListenUI();
 
             yield return WaitUntilLayoutDone(this);
+
+            // refresh
+            RepaintViewport();
+            RepaintScroller();
+            RepaintTimline();
 
             isLoaded = true;
 
@@ -348,8 +356,6 @@ namespace Bloodthirst.Editor.BRecorder
         private void HandleScrollChanged(ChangeEvent<float> evt)
         {
             float correct_val = InvertScrollValue(evt.newValue);
-
-            EditorUtils.ClearConsole();
 
             EventSystem.Trigger(new OnTimelineHorizontalScrollChanged(this, correct_val));
         }

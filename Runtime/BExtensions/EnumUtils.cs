@@ -7,7 +7,7 @@ namespace Bloodthirst.Core.EnumLookup
     {
         private static readonly Type type = typeof(TEnum);
 
-        public static readonly int EnumCount = enumValues.Length;
+        public static int EnumCount => enumValues.Length;
 
         private static readonly TEnum[] enumValues = (TEnum[])Enum.GetValues(type);
 

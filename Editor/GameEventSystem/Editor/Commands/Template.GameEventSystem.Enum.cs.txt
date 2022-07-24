@@ -1,0 +1,8 @@
+﻿namespace [NAMESPACE]
+{
+    public enum [ENUM_NAME]
+    {
+        //GENERATED_START
+		//GENERATED_END
+    }
+}

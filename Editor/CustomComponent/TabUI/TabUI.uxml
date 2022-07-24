@@ -1,0 +1,16 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+
+  <ui:VisualElement>
+	
+	<ui:VisualElement class="row tab-container">
+
+		<ui:VisualElement name="TabContainer" class="row" />
+		<ui:VisualElement class="free-space" />
+	
+	</ui:VisualElement>
+
+	<ui:VisualElement name="ContentContainer" class="col grow-1" />
+
+  </ui:VisualElement>
+
+</UXML>

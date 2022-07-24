@@ -1,0 +1,21 @@
+<UXML xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" >
+
+  <engine:VisualElement>
+
+        <engine:Label class="ml-3 title" text="Add" />
+
+  		<engine:TextField  name="GameEventClass" label="GameEvent Class" />
+
+		<engine:VisualElement class="row grow-1">
+
+			<engine:TextField  name="GameEventID" label="GameEvent ID"  class="grow-1 shrink-0"/>
+			<engine:Toggle name="AutoNamingToggle" label="Auto-Naming" />
+		
+		</engine:VisualElement>
+		
+		<engine:Button name="AddEntryBtn" text="AddEntry"  />
+		<engine:Button name="RegenerateEnum" text="Regenrate Enum IDs"  />
+
+  </engine:VisualElement>
+
+</UXML>

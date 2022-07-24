@@ -1,5 +1,4 @@
 ﻿using Bloodthirst.Core.Setup;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -200,6 +199,7 @@ namespace Bloodthirst.Core.SceneManager
         [TitleGroup("Toggle GameObjectes active in the scene", GroupID = "EnableDisable")]
         [HorizontalGroup("EnableDisable/H")]
         [Button(ButtonSizes.Large)]
+        [EnableIf("@UnityEngine.Application.isPlaying")]
         [PropertyTooltip("enables all the gameObjects under the scene")]
         public void Enable()
         {
@@ -223,6 +223,7 @@ namespace Bloodthirst.Core.SceneManager
 
         [TitleGroup("Toggle GameObjectes active in the scene", GroupID = "EnableDisable")]
         [HorizontalGroup("EnableDisable/H")]
+        [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("disables all the gameObjects under the scene")]
         public void Disable()
@@ -249,6 +250,7 @@ namespace Bloodthirst.Core.SceneManager
 
         [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
         [HorizontalGroup("ShowHide/H")]
+        [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("shows all the visual elements of the scene that were previously hidden")]
         public void Show()
@@ -281,6 +283,7 @@ namespace Bloodthirst.Core.SceneManager
 
         [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
         [HorizontalGroup("ShowHide/H")]
+        [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("Hides all the visual elements of the scene \nNOTE : the objects are still active , just not visible")]
         public void Hide()
@@ -319,6 +322,7 @@ namespace Bloodthirst.Core.SceneManager
 
         [TitleGroup("Unload the scene", GroupID = "Unload")]
         [HorizontalGroup("Unload/H")]
+        [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("Unloads the scene")]
         public void UnloadScene()

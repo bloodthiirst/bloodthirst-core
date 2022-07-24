@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.Utils
 {
-    public class ReflectionUtils
+    public static class ReflectionUtils
     {
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace Bloodthirst.Core.Utils
             }
             catch (Exception ex)
             {
-
+                Debug.LogException(ex);
             }
             return null;
         }
@@ -304,7 +304,7 @@ namespace Bloodthirst.Core.Utils
             }
             catch (Exception ex)
             {
-
+                Debug.LogException(ex);
             }
             return null;
         }
@@ -356,7 +356,7 @@ namespace Bloodthirst.Core.Utils
             }
             catch (Exception ex)
             {
-
+                Debug.LogException(ex);
             }
 
             return null;

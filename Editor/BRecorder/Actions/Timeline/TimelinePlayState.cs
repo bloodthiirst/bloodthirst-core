@@ -54,14 +54,24 @@ namespace Bloodthirst.Editor.BRecorder
                         Recorder.SaveSettings();
 
                         if (Recorder.OpenSession.value != null && BRecorderRuntime.RecordingState == BRecorderRuntime.RECORDER_STATE.PLAYING)
-                        {               
+                        {
+                            if(recorder == null)
+                            {
+                                GameObject go = new GameObject("Added Recorder Behaviour");
+                                recorder = go.AddComponent<BRecorderBehaviour>();
+                                recorder.playOnAwake = true;
+                            }
+
                             recorder.recorderAsset = (BRecorderAsset) Recorder.OpenSession.value;
                             recorder.playOnAwake = true;
                         }
                         else
                         {
-                            recorder.recorderAsset = null;
-                            recorder.playOnAwake = false;
+                            if (recorder != null)
+                            {
+                                recorder.recorderAsset = null;
+                                recorder.playOnAwake = false;
+                            }
                         }
 
                         break;
@@ -72,8 +82,12 @@ namespace Bloodthirst.Editor.BRecorder
 
                         Recorder.SaveSettings();
 
-                        recorder.recorderAsset = null;
-                        recorder.playOnAwake = false;
+                        if (recorder != null)
+                        {
+                            recorder.recorderAsset = null;
+                            recorder.playOnAwake = false;
+                        }
+
                         break;
                     }
             }

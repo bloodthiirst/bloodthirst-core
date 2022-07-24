@@ -1,0 +1,14 @@
+.tab-container
+{
+	height : 20px;
+}
+
+.free-space
+{
+	flex-grow : 1;
+
+	border-style : solid;	
+	border-bottom-width : 1px;
+	padding : 5px;
+	border-color : gray;
+}

@@ -180,6 +180,8 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                 }
             }
 
+            provider.Dispose();
+
             return typeList;
         }
 

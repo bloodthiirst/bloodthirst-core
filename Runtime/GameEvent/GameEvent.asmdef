@@ -2,7 +2,8 @@
     "name": "GameEvent",
     "rootNamespace": "",
     "references": [
-        "GUID:315fc73ff153fb24a8d896a4a2b90157"
+        "GUID:315fc73ff153fb24a8d896a4a2b90157",
+        "GUID:12e5c912b42f2454ab6e7e789904681c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

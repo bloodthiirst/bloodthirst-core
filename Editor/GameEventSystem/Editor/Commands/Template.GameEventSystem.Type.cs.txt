@@ -1,0 +1,22 @@
+﻿using Bloodthirst.Core.GameEventSystem;
+
+namespace [GAME_EVENT_CLASS_NAMESPACE]
+{
+    public class [GAME_EVENT_CLASS_TYPE] : IGameEvent<[GAME_EVENT_CLASS_TYPE] , [GAME_EVENT_ENUM_TYPE]>
+    {
+        private static void Init()
+        {
+            IGameEvent<[GAME_EVENT_CLASS_TYPE], [GAME_EVENT_ENUM_TYPE]>.EventID = [GAME_EVENT_ENUM_TYPE].[GAME_EVENT_ENUM_VALUE];
+        }
+
+        GameEventID IGameEvent<[GAME_EVENT_CLASS_TYPE] , [GAME_EVENT_ENUM_TYPE]>.GetEventID()
+        {
+            return IGameEvent<[GAME_EVENT_CLASS_TYPE] , [GAME_EVENT_ENUM_TYPE]>.EventID;
+        }
+
+        public GameEventID EventID()
+        {
+            return [GAME_EVENT_ENUM_TYPE].[GAME_EVENT_ENUM_VALUE];
+        }
+    }
+}

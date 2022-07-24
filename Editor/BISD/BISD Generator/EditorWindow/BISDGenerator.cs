@@ -83,6 +83,7 @@ namespace Bloodthirst.Core.BISD.Editor
         }
 
         List<ICommandBase> runningBackgroundTasks = new List<ICommandBase>();
+        private EditorCoroutine crtRefresh;
 
         public event Action<ICommandBase> OnTaskCommandAdded;
 
@@ -124,9 +125,26 @@ namespace Bloodthirst.Core.BISD.Editor
             RefreshModels();
         }
 
+        private void OnDestroy()
+        {
+            if (crtRefresh != null)
+            {
+                EditorCoroutineUtility.StopCoroutine(crtRefresh);
+                crtRefresh = null;
+            }
+
+            foreach (ICommandBase cmd in runningBackgroundTasks)
+            {
+                cmd.Interrupt();
+            }
+
+            runningBackgroundTasks.Clear();
+
+        }
+
         private void RefreshModels()
         {
-            EditorCoroutineUtility.StartCoroutine(CrtExtractThreaded(), this);
+            crtRefresh = EditorCoroutineUtility.StartCoroutine(CrtExtractThreaded(), this);
         }
 
         private IEnumerator CrtExtractThreaded()
@@ -151,6 +169,8 @@ namespace Bloodthirst.Core.BISD.Editor
             Dictionary<string, BISDInfoContainer> res = cmd.Result;
 
             BISDScannedData = res;
+
+            crtRefresh = null;
 
             yield break;
         }
@@ -214,9 +234,9 @@ namespace Bloodthirst.Core.BISD.Editor
 
             foreach (BISDInfoUI currUi in infoUIs)
             {
-                foreach(CodeGenerationOptionUI op in currUi.codeGenerationOptions)
+                foreach (CodeGenerationOptionUI op in currUi.codeGenerationOptions)
                 {
-                    if(op.IsSelected)
+                    if (op.IsSelected)
                     {
                         TriggerGeneratorsBtn.SetEnabled(true);
                         return;
@@ -256,9 +276,9 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private void HandleCodeGenerationBtnClicked()
         {
-            foreach(BISDInfoUI ui in infoUIs)
+            foreach (BISDInfoUI ui in infoUIs)
             {
-                foreach(CodeGenerationOptionUI op in ui.codeGenerationOptions)
+                foreach (CodeGenerationOptionUI op in ui.codeGenerationOptions)
                 {
                     if (!op.IsSelected)
                         continue;

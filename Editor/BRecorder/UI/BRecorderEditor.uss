@@ -204,8 +204,8 @@
 
 	background-color : rgb(0,130,0);
 
-	-unity-font : url("project:/Assets/TextMesh Pro/Examples & Extras/Fonts/Electronic Highway Sign.TTF");
-
+	-unity-font : url("project:/Assets/Dependencies/Plugins/TextMesh Pro/Examples & Extras/Fonts/Electronic Highway Sign.TTF");
+	-unity-font-definition : none;
 	font-size : 25px;
 
 	border-width : 2px;

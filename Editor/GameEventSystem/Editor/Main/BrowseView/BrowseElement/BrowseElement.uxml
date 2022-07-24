@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <engine:VisualElement name="Container" class="row item-container" focusable="false">
+
+         <!-- INFO -->
+        <engine:VisualElement name="Info" class="col grow-1" >
+        
+            <!-- ENUM -->            
+            <engine:VisualElement class="row grow-1" >
+                <engine:Label text="Enum : "/>
+                <editor:ObjectField name="EnumScript" class="grow-1" />
+                <engine:TextField name="EnumValue" label="Value" class="grow-1" />
+            </engine:VisualElement>
+
+             <!-- SCRIPT -->            
+            <engine:VisualElement class="row grow-1">
+                <engine:Label text="Class : "/>
+                <editor:ObjectField name="ClassScript" class="grow-1"/>
+            </engine:VisualElement>
+
+        </engine:VisualElement>
+
+    
+    </engine:VisualElement>
+
+</engine:UXML>

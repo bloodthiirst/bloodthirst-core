@@ -1,0 +1,11 @@
+.item-container
+{
+	height : 60px;
+	padding : 5px;
+}
+
+.item-icon
+{
+	height : 50px;
+	width : 50px;
+}

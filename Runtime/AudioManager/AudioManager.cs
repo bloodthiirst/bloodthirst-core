@@ -1,11 +1,10 @@
-﻿using Bloodthirst.Core.Singleton;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.Core.Audio
 {
-    public class AudioManager : BSingleton<AudioManager>
+    public class AudioManager : MonoBehaviour
     {
         [SerializeField]
         private bool isPreload = default;
@@ -13,51 +12,11 @@ namespace Bloodthirst.Core.Audio
         [SerializeField]
         private int preloadValue = default;
 
-        private Queue<AudioSource> freeAudioSources;
+        private Queue<AudioSource> freeAudioSources = new Queue<AudioSource>();
 
-        private Queue<AudioSource> FreeAudioSources
-        {
-            get
-            {
-                if (freeAudioSources == null)
-                {
-                    freeAudioSources = new Queue<AudioSource>();
-                }
+        private List<AudioSource> busyAudioSources = new List<AudioSource>();
 
-                return freeAudioSources;
-            }
-        }
-
-        private List<AudioSource> busyAudioSources;
-
-        private List<AudioSource> BusyAudioSources
-        {
-            get
-            {
-                if (busyAudioSources == null)
-                {
-                    busyAudioSources = new List<AudioSource>();
-                }
-
-                return busyAudioSources;
-            }
-        }
-
-        private List<AudioSource> standaloneAudioSources;
-
-        private List<AudioSource> StandaloneAudioSources
-        {
-            get
-            {
-                if (standaloneAudioSources == null)
-                {
-                    standaloneAudioSources = new List<AudioSource>();
-                }
-
-                return standaloneAudioSources;
-            }
-        }
-
+        private List<AudioSource> standaloneAudioSources = new List<AudioSource>();
 
         private AudioSource currentAudio;
 
@@ -74,34 +33,34 @@ namespace Bloodthirst.Core.Audio
         {
             // clear standalone
 
-            for (int i = StandaloneAudioSources.Count - 1; i >= 0; i--)
+            for (int i = standaloneAudioSources.Count - 1; i >= 0; i--)
             {
 #if UNITY_EDITOR
-                DestroyImmediate(StandaloneAudioSources[i]);
+                DestroyImmediate(standaloneAudioSources[i]);
 #else
-                Destroy(StandaloneAudioSources[i]);
+                Destroy(standaloneAudioSources[i]);
 #endif
             }
 
             // clear busy
 
-            for (int i = BusyAudioSources.Count - 1; i >= 0; i--)
+            for (int i = busyAudioSources.Count - 1; i >= 0; i--)
             {
 #if UNITY_EDITOR
-                DestroyImmediate(BusyAudioSources[i]);
+                DestroyImmediate(busyAudioSources[i]);
 #else
-                Destroy(BusyAudioSources[i]);
+                Destroy(busyAudioSources[i]);
 #endif
             }
 
             // clear free
 
-            while (FreeAudioSources.Count != 0)
+            while (freeAudioSources.Count != 0)
             {
 #if UNITY_EDITOR
-                DestroyImmediate(FreeAudioSources.Dequeue());
+                DestroyImmediate(freeAudioSources.Dequeue());
 #else
-                Destroy(FreeAudioSources.Dequeue());
+                Destroy(freeAudioSources.Dequeue());
 #endif
             }
         }
@@ -114,7 +73,7 @@ namespace Bloodthirst.Core.Audio
 
                 ResetAudioSource(audioSource);
 
-                FreeAudioSources.Enqueue(audioSource);
+                freeAudioSources.Enqueue(audioSource);
             }
         }
 
@@ -126,18 +85,18 @@ namespace Bloodthirst.Core.Audio
 
         private void Update()
         {
-            for (int i = BusyAudioSources.Count - 1; i >= 0; i--)
+            for (int i = busyAudioSources.Count - 1; i >= 0; i--)
             {
 
-                currentAudio = BusyAudioSources[i];
+                currentAudio = busyAudioSources[i];
 
                 // if the audio stopped
 
                 if (!currentAudio.isPlaying)
                 {
-                    BusyAudioSources.RemoveAt(i);
+                    busyAudioSources.RemoveAt(i);
 
-                    FreeAudioSources.Enqueue(currentAudio);
+                    freeAudioSources.Enqueue(currentAudio);
                 }
             }
         }
@@ -146,7 +105,7 @@ namespace Bloodthirst.Core.Audio
         {
             AudioSource audioSource = gameObject.AddComponent<AudioSource>();
 
-            StandaloneAudioSources.Add(audioSource);
+            standaloneAudioSources.Add(audioSource);
 
             ResetAudioSource(audioSource);
 
@@ -157,22 +116,22 @@ namespace Bloodthirst.Core.Audio
         {
             // if item was found and removed
 
-            if (StandaloneAudioSources.Remove(audioSource))
+            if (standaloneAudioSources.Remove(audioSource))
             {
-                FreeAudioSources.Enqueue(audioSource);
+                freeAudioSources.Enqueue(audioSource);
             }
         }
 
         private AudioSource GetFreeAudioSource()
         {
-            if (FreeAudioSources.Count == 0)
+            if (freeAudioSources.Count == 0)
             {
                 AudioSource audioSource = gameObject.AddComponent<AudioSource>();
 
                 return audioSource;
             }
 
-            return FreeAudioSources.Dequeue();
+            return freeAudioSources.Dequeue();
         }
 
         [Button]
@@ -188,7 +147,7 @@ namespace Bloodthirst.Core.Audio
             audioSource.clip = audioClip;
 
             audioSource.Play();
-            BusyAudioSources.Add(audioSource);
+            busyAudioSources.Add(audioSource);
 
             return audioSource;
         }

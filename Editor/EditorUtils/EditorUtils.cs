@@ -46,6 +46,7 @@ namespace Bloodthirst.Core.Utils
             return queryResults;
         }
 
+
         /// <summary>
         /// Clears the console in the editor
         /// </summary>
@@ -55,6 +56,13 @@ namespace Bloodthirst.Core.Utils
             Type type = assembly.GetType("UnityEditor.LogEntries");
             MethodInfo method = type.GetMethod("Clear");
             method.Invoke(new object(), null);
+        }
+
+        public static bool IsLayoutBuilt(this VisualElement root)
+        {
+           return !root.Query<VisualElement>()
+                .Build()
+                .Any(v => float.IsNaN(v.layout.width) || float.IsNaN(v.layout.height));
         }
 
         public static void Display(this VisualElement visualElement, bool show)
@@ -73,16 +81,39 @@ namespace Bloodthirst.Core.Utils
             return pathToCurrentFolder;
         }
 
+       public static string GetFolderFromPath(string path)
+        {
+            bool isFilePath = false;
+            for(int i = path.Length -1; i > -1; i--)
+            {
+                if(path[i] == '.')
+                {
+                    isFilePath = true;
+                    continue;
+                }
+
+                if(path[i] == '/')
+                {
+                    if (isFilePath)
+                        return path.Substring(0, i);
+                    else
+                        break;
+                }
+            }
+
+            return path;
+        }
+
         /// <summary>
         /// <para>Create a folder based on path</para>
         /// <para>Works if the path ends with filename + extension also</para>
         /// <para>example : "Assets/Resources/Foo/Bar"</para>
         /// <para>OR : "Assets/Resources/Foo/Bar/SomeAsset.asset"</para>
         /// </summary>
-        /// <param name="folderPath"></param>
-        public static void CreateFoldersFromPath(string folderPath)
+        /// <param name="path"></param>
+        public static void CreateFoldersFromPath(string path)
         {
-            List<string> folders = folderPath.Split('/').ToList();
+            List<string> folders = path.Split('/').ToList();
 
             if (folders.Last().Contains('.'))
             {
@@ -171,7 +202,7 @@ namespace Bloodthirst.Core.Utils
 
                 MonoScript asset = AssetDatabase.LoadAssetAtPath<MonoScript>(assetPath);
 
-                if (asset != null)
+                if (asset != null )
                 {
                     assets.Add(asset);
                 }

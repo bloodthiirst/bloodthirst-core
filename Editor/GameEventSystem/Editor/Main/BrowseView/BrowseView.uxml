@@ -1,0 +1,15 @@
+<UXML 
+    xmlns:engine="UnityEngine.UIElements" 
+    xmlns:editor="UnityEditor.UIElements" 
+    xmlns:custom="Bloodthirst.Editor.CustomComponent" 
+>
+
+  <engine:VisualElement>
+
+        <engine:Label class="ml-3 title" text="Browse" />
+
+        <custom:SearchableList name="SearchableList"/>
+
+  </engine:VisualElement>
+
+</UXML>

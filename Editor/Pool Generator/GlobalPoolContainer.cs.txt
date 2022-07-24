@@ -37,21 +37,10 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
 
         #endregion
         
-        private List<IPoolBehaviour> allPools;
+        private List<IPoolBehaviour> allPools = new List<IPoolBehaviour>();
 
         [ShowInInspector]
-        public List<IPoolBehaviour> AllPools 
-        {
-            get
-            {
-                if(allPools == null)
-                {
-                    allPools = new List<IPoolBehaviour>();
-                }
-
-                return allPools;
-            }
-        }
+        public List<IPoolBehaviour> AllPools => allPools;
 
         public IPoolBehaviour<T> GetByPrefab<T>(GameObject prefab) where T : Component
         {

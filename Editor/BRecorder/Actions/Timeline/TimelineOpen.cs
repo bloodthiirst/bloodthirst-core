@@ -33,7 +33,7 @@ namespace Bloodthirst.Editor.BRecorder
                 return;
             }
 
-            BRecorderRuntime.CurrentSession = asset.Session;
+            Recorder.OpenSession.value = asset;
         }
 
         public override void Destroy()

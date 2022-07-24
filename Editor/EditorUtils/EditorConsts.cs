@@ -6,6 +6,7 @@ namespace Bloodthirst.Editor
     public class EditorConsts
     {
         public const string GLOBAL_EDITOR_FOLRDER_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/";
+        public const string IS_PLAYING = "@UnityEngine.Application.isPlaying";
 
         private const string GLBOAL_USS_PATH = GLOBAL_EDITOR_FOLRDER_PATH + "GlobalStyleSheet.uss";
 

@@ -1,51 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <engine:UXML
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    
     xmlns:engine="UnityEngine.UIElements"
     xmlns:editor="UnityEditor.UIElements"
+    xmlns:custom="Bloodthirst.Editor.CustomComponent"
+    xmlns:views="Bloodthirst.Core.GameEventSystem"
+
     xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
 >
     <engine:TwoPaneSplitView name="PanelSplit" >
         
-        <!-- MAIN CONTAINER -->
-        <engine:VisualElement name="MainContainer" class="col grow-1 p-5" >
-            
-            <!-- DATA OBJECT FIELD -->
-            <engine:VisualElement name="DropdownContainer" />
+        <!-- LEFT COLUMN -->
+        <engine:VisualElement class="col grow-1 p-5" >
+        
+            <!-- SELECT OR CREATE DATASOURCE -->
+            <engine:VisualElement class="m-5 shrink-0">
 
-        </engine:VisualElement>
+                <!-- DATA OBJECT FIELD -->
+                <engine:VisualElement name="DropdownContainer" />
 
-        <!-- ALL EVENTS AVAILABLE -->
-        <engine:VisualElement name="SearchColumn" class="col grow-1 p-5">
-            
-            <engine:VisualElement class="row searchbar-style">
-            
-                <editor:Toolbar class="unity-toolbar grow-1 shrink-1">
+                <engine:Label text="OR" class="text-center-xy" />
 
-                    <!-- SEARCH BAR -->
-                    <editor:ToolbarSearchField class="unity-search-field-base unity-toolbar-search-field unity-style-debugger-search grow-1 shrink-1"/>           
+                <engine:Button name="CreateNew" text="Create new GameEventSystem" />
 
-                    <!-- SHOW ALL -->
-                    <editor:ToolbarToggle class="unity-base-field unity-base-field--no-label unity-toolbar-toggle unity-style-debugger-toggle">
-
-                      <engine:VisualElement class="unity-base-field__input unity-toggle__input">
-                       
-                        <engine:VisualElement name="unity-checkmark" class="unity-toggle__checkmark" />
-                        <engine:Label text="Show all" class="unity-text-element unity-label unity-toggle__text" />
-                      
-                      </engine:VisualElement>
-
-                    </editor:ToolbarToggle>
-
-                </editor:Toolbar>
-            
             </engine:VisualElement>
 
-            <engine:ListView name="AllEventsList"/>
-        
-        </engine:VisualElement>
-        
+            
+            <!-- MANAGE EVENTS -->
+            <engine:VisualElement name="MainContent" >
 
+                <!-- This would be the TabView element , so pretty much is should "host" the content of the its child tabs -->
+                <custom:TabUI name="Tabs">
+            
+                    <!-- this is how i would prefer to define a single tab : a single element with a label attribute that specifies the tab title , with the content of the tab being inside it -->
+                    <custom:TabElement name="ManageTab" label="Manage">
+                       
+                        <views:CreateView name="CreateView" class="shrink-0" />
+
+                        <views:BrowseView name="BrowseView" />
+
+                    </custom:TabElement>
+
+                    <!-- This is another tab-->
+                    <custom:TabElement name="EditTab" label="Edit" />
+                
+                    <!-- This is another tab aswell-->
+                    <custom:TabElement name="CheckTab" label="Check" />
+
+                </custom:TabUI>
+
+            </engine:VisualElement>
+
+        </engine:VisualElement>
+
+        <!-- RIGHT COLUMN -->
+        <engine:VisualElement />
 
     </engine:TwoPaneSplitView>
 
