@@ -142,7 +142,7 @@ public class SceneCreatorEditor : EditorWindow
 
         // reload the scenes list in the scene data scriptable object
 
-        scenesListData.LoadAllScenesAvailable();
+        scenesListData.InitializeScenes();
 
         if (HasOpenInstances<SceneLoadHelper>())
         {

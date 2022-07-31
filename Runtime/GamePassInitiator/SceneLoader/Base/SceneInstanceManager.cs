@@ -44,7 +44,7 @@ namespace Bloodthirst.Core.SceneManager
         {
             get
             {
-                return UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex);
+                return UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(SceneIndex);
             }
         }
 

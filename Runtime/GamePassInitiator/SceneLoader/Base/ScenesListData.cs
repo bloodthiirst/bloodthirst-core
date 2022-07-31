@@ -55,30 +55,6 @@ namespace Bloodthirst.Core.SceneManager
 
 #if UNITY_EDITOR
 
-        private static bool canOpenScene;
-
-        private static void OnAfterAssemblyReload()
-        {
-            canOpenScene = true;
-        }
-
-        private static void OnBeforeAssemblyReload()
-        {
-            canOpenScene = false;
-        }
-
-        public static void ReloadUpdater()
-        {
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                return;
-
-            AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
-            AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
-
-            AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
-            AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
-        }
-
         private bool SceneHasManager(string sceneName)
         {
 
@@ -95,7 +71,42 @@ namespace Bloodthirst.Core.SceneManager
 
             return false;
         }
+        private List<SceneAsset> GetAllSceneInTheProjectWithManager()
+        {
+            // load scene assets
+            string[] scenesGUIDs = AssetDatabase.FindAssets("t:Scene");
 
+            List<SceneAsset> sceneAssets = new List<SceneAsset>();
+
+            foreach (string sceneGUID in scenesGUIDs)
+            {
+                string scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
+
+                // has manager
+                string sceneName = scenePath.Remove(scenePath.Length - 6).Split('/').Last();
+
+                if (!SceneHasManager(sceneName))
+                {
+                    continue;
+                }
+
+                // is in scene folder
+
+                if (!scenePath.StartsWith("Assets/Scenes"))
+                    continue;
+
+                if (!string.IsNullOrEmpty(scenePath))
+                {
+                    Debug.Log("Scene path found : " + scenePath);
+
+                    SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+                    sceneAssets.Add(sceneAsset);
+                }
+            }
+
+            return sceneAssets;
+        }
+        
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
         public void ApplyToBuildSettings()
         {
@@ -110,7 +121,7 @@ namespace Bloodthirst.Core.SceneManager
             EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
         }
 
-        private void SceneToEditorList()
+        private void SceneListToEditor()
         {
             editorList = CollectionsUtils.CreateOrClear(editorList);
 
@@ -134,164 +145,108 @@ namespace Bloodthirst.Core.SceneManager
         {
             EditorToSceneList();
 
+            RefreshSceneManagerIndices();
+
             ApplyToBuildSettings();
 
-            RefreshSceneManagerIndices();
         }
 
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
-        public void LoadAllScenesAvailable()
+        public void InitializeScenes()
+        {
+            RefreshScenesList();
+
+            RefreshSceneManagerIndices();
+
+            ApplyToBuildSettings();
+
+            SceneListToEditor();
+        }
+
+        private void RefreshScenesList()
         {
             // copy old scenes
             List<string> oldList = ScenesList.ToList();
 
-            ScenesList.Clear();
 
-            List<EditorBuildSettingsScene> editorBuildSettingsScenes = GetAllSceneInTheProjectWithManager();
+            List<SceneAsset> allScenesWithManager = GetAllSceneInTheProjectWithManager();
+
+            EditorBuildSettingsScene[] editorScenes = new EditorBuildSettingsScene[allScenesWithManager.Count];
 
             // try to keep the same order of the old list
-            for (int i = 0; i < editorBuildSettingsScenes.Count; i++)
+            for (int i = 0; i < allScenesWithManager.Count; i++)
             {
-                var curr = editorBuildSettingsScenes[i];
+                SceneAsset curr = allScenesWithManager[i];
 
-                var oldPath = curr.path;
-                var sameScene = oldList.FirstOrDefault(s => s.Equals(oldPath));
+                string scenePath = AssetDatabase.GetAssetPath(curr);
 
-                if (sameScene != null)
-                {
-                    int indexInOldSave = oldList.IndexOf(oldPath);
-                    oldList.RemoveAt(indexInOldSave);
-                    editorBuildSettingsScenes.RemoveAt(i);
-                    editorBuildSettingsScenes.Insert(indexInOldSave, curr);
-                }
+                editorScenes[i] = new EditorBuildSettingsScene(scenePath, true);
             }
 
             // apply the change to the scenes list in build settings
-            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
+            EditorBuildSettings.scenes = editorScenes;
+
+            ScenesList.Clear();
 
             // save the scenes info in dictionary
-            for (int i = 0; i < editorBuildSettingsScenes.Count; i++)
+            for (int i = 0; i < allScenesWithManager.Count; i++)
             {
-                string sceneName = editorBuildSettingsScenes[i].path;
+                SceneAsset curr = allScenesWithManager[i];
+
+                string scenePath = AssetDatabase.GetAssetPath(curr);
 
                 // add to the final list
-                ScenesList.Add(sceneName);
-
-                // setup scene manager index
-                SetupSceneInstanceManager(i);
+                ScenesList.Add(scenePath);
             }
-
-            SceneToEditorList();
         }
-
         private void RefreshSceneManagerIndices()
         {
-            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
-
-            for (int i = 0; i < ScenesList.Count; i++)
-            {
-                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(ScenesList[i], true));
-            }
+            isValidSetup = true;
 
             // save the scenes info in dictionary
-            for (int i = 0; i < editorBuildSettingsScenes.Count; i++)
+            for (int i = 0; i < scenesList.Count; i++)
             {
                 // setup scene manager index
                 SetupSceneInstanceManager(i);
             }
         }
 
-        private List<EditorBuildSettingsScene> GetAllSceneInTheProjectWithManager()
-        {
-            // load scene assets
-            string[] scenesGUIDs = AssetDatabase.FindAssets("t:Scene");
 
-            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
-
-            foreach (string sceneGUID in scenesGUIDs)
-            {
-                string scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
-
-                // has manager
-
-                string sceneName = scenePath.Remove(scenePath.Length - 6).Split('/').Last();
-
-                if (!SceneHasManager(sceneName))
-                {
-                    continue;
-                }
-
-                // is in scene folder
-
-                if (!scenePath.StartsWith("Assets/Scenes"))
-                    continue;
-
-                if (!string.IsNullOrEmpty(scenePath))
-                {
-                    Debug.Log("Scene path found : " + scenePath);
-
-                    // if scene is valid add it to the scenes list in build settings
-                    editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenePath, true));
-                }
-            }
-
-            return editorBuildSettingsScenes;
-        }
 
 #if UNITY_EDITOR
         public void OnPreprocessBuild(BuildReport report)
         {
-            LoadAllScenesAvailable();
+            InitializeScenes();
         }
 #endif
 
         private void SetupSceneInstanceManager(int sceneIndex)
         {
-            bool cleanupScene = false;
+            string scenePath = scenesList[sceneIndex];
 
-            Scene sceneRef = default;
+            Scene sceneRef = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
 
-            sceneRef = UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex);
-
+            bool cleanupScene = !sceneRef.IsValid();
+            
             if (!sceneRef.IsValid())
             {
-                cleanupScene = true;
-
-                //AssemblyReloadEvents.
-
-                if (canOpenScene)
-                {
-                    sceneRef = EditorSceneManager.OpenScene(SceneUtility.GetScenePathByBuildIndex(sceneIndex), OpenSceneMode.Additive);
-                }
+                sceneRef = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
             }
 
-            Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(sceneIndex);
-
-            if (!scene.IsValid())
-            {
+            if (!sceneRef.IsValid())
                 return;
-            }
 
             if (sceneIndex == 0)
             {
-                LoadingManager sceneLoadingManager = scene
+                LoadingManager sceneLoadingManager = sceneRef
                     .GetRootGameObjects()
                     .FirstOrDefault(go => go.GetComponent<LoadingManager>() != null)?
                     .GetComponent<LoadingManager>();
 
-                if (sceneLoadingManager != null)
-                {
-                    isValidSetup = true;
-                }
-                else
-                {
-                    isValidSetup = false;
-                }
+                isValidSetup &= sceneLoadingManager != null;
             }
 
-
-
-            ISceneInstanceManager sceneInstanceManager = scene
+            ISceneInstanceManager sceneInstanceManager = sceneRef
                 .GetRootGameObjects()
                 .FirstOrDefault(go => go.GetComponent<ISceneInstanceManager>() != null)?
                 .GetComponent<ISceneInstanceManager>();
@@ -299,9 +254,10 @@ namespace Bloodthirst.Core.SceneManager
             if (sceneInstanceManager != null)
             {
                 sceneInstanceManager.SceneIndex = sceneIndex;
-                sceneInstanceManager.ScenePath = scene.path;
+                sceneInstanceManager.ScenePath = scenePath;
                 EditorSceneManager.SaveScene(sceneRef);
             }
+
             if (cleanupScene)
             {
                 EditorSceneManager.CloseScene(sceneRef, true);

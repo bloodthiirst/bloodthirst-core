@@ -29,14 +29,8 @@ namespace Bloodthirst.Runtime.BAdapter
             GameObjectUtils.GetAllComponents<ISceneInitializationPass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IPostSceneInitializationPass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IAfterAllScenesIntializationPass>(allGos, true).ForEach(e => e.Execute());
-            GameObjectUtils.GetAllComponents<ISceneInitializationPass>(allGos, true).ForEach(e => e.Execute());
-
+            
             // objs
-            GameObjectUtils.GetAllComponents<IBeforeAllScenesInitializationPass>(allGos, true).ForEach(e => e.Execute());
-            GameObjectUtils.GetAllComponents<ISceneInitializationPass>(allGos, true).ForEach(e => e.Execute());
-            GameObjectUtils.GetAllComponents<IPostSceneInitializationPass>(allGos, true).ForEach(e => e.Execute());
-            GameObjectUtils.GetAllComponents<IAfterAllScenesIntializationPass>(allGos, true).ForEach(e => e.Execute()); ;
-
             GameObjectUtils.GetAllComponents<ISetupSingletonPass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IQuerySingletonPass>(allGos, true).ForEach(e => e.Execute()); ;
             GameObjectUtils.GetAllComponents<IInjectPass>(allGos, true).ForEach(e => e.Execute());
@@ -54,7 +48,7 @@ namespace Bloodthirst.Runtime.BAdapter
             for (int i = 0; i < ScenesListData.Instance.ScenesList.Count; i++)
             {
                 string scenePath = ScenesListData.Instance.ScenesList[i];
-                Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
+                Scene scene = SceneManager.GetSceneByPath(scenePath);
                 if (!scene.isLoaded)
                 {
                     op.Add(scenePath);

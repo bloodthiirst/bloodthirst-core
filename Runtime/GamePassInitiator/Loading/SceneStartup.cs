@@ -16,7 +16,7 @@ namespace Bloodthirst.Core.SceneManager
 
         void IPreprocessBuildWithReport.OnPreprocessBuild(BuildReport report)
         {
-            ScenesListData.Instance.LoadAllScenesAvailable();
+            ScenesListData.Instance.InitializeScenes();
         }
 #endif
     }

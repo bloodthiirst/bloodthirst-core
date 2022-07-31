@@ -26,7 +26,7 @@ namespace Bloodthirst.Core.SceneManager
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            ScenesListData.Instance.LoadAllScenesAvailable();
+            ScenesListData.Instance.InitializeScenes();
         }
 #endif
         public event Action<LoadingManager> OnLoadingProgressChanged;
