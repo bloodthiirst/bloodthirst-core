@@ -72,6 +72,7 @@ public class SceneCreatorEditor : EditorWindow
                 // search for the manager type
 
                 Type sceneManagerType = null;
+                Type sceneManagerAdapter = TypeUtils.AllTypes.FirstOrDefault(t => t.Name == "SceneInstanceManagerAdapter");
 
                 IEnumerable<Type> allTypes = TypeUtils.AllTypes
                                             .Where(t => typeof(MonoBehaviour).IsAssignableFrom(t))
@@ -103,6 +104,7 @@ public class SceneCreatorEditor : EditorWindow
                 // add the scene manager component
 
                 sceneManager.AddComponent(sceneManagerType);
+                sceneManager.AddComponent(sceneManagerAdapter);
 
                 UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
 
