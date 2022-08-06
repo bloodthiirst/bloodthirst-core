@@ -6,6 +6,6 @@ namespace Bloodthirst.Core.Setup
     public interface IGameEnd
     {
         int Order { get; }
-        IEnumerable<AsyncOperation> Operations();
+        IAsynOperationWrapper GetAsyncOperations();
     }
 }

@@ -41,9 +41,10 @@ namespace Bloodthirst.Core.Setup
             LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
 
             List<IGameSetup> gameSetups = new List<IGameSetup>();
+
             GameObjectUtils.GetAllComponents(ref gameSetups, true);
 
-            IEnumerable<IAsynOperationWrapper> asyncOps = gameSetups.Select(g => g.GetAsynOperations());
+            IEnumerable<IAsynOperationWrapper> asyncOps = gameSetups.SelectMany(g => g.GetAsynOperations());
 
             foreach (IAsynOperationWrapper op in asyncOps)
             {

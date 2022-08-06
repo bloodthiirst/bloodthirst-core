@@ -36,8 +36,15 @@ public class SceneCreatorEditor : EditorWindow
         // get all scenes and open them
         List<Scene> allScenes = new List<Scene>();
 
-        foreach (string scenePath in EditorUtils.GetAllScenePathsInProject())
+        List<string> allScenePaths = EditorUtils.GetAllScenePathsInProject();
+        
+        for (int i = 0; i < allScenes.Count; i++)
         {
+            string scenePath = allScenePaths[i];
+
+            if (!scenePath.StartsWith("Assets/Scenes"))
+                continue;
+
             Scene s = SceneManager.GetSceneByPath(scenePath);
 
             if (!s.IsValid())

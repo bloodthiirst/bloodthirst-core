@@ -1,5 +1,6 @@
 ﻿using Bloodthirst.Core.Setup;
 using Bloodthirst.System.CommandSystem;
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR
@@ -44,7 +45,7 @@ namespace Bloodthirst.Core.SceneManager
             State = LOADDING_STATE.FREE;
             Progress = 0;
 
-            runningCommands = new List<AsyncOperationsCommand>();
+            runningCommands = new List<IProgressCommand>();
 
             loadingQueue = commandManager.AppendBatch<CommandBatchQueue>(this, false);
             loadingQueue.OnCommandAdded += HandleCommandAdded;
@@ -73,9 +74,10 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
+        [ShowInInspector]
         private CommandBatchQueue loadingQueue;
 
-        private List<AsyncOperationsCommand> runningCommands;
+        private List<IProgressCommand> runningCommands;
 
       
         public void Interrupt()
@@ -100,11 +102,17 @@ namespace Bloodthirst.Core.SceneManager
 
             for (int i = 0; i < runningCommands.Count; i++)
             {
-                AsyncOperationsCommand curr = runningCommands[i];
-                progressSum += curr.Progress * curr.TotalOpsCount;
+                IProgressCommand curr = runningCommands[i];
+                /*
+                progressSum += curr.CurrentProgress * curr.TotalOpsCount;
                 totalOpsSum += curr.TotalOpsCount;
+                */
 
-                notDone = notDone || (curr.Progress != 1);
+                progressSum += curr.CurrentProgress;
+                totalOpsSum++;
+
+
+                notDone = notDone || (curr.CurrentProgress != 1);
             }
 
             float progressPerecentage = progressSum / totalOpsSum;
@@ -147,14 +155,14 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        private void HandleProgressChanged(AsyncOperationsCommand obj)
+        private void HandleProgressChanged(IProgressCommand progressCommand , float oldValue , float newValue)
         {
             RefreshState();
         }
 
         private void HandleCommandRemoved(ICommandBatch batch, ICommandBase cmd)
         {
-            AsyncOperationsCommand casted = (AsyncOperationsCommand)cmd;
+            IProgressCommand casted = (IProgressCommand)cmd;
             casted.OnCurrentProgressChanged -= HandleProgressChanged;
 
             RefreshState();
@@ -162,7 +170,7 @@ namespace Bloodthirst.Core.SceneManager
 
         private void HandleCommandAdded(ICommandBatch batch, ICommandBase cmd)
         {
-            AsyncOperationsCommand casted = (AsyncOperationsCommand)cmd;
+            IProgressCommand casted = (IProgressCommand)cmd;
             casted.OnCurrentProgressChanged += HandleProgressChanged;
 
             runningCommands.Add(casted);
@@ -172,7 +180,7 @@ namespace Bloodthirst.Core.SceneManager
 
         public void Load(IAsynOperationWrapper asyncOperations)
         {
-            AsyncOperationsCommand cmd = new AsyncOperationsCommand(asyncOperations);
+            IProgressCommand cmd = asyncOperations.CreateOperation();
             loadingQueue.Append(cmd);
         }
 

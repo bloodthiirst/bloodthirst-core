@@ -15,8 +15,7 @@ namespace Bloodthirst.Core.Utils
             for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
             {
                 UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
-                cache.Clear();
-                cache.Capacity = scene.rootCount;
+
                 scene.GetRootGameObjects(cache);
 
                 lst.AddRange(cache);

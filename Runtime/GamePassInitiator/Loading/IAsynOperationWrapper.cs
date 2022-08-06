@@ -1,13 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using Bloodthirst.System.CommandSystem;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.Core.Setup
 {
+    public enum AsyncOpState
+    {
+        WAITING,
+        EXECUTING,
+        DONE
+    };
+
     public interface IAsynOperationWrapper
     {
-        int Order { get; }
+        IProgressCommand CreateOperation();
+    }
 
-        int OperationsCount();
-        IEnumerable<AsyncOperation> StartOperations();
+    public interface IProgressCommand : ICommandBase
+    {
+        event Action<IProgressCommand, float, float> OnCurrentProgressChanged;
+
+        float CurrentProgress { get; }
     }
 }

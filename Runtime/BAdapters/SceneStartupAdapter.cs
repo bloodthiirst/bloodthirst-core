@@ -24,6 +24,7 @@ namespace Bloodthirst.Runtime.BAdapter
         void IPostGameSetup.Execute()
         {
             List<GameObject> allGos = GameObjectUtils.GetAllRootGameObjects();
+
             // scenes
             GameObjectUtils.GetAllComponents<IBeforeAllScenesInitializationPass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<ISceneInitializationPass>(allGos, true).ForEach(e => e.Execute());
@@ -38,12 +39,9 @@ namespace Bloodthirst.Runtime.BAdapter
             GameObjectUtils.GetAllComponents<IEnablePass>(allGos, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IPostEnablePass>(allGos, true).ForEach(e => e.Execute());
         }
-
-
-
-        IAsynOperationWrapper IGameSetup.GetAsynOperations()
+        IEnumerable<IAsynOperationWrapper> IGameSetup.GetAsynOperations()
         {
-            LoadMultipleScenesAsyncOperation op = new LoadMultipleScenesAsyncOperation();
+            List<string> scenePaths = new List<string>();
 
             for (int i = 0; i < ScenesListData.Instance.ScenesList.Count; i++)
             {
@@ -51,11 +49,13 @@ namespace Bloodthirst.Runtime.BAdapter
                 Scene scene = SceneManager.GetSceneByPath(scenePath);
                 if (!scene.isLoaded)
                 {
-                    op.Add(scenePath);
+                    scenePaths.Add(scenePath);
                 }
             }
 
-            return op;
+            LoadMultipleScenesAsyncWrapper op = new LoadMultipleScenesAsyncWrapper(scenePaths);
+
+            yield return op;
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
+using Bloodthirst.System.CommandSystem;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,32 +9,51 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.Setup
 {
-    public class LoadSingleSceneAsyncOperation : IAsynOperationWrapper
+    public class LoadSingleSceneAsyncOperation : CommandBase<LoadSingleSceneAsyncOperation> , IProgressCommand
     {
-        public int Order { get; set; }
+        private string scenePath;
+        
+        private AsyncOperation op;
 
-        private string _scenePath;
-        public LoadSingleSceneAsyncOperation(string scenePath)
+        private float currentProgress;
+        public float CurrentProgress
         {
-            _scenePath = scenePath;
+            get => currentProgress;
+            private set
+            {
+                if (currentProgress == value)
+                    return;
+
+                float old = currentProgress;
+                currentProgress = value;
+
+                OnCurrentProgressChanged?.Invoke(this, old, currentProgress);
+            }
         }
 
-        public int OperationsCount()
+        public event Action<IProgressCommand, float, float> OnCurrentProgressChanged;
+
+        public LoadSingleSceneAsyncOperation(string scene)
         {
-            return 1;
+            this.scenePath = scene;
         }
 
-        public IEnumerable<AsyncOperation> StartOperations()
+        public override void OnStart()
         {
-            AsyncOperation load = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(_scenePath);
-
-            load.completed += OnSceneLoadComplete;
-            yield return load;
+            op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(scenePath, LoadSceneMode.Additive);
+            op.completed += OnSceneLoadComplete;
         }
 
-        private void OnSceneLoadComplete(AsyncOperation obj)
+        public override void OnTick(float delta)
         {
-            Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(_scenePath);
+            CurrentProgress = op.progress;
+        }
+
+        private void OnSceneLoadComplete(AsyncOperation op)
+        {
+            op.completed -= OnSceneLoadComplete;
+
+            Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
 
             List<GameObject> sceneGOs = scene.GetRootGameObjects().ToList();
 
@@ -47,6 +68,10 @@ namespace Bloodthirst.Core.Setup
             GameObjectUtils.GetAllComponents<IAwakePass>(sceneGOs, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IEnablePass>(sceneGOs, true).ForEach(e => e.Execute());
             GameObjectUtils.GetAllComponents<IPostEnablePass>(sceneGOs, true).ForEach(e => e.Execute());
+
+            CurrentProgress = 1;
+
+            Success();
         }
     }
 }

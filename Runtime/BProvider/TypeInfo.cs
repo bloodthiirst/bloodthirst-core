@@ -15,14 +15,14 @@ namespace Bloodthirst.Core.BProvider
         internal List<Type> TreeParentsList { get; set; }
 
         /// <summary>
-        /// Reference to the tree cvontaining the instances
+        /// Reference to the tree containing the instances
         /// </summary>
-        internal TreeList<Type, List<object>> InstanceTree { get; set; }
+        internal TreeList<Type, IBProviderList> InstanceTree { get; set; }
 
         /// <summary>
         /// A cached reference to the leaf of the instances list of MainType
         /// </summary>
-        internal TreeLeaf<Type, List<object>> InstanceLeaf { get; set; }
+        internal TreeLeaf<Type, IBProviderList> InstanceLeaf { get; set; }
 
         /// <summary>
         /// Reference to the tree cvontaining the singletons

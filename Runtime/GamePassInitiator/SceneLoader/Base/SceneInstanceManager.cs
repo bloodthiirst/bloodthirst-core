@@ -327,7 +327,7 @@ namespace Bloodthirst.Core.SceneManager
         [PropertyTooltip("Unloads the scene")]
         public void UnloadScene()
         {
-            _loadingManager.Load(new UnloadSceneAsyncOperation(Scene.path));
+            _loadingManager.Load(new UnloadSceneAsyncWrapper(Scene.path));
         }
     }
 }

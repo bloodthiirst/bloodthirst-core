@@ -10,11 +10,13 @@ namespace Bloodthirst.Runtime.BAdapter
     public class CommandManagerAdapter : MonoBehaviour, IPreGameSetup
     {
         int IPreGameSetup.Order => 0;
+
         void IPreGameSetup.Execute()
         {
             CommandManagerBehaviour behaviour = GetComponent<CommandManagerBehaviour>();
 
             behaviour.Initialize();
+
             BProviderRuntime.Instance.RegisterSingleton<CommandManagerBehaviour, CommandManagerBehaviour>(behaviour);
         }
     }

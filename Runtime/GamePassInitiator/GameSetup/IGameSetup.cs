@@ -1,7 +1,9 @@
+using System.Collections.Generic;
+
 namespace Bloodthirst.Core.Setup
 {
     public interface IGameSetup
     {
-        IAsynOperationWrapper GetAsynOperations();
+        IEnumerable<IAsynOperationWrapper> GetAsynOperations();
     }
 }

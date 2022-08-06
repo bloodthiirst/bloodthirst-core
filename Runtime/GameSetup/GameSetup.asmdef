@@ -1,5 +1,5 @@
 {
-    "name": "GameStart",
+    "name": "GameSetup",
     "rootNamespace": "",
     "references": [
         "GUID:1473e5c488cfd1b4f8a3082aad49e732",

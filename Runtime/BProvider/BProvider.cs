@@ -23,7 +23,7 @@ namespace Bloodthirst.Core.BProvider
         /// <summary>
         /// Tree structure to store the instances of concreate types
         /// </summary>
-        private TreeList<Type, List<object>> ClassInstances { get; set; }
+        private TreeList<Type, IBProviderList> ClassInstances { get; set; }
         #endregion
 
         #region interface properties
@@ -35,17 +35,17 @@ namespace Bloodthirst.Core.BProvider
         /// <summary>
         /// Tree structre to store interfaces
         /// </summary>
-        private TreeList<Type, List<object>> InterfaceInstances { get; set; }
+        private TreeList<Type, IBProviderList> InterfaceInstances { get; set; }
         #endregion
 
         public BProvider()
         {
             TypeToInfoHash = new Dictionary<Type, TypeInfo>();
 
-            ClassInstances = new TreeList<Type, List<object>>();
+            ClassInstances = new TreeList<Type, IBProviderList>();
             ClassSingletons = new TreeList<Type, object>();
 
-            InterfaceInstances = new TreeList<Type, List<object>>();
+            InterfaceInstances = new TreeList<Type, IBProviderList>();
             InterfaceSingletons = new TreeList<Type, object>();
         }
 
@@ -170,7 +170,7 @@ namespace Bloodthirst.Core.BProvider
             return RegisterSingleton<TInstanceType, TInstanceType>(instance);
         }
 
-        public void RemoveSingleton(Type t , object instance)
+        public bool RemoveSingleton(Type t , object instance)
         {
             TypeInfo info = GetOrCreateInfo(t);
 
@@ -181,13 +181,14 @@ namespace Bloodthirst.Core.BProvider
 
             if (info.SingletonLeaf.Value == null)
             {
-                return;
+                return false;
             }
 
             info.SingletonLeaf.Value = null;
+            return true;
         }
 
-        public void RemoveSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
+        public bool RemoveSingleton<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
             Type t = typeof(TInstanceType);
 
@@ -200,10 +201,11 @@ namespace Bloodthirst.Core.BProvider
 
             if (info.SingletonLeaf.Value == null)
             {
-                return;
+                return false;
             }
 
             info.SingletonLeaf.Value = null;
+            return true;
         }
 
 
@@ -222,22 +224,21 @@ namespace Bloodthirst.Core.BProvider
                 info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            foreach (List<object> e in info.InstanceLeaf.TraverseAllSubElements())
+            foreach (IBProviderList e in info.InstanceLeaf.TraverseAllSubElements())
             {
-                for (int i = 0; i < e.Count; i++)
+                foreach(object i in e.Elements)
                 {
-                    yield return (TInjectionType)e[i];
+                    yield return (TInjectionType) i;
                 }
             }
         }
 
-
-        public void RemoveInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
+        public bool RemoveInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
         {
-            RemoveInstance<TInstanceType, TInstanceType>(instance);
+            return RemoveInstance<TInstanceType, TInstanceType>(instance);
         }
 
-        public void RemoveInstance<TInstanceType, TInjectionType>(TInstanceType instance) where TInstanceType : class, TInjectionType
+        public bool RemoveInstance<TInstanceType, TInjectionType>(TInstanceType instance) where TInstanceType : class, TInjectionType
         {
             Type t = typeof(TInjectionType);
 
@@ -250,10 +251,10 @@ namespace Bloodthirst.Core.BProvider
 
             if (info.InstanceLeaf.Value == null)
             {
-                return;
+                return false;
             }
 
-            info.InstanceLeaf.Value.Remove(instance);
+            return info.InstanceLeaf.Value.Remove(instance);
         }
 
         public void RegisterInstance<TInstanceType>(TInstanceType instance) where TInstanceType : class
@@ -276,7 +277,7 @@ namespace Bloodthirst.Core.BProvider
 
             if (info.InstanceLeaf.Value == null)
             {
-                info.InstanceLeaf.Value = new List<object>();
+                info.InstanceLeaf.Value = new BProviderList<TInjectionType>();
             }
 
             info.InstanceLeaf.Value.Add(instance);
@@ -295,12 +296,18 @@ namespace Bloodthirst.Core.BProvider
 
             if (info.InstanceLeaf.Value == null)
             {
-                info.InstanceLeaf.Value = new List<object>();
+                info.InstanceLeaf.Value = CreateProviderList(t);
             }
 
             info.InstanceLeaf.Value.Add(instance);
         }
 
+
+        private IBProviderList CreateProviderList(Type t)
+        {
+            Type type = typeof(BProviderList<>).MakeGenericType(t);
+            return (IBProviderList)Activator.CreateInstance(type);
+        }
 
         #endregion
 
@@ -335,7 +342,7 @@ namespace Bloodthirst.Core.BProvider
             bool isInsterface = curr.IsInterface;
 
 
-            TreeList<Type, List<object>> instanceTree = null;
+            TreeList<Type, IBProviderList> instanceTree = null;
             TreeList<Type, object> singletonTree = null;
 
             switch (isInsterface)
@@ -402,17 +409,17 @@ namespace Bloodthirst.Core.BProvider
             return this;
         }
 
-        private void CopyTreeList(TreeList<Type, List<object>> src, TreeList<Type, List<object>> dest)
+        private void CopyTreeList(TreeList<Type, IBProviderList> src, TreeList<Type, IBProviderList> dest)
         {
             // copy classes
-            List<TreeLeaf<Type, List<object>>> finals = src.GetFinalLeafs().ToList();
+            List<TreeLeaf<Type, IBProviderList>> finals = src.GetFinalLeafs().ToList();
 
-            foreach (TreeLeaf<Type, List<object>> f in finals)
+            foreach (TreeLeaf<Type, IBProviderList> f in finals)
             {
                 List<Type> types = new List<Type>();
 
-                TreeLeaf<Type, List<object>> firstMerge = f;
-                TreeLeaf<Type, List<object>> curr = f;
+                TreeLeaf<Type, IBProviderList> firstMerge = f;
+                TreeLeaf<Type, IBProviderList> curr = f;
 
                 while (curr != null)
                 {
@@ -421,7 +428,7 @@ namespace Bloodthirst.Core.BProvider
                     curr = curr.Parent;
                 }
 
-                TreeLeaf<Type, List<object>> firstThis = dest.GetOrCreateLeaf(types);
+                TreeLeaf<Type, IBProviderList> firstThis = dest.GetOrCreateLeaf(types);
 
                 while (firstMerge.Parent != null)
                 {
@@ -429,10 +436,14 @@ namespace Bloodthirst.Core.BProvider
                     {
                         if (firstThis.Value == null)
                         {
-                            firstThis.Value = new List<object>();
+                            firstThis.Value = CreateProviderList(firstThis.LeafKey);
                         }
 
-                        firstThis.Value.AddRange(firstMerge.Value);
+                        // add the content to the other node
+                        foreach (object o in firstMerge.Value.Elements)
+                        {
+                            firstThis.Value.Add(o);
+                        }
                     }
 
                     firstMerge = firstMerge.Parent;
