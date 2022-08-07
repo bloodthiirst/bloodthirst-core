@@ -2,14 +2,14 @@
 
 namespace Bloodthirst.System.CommandSystem
 {
-    public abstract class ListCommandBase<T> : CommandBase<T> where T : ListCommandBase<T>
+    public abstract class TreeCommandBase<T> : CommandBase<T> where T : TreeCommandBase<T>
     {
         private List<CommandSettings> cached;
         private CommandBatchList list;
         private CommandManager commandManager;
         private bool failIfQueueInterrupted;
 
-        public ListCommandBase(CommandManager commandManager = null, bool failIfQueueInterrupted = false) : base()
+        public TreeCommandBase(CommandManager commandManager = null, bool failIfQueueInterrupted = false) : base()
         {
             this.commandManager = commandManager;
             this.failIfQueueInterrupted = failIfQueueInterrupted;
@@ -24,7 +24,7 @@ namespace Bloodthirst.System.CommandSystem
         /// <returns></returns>
         public T AddToList(ICommandBase command, bool interruptOnFail = false)
         {
-            CommandSettings cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail };
+            var cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail };
             return AddToList(cmd);
         }
 
@@ -39,7 +39,7 @@ namespace Bloodthirst.System.CommandSystem
             list = commandManager.AppendBatch<CommandBatchList>(this, true);
 
             // add the commands from AddToQueue
-            for (int i = 0; i < cached.Count; i++)
+            for(int i = 0; i < cached.Count; i++)
             {
                 list.Append(cached[i]);
             }

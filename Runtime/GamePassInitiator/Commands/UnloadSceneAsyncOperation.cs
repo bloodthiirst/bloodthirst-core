@@ -46,6 +46,7 @@ namespace Bloodthirst.Core.Setup
         }
 
         public event Action<IProgressCommand, float, float> OnCurrentProgressChanged;
+        string IProgressCommand.TaskName => $"Unloading Scene {_scenePath}";
 
         public UnloadSceneAsyncOperation(string scenePath)
         {
@@ -73,7 +74,7 @@ namespace Bloodthirst.Core.Setup
         public void OnSceneUnloadComplete(AsyncOperation op)
         {
 
-            Debug.Log($"Scene {_scenePath } has been unloaded");
+            Debug.Log($"Scene {_scenePath} has been unloaded");
 
             op.completed -= OnSceneUnloadComplete;
 

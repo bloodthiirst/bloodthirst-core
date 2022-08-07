@@ -4,28 +4,28 @@ namespace Bloodthirst.Core.TreeList
 {
     public class TreeList<TKey, TValue>
     {
-        public List<TreeLeaf<TKey, TValue>> SubLeafs { get; set; }
+        public List<TreeLeaf<TKey, TValue>> AllSubLeafs { get; set; }
 
         public TreeList()
         {
-            SubLeafs = new List<TreeLeaf<TKey, TValue>>();
+            AllSubLeafs = new List<TreeLeaf<TKey, TValue>>();
         }
 
         public bool LookForKey(TKey key, out TreeLeafInfo<TKey, TValue> info)
         {
             info = default;
 
-            if (SubLeafs == null)
+            if (AllSubLeafs == null)
             {
                 return false;
             }
 
-            if (SubLeafs.Count == 0)
+            if (AllSubLeafs.Count == 0)
                 return false;
 
-            for (int i = 0; i < SubLeafs.Count; i++)
+            for (int i = 0; i < AllSubLeafs.Count; i++)
             {
-                if (SubLeafs[i].LookForKeyRecursive(key, out info))
+                if (AllSubLeafs[i].LookForKeyRecursive(key, out info))
                     return true;
             }
 
@@ -34,15 +34,15 @@ namespace Bloodthirst.Core.TreeList
 
         public void Clear()
         {
-            SubLeafs.Clear();
+            AllSubLeafs.Clear();
         }
 
         public IEnumerable<TreeLeaf<TKey, TValue>> GetFinalLeafs()
         {
-            if (SubLeafs == null)
+            if (AllSubLeafs == null)
                 yield break;
 
-            foreach (TreeLeaf<TKey, TValue> l in SubLeafs)
+            foreach (TreeLeaf<TKey, TValue> l in AllSubLeafs)
             {
                 if (l.SubLeafs == null || l.SubLeafs.Count == 0)
                     yield return l;
@@ -51,10 +51,10 @@ namespace Bloodthirst.Core.TreeList
 
         public IEnumerable<TreeLeaf<TKey, TValue>> GetRootLeafs()
         {
-            if (SubLeafs == null)
+            if (AllSubLeafs == null)
                 yield break;
 
-            foreach (TreeLeaf<TKey, TValue> l in SubLeafs)
+            foreach (TreeLeaf<TKey, TValue> l in AllSubLeafs)
             {
                 if (l.Parent == null)
                     yield return l;
@@ -86,48 +86,45 @@ namespace Bloodthirst.Core.TreeList
         /// <returns>The leaf associated with the first key of the list passed</returns>
         public TreeLeaf<TKey, TValue> GetOrCreateLeaf(IList<TKey> keys)
         {
-            // first key 
-            TKey firstKey = keys[0];
-            TreeLeaf<TKey, TValue> firstLeaf = SubLeafs.Find(l => l.LeafKey.Equals(firstKey));
+            // skip the leafs that already exist
+            TreeLeaf<TKey, TValue> lastLeaf = null;
 
-            if (firstLeaf == null)
-            {
-                firstLeaf = new TreeLeaf<TKey, TValue>();
-                firstLeaf.LeafKey = firstKey;
-                SubLeafs.Add(firstLeaf);
-            }
-
-            TreeLeaf<TKey, TValue> previousLeaf = firstLeaf;
-
-            TreeLeaf<TKey, TValue> currentLeaf = null;
-
-            // keep navigating to the next leafs
-            // and linking the leafs
-            for (int i = 1; i < keys.Count; i++)
+            int i = 0;
+            while(i < keys.Count)
             {
                 TKey currKey = keys[i];
 
-                TreeLeaf<TKey, TValue> leaf = previousLeaf.LookForKeyDirect(currKey);
+                TreeLeaf<TKey, TValue> tryFindLastLeaf = AllSubLeafs.Find(l => l.LeafKey.Equals(currKey));
 
-                // if the key already exists
-                if (leaf != null)
+                if (tryFindLastLeaf == null)
+                    break;
+
+                lastLeaf = tryFindLastLeaf;
+                i++;
+            }
+
+            // create new leafs
+            // keep navigating to the next leafs
+            // and linking the leafs
+            for (; i < keys.Count; i++)
+            {
+                // create
+                TKey currKey = keys[i];
+                TreeLeaf<TKey, TValue> currLeaf = new TreeLeaf<TKey, TValue>();
+                currLeaf.LeafKey = currKey;
+
+                if(lastLeaf != null)
                 {
-                    currentLeaf = leaf;
+                    lastLeaf.AddSubLeaf(currLeaf);
                 }
 
-                // else create it and add it
-                else
-                {
-                    currentLeaf = new TreeLeaf<TKey, TValue>();
-                    currentLeaf.LeafKey = currKey;
-                    previousLeaf.AddSubLeaf(currentLeaf);
-                }
+                AllSubLeafs.Add(currLeaf);
 
-                previousLeaf = currentLeaf;
+                lastLeaf = currLeaf;
             }
 
             // return the first leaf
-            return firstLeaf;
+            return lastLeaf;
         }
     }
 }

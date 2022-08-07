@@ -40,18 +40,6 @@ namespace Bloodthirst.Core.SceneManager
         [SerializeField]
         private LOADDING_STATE state;
 
-        public void Initialize(CommandManagerBehaviour commandManager)
-        {
-            State = LOADDING_STATE.FREE;
-            Progress = 0;
-
-            runningCommands = new List<IProgressCommand>();
-
-            loadingQueue = commandManager.AppendBatch<CommandBatchQueue>(this, false);
-            loadingQueue.OnCommandAdded += HandleCommandAdded;
-            loadingQueue.OnCommandRemoved += HandleCommandRemoved;
-
-        }
 
         /// <summary>
         /// Progress value between 0 -> 1
@@ -79,7 +67,31 @@ namespace Bloodthirst.Core.SceneManager
 
         private List<IProgressCommand> runningCommands;
 
-      
+        private List<IProgressCommand> remainingCommands;
+
+        public IProgressCommand CurrentTask()
+        {
+            if (remainingCommands.Count == 0)
+                return null;
+
+            return remainingCommands[0];
+        }
+
+        public void Initialize(CommandManagerBehaviour commandManager)
+        {
+            State = LOADDING_STATE.FREE;
+            Progress = 0;
+
+            runningCommands = new List<IProgressCommand>();
+            remainingCommands = new List<IProgressCommand>();
+
+
+            loadingQueue = commandManager.AppendBatch<CommandBatchQueue>(this, false);
+            loadingQueue.OnCommandAdded += HandleCommandAdded;
+            loadingQueue.OnCommandRemoved += HandleCommandRemoved;
+
+        }
+
         public void Interrupt()
         {
             loadingQueue.Interrupt();
@@ -165,6 +177,9 @@ namespace Bloodthirst.Core.SceneManager
             IProgressCommand casted = (IProgressCommand)cmd;
             casted.OnCurrentProgressChanged -= HandleProgressChanged;
 
+
+            remainingCommands.Remove(casted);
+
             RefreshState();
         }
 
@@ -174,6 +189,7 @@ namespace Bloodthirst.Core.SceneManager
             casted.OnCurrentProgressChanged += HandleProgressChanged;
 
             runningCommands.Add(casted);
+            remainingCommands.Add(casted);
 
             RefreshState();
         }

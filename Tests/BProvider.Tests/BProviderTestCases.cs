@@ -20,6 +20,7 @@ public class BProviderTestCases
         child2Class = new Child2Class();
     }
 
+
     [Test]
     public void TestSimpleAddAndGetInstance()
     {
@@ -115,11 +116,12 @@ public class BProviderTestCases
 
         Assert.IsTrue(DIQuery1.Count() == 1);
         Assert.IsTrue(DIQuery2.Count() == 1);
-
+        
         Assert.AreEqual(child1Class, DIQuery1.First());
         Assert.AreEqual(child2Class, DIQuery2.First());
-
+        
         List<BaseClass> monoBehaviours = provider.GetInstances<BaseClass>().ToList();
+        
         Assert.IsTrue(monoBehaviours.Contains(child1Class));
         Assert.IsTrue(monoBehaviours.Contains(child2Class));
 

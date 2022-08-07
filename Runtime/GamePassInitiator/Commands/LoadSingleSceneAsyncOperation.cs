@@ -31,7 +31,11 @@ namespace Bloodthirst.Core.Setup
             }
         }
 
+
         public event Action<IProgressCommand, float, float> OnCurrentProgressChanged;
+
+
+        string IProgressCommand.TaskName => $"Loading Scene {scenePath}";
 
         public LoadSingleSceneAsyncOperation(string scene)
         {

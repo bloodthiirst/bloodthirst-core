@@ -7,35 +7,35 @@ namespace Bloodthirst.Core.BProvider
 {
     public class BProvider
     {
-        private Dictionary<Type , InjectionInfo> TypeToInjection { get; set; }
+        internal Dictionary<Type , InjectionInfo> TypeToInjection { get; set; }
 
         /// <summary>
         /// Dictionary cache containing info about the types
         /// </summary>
-        private Dictionary<Type, TypeInfo> TypeToInfoHash { get; set; }
+        internal Dictionary<Type, TypeInfo> TypeToInfoHash { get; set; }
 
         #region class properties
         /// <summary>
         /// Tree structure to store the singletons
         /// </summary>
-        private TreeList<Type, object> ClassSingletons { get; set; }
+        internal TreeList<Type, object> ClassSingletons { get; set; }
 
         /// <summary>
         /// Tree structure to store the instances of concreate types
         /// </summary>
-        private TreeList<Type, IBProviderList> ClassInstances { get; set; }
+        internal TreeList<Type, IBProviderList> ClassInstances { get; set; }
         #endregion
 
         #region interface properties
         /// <summary>
         /// Tree structure to store the singletons
         /// </summary>
-        private TreeList<Type, object> InterfaceSingletons { get; set; }
+        internal TreeList<Type, object> InterfaceSingletons { get; set; }
 
         /// <summary>
         /// Tree structre to store interfaces
         /// </summary>
-        private TreeList<Type, IBProviderList> InterfaceInstances { get; set; }
+        internal TreeList<Type, IBProviderList> InterfaceInstances { get; set; }
         #endregion
 
         public BProvider()
@@ -273,8 +273,6 @@ namespace Bloodthirst.Core.BProvider
                 info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            info.InstanceLeaf = info.InstanceTree.GetOrCreateLeaf(info.TreeParentsList);
-
             if (info.InstanceLeaf.Value == null)
             {
                 info.InstanceLeaf.Value = new BProviderList<TInjectionType>();
@@ -302,6 +300,10 @@ namespace Bloodthirst.Core.BProvider
             info.InstanceLeaf.Value.Add(instance);
         }
 
+        public InstanceWatcher<T> GetInstanceWatcher<T>()
+        {
+            return new InstanceWatcher<T>(this);
+        }
 
         private IBProviderList CreateProviderList(Type t)
         {
@@ -367,7 +369,7 @@ namespace Bloodthirst.Core.BProvider
 
                 while (curr != typeof(object))
                 {
-                    concreatSubTypes.Add(curr);
+                    concreatSubTypes.Insert(0 , curr);
                     curr = curr.BaseType;
                 }
             }

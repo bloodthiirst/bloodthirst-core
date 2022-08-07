@@ -54,7 +54,7 @@ public class InOutArray_Basic_Tests
         Assert.IsTrue(added);
         Assert.IsTrue(found);
 
-        inOutArray.RemoveAt(0);
+        inOutArray.RemoveAt(2);
 
         bool deleted = !inOutArray.Contains(ins3);
 

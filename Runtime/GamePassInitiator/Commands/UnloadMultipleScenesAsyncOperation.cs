@@ -30,6 +30,8 @@ namespace Bloodthirst.Core.Setup
 
         public event Action<IProgressCommand, float, float> OnCurrentProgressChanged;
 
+        string IProgressCommand.TaskName => $"Unloading {scenes.Count} Scenes";
+
         public UnloadMultipleScenesAsyncOperation(List<string> scenes)
         {
             this.scenes = scenes;

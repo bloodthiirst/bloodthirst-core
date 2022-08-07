@@ -184,15 +184,7 @@ namespace Bloodthirst.Systems.CameraSystem
 
         private void Update()
         {
-            if (pause)
-                return;
-            if (!isManagerActive)
-                return;
-            if (isInTransition)
-                return;
-            if (ActiveCamera == null)
-                return;
-            if (!ActiveCamera.isEnabled)
+            if (pause || !isManagerActive || isInTransition || ActiveCamera == null || !ActiveCamera.isEnabled)
                 return;
 
             Vector3 pos = default;

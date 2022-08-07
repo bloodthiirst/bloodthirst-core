@@ -20,6 +20,9 @@ namespace Bloodthirst.Core.Setup
             return new LoadMultipleScenesAsyncOperation(scenes);
         }
     }
+
+
+
     public class LoadMultipleScenesAsyncOperation : CommandBase<LoadMultipleScenesAsyncOperation> , IProgressCommand
     {
         private List<string> scenes;
@@ -49,7 +52,7 @@ namespace Bloodthirst.Core.Setup
         }
 
         public event Action<IProgressCommand, float, float> OnCurrentProgressChanged;
-
+        string IProgressCommand.TaskName => $"Loading {scenes.Count} scenes";
         public override void OnStart()
         {
             for (int i = 0; i < scenes.Count; i++)

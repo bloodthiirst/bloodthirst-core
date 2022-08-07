@@ -219,7 +219,7 @@ namespace Bloodthirst.Editor.BSearch
                 }
             }
 
-            TreeLeaf<object, ResultPath> firstLeaf = tree.SubLeafs[0];
+            TreeLeaf<object, ResultPath> firstLeaf = tree.AllSubLeafs[0];
 
             List<List<ResultPath>> cleanResults = new List<List<ResultPath>>();
 
