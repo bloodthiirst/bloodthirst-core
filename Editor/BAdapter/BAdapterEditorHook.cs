@@ -1,13 +1,10 @@
-﻿using Bloodthirst.Runtime.BAdapter;
+﻿using Bloodthirst.Editor;
+using Bloodthirst.Runtime.BAdapter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using UnityEditor.SceneManagement;
-using UnityEngine;
-using UnityEngine.UI;
-
 namespace Bloodthirst.Utils.EditorOpenTracker
 {
     [InitializeOnLoad]
@@ -19,6 +16,9 @@ namespace Bloodthirst.Utils.EditorOpenTracker
 
         static BAdapterEditorHook()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_BADAPTER)
+                return;
+
             adapters = TypeCache.GetTypesWithAttribute<BAdapterForAttribute>().ToArray();
             typeToAdapter = new Dictionary<Type, Type>();
             adapterToType = new Dictionary<Type, Type>();

@@ -5,12 +5,11 @@ namespace Bloodthirst.Scripts.Utils
 {
     public static class BitUtils
     {
-        public static int BoolToInt(bool val)
-        {
-            //basically "return *(Int*)&val;" but i guess "safer" ?
-            int asInt = Unsafe.As<bool, int>(ref val);
 
-            return asInt;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe static TTo Reinterpret<TFrom, TTo>(TFrom val) where TFrom : unmanaged where TTo : unmanaged
+        {
+            return *(TTo*)(&val);
         }
 
         public static int SetBitTo1(this int value, int position)

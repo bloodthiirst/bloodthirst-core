@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using Bloodthirst.Core.Utils;
 using Sirenix.OdinInspector;
+using UnityEngine.Pool;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -28,16 +29,19 @@ namespace Bloodthirst.Core.Setup
 
         public IEnumerator End()
         {
+
+            List<GameObject> allGOs = ListPool<GameObject>.Get();
+            
             // query
-            List<GameObject> allGos = GameObjectUtils.GetAllRootGameObjects();
+            GameObjectUtils.GetAllRootGameObjects(allGOs);
 
             // pre
-            GameObjectUtils.GetAllComponents<IPreGameEnd>(allGos, true).OrderBy(p => p.Order).ToList().ForEach((e) => e.Execute());
+            GameObjectUtils.GetAllComponents<IPreGameEnd>(allGOs, true).OrderBy(p => p.Order).ToList().ForEach((e) => e.Execute());
 
             // setup
             LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
 
-            List<IGameEnd> gameEnds = new List<IGameEnd>();
+            List<IGameEnd> gameEnds = ListPool<IGameEnd>.Get();
 
             GameObjectUtils.GetAllComponents(ref gameEnds, true);
 
@@ -45,15 +49,21 @@ namespace Bloodthirst.Core.Setup
 
             foreach (IAsynOperationWrapper op in asyncOps)
             {
-                manager.Load(op);
+                manager.RunAsyncTask(op);
             }
+
+            ListPool<IGameEnd>.Release(gameEnds);
+
             yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
 
             // refetch because IGameEnd will destroy most of the game scenes
-            allGos = GameObjectUtils.GetAllRootGameObjects();
+            allGOs.Clear();
+            GameObjectUtils.GetAllRootGameObjects(allGOs);
 
             // post
-            GameObjectUtils.GetAllComponents<IPostGameEnd>(allGos, true).ForEach((e) => e.Execute());
+            GameObjectUtils.GetAllComponents<IPostGameEnd>(allGOs, true).ForEach((e) => e.Execute());
+
+            ListPool<GameObject>.Release(allGOs);
 
 #if UNITY_EDITOR
             EditorApplication.ExitPlaymode();
@@ -63,6 +73,7 @@ namespace Bloodthirst.Core.Setup
         }
 
         [Button(ButtonSizes.Large)]
+        [DisableInEditorMode]
         public void Quit()
         {
             StartCoroutine(End());

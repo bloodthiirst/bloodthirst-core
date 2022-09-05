@@ -20,7 +20,9 @@ namespace Bloodthirst.Core.SceneManager
     {
         [SerializeField]
         [HideInInspector]
-        private List<string> scenesList;
+        private List<string> scenesList = new List<string>();
+
+        public List<string> ScenesList => scenesList;
 
         [OdinSerialize]
         [ListDrawerSettings(Expanded = true, AlwaysAddDefaultValue = true)]
@@ -28,6 +30,7 @@ namespace Bloodthirst.Core.SceneManager
         [OnValueChanged(nameof(ReorderList))]
 #endif
         [InfoBox("The first scene MUST contain a SceneLoadingManager", nameof(HasSceneLoadingManager), InfoMessageType = InfoMessageType.Error, VisibleIf = nameof(HasSceneLoadingManager))]
+        [InfoBox("The scene setup seems to be correct", nameof(IsValid), InfoMessageType = InfoMessageType.Info, VisibleIf = nameof(IsValid))]
         private List<ReadOnlyString> editorList;
 
         [SerializeField]
@@ -39,16 +42,9 @@ namespace Bloodthirst.Core.SceneManager
             return !isValidSetup;
         }
 
-        public List<string> ScenesList
+        private bool IsValid()
         {
-            get
-            {
-                if (scenesList == null)
-                {
-                    scenesList = new List<string>();
-                }
-                return scenesList;
-            }
+            return isValidSetup;
         }
 
         public int callbackOrder => 0;
@@ -110,15 +106,15 @@ namespace Bloodthirst.Core.SceneManager
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
         public void ApplyToBuildSettings()
         {
-            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
+            EditorBuildSettingsScene[] editorBuildSettingsScenes = new EditorBuildSettingsScene[scenesList.Count];
 
             for (int i = 0; i < scenesList.Count; i++)
             {
-                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenesList[i], true));
+                editorBuildSettingsScenes[i] = new EditorBuildSettingsScene(scenesList[i], true);
             }
 
             // apply the change to the scenes list in build settings
-            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
+            EditorBuildSettings.scenes = editorBuildSettingsScenes;
         }
 
         private void SceneListToEditor()
@@ -165,10 +161,6 @@ namespace Bloodthirst.Core.SceneManager
 
         private void RefreshScenesList()
         {
-            // copy old scenes
-            List<string> oldList = ScenesList.ToList();
-
-
             List<SceneAsset> allScenesWithManager = GetAllSceneInTheProjectWithManager();
 
             EditorBuildSettingsScene[] editorScenes = new EditorBuildSettingsScene[allScenesWithManager.Count];
@@ -186,7 +178,7 @@ namespace Bloodthirst.Core.SceneManager
             // apply the change to the scenes list in build settings
             EditorBuildSettings.scenes = editorScenes;
 
-            ScenesList.Clear();
+            scenesList.Clear();
 
             // save the scenes info in dictionary
             for (int i = 0; i < allScenesWithManager.Count; i++)
@@ -196,7 +188,7 @@ namespace Bloodthirst.Core.SceneManager
                 string scenePath = AssetDatabase.GetAssetPath(curr);
 
                 // add to the final list
-                ScenesList.Add(scenePath);
+                scenesList.Add(scenePath);
             }
         }
         private void RefreshSceneManagerIndices()
@@ -226,7 +218,7 @@ namespace Bloodthirst.Core.SceneManager
 
             Scene sceneRef = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
 
-            bool cleanupScene = !sceneRef.IsValid();
+            bool cleanupScene = !sceneRef.isLoaded;
             
             if (!sceneRef.IsValid())
             {
@@ -236,18 +228,18 @@ namespace Bloodthirst.Core.SceneManager
             if (!sceneRef.IsValid())
                 return;
 
+            GameObject[] rootGOs = sceneRef.GetRootGameObjects();
+
             if (sceneIndex == 0)
             {
-                LoadingManager sceneLoadingManager = sceneRef
-                    .GetRootGameObjects()
+                LoadingManager sceneLoadingManager = rootGOs
                     .FirstOrDefault(go => go.GetComponent<LoadingManager>() != null)?
                     .GetComponent<LoadingManager>();
 
                 isValidSetup &= sceneLoadingManager != null;
             }
 
-            ISceneInstanceManager sceneInstanceManager = sceneRef
-                .GetRootGameObjects()
+            ISceneInstanceManager sceneInstanceManager = rootGOs
                 .FirstOrDefault(go => go.GetComponent<ISceneInstanceManager>() != null)?
                 .GetComponent<ISceneInstanceManager>();
 

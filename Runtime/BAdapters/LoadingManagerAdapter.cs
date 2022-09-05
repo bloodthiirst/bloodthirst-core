@@ -15,7 +15,8 @@ namespace Bloodthirst.Runtime.BAdapter
         {
             LoadingManager bhv = GetComponent<LoadingManager>();
 
-            bhv.Initialize(BProviderRuntime.Instance.GetSingleton<CommandManagerBehaviour>());
+            CommandManagerBehaviour commandManager = BProviderRuntime.Instance.GetSingleton<CommandManagerBehaviour>();
+            bhv.Initialize(commandManager);
 
             BProviderRuntime.Instance.RegisterSingleton(bhv);
         }

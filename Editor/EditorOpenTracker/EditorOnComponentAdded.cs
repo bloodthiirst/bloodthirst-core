@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Bloodthirst.Editor;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,6 +21,9 @@ namespace Bloodthirst.Utils.EditorOpenTracker
 
         static EditorOnComponentAdded()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_ON_COMPONENT_ADDED)
+                return;
+
             ObjectFactory.componentWasAdded -= HandleComponentAdded;
             ObjectFactory.componentWasAdded += HandleComponentAdded;
 

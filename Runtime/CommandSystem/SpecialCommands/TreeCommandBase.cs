@@ -1,110 +1,145 @@
-﻿using System.Collections.Generic;
+﻿using Bloodthirst.Core.TreeList;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
+    /// <summary>
+    /// <para>Executes the subcommands sequentially using a queue order</para>
+    /// <para>This doesn't account for the case when the sub-commands fail , whenever a subcommand fails it just gets dequeued a we got onto the next command</para>
+    /// <para>For interruptable queue Look at <see cref="QueueInterruptableCommandBase{T}"/></para>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class TreeCommandBase<T> : CommandBase<T> where T : TreeCommandBase<T>
     {
-        private List<CommandSettings> cached;
-        private CommandBatchList list;
-        private CommandManager commandManager;
-        private bool failIfQueueInterrupted;
+        public event Action<ICommandBase, ICommandBase> OnCommandRemoved;
+        public event Action<ICommandBase, ICommandBase> OnCommandAdded;
 
-        public TreeCommandBase(CommandManager commandManager = null, bool failIfQueueInterrupted = false) : base()
-        {
-            this.commandManager = commandManager;
-            this.failIfQueueInterrupted = failIfQueueInterrupted;
-            cached = new List<CommandSettings>();
-        }
+        private readonly bool propagateFailOrInterrupt;
 
-        /// <summary>
-        /// Add commands externally to execute in the CommandQueue
-        /// , note : these commands are executed BEFORE the QueueCommands
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-        public T AddToList(ICommandBase command, bool interruptOnFail = false)
-        {
-            var cmd = new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnFail };
-            return AddToList(cmd);
-        }
+        private List<TreeLeaf<int, CommandSettings>> cache;
+        private int id;
 
-        internal T AddToList(CommandSettings commandSettings)
+        [SerializeField]
+        private TreeList<int, CommandSettings> RootNode { get; set; }
+
+        private Func<int> cachedGetID;
+
+        public TreeCommandBase(bool propagateFailOrInterrupt = false) : base()
         {
-            cached.Add(commandSettings);
-            return (T)this;
+            this.propagateFailOrInterrupt = propagateFailOrInterrupt;
+            RootNode = new TreeList<int, CommandSettings>();
+            cachedGetID = IncrementID;
+
         }
 
         public override void OnStart()
         {
-            list = commandManager.AppendBatch<CommandBatchList>(this, true);
-
-            // add the commands from AddToQueue
-            for(int i = 0; i < cached.Count; i++)
-            {
-                list.Append(cached[i]);
-            }
-
-            cached.Clear();
-
-            // add the queue commands from QueueCommands
-            foreach (CommandSettings cmd in ListCommands())
-            {
-                if (cmd.Command != null)
-                    list.Append(cmd);
-            }
-
-            cached = null;
-
-            list.OnBatchEnded -= List_OnBatchEnded;
-            list.OnBatchEnded += List_OnBatchEnded;
+            cache = new List<TreeLeaf<int, CommandSettings>>();
+            cache.AddRange(RootNode.GetAllLeafsDepthFirstFromFinalLeafsUp());
+            cache.Reverse();
         }
 
-        private void List_OnBatchEnded(ICommandBatch obj)
+
+        public CommandNodeBuilder Append(ICommandBase command, bool removeOnDone = true)
         {
-            // the lifetime of the queue command depends on its children commands
-            if (list.CommandsList.Count != 0)
-                return;
+            return Append(new CommandSettings() { Command = command }, removeOnDone);
+        }
 
-            list.OnBatchEnded -= List_OnBatchEnded;
+        private int IncrementID()
+        {
+            return ++id;
+        }
 
-            if (list.BatchState == BATCH_STATE.INTERRUPTED)
+        internal CommandNodeBuilder Append(CommandSettings commandSettings, bool removeOnDone = true)
+        {
+            int[] ids = new int[] { id++ };
+            TreeLeaf<int, CommandSettings> firstLeaf = RootNode.GetOrCreateLeaf(ids);
+
+            commandSettings.Command.RemoveWhenDone = removeOnDone;
+            firstLeaf.Value = commandSettings;
+
+            OnCommandAdded?.Invoke(this, commandSettings.Command);
+
+            return new CommandNodeBuilder(firstLeaf, cachedGetID);
+        }
+
+        private void InterruptSubcommands()
+        {
+            foreach (TreeLeaf<int, CommandSettings> sub in RootNode.GetAllLeafsDepthFirst())
             {
-                if (failIfQueueInterrupted)
+                sub.Parent?.RemoveSubLeaf(sub);
+
+                sub.Value.Command.GetExcutingCommand().Interrupt();
+
+                OnCommandRemoved?.Invoke(this, sub.Value.Command);
+
+            }
+        }
+
+        public override void OnTick(float delta)
+        {
+            while (cache.Count != 0)
+            {
+                TreeLeaf<int, CommandSettings> leaf = cache[cache.Count - 1];
+
+                CommandSettings cmd = leaf.Value;
+
+                ICommandBase currCmd = cmd.Command.GetExcutingCommand();
+
+                // if command is not started , execute the command start
+                if (currCmd.CommandState == COMMAND_STATE.WATING)
                 {
-                    Fail();
+                    currCmd.Start();
                 }
-                else
+
+                // if command is done , dequeue
+                if (currCmd.IsDone())
                 {
-                    Interrupt();
+                    cache.RemoveAt(cache.Count - 1);
+
+                    if (currCmd.CommandState == COMMAND_STATE.INTERRUPTED && propagateFailOrInterrupt)
+                    {
+                        Interrupt();
+                        return;
+                    }
+
+                    if (currCmd.CommandState == COMMAND_STATE.FAILED && propagateFailOrInterrupt)
+                    {
+                        Fail();
+                        return;
+                    }
+
+                    if (leaf.Parent != null)
+                    {
+                        leaf.Parent.RemoveSubLeaf(leaf);
+                    }
+                    else
+                    {
+                        RootNode.AllSubLeafs.Remove(leaf);
+                    }
+
+                    OnCommandRemoved?.Invoke(this, cmd.Command);
+                    continue;
                 }
+
+                currCmd.OnTick(delta);
                 return;
             }
-            else
+
+            if (RemoveWhenDone)
             {
                 Success();
+                return;
             }
-        }
-
-
-
-        /// <summary>
-        /// Add commands internally to execute in the CommandQueue
-        /// , note : these commands are executed AFTER the cached commands
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-        protected virtual IEnumerable<CommandSettings> ListCommands()
-        {
-            yield break;
         }
 
         public override void OnEnd()
         {
-            list.OnBatchEnded -= List_OnBatchEnded;
-
-            if (list.BatchState == BATCH_STATE.EXECUTING)
+            if (CommandState == COMMAND_STATE.INTERRUPTED)
             {
-                list.Interrupt();
+                InterruptSubcommands();
             }
         }
 

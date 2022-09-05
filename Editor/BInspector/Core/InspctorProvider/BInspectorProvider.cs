@@ -20,6 +20,9 @@ namespace Bloodthirst.Editor.BInspector
 
         static BInspectorProvider()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_BINSPECTOR_EDITOR)
+                return;
+
             inspectorValidators = new List<IBInspectorValidator>();
             inspectorDrawers = new List<IBInspectorDrawer>();
 

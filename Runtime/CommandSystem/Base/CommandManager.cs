@@ -7,11 +7,11 @@ namespace Bloodthirst.System.CommandSystem
     {
 
         [ShowInInspector]
-        private List<List<ICommandBatch>> commandBatches;
+        private List<List<ICommandBase>> commandBatches;
 
         public CommandManager()
         {
-            commandBatches = new List<List<ICommandBatch>>();
+            commandBatches = new List<List<ICommandBase>>();
         }
 
 
@@ -22,23 +22,20 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="owner"></param>
         /// <param name="removeWhenDone"></param>
         /// <returns></returns>
-        public T AppendBatch<T>(object owner, bool removeWhenDone = false, int updateOrder = 0) where T : ICommandBatch, new()
+        public void AppendCommand(object owner, ICommandBase cmd, bool removeWhenDone, int updateOrder = 0)
         {
-            T batch = new T();
-            batch.RemoveWhenDone = removeWhenDone;
-            batch.Owner = owner;
-            batch.BatchUpdateOrder = updateOrder;
+            cmd.UpdateOrder = updateOrder;
+            cmd.Owner = owner;
+            cmd.RemoveWhenDone = removeWhenDone;
 
             int layersDiff = updateOrder - (commandBatches.Count - 1);
 
             for (int i = 0; i < layersDiff; i++)
             {
-                commandBatches.Add(new List<ICommandBatch>());
+                commandBatches.Add(new List<ICommandBase>());
             }
 
-            commandBatches[updateOrder].Add(batch);
-
-            return batch;
+            commandBatches[updateOrder].Add(cmd);
         }
 
         public void Tick(float deltaTime)
@@ -47,16 +44,21 @@ namespace Bloodthirst.System.CommandSystem
             {
                 for (int i = commandBatches[l].Count - 1; i > -1; i--)
                 {
-                    // remove if necessary
-                    if (commandBatches[l][i].ShouldRemove())
+                    ICommandBase cmd = commandBatches[l][i];
+
+                    if (cmd.CommandState == COMMAND_STATE.WATING)
                     {
-                        commandBatches[l][i].End();
+                        cmd.Start();
+                    }
+
+                    if (cmd.IsDone() && cmd.RemoveWhenDone)
+                    {
                         commandBatches[l].RemoveAt(i);
                         continue;
-
                     }
+
                     // else tick
-                    commandBatches[l][i].Tick(deltaTime);
+                    cmd.OnTick(deltaTime);
                 }
             }
         }

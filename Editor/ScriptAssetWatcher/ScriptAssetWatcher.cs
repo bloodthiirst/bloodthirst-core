@@ -37,6 +37,9 @@ namespace Bloodthirst.Editor.AssetProcessing
     {
         void OnPreprocessAsset()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_SCRIPTWATCHER)
+                return;
+
             if (!(assetImporter is MonoImporter monoImporter))
                 return;
 
@@ -60,6 +63,9 @@ namespace Bloodthirst.Editor.AssetProcessing
 
         static AssetDeleteResult OnWillDeleteAsset(string assetPath, RemoveAssetOptions removeAssetOptions)
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_SCRIPTWATCHER)
+                return AssetDeleteResult.DidNotDelete;
+
             AssetImporter assetImporter = AssetImporter.GetAtPath(assetPath);
 
             if(assetImporter is MonoImporter monoImporter)

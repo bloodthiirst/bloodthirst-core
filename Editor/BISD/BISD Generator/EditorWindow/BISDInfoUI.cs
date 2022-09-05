@@ -130,10 +130,7 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private void HandleGenerateBehaviour()
         {
-            // todo : schedule lazy generators on the next assembly reload
-            //AssemblyReloadHook.Add(HandleAfterReload);
             CommandManagerEditor.RunInstant(new CreateBehaviourFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
-
         }
 
         private static void HandleAfterReload()

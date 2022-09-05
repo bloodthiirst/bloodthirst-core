@@ -417,7 +417,6 @@ namespace Bloodthirst.Editor.BNodeTree
             // try reloading the selected object
             IBNodeTreeBehaviour tree = TryGetSelectedTreeBehaviour();
 
-            // todo : make the setters trigger a coroutine too
             if (tree != null)
             {
                 EditorCoroutineUtility.StartCoroutine(CrtSetSelectedTreeBehaviourForce(tree), this);

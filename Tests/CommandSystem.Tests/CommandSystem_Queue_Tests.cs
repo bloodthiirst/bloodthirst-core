@@ -15,22 +15,24 @@ public class CommandSystem_Queue_Tests
     {
         CommandManager commandManager = new CommandManager();
 
-        CommandBatchQueue queue = commandManager.AppendBatch<CommandBatchQueue>(this);
+        BasicQueueCommand queue = new BasicQueueCommand(true);
+        
+        commandManager.AppendCommand(this , queue , true );
 
         queue
-            .Append(new TimedCommandBase(1, "1"))
-            .Append(new TimedCommandBase(1, "2"))
-            .Append(new TimedCommandBase(1, "3"))
-            .Append(new AlwaysFailCommandBase(), true)
-            .Append(new TimedCommandBase(1, "4"));
+            .Enqueue(new TimedCommandBase(1, "1") , true)
+            .Enqueue(new TimedCommandBase(1, "2") , true )
+            .Enqueue(new TimedCommandBase(1, "3") , true )
+            .Enqueue(new AlwaysFailCommandBase(), true )
+            .Enqueue(new TimedCommandBase(1, "4") , true);
 
-        while (queue.BatchState == BATCH_STATE.EXECUTING)
+        while (!queue.IsDone())
         {
             commandManager.Tick(Time.deltaTime);
             yield return null;
         }
 
-        Assert.AreEqual(BATCH_STATE.INTERRUPTED, queue.BatchState);
+        Assert.AreEqual(COMMAND_STATE.FAILED, queue.CommandState);
     }
 
     // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
@@ -40,30 +42,32 @@ public class CommandSystem_Queue_Tests
     {
         CommandManager commandManager = new CommandManager();
 
-        CommandBatchQueue queue = commandManager.AppendBatch<CommandBatchQueue>(this);
+        BasicQueueCommand parentQueue = new BasicQueueCommand(true);
 
-        BasicQueueCommand testQueueCommand = new BasicQueueCommand( commandManager , true);
-        
-        testQueueCommand
-            .AddToQueue(new TimedCommandBase(1, "1"))
-            .AddToQueue(new TimedCommandBase(1, "2"))
-            .AddToQueue(new TimedCommandBase(1, "3"))
-            .AddToQueue(new AlwaysFailCommandBase(), true)
-            .AddToQueue(new TimedCommandBase(1, "4"));
+        BasicQueueCommand subQueue = new BasicQueueCommand(true);
 
-        queue
-            .Append(new TimedCommandBase(1, "1"))
-            .Append(new TimedCommandBase(1, "2"))
-            .Append(new TimedCommandBase(1, "3"))
-            .Append(testQueueCommand, true)
-            .Append(new TimedCommandBase(1, "4"));
+        commandManager.AppendCommand(this, parentQueue, true);
 
-        while (queue.BatchState == BATCH_STATE.EXECUTING)
+        subQueue
+            .Enqueue(new TimedCommandBase(1, "1"), true)
+            .Enqueue(new TimedCommandBase(1, "2"), true)
+            .Enqueue(new TimedCommandBase(1, "3"), true)
+            .Enqueue(new AlwaysFailCommandBase(), true)
+            .Enqueue(new TimedCommandBase(1, "4"), true);
+
+        parentQueue
+            .Enqueue(new TimedCommandBase(1, "1"), true)
+            .Enqueue(new TimedCommandBase(1, "2"), true)
+            .Enqueue(new TimedCommandBase(1, "3"), true)
+            .Enqueue(subQueue, true)
+            .Enqueue(new TimedCommandBase(1, "4"), true);
+
+        while (!parentQueue.IsDone())
         {
             commandManager.Tick(Time.deltaTime);
             yield return null;
         }
 
-        Assert.AreEqual(BATCH_STATE.INTERRUPTED, queue.BatchState);
+        Assert.AreEqual(COMMAND_STATE.FAILED, parentQueue.CommandState);
     }
 }

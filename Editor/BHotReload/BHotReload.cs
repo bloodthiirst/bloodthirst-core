@@ -22,6 +22,9 @@ namespace Bloodthirst.Editor.BHotReload
 
         static BHotReload()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_BHOTRELOAD)
+                return;
+
             EditorApplication.playModeStateChanged -= HandleEnterPlayMode;
             EditorApplication.playModeStateChanged += HandleEnterPlayMode;
 
@@ -306,7 +309,7 @@ namespace Bloodthirst.Editor.BHotReload
 
             BJsonConverter.PopulateFromJson(snapshot, jsonTxt, settings);
 
-            
+
             // assing static values
             foreach (TypeStaticData staticData in snapshot.StaticDatas)
             {

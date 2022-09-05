@@ -3,7 +3,6 @@ using UnityEditor;
 
 namespace Bloodthirst.JsonUnityObject
 {
-    [InitializeOnLoad]
     public static class JsonUnityObjectSettings
     {
 

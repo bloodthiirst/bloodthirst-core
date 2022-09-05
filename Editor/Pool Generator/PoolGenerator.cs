@@ -162,8 +162,6 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             {
                 FieldInfo field = poolFields[i];
 
-
-                // todo : Component correctPool = PoolablePrefabs.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.gameObject.name.RemoveWhitespace())));
                 Component correctPool = PoolablePrefabs.FirstOrDefault();
 
                 if (correctPool == null)

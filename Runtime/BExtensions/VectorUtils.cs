@@ -1,21 +1,9 @@
-﻿using Bloodthirst.Utils;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Bloodthirst.Scripts.Utils
 {
     public static class VectorUtils
     {
-        
-        private static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
-        {
-            Vector3 dir = point - pivot; // get point direction relative to pivot
-            dir = Quaternion.Euler(angles) * dir; // rotate it
-            point = dir + pivot; // calculate rotated point
-            return point; // return it
-        }
-
-
         public static Vector2 NormalizedToLayoutSpace(RectTransform rectTransform, Vector2 normalizedInLayout)
         {
             var sizeX = rectTransform.rect.width;

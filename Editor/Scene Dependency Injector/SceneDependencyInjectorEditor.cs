@@ -1,5 +1,6 @@
 using Bloodthirst.Core.GameInitPass;
 using Bloodthirst.Core.Setup;
+using Bloodthirst.Editor;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -15,6 +16,9 @@ namespace Bloodthirst.Core.SceneManager.DependencyInjector
 
         static SceneDependencyInjectorEditor()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_SCENE_DEPENDENCY_INJECTOR)
+                return;
+
             EditorApplication.playModeStateChanged -= OnStateChanged;
             EditorApplication.playModeStateChanged += OnStateChanged;
         }

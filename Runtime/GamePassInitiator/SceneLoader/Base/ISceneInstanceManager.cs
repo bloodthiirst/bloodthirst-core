@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.SceneManager
 {
@@ -9,10 +10,11 @@ namespace Bloodthirst.Core.SceneManager
         bool IsScenePlaying { get; }
         bool IsSceneVisible { get; }
         bool IsConfigScene { get; set; }
+        Scene Scene{ get; }
         int SceneIndex { get; set; }
         string ScenePath { get; set; }
 
-        void Initialize(LoadingManager loadingManager);
+        void Initialize(LoadingManager loadingManager, GlobalSceneManager globalSceneManager);
         void OnPostInitialization();
         void QuerySceneGameObjects();
         void AddToScene(GameObject gameObject);

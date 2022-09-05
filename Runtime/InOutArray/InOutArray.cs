@@ -135,7 +135,7 @@ public class InOutArray<T>
 
         // 1 if have a gap we can insert into
         // 0 if we don't have a gap in the array
-        int asInt = BitUtils.BoolToInt(hasGap);
+        int asInt = BitUtils.Reinterpret<bool, int>(hasGap);
 
         addJumpTable[asInt](item);
     }
@@ -208,6 +208,7 @@ public class InOutArray<T>
             T item = InternalArray[i];
             iterateJumpTable[iterateIndex](item, i);
         }
+
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

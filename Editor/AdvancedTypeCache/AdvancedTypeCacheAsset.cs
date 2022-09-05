@@ -2,8 +2,10 @@
 using Sirenix.Serialization;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEditorInternal;
+using UnityEngine;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -21,8 +23,12 @@ namespace Bloodthirst.Core.Utils
         [OdinSerialize]
         internal List<string> removedScripts = new List<string>();
 
+        [Header("Assemblies to scan")]
         [OdinSerialize]
         internal AssemblyDefinitionAsset[] assmeblyDefs;
+
+        [OdinSerialize]
+        internal AssemblyDefinitionReferenceAsset[] assemblyReferences;
 
         public IReadOnlyDictionary<Type, AdvancedTypeCache.TypeInformation> Cache => cache;
 
@@ -34,20 +40,48 @@ namespace Bloodthirst.Core.Utils
         }
 
         [Button]
-        private void Test()
+        internal IReadOnlyCollection<string> GetAssemblyPaths()
         {
+            HashSet<string> assemblyPaths = new HashSet<string>();
 
-            foreach (AssemblyDefinitionAsset asm in assmeblyDefs)
+            for (int i = 0; i < assmeblyDefs.Length; i++)
             {
-                AssemblyDefinitionImporter asmImporter = (AssemblyDefinitionImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(asm));
+                AssemblyDefinitionAsset currAssembly = assmeblyDefs[i];
+                string pathToAsm = AssetDatabase.GetAssetPath(currAssembly);
 
-                AssemblyDefinitionData asmData = new AssemblyDefinitionData();
-                EditorJsonUtility.FromJsonOverwrite(asm.text , asmData);
+                pathToAsm = Path.GetDirectoryName(pathToAsm);
+
+                pathToAsm = pathToAsm.Replace(Path.DirectorySeparatorChar, '/');
+
+                assemblyPaths.Add(pathToAsm);
             }
 
+            for (int i = 0; i < assemblyReferences.Length; i++)
+            {
+                AssemblyDefinitionReferenceAsset currAssembly = assemblyReferences[i];
+
+                /*
+                AssemblyDefinitionReferenceJsonContent asJson = new AssemblyDefinitionReferenceJsonContent();
+                EditorJsonUtility.FromJsonOverwrite(currAssembly.text, asJson);
+
+                bool isValid = GUID.TryParse(asJson.reference.Substring(5), out GUID guid);
+                string pathToAsm = AssetDatabase.GUIDToAssetPath(guid);
+                */
+
+                string pathToAsm = AssetDatabase.GetAssetPath(currAssembly);
+
+                pathToAsm = Path.GetDirectoryName(pathToAsm);
+
+                pathToAsm = pathToAsm.Replace(Path.DirectorySeparatorChar, '/');
+
+                assemblyPaths.Add(pathToAsm);
+            }
+
+
+            return assemblyPaths;
         }
 
-        private class AssemblyDefinitionData
+        internal class AssemblyDefinitionJsonContent
         {
             public string name;
             public string rootNamespace;
@@ -61,6 +95,11 @@ namespace Bloodthirst.Core.Utils
             public string[] defineConstraints;
             public string[] versionDefines;
             public bool noEngineReferences;
+        }
+
+        internal class AssemblyDefinitionReferenceJsonContent
+        {
+            public string reference;
         }
     }
 }

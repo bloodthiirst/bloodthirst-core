@@ -13,8 +13,6 @@ using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BRecorder
 {
-
-    [InitializeOnLoad]
     public class BRecorderEditor : EditorWindow
     {
         private const string PATH_UXML = "Packages/com.bloodthirst.bloodthirst-core/Editor/BRecorder/UI/BRecorderEditor.uxml";
@@ -65,11 +63,6 @@ namespace Bloodthirst.Editor.BRecorder
             yield return WaitUntilLayoutDone(wnd);
 
             wnd.OpenSession.value = asset;
-        }
-
-        static BRecorderEditor()
-        {
-
         }
 
         private VisualElement Root { get; set; }

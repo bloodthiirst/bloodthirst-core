@@ -1,16 +1,10 @@
-using Bloodthirst.Editor.BInspector;
 using Sirenix.Utilities;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
 {
-    [InitializeOnLoad]
     public class ScriptObjectFieldDrawer
     {
         private VisualTreeAsset UXMLAsset => AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);

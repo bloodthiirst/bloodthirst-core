@@ -1,7 +1,5 @@
 .tab-container
-{
-	border-style : solid;
-	
+{	
 	border-right-width : 1px;
 	border-top-width : 1px;
 	border-left-width : 1px;
@@ -22,7 +20,6 @@
 .tab-container .selected
 {
 	border-bottom-width : 0px;
-	background-color : inherit;
 }
 
 .tab-container .unselected

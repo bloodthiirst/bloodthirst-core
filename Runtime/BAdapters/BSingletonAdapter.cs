@@ -13,8 +13,10 @@ namespace Bloodthirst.Runtime.BAdapter
         {
             IBSingleton[] allSingletons = GetComponents<IBSingleton>();
 
-            foreach (IBSingleton singleton in allSingletons)
+            for (int i = 0; i < allSingletons.Length; i++)
             {
+                IBSingleton singleton = allSingletons[i];
+
                 BProviderRuntime.Instance.RegisterSingleton(singleton.Concrete, singleton);
 
                 if (singleton.Concrete != singleton.Interface)

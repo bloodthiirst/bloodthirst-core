@@ -42,10 +42,10 @@
 .port-name-padding
 {
     padding : 0px;
-    margin-left : 3;
-    margin-right : 3;
-    margin-top : 2;
-    margin-bottom : 2;
+    margin-left : 3px;
+    margin-right : 3px;
+    margin-top : 2px;
+    margin-bottom : 2px;
 }
 
 .port-graphics {

@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Editor.AssetProcessing;
+﻿using Bloodthirst.Editor;
+using Bloodthirst.Editor.AssetProcessing;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -64,6 +65,9 @@ namespace Bloodthirst.Core.Utils
 
         static AdvancedTypeCache()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_ADVANCED_TYPE_CACHE)
+                return;
+
             cacheAsset = AssetDatabase.LoadAssetAtPath<AdvancedTypeCacheAsset>(ASSET_PATH);
             pathToProject = EditorUtils.PathToProject;
 
@@ -188,6 +192,28 @@ namespace Bloodthirst.Core.Utils
         internal static void StartThread()
         {
             List<TextAssetPathPair> deps = FetchUnityAssets().ToList();
+
+            IReadOnlyCollection<string> folderPaths = cacheAsset.GetAssemblyPaths();
+
+            // todo: make sure a script is associated to an assembly definition in a more robust way
+            // the problem here is that we are usig GetClass() which doesn't work for enums and structs for examples
+            // maybe manually scan if the file in included in an assembly folder , by checking all the assemblyDefs paths
+            // and seeing if the file is a child of the assembly's folder
+            for (int i = deps.Count - 1; i >= 0; i--)
+            {
+                TextAssetPathPair d = deps[i];
+
+                if(d.TextAsset.name == "GameEventID")
+                {
+
+                }
+                string containingAssembly = folderPaths.FirstOrDefault(f => d.AssetPath.Contains(f));
+
+                if (containingAssembly != null)
+                    continue;
+
+                deps.RemoveAt(i);
+            }
 
             Thread t = new(() =>
             {

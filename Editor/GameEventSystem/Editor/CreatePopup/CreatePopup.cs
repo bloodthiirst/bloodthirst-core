@@ -16,9 +16,9 @@ namespace Bloodthirst.Core.GameEventSystem
 
         private TextField NamespaceTxt => root.Q<TextField>(nameof(NamespaceTxt));
         private TextField EnumName => root.Q<TextField>(nameof(EnumName));
-        
+
         private TextField GameEventPathTxt => root.Q<TextField>(nameof(GameEventPathTxt));
-        private Button GameEventPathBtn => root.Q<Button>(nameof(GameEventPathBtn)); 
+        private Button GameEventPathBtn => root.Q<Button>(nameof(GameEventPathBtn));
         internal GameEventSystemEditor FromWindow { get; set; }
 
         private Button CreateBtn => root.Q<Button>(nameof(CreateBtn));
@@ -67,9 +67,9 @@ namespace Bloodthirst.Core.GameEventSystem
             asset.enumName = EnumName.value;
             asset.namespaceValue = NamespaceTxt.value;
 
-            AssetDatabase.CreateAsset(asset, EditorUtils.AbsoluteToRelativePath(GameEventPathTxt.value + "/" + EnumName.value + ".asset"));     
-            
-            CreateGameEventSystemCoreFiles cmd = new CreateGameEventSystemCoreFiles(asset , GameEventPathTxt.value);
+            AssetDatabase.CreateAsset(asset, EditorUtils.AbsoluteToRelativePath(GameEventPathTxt.value + "/" + EnumName.value + ".asset"));
+
+            CreateGameEventSystemCoreFiles cmd = new CreateGameEventSystemCoreFiles(asset, GameEventPathTxt.value);
 
             CommandManagerEditor.RunInstant(cmd);
 
@@ -81,11 +81,11 @@ namespace Bloodthirst.Core.GameEventSystem
 
             IndexWrapper indexOf = FromWindow.DropdownUI
                 .AllValues
-                .FirstOrDefault(v => v.Value == asset);
+                .FirstOrDefault(v => (object)v.Value == asset);
 
             FromWindow.DropdownUI.SetCurrentValueWithoutNotify(indexOf.Index);
             FromWindow.GameEventAsset = asset;
-        
+
         }
 
         private void HandleDataChanged(ChangeEvent<string> evt)

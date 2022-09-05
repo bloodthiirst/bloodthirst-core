@@ -11,7 +11,7 @@ namespace Bloodthirst.Core.UI
     [RequireComponent(typeof(CanvasRenderer))]
     public class UILineRenderer : MaskableGraphic
     {
-        private readonly int LineLengthID =  Shader.PropertyToID("_LineLength");
+        private readonly int LineLengthID = Shader.PropertyToID("_LineLength");
 
         /// <summary>
         /// Number of sub-parts (segements) in between each point
@@ -48,6 +48,14 @@ namespace Bloodthirst.Core.UI
         /// </summary>
         [SerializeField]
         private List<Vector2> points = new List<Vector2>();
+
+        [HideInInspector]
+        [SerializeField]
+        private List<UIVertex> pooledVerts = new List<UIVertex>();
+
+        [HideInInspector]
+        [SerializeField]
+        private List<int> pooledIndices = new List<int>();
 
         protected override void Awake()
         {
@@ -93,7 +101,7 @@ namespace Bloodthirst.Core.UI
 
         private void InitPoints()
         {
-            if ( points.Count < 4)
+            if (points.Count < 4)
             {
                 points.Clear();
                 points.Add(VectorUtils.NormalizedToLayoutSpace(rectTransform, new Vector2(0, 0)));
@@ -163,22 +171,18 @@ namespace Bloodthirst.Core.UI
                 InvertHandles = false
             };
 
-            // get pooled
-            List<UIVertex> pooledVerts = ListPool<UIVertex>.Get();
-            List<int> pooledIndices = ListPool<int>.Get();
+            // clear lists
+            pooledVerts.Clear();
+            pooledIndices.Clear();
 
             // calculate
-            LineUtils.PointsToCurve(cachedInterpolatedPoints, settings, out float lineLength , ref pooledVerts , ref pooledIndices);
+            LineUtils.PointsToCurve(cachedInterpolatedPoints, settings, out float lineLength, ref pooledVerts, ref pooledIndices);
 
             materialForRendering.SetFloat(LineLengthID, lineLength);
 
             // send
             vbo.Clear();
             vbo.AddUIVertexStream(pooledVerts, pooledIndices);
-
-            // clean
-            ListPool<UIVertex>.Release(pooledVerts);
-            ListPool<int>.Release(pooledIndices);
         }
 
     }

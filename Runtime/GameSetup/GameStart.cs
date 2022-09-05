@@ -23,8 +23,9 @@ namespace Bloodthirst.Core.Setup
         // Start is called before the first frame update
         IEnumerator Start()
         {
-            if (ExecuteOnStart)
+            if (executeOnStart)
                 yield return Setup();
+
             else
                 yield break;
         }
@@ -48,7 +49,7 @@ namespace Bloodthirst.Core.Setup
 
             foreach (IAsynOperationWrapper op in asyncOps)
             {
-                manager.Load(op);
+                manager.RunAsyncTask(op);
             }
             yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
 

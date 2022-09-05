@@ -15,55 +15,48 @@ public class CommandSystem_List_Tests
     {
         CommandManager commandManager = new CommandManager();
 
-        CommandBatchList queue = commandManager.AppendBatch<CommandBatchList>(this);
+        BasicListCommand list = new BasicListCommand(true);
+        
+        list
+            .Add(new TimedCommandBase(1, "1"), true)
+            .Add(new TimedCommandBase(1, "2"), true)
+            .Add(new TimedCommandBase(1, "3"), true)
+            .Add(new AlwaysFailCommandBase(), true)
+            .Add(new TimedCommandBase(1, "4"), true);
 
-        queue
-            .Append(new TimedCommandBase(1, "1"))
-            .Append(new TimedCommandBase(1, "2"))
-            .Append(new TimedCommandBase(1, "3"))
-            .Append(new AlwaysFailCommandBase(), true)
-            .Append(new TimedCommandBase(1, "4"));
+        commandManager.AppendCommand(this, list, true);
 
-        while (queue.BatchState == BATCH_STATE.EXECUTING)
+        while (!list.IsDone())
         {
             commandManager.Tick(Time.deltaTime);
             yield return null;
         }
 
-        Assert.AreEqual(BATCH_STATE.INTERRUPTED, queue.BatchState);
+        Assert.AreEqual(COMMAND_STATE.FAILED, list.CommandState);
     }
 
     // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
     // `yield return null;` to skip a frame.
     [UnityTest]
-    public IEnumerator Test_Sub_ListCommand_Fail_Should_Interrupt_Main_CommandBatchList()
+    public IEnumerator Test_Sub_ListCommand_Fail_Should_Also_Fail_Main_CommandBatchList()
     {
         CommandManager commandManager = new CommandManager();
 
-        CommandBatchQueue queue = commandManager.AppendBatch<CommandBatchQueue>(this);
+        BasicListCommand parentList = new BasicListCommand(true);
+        BasicListCommand subList = new BasicListCommand(true);
 
-        BasicListCommand testListCommand = new BasicListCommand(commandManager, true);
+        subList.Add(new AlwaysFailCommandBase(), true);
 
-        testListCommand
-            .AddToList(new TimedCommandBase(1, "1"))
-            .AddToList(new TimedCommandBase(1, "2"))
-            .AddToList(new TimedCommandBase(1, "3"))
-            .AddToList(new AlwaysFailCommandBase(), true)
-            .AddToList(new TimedCommandBase(1, "4"));
+        parentList.Add(subList, true);
+        
+        commandManager.AppendCommand(this, parentList, true);
 
-        queue
-            .Append(new TimedCommandBase(1, "1"))
-            .Append(new TimedCommandBase(1, "2"))
-            .Append(new TimedCommandBase(1, "3"))
-            .Append(testListCommand, true)
-            .Append(new TimedCommandBase(1, "4"));
-
-        while (queue.BatchState == BATCH_STATE.EXECUTING)
+        while (!parentList.IsDone())
         {
             commandManager.Tick(Time.deltaTime);
             yield return null;
         }
 
-        Assert.AreEqual(BATCH_STATE.INTERRUPTED, queue.BatchState);
+        Assert.AreEqual(COMMAND_STATE.FAILED, parentList.CommandState);
     }
 }

@@ -2,11 +2,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.Utils
 {
     public static class GameObjectUtils
     {
+        public static void GetAllRootGameObjects(List<GameObject> lst)
+        {
+            List<GameObject> cache = ListPool<GameObject>.Get();
+
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            {
+                UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
+
+                scene.GetRootGameObjects(cache);
+
+                lst.AddRange(cache);
+            }
+
+            ListPool<GameObject>.Release(cache);
+        }
 
         public static List<GameObject> GetAllRootGameObjects()
         {
@@ -44,8 +60,9 @@ namespace Bloodthirst.Core.Utils
 
         public static void GetAllComponents<T>(ref List<T> list, IList<GameObject> go, bool includeInactive)
         {
-            foreach (GameObject rootGameObject in go)
+            for (int i = 0; i < go.Count; i++)
             {
+                GameObject rootGameObject = go[i];
                 T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>(includeInactive);
                 foreach (T childInterface in childrenInterfaces)
                 {

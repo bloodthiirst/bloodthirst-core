@@ -124,9 +124,10 @@ namespace Bloodthirst.Socket.BehaviourComponent
             }
 
 
-            var batch = _commandManager.AppendBatch<CommandBatchQueue>(this, true);
+            BasicQueueCommand queue = new BasicQueueCommand(true);
+            _commandManager.AppendCommand(this, queue , true);
 
-            batch.Append(new NetworkPlayerPostSpawnInitializationCommand(networkEntity.gameObject));
+            queue.Enqueue(new NetworkPlayerPostSpawnInitializationCommand(networkEntity.gameObject));
 
             return networkEntity;
         }

@@ -14,6 +14,9 @@ namespace Bloodthirst.Editor.BInspector
 
         static ValueDrawerProvider()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_BINSPECTOR_EDITOR)
+                return;
+
             valueDrawerValidators = new List<IValueDrawerValidator>();
 
             // valid override type

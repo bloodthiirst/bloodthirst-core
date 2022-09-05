@@ -8,6 +8,7 @@ using Bloodthirst.Core.Utils;
 
 namespace Bloodthirst.Core.BISD.Editor
 {
+    [InitializeOnLoad]
     public class BISDSaveLoadManager : EditorWindow
     {
         private const string PATH_USS =  EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD SaveLoad/BISDSaveLoadManager.uss";
@@ -34,6 +35,13 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private Button createAssetBtn => Root.Q<Button>(nameof(createAssetBtn));
 
+        static BISDSaveLoadManager()
+        {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_BISD_SAVE_MANAGER)
+                return;
+
+            SaveLoadManager.Initialize();
+        }
 
 
         public void CreateGUI()
@@ -53,6 +61,11 @@ namespace Bloodthirst.Core.BISD.Editor
 
             EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
+
+            if(!EditorConsts.ON_ASSEMBLY_RELOAD_BISD_SAVE_MANAGER)
+            {
+                EditorUtility.DisplayDialog("Error", "Enable Assembly reload for BISD save manager" , "Ok");
+            }
         }
 
         private void OnAssetNameChanged(ChangeEvent<string> evt)

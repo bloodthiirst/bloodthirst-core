@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Bloodthirst.Editor;
+using UnityEditor;
 
 namespace Bloodthirst.Utils.EditorOpenTracker
 {
@@ -9,6 +10,9 @@ namespace Bloodthirst.Utils.EditorOpenTracker
 
         static EditorStartupTracker()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_STARTUP_TRACKER)
+                return;
+
             EditorApplication.quitting -= OnEditorQuiting;
             EditorApplication.quitting += OnEditorQuiting;
         }

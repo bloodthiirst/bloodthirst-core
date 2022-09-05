@@ -28,6 +28,8 @@ namespace Bloodthirst.System.CommandSystem
         [ShowIf(nameof(detailedInfo), Value = true)]
         [HideInEditorMode]
 #endif
+
+
         private COMMAND_STATE commandState;
         public COMMAND_STATE CommandState { get => commandState; set => commandState = value; }
 
@@ -45,16 +47,28 @@ namespace Bloodthirst.System.CommandSystem
         [ShowIf(nameof(detailedInfo), Value = true)]
         [HideInEditorMode]
 #endif
-        private bool isDone;
-        public bool IsDone { get => isDone; }
+        private object owner;
+
+        public object Owner { get => owner; set => owner = value; }
 
         [SerializeField]
 #if UNITY_EDITOR && ODIN_INSPECTOR
         [ShowIf(nameof(detailedInfo), Value = true)]
         [HideInEditorMode]
 #endif
-        private bool isStarted;
-        public bool IsStarted => isStarted;
+        private bool removeWhenDone;
+
+        public bool RemoveWhenDone { get => removeWhenDone; set => removeWhenDone = value; }
+
+        [SerializeField]
+#if UNITY_EDITOR && ODIN_INSPECTOR
+        [ShowIf(nameof(detailedInfo), Value = true)]
+        [HideInEditorMode]
+#endif
+
+        private int updateOrder;
+        public int UpdateOrder { get => updateOrder; set => updateOrder = value; }
+
 
         /// <summary>
         /// Executed on command start , defined in command and used by ICommandBatch
@@ -88,8 +102,6 @@ namespace Bloodthirst.System.CommandSystem
 
         public CommandBase()
         {
-            isStarted = false;
-            isDone = false;
             CommandState = COMMAND_STATE.WATING;
             FallbackCommand = null;
         }
@@ -99,7 +111,7 @@ namespace Bloodthirst.System.CommandSystem
             FallbackCommand = fallback;
             return this;
         }
-        public ICommandBase GetExcutingCommand()
+        public virtual ICommandBase GetExcutingCommand()
         {
             // waiting
             switch (CommandState)
@@ -130,7 +142,6 @@ namespace Bloodthirst.System.CommandSystem
         public void Start()
         {
             CommandState = COMMAND_STATE.EXECUTING;
-            isStarted = true;
             OnStart();
             OnCommandStart?.Invoke(this);
         }
@@ -140,7 +151,6 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         private void End()
         {
-            isDone = true;
             OnEnd();
             OnCommandEnd?.Invoke(this);
             OnCommandEndSpecific?.Invoke((T)this);
@@ -173,25 +183,16 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         public void Interrupt()
         {
-            // if is done
+            // if is done or has started
             // then there's nothing to interrupt
-            if (isDone)
+            if (CommandState != COMMAND_STATE.EXECUTING)
             {
+                CommandState = COMMAND_STATE.INTERRUPTED;
                 return;
             }
-            // if not started
-            // then just set it to done 
-            // no need to trigger other events
-            if (!IsStarted)
-            {
-                isDone = true;
-                return;
-            }
-
-            OnInterrupt();
 
             CommandState = COMMAND_STATE.INTERRUPTED;
-
+            OnInterrupt();
             End();
         }
 
@@ -204,8 +205,6 @@ namespace Bloodthirst.System.CommandSystem
             End();
 
             // reset the parameters
-            isDone = false;
-            isStarted = false;
             CommandState = COMMAND_STATE.EXECUTING;
         }
         #endregion

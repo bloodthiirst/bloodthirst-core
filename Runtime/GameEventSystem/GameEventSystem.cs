@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine.EventSystems;
 
 namespace Bloodthirst.Core.GameEventSystem
 {
-
     public static class GameEventSystemUtils
     {
         public static bool IsGameEventClass(Type t , out Type enumType)
@@ -53,7 +53,6 @@ namespace Bloodthirst.Core.GameEventSystem
         private void InitializeIDs()
         {
             Type enumType = typeof(T);
-            
 
             List<Type> all = TypeUtils.AllTypes
                     .Where(t => t.IsClass)

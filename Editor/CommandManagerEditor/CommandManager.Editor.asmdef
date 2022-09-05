@@ -2,7 +2,8 @@
     "name": "CommandManager.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:105b36e8dd7e5d34f9bef5d2a7e5087b"
+        "GUID:105b36e8dd7e5d34f9bef5d2a7e5087b",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77"
     ],
     "includePlatforms": [
         "Editor"

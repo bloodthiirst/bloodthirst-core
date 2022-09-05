@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Sirenix.OdinInspector;
+using System;
+using System.Collections.Generic;
 
 namespace Bloodthirst.System.CommandSystem
 {
@@ -10,16 +12,17 @@ namespace Bloodthirst.System.CommandSystem
     /// <typeparam name="T"></typeparam>
     public abstract class QueueCommandBase<T> : CommandBase<T> where T : QueueCommandBase<T>
     {
-        private Queue<CommandSettings> cached;
-        private CommandBatchQueue queue;
-        private readonly CommandManager commandManager;
-        private readonly bool failIfQueueInterrupted;
+        public event Action<ICommandBase, ICommandBase> OnCommandRemoved;
+        public event Action<ICommandBase, ICommandBase> OnCommandAdded;
 
-        public QueueCommandBase(CommandManager commandManager, bool failIfQueueInterrupted = false) : base()
+        [ShowInInspector]
+        private Queue<CommandSettings> commandQueue;
+        private readonly bool propagateFailOrInterrupt;
+
+        public QueueCommandBase(bool propagateFailOrInterrupt = false) : base()
         {
-            this.commandManager = commandManager;
-            this.failIfQueueInterrupted = failIfQueueInterrupted;
-            cached = new Queue<CommandSettings>();
+            this.propagateFailOrInterrupt = propagateFailOrInterrupt;
+            commandQueue = new Queue<CommandSettings>();
         }
 
         /// <summary>
@@ -28,92 +31,73 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T AddToQueue(ICommandBase command, bool interruptOnChildFail = false)
+        public T Enqueue(ICommandBase command,  bool removeOnDone = true)
         {
-            cached.Enqueue(new CommandSettings() { Command = command, InterruptBatchOnFail = interruptOnChildFail });
+            command.RemoveWhenDone = removeOnDone;
+            commandQueue.Enqueue(new CommandSettings() { Command = command });
+
+            OnCommandAdded?.Invoke(this , command);
+
             return (T)this;
         }
 
-        public override void OnStart()
+        public override void OnTick(float delta)
         {
-            queue = commandManager.AppendBatch<CommandBatchQueue>(this, true);
-
-            // add the commands from AddToQueue
-            while (cached.Count != 0)
+            while (commandQueue.Count != 0)
             {
-                queue.Append(cached.Dequeue());
-            }
+                CommandSettings cmd = commandQueue.Peek();
 
-            // add the queue commands from QueueCommands
-            foreach (CommandSettings cmd in QueueCommands())
-            {
-                if (cmd.Command != null)
-                    queue.Append(cmd);
-            }
+                ICommandBase currCmd = cmd.Command.GetExcutingCommand();
 
-            cached = null;
+                // if command is not started , execute the command start
+                if (currCmd.CommandState == COMMAND_STATE.WATING)
+                {
+                    currCmd.Start();
+                }
 
-            queue.OnBatchEnded -= Queue_OnBatchEnded;
-            queue.OnBatchEnded += Queue_OnBatchEnded;
-        }
+                // if command is done , dequeue
+                if (currCmd.IsDone())
+                {
+                    if (currCmd.CommandState == COMMAND_STATE.INTERRUPTED && propagateFailOrInterrupt)
+                    {
+                        Interrupt();
+                        return;
+                    }
 
-        private void Queue_OnBatchEnded(ICommandBatch arg1)
-        {
-            // the lifetime of the queue command depends on its children commands
-            if (!CommandsAreDone)
-            {
+                    if (currCmd.CommandState == COMMAND_STATE.FAILED && propagateFailOrInterrupt)
+                    {
+                        Fail();
+                        return;
+                    }
+
+                    commandQueue.Dequeue();
+                    OnCommandRemoved?.Invoke(this, cmd.Command);
+
+                    continue;
+                }
+
+                currCmd.OnTick(delta);
                 return;
             }
 
-            queue.OnBatchEnded -= Queue_OnBatchEnded;
-
-            if (queue.BatchState == BATCH_STATE.INTERRUPTED)
-            {
-                if (failIfQueueInterrupted)
-                {
-                    Fail();
-                }
-                else
-                {
-                    Interrupt();
-                }
-                return;
-            }
-            else
+            if (RemoveWhenDone)
             {
                 Success();
             }
         }
 
-        /// <summary>
-        /// Add commands internally to execute in the CommandQueue
-        /// , note : these commands are executed AFTER the cached commands
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns></returns>
-        protected virtual IEnumerable<CommandSettings> QueueCommands()
-        {
-            yield break;
-        }
-
-        /// <summary>
-        /// Are the children commands done ?
-        /// </summary>
-        public bool CommandsAreDone
-        {
-            get
-            {
-                return queue.CommandsQueue.Count == 0;
-            }
-        }
-
         public override void OnEnd()
         {
-            queue.OnBatchEnded -= Queue_OnBatchEnded;
-
-            if (queue.BatchState == BATCH_STATE.EXECUTING)
+            if (CommandState == COMMAND_STATE.INTERRUPTED)
             {
-                queue.Interrupt();
+                while (commandQueue.Count != 0)
+                {
+                    CommandSettings cmd = commandQueue.Dequeue();
+
+                    cmd.Command.GetExcutingCommand().Interrupt();
+
+                    OnCommandRemoved?.Invoke(this, cmd.Command);
+                }
             }
         }
 

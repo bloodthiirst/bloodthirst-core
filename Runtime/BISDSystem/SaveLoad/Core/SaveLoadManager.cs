@@ -10,7 +10,7 @@ using UnityEngine.Assertions;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    [InitializeOnLoad]
+
     public class SaveLoadManager
     {
         private struct SpawnInstanceIdPair
@@ -23,7 +23,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         private static List<IGameStateSaver> Savers { get; set; } = new List<IGameStateSaver>();
 
-        static SaveLoadManager()
+        public static void Initialize()
         {
             IEnumerable<Type> loadTypes = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
@@ -88,12 +88,6 @@ namespace Bloodthirst.Core.BISDSystem
             return finalSaveData;
         }
 
-        [Button]
-        private static List<GameObject> LoadBtn(GameStateSaveInstance gameData, bool withPostLoad)
-        {
-            return Load(gameData, withPostLoad);
-        }
-
         public static List<GameObject> Load(GameStateSaveInstance gameData, bool withPostLoad)
         {
             List<SpawnInstanceIdPair> allSpawned = new List<SpawnInstanceIdPair>();
@@ -121,8 +115,9 @@ namespace Bloodthirst.Core.BISDSystem
                 // get the loader
                 // get the gameData
                 // get the state
-                foreach (ISavableGameSave g in gameSavesForEntity)
+                for (int i = 0; i < gameSavesForEntity.Count; i++)
                 {
+                    ISavableGameSave g = gameSavesForEntity[i];
                     LoadingInfo loading = new LoadingInfo();
 
                     IGameStateLoader stateLoader = Loaders.FirstOrDefault(l => l.From == g.GetType());
@@ -145,10 +140,11 @@ namespace Bloodthirst.Core.BISDSystem
                 ISavableBehaviour[] savablesToLoad = spawned.GetComponentsInChildren<ISavableBehaviour>();
 
                 /// adding states to instances
-                foreach (ISavableBehaviour savableBhv in savablesToLoad)
+                for (int i = 0; i < savablesToLoad.Length; i++)
                 {
+                    ISavableBehaviour savableBhv = savablesToLoad[i];
                     ISavable savable = savableBhv.GetSavable();
-                    LoadingInfo loading = loadingPerInstance.FirstOrDefault(i => i.State.GetType() == savable.SavableStateType);
+                    LoadingInfo loading = loadingPerInstance.FirstOrDefault(ins => ins.State.GetType() == savable.SavableStateType);
 
                     loading.Instance = savable;
 

@@ -3,6 +3,7 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -40,13 +41,7 @@ namespace Bloodthirst.Core.SceneManager
         [SerializeField]
         private bool sceneVisible = true;
         public bool IsSceneVisible { get => sceneVisible; }
-        public Scene Scene
-        {
-            get
-            {
-                return UnityEngine.SceneManagement.SceneManager.GetSceneByBuildIndex(SceneIndex);
-            }
-        }
+        public Scene Scene { get; private set; }
 
 
 
@@ -74,7 +69,9 @@ namespace Bloodthirst.Core.SceneManager
 
         private List<Renderer> previouslyActiveRenderers = new List<Renderer>();
 
-        private LoadingManager _loadingManager;
+        private LoadingManager loadingManager;
+
+        private GlobalSceneManager globalSceneManager;
 
         [SerializeField]
         private UnityEvent onSceneInitialization;
@@ -82,15 +79,14 @@ namespace Bloodthirst.Core.SceneManager
         [SerializeField]
         private UnityEvent onPostSceneInitialization;
 
-        void ISceneInstanceManager.Initialize(LoadingManager loadingManager)
+        void ISceneInstanceManager.Initialize(LoadingManager loadingManager, GlobalSceneManager globalSceneManager)
         {
-            _loadingManager = loadingManager;
+            this.loadingManager = loadingManager;
+            this.globalSceneManager = globalSceneManager;
 
-            // register the manager to the list of managers
-            if (_loadingManager == null)
-            {
-                Debug.LogError("SceneLoadingManager is null");
-            }
+            Scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(ScenePath);
+
+            Assert.IsNotNull(loadingManager);
 
             QuerySceneGameObjects();
 
@@ -327,7 +323,7 @@ namespace Bloodthirst.Core.SceneManager
         [PropertyTooltip("Unloads the scene")]
         public void UnloadScene()
         {
-            _loadingManager.Load(new UnloadSceneAsyncWrapper(Scene.path));
+            loadingManager.RunAsyncTask(new UnloadSingleSceneAsyncWrapper(this,  globalSceneManager , true));
         }
     }
 }

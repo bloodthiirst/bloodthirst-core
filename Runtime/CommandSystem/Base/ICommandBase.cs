@@ -4,16 +4,17 @@ namespace Bloodthirst.System.CommandSystem
 {
     public interface ICommandBase
     {
-
         event Action<ICommandBase> OnCommandStart;
 
         event Action<ICommandBase> OnCommandEnd;
-
+        
+        object Owner { get; set; }
+        
         COMMAND_STATE CommandState { get; set; }
 
-        bool IsStarted { get; }
+        int UpdateOrder { get; set; }
 
-        bool IsDone { get; }
+        bool RemoveWhenDone { get; set; }
 
         ICommandBase FallbackCommand { get; set; }
 
@@ -25,8 +26,10 @@ namespace Bloodthirst.System.CommandSystem
 
         void OnEnd();
 
+        void Interrupt();
+
         ICommandBase GetExcutingCommand();
 
-        void Interrupt();
+
     }
 }

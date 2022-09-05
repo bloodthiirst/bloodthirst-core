@@ -3,6 +3,7 @@ using Bloodthirst.System.CommandSystem;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Editor.Commands
 {
@@ -13,13 +14,17 @@ namespace Bloodthirst.Editor.Commands
 
         private static double lastTime;
 
-        private static CommandBatchList globalBatch;
+        private static BasicListCommand globalList;
 
         static CommandManagerEditor()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR)
+                return;
+
             commandManager = new CommandManager();
 
-            globalBatch = commandManager.AppendBatch<CommandBatchList>(null);
+            globalList = new BasicListCommand(false);
+            //commandManager.AppendCommand(null, globalList , false);
 
             lastTime = EditorApplication.timeSinceStartup;
 
@@ -30,38 +35,38 @@ namespace Bloodthirst.Editor.Commands
         private static void OnEditorUpdate()
         {
             double delta = EditorApplication.timeSinceStartup - lastTime;
-            
-            commandManager.Tick((float) delta);
+
+            commandManager.Tick((float)delta);
 
             lastTime = EditorApplication.timeSinceStartup;
         }
 
-        public static TBatch AppendBatch<TBatch>(object owner, bool removeWhenDone, int updateOrder) where TBatch : ICommandBatch , new()
+        public static void AppendCommand(object owner, ICommandBase cmd, bool removeWhenDone, int updateOrder)
         {
-           return commandManager.AppendBatch<TBatch>(owner, removeWhenDone, updateOrder);
+            Assert.IsTrue(EditorConsts.ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR);
+
+            commandManager.AppendCommand(owner, cmd, removeWhenDone, updateOrder);
         }
 
         public static void Run(ICommandBase cmd)
         {
-            globalBatch.Append(cmd);
+            Assert.IsTrue(EditorConsts.ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR);
+
+            globalList.Add(cmd , true );
         }
 
         public static void RunInstant(ICommandInstant cmd)
         {
+            Assert.IsTrue(EditorConsts.ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR);
+
             cmd.Execute();
         }
 
         public static T RunInstant<T>(ICommandInstant<T> cmd)
         {
+            Assert.IsTrue(EditorConsts.ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR);
+
             return cmd.GetResult();
-        }
-
-
-        [Button]
-        private static void TestCommand()
-        {
-            CommandBatchList b = AppendBatch<CommandBatchList>(new object(), true, 0);
-            b.Append(new TimedCommandBase(1f, "Editor Cmd Test"));
         }
 
         public class TimedCommandBase : CommandBase<TimedCommandBase>

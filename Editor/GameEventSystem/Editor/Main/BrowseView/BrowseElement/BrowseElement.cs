@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
 using Bloodthirst.Editor.CustomComponent;
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -42,15 +43,17 @@ namespace Bloodthirst.Core.GameEventSystem
         {
             GameEventSystemAsset.EnumClassPair casted = (GameEventSystemAsset.EnumClassPair)indexWrapper.Value;
 
-            TextAsset enumS = AdvancedTypeCache.CacheAsset.Cache.FirstOrDefault(kv => kv.Key.Name == editor.GameEventAsset.enumName).Value.unityScript;
-
-            EnumScript.value = enumS;
+            // enum value
             EnumValue.value = casted.enumValue;
 
-            TextAsset classS = EditorUtils.FindScriptAssets()
-                .Where(s => s.GetClass() != null)
-                .FirstOrDefault(s => s.GetClass().Name == casted.className);
+            // enum script
+            Type enumAsType = Type.GetType( editor.GameEventAsset.namespaceValue + '.' + editor.GameEventAsset.enumName + ", GameScripts" );
+            TextAsset enumS = AdvancedTypeCache.CacheAsset.Cache[enumAsType].unityScript;
+            EnumScript.value = enumS;
 
+            // event script
+            Type classAsType = Type.GetType(editor.GameEventAsset.namespaceValue + '.' + casted.className + ", GameScripts");
+            TextAsset classS = AdvancedTypeCache.CacheAsset.Cache[classAsType].unityScript;
             ClassScript.value = classS;
 
         }

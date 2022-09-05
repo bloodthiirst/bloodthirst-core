@@ -73,6 +73,46 @@ namespace Bloodthirst.Core.TreeList
             }
         }
 
+        public IEnumerable<TreeLeaf<TKey, TValue>> TraverseAllLeafsDepthFirstFromFinalLeafsUp()
+        {
+            if (SubLeafs != null)
+            {
+                for (int i = 0; i < SubLeafs.Count; i++)
+                {
+                    TreeLeaf<TKey, TValue> s = SubLeafs[i];
+
+                    foreach (TreeLeaf<TKey, TValue> e in s.TraverseAllLeafsDepthFirstFromFinalLeafsUp())
+                    {
+                        yield return e;
+                    }
+                }
+            }
+
+            yield return this;
+
+
+        }
+
+
+        public IEnumerable<TreeLeaf<TKey, TValue>> TraverseAllSubLeafsDepthFirst()
+        {
+            yield return this;
+
+            if (SubLeafs == null)
+                yield break;
+
+            for (int i = 0; i < SubLeafs.Count; i++)
+            {
+                TreeLeaf<TKey, TValue> s = SubLeafs[i];
+
+                foreach (TreeLeaf<TKey, TValue> e in s.TraverseAllSubLeafsDepthFirst())
+                {
+                    yield return e;
+                }
+            }
+        }
+
+
         public TreeLeaf<TKey, TValue> LookForKeyDirect(TKey key)
         {
             return _SubLeafs?.Find(l => l.LeafKey.Equals(key));
@@ -105,6 +145,20 @@ namespace Bloodthirst.Core.TreeList
 
             leaf.Parent = this;
             _SubLeafs.Add(leaf);
+        }
+
+        /// <summary>
+        /// Add e
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public void RemoveSubLeaf(TreeLeaf<TKey, TValue> leaf)
+        {
+            if (SubLeafs == null)
+                _SubLeafs = new List<TreeLeaf<TKey, TValue>>();
+
+            leaf.Parent = null;
+            _SubLeafs.Remove(leaf);
         }
     }
 }

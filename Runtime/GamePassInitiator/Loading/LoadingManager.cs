@@ -63,7 +63,7 @@ namespace Bloodthirst.Core.SceneManager
         }
 
         [ShowInInspector]
-        private CommandBatchQueue loadingQueue;
+        private BasicQueueCommand loadingQueue;
 
         private List<IProgressCommand> runningCommands;
 
@@ -86,7 +86,8 @@ namespace Bloodthirst.Core.SceneManager
             remainingCommands = new List<IProgressCommand>();
 
 
-            loadingQueue = commandManager.AppendBatch<CommandBatchQueue>(this, false);
+            loadingQueue = new BasicQueueCommand(true);
+            commandManager.AppendCommand(this, loadingQueue, false);
             loadingQueue.OnCommandAdded += HandleCommandAdded;
             loadingQueue.OnCommandRemoved += HandleCommandRemoved;
 
@@ -167,12 +168,12 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        private void HandleProgressChanged(IProgressCommand progressCommand , float oldValue , float newValue)
+        private void HandleProgressChanged(IProgressCommand progressCommand, float oldValue, float newValue)
         {
             RefreshState();
         }
 
-        private void HandleCommandRemoved(ICommandBatch batch, ICommandBase cmd)
+        private void HandleCommandRemoved(ICommandBase batch, ICommandBase cmd)
         {
             IProgressCommand casted = (IProgressCommand)cmd;
             casted.OnCurrentProgressChanged -= HandleProgressChanged;
@@ -183,7 +184,7 @@ namespace Bloodthirst.Core.SceneManager
             RefreshState();
         }
 
-        private void HandleCommandAdded(ICommandBatch batch, ICommandBase cmd)
+        private void HandleCommandAdded(ICommandBase batch, ICommandBase cmd)
         {
             IProgressCommand casted = (IProgressCommand)cmd;
             casted.OnCurrentProgressChanged += HandleProgressChanged;
@@ -194,10 +195,12 @@ namespace Bloodthirst.Core.SceneManager
             RefreshState();
         }
 
-        public void Load(IAsynOperationWrapper asyncOperations)
+        public IProgressCommand RunAsyncTask(IAsynOperationWrapper asyncOperations)
         {
             IProgressCommand cmd = asyncOperations.CreateOperation();
-            loadingQueue.Append(cmd);
+            loadingQueue.Enqueue(cmd);
+
+            return cmd;
         }
 
     }

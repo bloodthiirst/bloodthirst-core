@@ -1,8 +1,13 @@
 ﻿using Sirenix.OdinInspector;
+using System;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
+
     public class CommandManagerBehaviour : MonoBehaviour
     {
         [ShowInInspector]
@@ -13,22 +18,41 @@ namespace Bloodthirst.System.CommandSystem
         [ShowInInspector]
         private bool isActive = false;
 
-        public bool IsActive { get => isActive; set => isActive = value; }
+        public bool IsActive
+        {
+            get => isActive;
+            set
+            {
+                isActive = value;
+                enabled = isActive;
+            }
+        }
 
-        private CommandBatchList globalCommandBatch;
+
+        private BasicListCommand globalCommandBatch;
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        private static void OnDomainReload()
+        {
+            if (EditorApplication.isPlaying)
+            {
+                GameObject.FindObjectOfType<CommandManagerBehaviour>().Initialize();
+            }
+        }
+#endif
 
         public void Initialize()
         {
             commandManager = new CommandManager();
-            globalCommandBatch = AppendBatch<CommandBatchList>(this);
+            globalCommandBatch = new BasicListCommand(false);
+            AppendCommand(this, globalCommandBatch, false);
             isActive = true;
         }
 
         private void Reset()
         {
-            commandManager = new CommandManager();
-            globalCommandBatch = AppendBatch<CommandBatchList>(this);
-            isActive = true;
+            Initialize();
         }
 
         /// <summary>
@@ -37,7 +61,7 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="command"></param>
         public void Run(ICommandBase command)
         {
-            globalCommandBatch.Append(command, false);
+            globalCommandBatch.Add(command, false );
         }
 
         /// <summary>
@@ -47,16 +71,13 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="owner"></param>
         /// <param name="removeWhenDone"></param>
         /// <returns></returns>
-        public T AppendBatch<T>(object owner, bool removeWhenDone = false) where T : ICommandBatch, new()
+        public void AppendCommand(object owner, ICommandBase cmd, bool removeWhenDone = false)
         {
-            return commandManager.AppendBatch<T>(owner, removeWhenDone);
+            commandManager.AppendCommand(owner, cmd, removeWhenDone);
         }
 
         private void Update()
         {
-            if (!isActive)
-                return;
-
             commandManager.Tick(Time.deltaTime);
         }
     }

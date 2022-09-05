@@ -5,19 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.Callbacks;
 #endif
 using UnityEngine;
 
 namespace Bloodthirst.System.ContextSystem
 {
-#if UNITY_EDITOR
-    [InitializeOnLoad]
-#endif
     public class ContextSystemManager : SingletonScriptableObject<ContextSystemManager>
     {
         [SerializeField]
-        public List<ScriptableObject> AllContextInstance;
+        [ReadOnly]
+        private List<IContextInstance> allContextInstance;
+
+        public IReadOnlyList<IContextInstance> AllContextInstance => allContextInstance;
 
         [SerializeField]
         private List<List<IContextInstance>> contextLayers;
@@ -30,54 +29,19 @@ namespace Bloodthirst.System.ContextSystem
         public static event Action OnContextChanged;
 
 #if UNITY_EDITOR
-
-        static ContextSystemManager()
+        
+        public static void SetAllContexts(IList<IContextInstance> allInstances)
         {
-            EditorApplication.playModeStateChanged -= InitContextSystem;
-            EditorApplication.playModeStateChanged += InitContextSystem;
-        }
-
-
-        private static void InitContextSystem(PlayModeStateChange obj)
-        {
-            Instance.Initialize();
-        }
-
-        [Button]
-        public void Initialize()
-        {
-            if (ContextLayers == null)
-            {
-                ContextLayers = new List<List<IContextInstance>>();
-                return;
-            }
-
-            ContextLayers.Clear();
-
-            ReloadContexts();
-        }
-
-        public static void ReloadContexts()
-        {
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                return;
-
-            if (Instance.AllContextInstance == null)
-                Instance.AllContextInstance = new List<ScriptableObject>();
+            if (Instance.allContextInstance == null)
+                Instance.allContextInstance = new List<IContextInstance>();
             else
-                Instance.AllContextInstance.Clear();
+                Instance.allContextInstance.Clear();
 
-            ScriptableObject[] allContexts = Resources.LoadAll("Singletons", typeof(IContextInstance)).OfType<ScriptableObject>().Where(so => so != null).ToArray();
-
-            for (int i = 0; i < allContexts.Length; i++)
-            {
-                Instance.AllContextInstance.Add(allContexts[i]);
-            }
+            Instance.allContextInstance.AddRange(allInstances);
 
             if (Instance.ContextLayers == null)
                 Instance.ContextLayers = new List<List<IContextInstance>>();
         }
-
 
 #endif
         private static void CheckSize(int contextLayer, int indexInLayer = -1)
@@ -140,7 +104,6 @@ namespace Bloodthirst.System.ContextSystem
         }
 
 
-
         public static void RepalceContext(int contextLayer, IContextInstance oldcontext, IContextInstance newContext)
         {
             if (!HasContext(contextLayer, oldcontext))
@@ -151,6 +114,7 @@ namespace Bloodthirst.System.ContextSystem
 
             OnContextRemoved?.Invoke(contextLayer, oldcontext);
             OnContextAdded?.Invoke(contextLayer, newContext);
+            OnContextChanged?.Invoke();
         }
         public static bool HasContext(int contextLayer, IContextInstance context)
         {

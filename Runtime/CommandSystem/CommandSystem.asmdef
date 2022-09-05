@@ -1,3 +1,16 @@
 {
-	"name": "CommandSystem"
+    "name": "CommandSystem",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3b52879d6b7ecc34e9e545f3bfce0e72"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

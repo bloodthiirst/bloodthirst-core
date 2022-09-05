@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Commands.Tests
 {
+
     public class TimedCommandBase : CommandBase<TimedCommandBase>
     {
         private float currentTimer;

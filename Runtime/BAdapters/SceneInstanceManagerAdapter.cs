@@ -10,9 +10,8 @@ namespace Bloodthirst.Runtime.BAdapter
 {
     [BAdapterFor(typeof(ISceneInstanceManager))]
     [RequireComponent(typeof(ISceneInstanceManager))]
-    public class SceneInstanceManagerAdapter : MonoBehaviour, ISceneInitializationPass, IPostSceneInitializationPass, IBeforeSceneUnload , IGameEnd
+    public class SceneInstanceManagerAdapter : MonoBehaviour, ISceneInitializationPass, IPostSceneInitializationPass, IBeforeSceneUnload, IGameEnd
     {
-        private bool isAlive;
         int IGameEnd.Order => -GetComponent<ISceneInstanceManager>().SceneIndex;
 
         void ISceneInitializationPass.Execute()
@@ -21,10 +20,13 @@ namespace Bloodthirst.Runtime.BAdapter
 
             Assert.IsNotNull(sceneManager);
 
-            sceneManager.Initialize(BProviderRuntime.Instance.GetSingleton<LoadingManager>());
+            GlobalSceneManager globalSceneManager = BProviderRuntime.Instance.GetSingleton<GlobalSceneManager>();
+            LoadingManager loadingManager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
+
+            sceneManager.Initialize(loadingManager, globalSceneManager);
 
             BProviderRuntime.Instance.RegisterInstance(sceneManager);
-            BProviderRuntime.Instance.RegisterSingleton( sceneManager.SceneManagerType ,sceneManager);
+            BProviderRuntime.Instance.RegisterSingleton(sceneManager.SceneManagerType, sceneManager);
         }
 
         void IPostSceneInitializationPass.Execute()
@@ -43,8 +45,9 @@ namespace Bloodthirst.Runtime.BAdapter
             Assert.IsNotNull(sceneManager);
 
             BProviderRuntime.Instance.RemoveInstance(sceneManager);
-            BProviderRuntime.Instance.RemoveSingleton(sceneManager.SceneManagerType , sceneManager);
-            Debug.Log($"Before Scene Unloaded {sceneManager.ScenePath }");
+            BProviderRuntime.Instance.RemoveSingleton(sceneManager.SceneManagerType, sceneManager);
+
+            Debug.Log($"Before Scene Unloaded {sceneManager.ScenePath}");
         }
 
         IAsynOperationWrapper IGameEnd.GetAsyncOperations()
@@ -56,7 +59,9 @@ namespace Bloodthirst.Runtime.BAdapter
                 return null;
             }
 
-            return new UnloadSceneAsyncWrapper(sceneManager.ScenePath);
+            GlobalSceneManager globalSceneManager = BProviderRuntime.Instance.GetSingleton<GlobalSceneManager>();
+
+            return new UnloadSingleSceneAsyncWrapper(sceneManager, globalSceneManager , true);
         }
 
         private void OnDestroy()

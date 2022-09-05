@@ -443,10 +443,7 @@ namespace Bloodthirst.BJson
                             }
                     }
                 }
-
-                // the proble is here
-                // to serializer is stopping at the propertyEnd of the RefMonobeaviour and not the properyEnd of the ComponenntValue
-                // todo : populate in a correct way
+                
                 // skip until the first comma or object end
                 parseState.SkipUntil(ParserUtils.IsPropertyEndObject);
 

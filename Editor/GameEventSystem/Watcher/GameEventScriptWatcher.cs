@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.Utils;
+using Bloodthirst.Editor;
 using Bloodthirst.Editor.AssetProcessing;
 using Bloodthirst.Editor.Commands;
 using System;
@@ -12,6 +13,9 @@ namespace Bloodthirst.Core.GameEventSystem
     {
         static GameEventScriptWatcher()
         {
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_GAME_EVENT_SCRIPT_WATCHER)
+                return;
+
             ScriptAssetWatcher.OnScriptRemoved -= HandleScriptRemoved;
             ScriptAssetWatcher.OnScriptRemoved += HandleScriptRemoved;
         }

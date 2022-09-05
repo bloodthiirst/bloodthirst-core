@@ -218,7 +218,6 @@ namespace Bloodthirst.BJson
 
         public static bool IsCachedOrNull(ref ParserState<JSONTokenType> parseState, BJsonContext context, BJsonSettings settings, out object cached)
         {
-            // todo : check if null in JSON
             if (parseState.CurrentToken.TokenType == JSONTokenType.NULL)
             {
                 cached = null;

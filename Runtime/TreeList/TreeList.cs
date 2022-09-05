@@ -78,6 +78,28 @@ namespace Bloodthirst.Core.TreeList
             }
         }
 
+        public IEnumerable<TreeLeaf<TKey, TValue>> GetAllLeafsDepthFirst()
+        {
+            foreach(TreeLeaf<TKey, TValue> sub in AllSubLeafs)
+            {
+                foreach (TreeLeaf<TKey, TValue> val in sub.TraverseAllSubLeafsDepthFirst())
+                {
+                    yield return val;
+                }
+            }
+        }
+
+        public IEnumerable<TreeLeaf<TKey,TValue>> GetAllLeafsDepthFirstFromFinalLeafsUp()
+        {
+            foreach (TreeLeaf<TKey, TValue> sub in AllSubLeafs)
+            {
+                foreach (TreeLeaf<TKey, TValue> val in sub.TraverseAllLeafsDepthFirstFromFinalLeafsUp())
+                {
+                    yield return val;
+                }
+            }
+        }
+
 
         /// <summary>
         /// <para> Get or create a sequence of interconnected leafs using the order in the list passed</para>

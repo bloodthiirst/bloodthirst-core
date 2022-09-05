@@ -125,8 +125,6 @@ public class InOutArray_Basic_Tests
     public void Performance_Vs_List_Adding_Test()
     {
         int count = 2_000_00;
-        int passes = 1;
-
 
 
         InOutArray<SomeClass> inOutArray = new InOutArray<SomeClass>(count);
@@ -175,7 +173,6 @@ public class InOutArray_Basic_Tests
     public void Performance_Vs_List_Removing_Test()
     {
         int count = 2_000_00;
-        int passes = 1;
 
         InOutArray<SomeClass> inOutArray = new InOutArray<SomeClass>(count);
         List<SomeClass> list = new List<SomeClass>();

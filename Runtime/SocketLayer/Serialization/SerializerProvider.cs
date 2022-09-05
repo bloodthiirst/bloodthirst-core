@@ -2,12 +2,14 @@
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Socket.Serializer;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine;
 #endif
 
 namespace Bloodthirst.Socket.Serialization
@@ -28,52 +30,56 @@ namespace Bloodthirst.Socket.Serialization
     }
 #endif
 
-#if UNITY_EDITOR
-    [InitializeOnLoad]
-#endif
-
     public class SerializerProvider : SingletonScriptableObject<SerializerProvider>
     {
-        private static Dictionary<Type, INetworkSerializer> typeToSerializer;
-
-        private static Dictionary<Type, INetworkSerializer> TypeToSerializer
-        {
-            get
-            {
-                if (typeToSerializer == null)
-                {
-                    typeToSerializer = new Dictionary<Type, INetworkSerializer>();
-                }
-
-                return typeToSerializer;
-            }
-        }
+        [OdinSerialize]
+        [HideInInspector]
+        private Dictionary<Type, INetworkSerializer> typeToSerializer;
 
 
 #if UNITY_EDITOR
-        private static List<SerializerInfo> serializedTypes;
+
+        private List<SerializerInfo> serializedTypes;
 
         /// <summary>
         /// Container the list of the serialized
         /// </summary>
         [ShowInInspector]
         [ReadOnly]
-        private List<SerializerInfo> SerializedTypes => serializedTypes;
+        private List<SerializerInfo> SerializedTypes
+        {
+            get
+            {
+                RefreshInfo();
+                return serializedTypes;
+            }
+        }
 
-        private static void RefreshInfo()
+
+        private void RefreshInfo()
         {
             serializedTypes = serializedTypes.CreateOrClear();
 
-            foreach (KeyValuePair<Type, INetworkSerializer> kv in TypeToSerializer)
+            foreach (KeyValuePair<Type, INetworkSerializer> kv in typeToSerializer)
             {
                 serializedTypes.Add(new SerializerInfo() { TypeName = kv.Key.GetNiceName(), SerializerName = kv.Value.GetType().GetNiceName() });
             }
         }
 #endif
 
-        static SerializerProvider()
+        [Button]
+        public void Initialize()
         {
-            var types = TypeUtils.AllTypes
+            if (typeToSerializer == null)
+            {
+                typeToSerializer = new Dictionary<Type, INetworkSerializer>();
+            }
+            else
+            {
+                typeToSerializer.Clear();
+            }
+
+            List<Tuple<Type, Type>> types = TypeUtils.AllTypes
                 .Where(t => t.IsClass)
                 .Where(t => !t.IsAbstract)
                 .Where(t => !(t.IsGenericType && t.GetGenericTypeDefinition() == typeof(DefaultNetworkSerializer<>)))
@@ -98,7 +104,7 @@ namespace Bloodthirst.Socket.Serialization
 
                 INetworkSerializer serializer = (INetworkSerializer)Activator.CreateInstance(query.Item2);
 
-                TypeToSerializer.Add(query.Item1, serializer);
+                typeToSerializer.Add(query.Item1, serializer);
             }
 
             // spawn serializers for emptyStruct
@@ -112,7 +118,7 @@ namespace Bloodthirst.Socket.Serialization
                 Type emptyStruct = emptyTypes[i];
                 Type constructedType = typeof(EmptyStructNetworkSerializer<>).MakeGenericType(emptyStruct);
                 INetworkSerializer serializer = (INetworkSerializer)Activator.CreateInstance(constructedType);
-                TypeToSerializer.Add(emptyStruct, serializer);
+                typeToSerializer.Add(emptyStruct, serializer);
             }
 #if UNITY_EDITOR
             RefreshInfo();
@@ -130,13 +136,13 @@ namespace Bloodthirst.Socket.Serialization
         {
             Type t = typeof(T);
 
-            if (!TypeToSerializer.TryGetValue(t, out INetworkSerializer alreadyCreated))
+            if (!Instance.typeToSerializer.TryGetValue(t, out INetworkSerializer alreadyCreated))
             {
                 INetworkSerializer<T> serializer = new DefaultNetworkSerializer<T>();
 
-                TypeToSerializer.Add(t, serializer);
+                Instance.typeToSerializer.Add(t, serializer);
 #if UNITY_EDITOR
-                RefreshInfo();
+                Instance.RefreshInfo();
 #endif
                 return serializer;
             }

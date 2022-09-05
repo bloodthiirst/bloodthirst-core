@@ -37,14 +37,9 @@ namespace Bloodthirst.BType
         {
             Type = t;
 
-            try
-            {
-                Assert.IsFalse(TypeUtils.PrimitiveTypes.Contains(t));
-            }
-            catch (Exception ex)
-            {
+            Assert.IsFalse(TypeUtils.PrimitiveTypes.Contains(t));
+            Assert.IsFalse(t == typeof(string));
 
-            }
             MemberDatas = new List<BMemberData>();
             BTypeProvider.Register(this);
             Initialize();
@@ -74,7 +69,6 @@ namespace Bloodthirst.BType
                 Action<object, object> setter = MemberSetter(curr);
 
                 // direct attr
-                // todo : make this a dict of type , list<attr> 
                 Dictionary<Type, Attribute> directAttrs = new Dictionary<Type, Attribute>();
                 IEnumerable<Attribute> directAttrList = curr.GetCustomAttributes(typeof(Attribute), true).Cast<Attribute>();
 

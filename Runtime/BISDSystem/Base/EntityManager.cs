@@ -3,7 +3,6 @@ using UnityEditor;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    [InitializeOnLoad]
     public class EntityManager
     {
         private static int entityCount;
