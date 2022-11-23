@@ -10,11 +10,13 @@ using System.Threading.Tasks;
 
 namespace Bloodthirst.Editor.BInspector
 {
-    public struct ValueDrawerInfoBasic : IValueDrawerInfo
+    public struct ValueDrawerInfoBasic : IValueProvider
     {
         public object ContainingInstance { get; set; }
         public BMemberData MemberData { get; set; }
         public MemberInfo MemberInfo => MemberData.MemberInfo;
+
+        public ValuePath ValuePath { get; set; }
 
         public object Get()
         {

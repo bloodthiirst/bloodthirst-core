@@ -10,12 +10,14 @@ namespace Bloodthirst.Runtime.BAdapter
     [RequireComponent(typeof(LoadingManager))]
     public class LoadingManagerAdapter : MonoBehaviour, IPreGameSetup , IPostGameEnd
     {
-        int IPreGameSetup.Order => 1;
+        [SerializeField]
+        private int preGameSetupOrder;
+        int IPreGameSetup.Order => preGameSetupOrder;
         void IPreGameSetup.Execute()
         {
             LoadingManager bhv = GetComponent<LoadingManager>();
 
-            CommandManagerBehaviour commandManager = BProviderRuntime.Instance.GetSingleton<CommandManagerBehaviour>();
+            ICommandManagerProvider commandManager = BProviderRuntime.Instance.GetSingleton<ICommandManagerProvider>();
             bhv.Initialize(commandManager);
 
             BProviderRuntime.Instance.RegisterSingleton(bhv);

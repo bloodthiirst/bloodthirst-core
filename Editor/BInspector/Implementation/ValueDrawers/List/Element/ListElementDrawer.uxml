@@ -1,0 +1,29 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+
+	<!-- ELEMENT -->
+	<ui:VisualElement class="list-element list-element-style">
+
+		<!-- Element Index-->
+		<ui:VisualElement class="row grow-1 element-label grow-0 shrink-0">
+
+			<!-- ELMENET TEXY -->
+			<ui:Label text="Element" class="text-center-xy" />
+			
+			<!--- ELEMENT INDEX -->
+			<ui:VisualElement class="index-container mr-5 ml-5">
+				
+				<ui:Label name="ElementIndex" text="0" class="h-100 w-100 text-center-xy"/>
+				
+			</ui:VisualElement>
+			
+		</ui:VisualElement>
+		
+		<!-- SEPARATOR -->
+		<ui:VisualElement class="h-separator" />
+		
+		<!-- VALUE -->
+		<ui:VisualElement name="ElementContainer" class="list-element-content" />
+
+	</ui:VisualElement>
+
+</UXML>

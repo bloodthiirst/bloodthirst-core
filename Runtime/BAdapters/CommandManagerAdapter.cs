@@ -1,5 +1,6 @@
 using Bloodthirst.Core.BProvider;
 using Bloodthirst.Core.Setup;
+using Bloodthirst.Core.Updater;
 using Bloodthirst.System.CommandSystem;
 using UnityEngine;
 
@@ -9,15 +10,22 @@ namespace Bloodthirst.Runtime.BAdapter
     [RequireComponent(typeof(CommandManagerBehaviour))]
     public class CommandManagerAdapter : MonoBehaviour, IPreGameSetup
     {
-        int IPreGameSetup.Order => 0;
+        [SerializeField]
+        private int preGameSetupOrder;
+        int IPreGameSetup.Order => preGameSetupOrder;
 
         void IPreGameSetup.Execute()
         {
-            CommandManagerBehaviour behaviour = GetComponent<CommandManagerBehaviour>();
+            CommandManagerBehaviour commandManagerBehaviour = GetComponent<CommandManagerBehaviour>();
+            commandManagerBehaviour.Initialize();
 
-            behaviour.Initialize();
+            IUpdater updater = BProviderRuntime.Instance.GetSingleton<DefaultUpdaterBehaviour>();
+            
+            updater.Register(commandManagerBehaviour);
 
-            BProviderRuntime.Instance.RegisterSingleton<CommandManagerBehaviour, CommandManagerBehaviour>(behaviour);
+            BProviderRuntime.Instance.RegisterSingleton<CommandManagerBehaviour, ICommandManagerProvider>(commandManagerBehaviour);
         }
+
+
     }
 }

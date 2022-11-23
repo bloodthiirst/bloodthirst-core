@@ -16,8 +16,9 @@ namespace Bloodthirst.Runtime.BAdapter
     [RequireComponent(typeof(SceneStartup))]
     public class SceneStartupAdapter : MonoBehaviour, IPreGameSetup, IGameSetup, IPostGameSetup
     {
-
-        int IPreGameSetup.Order => 1;
+        [SerializeField]
+        private int preGameSetupOrder;
+        int IPreGameSetup.Order => preGameSetupOrder;
 
 #if UNITY_EDITOR
         [InfoBox("$" + nameof(DuplicateMessage), nameof(HasDuplicate), InfoMessageType = InfoMessageType.Error)]
@@ -103,7 +104,6 @@ namespace Bloodthirst.Runtime.BAdapter
             }
 
             // trigger scene callbacks
-            // todo ; change this do the interation per pass type instead of per scene
             for (int i = 0; i < scenes.Count; i++)
             {
                 string scenePath = scenes[i].path;

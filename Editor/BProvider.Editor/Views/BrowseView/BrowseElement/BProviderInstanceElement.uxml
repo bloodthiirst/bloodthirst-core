@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+	<engine:VisualElement name="Container" class="row item-container item-container-style grow-1" focusable="false">
+
+         <!-- INFO -->
+        <engine:VisualElement name="Info" class="col grow-1" >
+        
+            <!-- TYPE -->            
+            <engine:VisualElement class="row grow-1" >	
+				
+				<engine:TextField name="TypeName"
+								  label="Type"
+								  class="grow-1" />
+				
+                <editor:ObjectField name="TypeScript" class="grow-1" />
+				
+            </engine:VisualElement>
+
+             <!-- CUSTOM VALUE INSPECTOR -->            
+            <engine:VisualElement class="row grow-1">
+                
+
+				<engine:Foldout name="ValueFoldout" class="grow-1" text="Value"  value="false" >
+					
+					<engine:VisualElement name="Value"
+										  class="grow-1"/>
+				</engine:Foldout>
+				
+			</engine:VisualElement>
+
+        </engine:VisualElement>
+    
+    </engine:VisualElement>
+
+</engine:UXML>

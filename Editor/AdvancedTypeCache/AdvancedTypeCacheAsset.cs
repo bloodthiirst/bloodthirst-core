@@ -60,14 +60,6 @@ namespace Bloodthirst.Core.Utils
             {
                 AssemblyDefinitionReferenceAsset currAssembly = assemblyReferences[i];
 
-                /*
-                AssemblyDefinitionReferenceJsonContent asJson = new AssemblyDefinitionReferenceJsonContent();
-                EditorJsonUtility.FromJsonOverwrite(currAssembly.text, asJson);
-
-                bool isValid = GUID.TryParse(asJson.reference.Substring(5), out GUID guid);
-                string pathToAsm = AssetDatabase.GUIDToAssetPath(guid);
-                */
-
                 string pathToAsm = AssetDatabase.GetAssetPath(currAssembly);
 
                 pathToAsm = Path.GetDirectoryName(pathToAsm);

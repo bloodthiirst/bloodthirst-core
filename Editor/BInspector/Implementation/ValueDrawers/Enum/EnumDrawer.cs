@@ -22,61 +22,76 @@ namespace Bloodthirst.Editor.BInspector
         private static VisualTreeAsset uxmlAsset => AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
         private static StyleSheet ussAsset => AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
         private Type EnumType { get; set; }
+
+        private int[] vals;
+        private string[] names;
+
         private PopupField<int> EnumPopUp { get; set; }
-
-        public EnumDrawer()
-        {
-            
-        }
-        protected override void PrepareUI(VisualElement root)
-        {
-            // ui setup
-            root.AddToClassList("row");
-            root.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
-
-            UIContainer = uxmlAsset.CloneTree();
-
-            UIContainer.styleSheets.Add(ussAsset);
-            UIContainer.AddToClassList("grow-1");
-            root.Add(UIContainer);
-        }
 
         public override object DefaultValue()
         {
             return 0;
         }
 
-
-        protected override void Postsetup()
+        public override void Tick()
         {
-            Type t = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
+            if (EnumPopUp.focusController.focusedElement == EnumPopUp)
+                return;
 
-            int[] vals = Enum.GetValues(t) as int[];
-            string[] names = Enum.GetNames(t) as string[];
+            int index = 0;
+            for (int i =  0; i < vals.Length; i++)
+            {
+                if ((object) vals[i] == ValueProvider.Get())
+                    index = i;
+            }
+
+            EnumPopUp.value = index;
+        }
+
+
+        protected override void PrepareData(IValueProvider drawerInfo, IValueDrawer parent)
+        {
+            EnumType = ReflectionUtils.GetMemberType(ValueProvider.MemberInfo);
+        }
+
+        protected override void GenerateDrawer(LayoutContext layoutContext)
+        {
+            // dropdown
+            vals = Enum.GetValues(EnumType) as int[];
+            names = Enum.GetNames(EnumType) as string[];
 
             EnumPopUp = new PopupField<int>(vals.ToList(), vals[0], (i) => names[i], (i) => names[i]);
-            EnumPopUp.AddToClassList("m-0");
+            EnumPopUp.AddToClassList("grow-1");
+            EnumPopUp.AddToClassList("shrink-1");
+
+            // ui setup
+            UIContainer = uxmlAsset.CloneTree();
+            UIContainer.styleSheets.Add(ussAsset);
+            UIContainer.AddToClassList("grow-1");
             UIContainer.Add(EnumPopUp);
 
+            DrawerContainer.AddToClassList("row");
+            DrawerContainer.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
+            DrawerContainer.Add(UIContainer);
 
             // generate getter/setter
             // if property
-            if (DrawerInfo.MemberInfo.MemberType == MemberTypes.Property)
+            if (ValueProvider.MemberInfo.MemberType == MemberTypes.Property)
             {
-                PropertyInfo casted = (PropertyInfo)DrawerInfo.MemberInfo;
-
+                PropertyInfo casted = (PropertyInfo)ValueProvider.MemberInfo;
                 EnumPopUp.SetEnabled(casted.CanWrite);
             }
 
             EnumPopUp.RegisterValueChangedCallback(HandleValueChanged);
-            EnumPopUp.SetValueWithoutNotify((int)DrawerInfo.Get());
-
+            EnumPopUp.SetValueWithoutNotify((int)ValueProvider.Get());
         }
+
+        protected override void PostLayout() { }
 
         private void HandleValueChanged(ChangeEvent<int> evt)
         {
-            DrawerInfo.Set(evt.newValue);
-            Value = evt.newValue;
+            DrawerValue = evt.newValue;
+            ValueProvider.Set(evt.newValue);
             TriggerOnValueChangedEvent();
         }
 

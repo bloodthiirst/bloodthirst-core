@@ -44,7 +44,10 @@ public class UILineRendererInspector : VisualElement
 
         uxml.CloneTree(this);
 
-        styleSheets.Add(EditorConsts.GlobalStyleSheet);
+        if (!styleSheets.Contains(EditorConsts.GlobalStyleSheet))
+        {
+            styleSheets.Add(EditorConsts.GlobalStyleSheet);
+        }
         styleSheets.Add(style);
 
         // ui settings

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -34,12 +33,18 @@ namespace Bloodthirst.Editor.BInspector
             scriptObjectField = new ScriptObjectFieldDrawer();
         }
 
-        VisualElement IBInspectorDrawer.CreateInspectorGUI(object instance)
+        RootEditor IBInspectorDrawer.CreateInspectorGUI(object instance)
         {
             return GetEditor(instance);
         }
 
-        private VisualElement GetEditor(object instance)
+        public struct RootEditor
+        {
+            public VisualElement RootContainer { get; set; }
+            public IValueDrawer RootDrawer { get; set; }
+        }
+
+        private RootEditor GetEditor(object instance)
         {
 
             // start creating the ui
@@ -63,18 +68,39 @@ namespace Bloodthirst.Editor.BInspector
 
             ComplexValueDrawer drawer = new ComplexValueDrawer();
 
-            // context
-            DrawerContext drawerContext = new DrawerContext();
-            drawerContext.AllDrawers = new List<IValueDrawer>();
-            drawerContext.IndentationLevel = 0;
+            
+            ValueProviderGeneric info = new ValueProviderGeneric(
+                
+                // state
+                null, 
+                
+                // vale path
+                new ValuePath() { PathType = PathType.ROOT },
+                
+                // getter
+                () => instance,
+               
+                // setter
+                null,
 
-            ValueDrawerInfoGeneric info = new ValueDrawerInfoGeneric(null, () => instance, null, instance.GetType() , null);
+                // type
+                instance.GetType(), 
+                
+                // parent instance
+                null , 
+                
+                // member info
+                null);
 
-            drawer.Setup(info, null, drawerContext);
+            ValueDrawerUtils.DoLayoutRoot(drawer ,info);
+                        
+            container.Add(drawer.DrawerContainer);
 
-            container.Add(drawer.DrawerRoot);
-
-            return root;
+            return new RootEditor()
+            {
+                RootContainer = root,
+                RootDrawer = drawer
+            };
         }
     }
 }

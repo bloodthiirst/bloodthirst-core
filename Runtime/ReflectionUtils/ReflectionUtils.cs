@@ -108,33 +108,44 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static Type GetMemberType(MemberInfo member)
         {
-            switch (member.MemberType)
+            try
             {
-                case MemberTypes.Event:
-                    return ((EventInfo)member).EventHandlerType;
-                case MemberTypes.Field:
-                    return ((FieldInfo)member).FieldType;
-                case MemberTypes.Method:
-                    return ((MethodInfo)member).ReturnType;
-                case MemberTypes.Property:
-                    return ((PropertyInfo)member).PropertyType;
-                default:
-                    throw new ArgumentException
-                    (
-                     "Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo"
-                    );
+                switch (member.MemberType)
+                {
+                    case MemberTypes.Event:
+                        return ((EventInfo)member).EventHandlerType;
+                    case MemberTypes.Field:
+                        return ((FieldInfo)member).FieldType;
+                    case MemberTypes.Method:
+                        return ((MethodInfo)member).ReturnType;
+                    case MemberTypes.Property:
+                        return ((PropertyInfo)member).PropertyType;
+                    default:
+                        throw new ArgumentException
+                        (
+                         "Input MemberInfo must be if type EventInfo, FieldInfo, MethodInfo, or PropertyInfo"
+                        );
+                }
             }
+            catch(Exception ex)
+            {
+
+            }
+
+            return null;
         }
 
         #region Expression
 
         public static Func<object> GetDefaultValue(Type type)
         {
-            // Validate parameters.
-            if (type == null) throw new ArgumentNullException("type");
-
             try
             {
+                // Validate parameters.
+                if (type == null) 
+                    throw new ArgumentNullException("type");
+
+           
                 // We want an Func<object> which returns the default.
                 // Create that expression here.
                 Expression<Func<object>> e = Expression.Lambda<Func<object>>(

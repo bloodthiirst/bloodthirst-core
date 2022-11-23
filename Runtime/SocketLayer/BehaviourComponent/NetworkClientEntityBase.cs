@@ -1,5 +1,4 @@
 ﻿using Bloodthirst.Core.BProvider;
-using Bloodthirst.Core.Singleton;
 using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
@@ -12,8 +11,7 @@ using UnityEngine.Events;
 
 namespace Bloodthirst.Socket.Core
 {
-    public abstract class NetworkClientEntityBase<TClient, TIdentifier> :
-        Bloodthirst.Core.Singleton.BSingleton<NetworkClientEntityBase<TClient, TIdentifier>>,
+    public abstract class NetworkClientEntityBase<TClient, TIdentifier> : MonoBehaviour,
         ISocketClientInjector<TClient, TIdentifier>,
         INetworkInjector,
         IAwakePass

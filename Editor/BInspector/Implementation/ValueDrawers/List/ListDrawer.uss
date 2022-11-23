@@ -1,0 +1,42 @@
+.list-background{
+    background-color : black;
+}
+
+.list-element-style {
+    border-color: dimgray;
+    background-color: dimgray;
+    border-width: 1px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.h-separator {
+    width: 2px;
+    height: 100%;
+    background-color: black;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.element-label {
+    height: 20px;
+}
+
+.index-container {
+    flex-shrink : 0;
+    flex-grow : 0;
+    height: 20px;
+    width : 30px;
+    padding: 10px;
+    color: black;
+    border-color: lightgray;
+    background-color: lightgray;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}

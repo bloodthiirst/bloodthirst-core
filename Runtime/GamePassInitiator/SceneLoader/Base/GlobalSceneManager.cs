@@ -1,13 +1,8 @@
-﻿using Bloodthirst.Core.BProvider;
-using Bloodthirst.Core.Setup;
-using Bloodthirst.System.CommandSystem;
+﻿using Bloodthirst.System.CommandSystem;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.SceneManager
 {
@@ -21,14 +16,14 @@ namespace Bloodthirst.Core.SceneManager
         [ShowInInspector]
         private List<ISceneInstanceManager> currentActiveScene;
 
-        private CommandManagerBehaviour commandManagerBehaviour;
+        private ICommandManagerProvider commandManagerProvider;
 
         private LoadingManager loadingManager;
 
-        public void Initialize(CommandManagerBehaviour commandManagerBehaviour, LoadingManager loadingManager)
+        public void Initialize(ICommandManagerProvider commandManagerProvider, LoadingManager loadingManager)
         {
             currentActiveScene = new List<ISceneInstanceManager>();
-            this.commandManagerBehaviour = commandManagerBehaviour;
+            this.commandManagerProvider = commandManagerProvider;
             this.loadingManager = loadingManager;
         }
 

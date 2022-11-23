@@ -1,11 +1,3 @@
-using Bloodthirst.Editor.BInspector;
-using Sirenix.Utilities;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
@@ -14,43 +6,46 @@ namespace Bloodthirst.Editor.BInspector
     {
         private Toggle BoolField { get; set; }
 
-        public BooleanDrawer()
-        {
-
-        }
-
-        protected override void PrepareUI(VisualElement root)
-        {
-            root.AddToClassList("row");
-            root.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
-
-            BoolField = new Toggle();
-            BoolField.AddToClassList("grow-1");
-            root.Add(BoolField);
-        }
-
         public override object DefaultValue()
         {
-            return 0;
+            return false;
         }
 
-        protected override void Postsetup()
+        public override void Tick()
         {
-            BoolField.SetValueWithoutNotify((bool) Value);
+            if (BoolField.focusController.focusedElement == BoolField)
+                return;
+
+            BoolField.value = (bool)ValueProvider.Get();
+        }
+
+        protected override void GenerateDrawer(LayoutContext drawerContext)
+        {
+            BoolField = new Toggle();
+            BoolField.SetValueWithoutNotify((bool)ValueProvider.Get());
+
+            BoolField.AddToClassList("grow-1");            
             BoolField.RegisterValueChangedCallback(HandleValueChanged);
 
+            DrawerContainer.AddToClassList("row");
+            DrawerContainer.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
+            DrawerContainer.Add(BoolField);
         }
-
+        
         private void HandleValueChanged(ChangeEvent<bool> evt)
         {
-            DrawerInfo.Set(evt.newValue);
+            DrawerValue = evt.newValue;
+            ValueProvider.Set(evt.newValue);
             TriggerOnValueChangedEvent();
         }
+        protected override void PostLayout() { }
 
-        public  override void Destroy()
+        public override void Destroy()
         {
             BoolField.RegisterValueChangedCallback(HandleValueChanged);
             BoolField = null;
         }
+
+
     }
 }

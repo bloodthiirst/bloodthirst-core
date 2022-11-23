@@ -17,6 +17,10 @@ namespace Bloodthirst.Editor.BInspector
     {
         public TypeSelector(Type t) : base(GetTypesList(t), 0, TypeToName, TypeToName)
         {
+            style.marginLeft = 0;
+            style.marginRight = 0;
+            style.marginTop = 0;
+            style.marginBottom = 0;
         }
 
         private static string TypeToName(Type type)
@@ -44,7 +48,7 @@ namespace Bloodthirst.Editor.BInspector
             if (!type.IsAbstract && !type.IsInterface)
             {
                 // all generic types
-                if (!type.IsGenericType && type.IsConstructedGenericType)
+                if (type.IsGenericType && !type.IsGenericTypeDefinition)
                 {
                     result.Add(type);
 

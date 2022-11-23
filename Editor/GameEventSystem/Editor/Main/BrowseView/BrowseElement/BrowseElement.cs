@@ -29,7 +29,10 @@ namespace Bloodthirst.Core.GameEventSystem
             visualTree.CloneTree(this);
 
             styleSheets.Add(styleSheet);
-            styleSheets.Add(EditorConsts.GlobalStyleSheet);
+            if (!styleSheets.Contains(EditorConsts.GlobalStyleSheet))
+            {
+                styleSheets.Add(EditorConsts.GlobalStyleSheet);
+            }
 
             EnumScript.objectType = typeof(TextAsset);
             ClassScript.objectType = typeof(TextAsset);
@@ -39,20 +42,39 @@ namespace Bloodthirst.Core.GameEventSystem
             ClassScript.SetEnabled(false);
         }
 
-        public void Setup(GameEventSystemEditor editor , IndexWrapper indexWrapper)
+        internal class AssemblyDefinitionJsonContent
         {
+            public string name;
+            public string rootNamespace;
+            public string[] references;
+            public string[] includePlatforms;
+            public string[] excludePlatforms;
+            public bool allowUnsafeCode;
+            public bool overrideReferences;
+            public string[] precompiledReferences;
+            public bool autoReferenced;
+            public string[] defineConstraints;
+            public string[] versionDefines;
+            public bool noEngineReferences;
+        }
+
+        public void Setup(GameEventSystemEditor editor, IndexWrapper indexWrapper)
+        {
+            AssemblyDefinitionJsonContent asJson = new AssemblyDefinitionJsonContent();
+            EditorJsonUtility.FromJsonOverwrite(editor.GameEventAsset.assemblyDefinition.text, asJson);
+
             GameEventSystemAsset.EnumClassPair casted = (GameEventSystemAsset.EnumClassPair)indexWrapper.Value;
 
             // enum value
             EnumValue.value = casted.enumValue;
 
             // enum script
-            Type enumAsType = Type.GetType( editor.GameEventAsset.namespaceValue + '.' + editor.GameEventAsset.enumName + ", GameScripts" );
+            Type enumAsType = Type.GetType($"{editor.GameEventAsset.namespaceValue}.{editor.GameEventAsset.enumName}, {asJson.name}");
             TextAsset enumS = AdvancedTypeCache.CacheAsset.Cache[enumAsType].unityScript;
             EnumScript.value = enumS;
 
             // event script
-            Type classAsType = Type.GetType(editor.GameEventAsset.namespaceValue + '.' + casted.className + ", GameScripts");
+            Type classAsType = Type.GetType($"{editor.GameEventAsset.namespaceValue}.{casted.className}, {asJson.name}");
             TextAsset classS = AdvancedTypeCache.CacheAsset.Cache[classAsType].unityScript;
             ClassScript.value = classS;
 

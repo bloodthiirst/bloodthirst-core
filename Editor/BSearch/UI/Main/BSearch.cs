@@ -143,7 +143,7 @@ namespace Bloodthirst.Editor.BSearch
         private void InitFilterSettingsUI()
         {
             IBInspectorDrawer drawer = new BInspectorDefault();
-            VisualElement ui = drawer.CreateInspectorGUI(CurrentSearchFilter);
+            VisualElement ui = drawer.CreateInspectorGUI(CurrentSearchFilter).RootContainer;
 
             FilterSettings.Clear();
             FilterSettings.Add(ui);

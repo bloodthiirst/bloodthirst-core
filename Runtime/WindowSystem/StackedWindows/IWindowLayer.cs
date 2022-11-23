@@ -13,6 +13,9 @@ namespace Bloodthirst.Core.UI
         void Add<T>(T t) where T : IUIWindow;
         void Remove<T>(T t) where T : IUIWindow;
         IEnumerable<T> Get<T>() where T : IUIWindow;
+
+        void OnInitialize();
+        void OnDestroy();
         void Refresh();
 
     }

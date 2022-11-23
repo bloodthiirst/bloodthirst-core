@@ -1,11 +1,10 @@
-﻿using Bloodthirst.Core.Singleton;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class InputUtils : BSingleton<InputUtils>
+public class InputUtils : MonoBehaviour
 {
     [ShowInInspector]
     [ReadOnly]
@@ -33,12 +32,7 @@ public class InputUtils : BSingleton<InputUtils>
     [Range(1, 5)]
     private int testCount = default;
 
-    public override void OnSetupSingleton()
-    {
-        Initialize();
-    }
-
-    private void Initialize()
+    public void Initialize()
     {
         // cache all the keycode enum values
 

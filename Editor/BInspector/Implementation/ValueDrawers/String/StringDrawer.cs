@@ -13,37 +13,38 @@ namespace Bloodthirst.Editor.BInspector
     public class StringDrawer : ValueDrawerBase
     {
         private TextField TextField { get; set; }
-        
-        public StringDrawer()
-        {
 
-        }
-
-        protected override void PrepareUI(VisualElement root)
-        {
-            root.AddToClassList("row");
-            root.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
-
-            TextField = new TextField();
-            TextField.AddToClassList("grow-1");
-            root.Add(TextField);
-        }
         public override object DefaultValue()
         {
             return string.Empty;
         }
 
-
-        protected override void Postsetup()
+        protected override void GenerateDrawer(LayoutContext layoutContext)
         {
-            TextField.SetValueWithoutNotify((string) Value);
+            TextField = new TextField();
+            TextField.AddToClassList("grow-1");
+            TextField.SetValueWithoutNotify((string)ValueProvider.Get());
             TextField.RegisterValueChangedCallback(HandleValueChanged);
+
+            DrawerContainer.AddToClassList("row");
+            DrawerContainer.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
+            DrawerContainer.Add(TextField);
         }
+
+        public override void Tick()
+        {
+            if (TextField.focusController.focusedElement == TextField)
+                return;
+
+            TextField.value = (string) ValueProvider.Get();
+        }
+
+        protected override void PostLayout() { }
 
         private void HandleValueChanged(ChangeEvent<string> evt)
         {
-            DrawerInfo.Set(evt.newValue);
-            Value = evt.newValue;
+            DrawerValue = evt.newValue;
+            ValueProvider.Set(evt.newValue);
             TriggerOnValueChangedEvent();
         }
 

@@ -69,8 +69,10 @@ namespace Bloodthirst.Core.GameEventSystem
             visualTree.CloneTree(root);
 
             root.styleSheets.Add(styleSheet);
-            root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
-
+            if (!root.styleSheets.Contains(EditorConsts.GlobalStyleSheet))
+            {
+                root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
+            }
             InitializeUI();
 
             ListenEvents();

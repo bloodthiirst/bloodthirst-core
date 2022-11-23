@@ -10,14 +10,16 @@ namespace Bloodthirst.Runtime.BAdapter
     [RequireComponent(typeof(GlobalSceneManager))]
     public class GlobalSceneManagerAdapter : MonoBehaviour, IPreGameSetup , IPostGameEnd
     {
-        int IPreGameSetup.Order => 1;
+        [SerializeField]
+        private int preGameSetupOrder;
+        int IPreGameSetup.Order => preGameSetupOrder;
 
         void IPreGameSetup.Execute()
         {
             GlobalSceneManager bhv = GetComponent<GlobalSceneManager>();
 
             // dependencies
-            CommandManagerBehaviour commandManager = BProviderRuntime.Instance.GetSingleton<CommandManagerBehaviour>();
+            ICommandManagerProvider commandManager = BProviderRuntime.Instance.GetSingleton<ICommandManagerProvider>();
             LoadingManager loadingManager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
 
             bhv.Initialize(commandManager , loadingManager);

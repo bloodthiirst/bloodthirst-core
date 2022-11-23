@@ -1,9 +1,9 @@
-﻿using Bloodthirst.Core.Singleton;
+﻿using System;
 using UnityEngine;
 
 namespace Bloodthirst.Systems.CameraSystem
 {
-    public abstract class CameraControllerBase<T> : BSingleton<T>, ICameraController where T : CameraControllerBase<T>
+    public abstract class CameraControllerBase<T> : MonoBehaviour, ICameraController where T : CameraControllerBase<T>
     {
         public bool isEnabled { get; set; }
 
@@ -16,7 +16,10 @@ namespace Bloodthirst.Systems.CameraSystem
             _cameraManager = cameraManager;
             _cameraManager.RemoveCamera(this);
             _cameraManager.RegisterCamera(this);
+            Initialize(cameraManager);
         }
+
+        public virtual void Initialize(CameraManager cameraManager) { }
 
         private void OnDisable()
         {

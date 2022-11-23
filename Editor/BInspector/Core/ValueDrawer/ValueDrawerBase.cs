@@ -1,9 +1,5 @@
-﻿using Bloodthirst.Editor.BInspector;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
@@ -12,81 +8,104 @@ namespace Bloodthirst.Editor.BInspector
     {
         public const string VALUE_DRAWER_CONTAINER_CLASS = "value-drawer-container";
         public const string VALUE_LABEL_CONTAINER_CLASS = "value-label-container";
-        public event Action<IValueDrawer> OnValueChanged;
-        public string FieldPath { get; set; }
-        public IValueDrawer Parent { get; set; }
-        public IValueDrawerInfo DrawerInfo { get; set; }
-        public DrawerContext DrawerContext { get; set; }
-        public object Value { get; set; }
-        public VisualElement DrawerRoot { get; protected set; }
+        public const string VALUE_LABEL_CLASS = "value-label";
+
+
+        public event Action<IValueDrawer> OnDrawerValueChanged;
+        
+        
+        private List<IValueDrawer> allChildren = new List<IValueDrawer>();
+        public object DrawerValue { get; set; }
+        public IValueDrawer ParentDrawer { get; set; }
+        public IValueProvider ValueProvider { get; set; }
+        public VisualElement DrawerContainer { get; protected set; }
 
         protected List<IValueDrawer> childrenValueDrawers = new List<IValueDrawer>();
-        public IList<IValueDrawer> ChildrenValueDrawers => childrenValueDrawers;
-
-        public void TriggerOnValueChangedEvent()
+        public IList<IValueDrawer> SubDrawers => childrenValueDrawers;
+        protected void TriggerOnValueChangedEvent()
         {
-            Value = DrawerInfo.Get();
-            OnValueChanged?.Invoke(this);
+            OnDrawerValueChanged?.Invoke(this);
+        }
+
+        public abstract void Tick();
+        public abstract object DefaultValue();
+        protected virtual void PrepareData(IValueProvider drawerInfo, IValueDrawer parent) { }
+        protected abstract void GenerateDrawer(LayoutContext drawerContext);
+        protected abstract void PostLayout();
+        private static void HandleOnChange(GeometryChangedEvent evt)
+        {
+            IValueDrawer drawer = (evt.target as VisualElement).userData as IValueDrawer;
+
+            if (drawer == null)
+                return;
+
+            ValueDrawerUtils.spacingStyle.Setup(drawer);
         }
 
         public abstract void Destroy();
-
-        public abstract object DefaultValue();
-
-        protected abstract void Postsetup();
-
-        private void Initialize(IValueDrawerInfo drawerInfo, IValueDrawer parent, DrawerContext drawerContext)
+        void IValueDrawer.PrepareData(IValueProvider valueProvider, IValueDrawer parent)
         {
-            Parent = parent;
-            DrawerInfo = drawerInfo;
-            DrawerContext = drawerContext;
+            ParentDrawer = parent;
+            ValueProvider = valueProvider;
+            DrawerValue = ValueProvider.Get();
 
-            object val = null;
-
-            if (DrawerInfo.GetContainingInstance() != null || parent == null)
-            {
-                val = DrawerInfo.Get();
-            }
-            else
-            {
-                val = DefaultValue();
-
-            }
-
-            Value = val;
-
-            if (Parent == null || drawerInfo.MemberInfo == null)
-            {
-                FieldPath = String.Empty;
-            }
-            else
-            {
-                if(Parent.FieldPath != String.Empty)
-                {
-                    FieldPath = $" {Parent.FieldPath}/{drawerInfo.MemberInfo.Name}";
-                }
-
-                else
-                {
-                    FieldPath = $"{drawerInfo.MemberInfo.Name}";
-                }
-            }
-
-            DrawerRoot = new VisualElement();
-            DrawerRoot.AddToClassList(VALUE_DRAWER_CONTAINER_CLASS);
-            DrawerRoot.name = FieldPath.Replace('/', '-');
-        }
-
-        protected abstract void PrepareUI(VisualElement root);
-
-
-        public void Setup(IValueDrawerInfo drawerInfo, IValueDrawer parent , DrawerContext drawerContext)
-        {
-            Initialize(drawerInfo, parent , drawerContext);
-            PrepareUI(DrawerRoot);
-            Postsetup();
+            PrepareData(valueProvider, parent);
         }
 
 
+        public void AddChild(IValueDrawer child)
+        {
+            if(ValueProvider.ValuePath.PathType == PathType.ROOT)
+            {
+                child.DrawerContainer.userData = child;
+                child.DrawerContainer.UnregisterCallback<GeometryChangedEvent>(HandleOnChange);
+                child.DrawerContainer.RegisterCallback<GeometryChangedEvent>(HandleOnChange);
+                allChildren.Add(child);
+
+                ValueDrawerUtils.labelDrawer.Setup(child);
+                ValueDrawerUtils.spacingStyle.Setup(child);
+                return;
+            }
+
+            ParentDrawer.AddChild(child);
+        }
+
+        public void RemoveChild(IValueDrawer child)
+        {
+            if (ValueProvider.ValuePath.PathType == PathType.ROOT)
+            {
+                child.DrawerContainer.UnregisterCallback<GeometryChangedEvent>(HandleOnChange);
+                allChildren.Remove(child);
+                return;
+            }
+
+            ParentDrawer.RemoveChild(child);
+        }
+
+
+        public virtual void GenerateContainer()
+        {
+            DrawerContainer = new VisualElement();
+            DrawerContainer.AddToClassList(VALUE_DRAWER_CONTAINER_CLASS);
+            DrawerContainer.name = ValueProvider.ValuePath.ValuePathAsString();
+        }
+
+        void IValueDrawer.GenerateContainer()
+        {
+            GenerateContainer();
+        }
+
+        void IValueDrawer.GenerateDrawer(LayoutContext drawerContext)
+        {
+            GenerateDrawer(drawerContext);
+        }
+        void IValueDrawer.PostLayout()
+        {
+            PostLayout();
+        }
+        void IValueDrawer.Destroy()
+        {
+            Destroy();
+        }
     }
 }

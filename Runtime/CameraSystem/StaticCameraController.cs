@@ -34,8 +34,10 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
 
     private MouseUtils _mouseUtils;
 
-    public override void OnSetupSingleton()
+
+    public override void Initialize(CameraManager cameraManager)
     {
+        base.Initialize(cameraManager);
         _mouseUtils = BProviderRuntime.Instance.GetSingleton<MouseUtils>();
     }
 

@@ -1,0 +1,41 @@
+.mode-container
+{
+	padding : 10px;
+
+	justify-content : center;
+	-unity-font : url("project:/Assets/Dependencies/Plugins/TextMesh Pro/Examples & Extras/Fonts/Electronic Highway Sign.TTF");
+	-unity-font-definition :  url("project:/Assets/Dependencies/Plugins/TextMesh Pro/Examples & Extras/Fonts/Electronic Highway Sign.TTF");
+	font-size : 25px;
+	border-width : 2px;
+	border-color : black;
+	border-radius: 10px;
+}
+
+.green-bg
+{
+	background-color : rgb(0,130,0);
+}
+
+.red-bg
+{
+	background-color : rgb(130,0,0);
+}
+
+.icon-40
+{
+	width : 40px;
+	height : 40px;
+}
+
+
+.play-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Play_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}
+
+.pause-btn
+{
+	background-image: url("project:/packages/com.bloodthirst.bloodthirst-core/Editor/Icons/Pause_Icon.png");
+	-unity-background-image-tint-color :	rgb(255,255,255);
+}

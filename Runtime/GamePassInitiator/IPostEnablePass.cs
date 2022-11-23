@@ -1,7 +1,7 @@
 ﻿namespace Bloodthirst.Scripts.Core.GamePassInitiator
 {
-    public interface IPostEnablePass : IGamePass
+    public interface IPostEnablePass
     {
-        new void Execute();
+        void Execute();
     }
 }

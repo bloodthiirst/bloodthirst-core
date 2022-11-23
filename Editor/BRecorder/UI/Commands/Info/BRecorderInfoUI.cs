@@ -14,7 +14,7 @@ namespace Bloodthirst.Editor.BRecorder
 
             IBInspectorDrawer drawer = BInspectorProvider.DefaultInspector;
 
-            VisualElement inspector = drawer.CreateInspectorGUI(Command);
+            VisualElement inspector = drawer.CreateInspectorGUI(Command).RootContainer;
             Add(inspector);
 
             AddToClassList("cmd-main");

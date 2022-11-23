@@ -77,7 +77,7 @@ namespace Bloodthirst.Core.SceneManager
             return remainingCommands[0];
         }
 
-        public void Initialize(CommandManagerBehaviour commandManager)
+        public void Initialize(ICommandManagerProvider commandManagerProvider)
         {
             State = LOADDING_STATE.FREE;
             Progress = 0;
@@ -87,7 +87,7 @@ namespace Bloodthirst.Core.SceneManager
 
 
             loadingQueue = new BasicQueueCommand(true);
-            commandManager.AppendCommand(this, loadingQueue, false);
+            commandManagerProvider.Get().AppendCommand(this, loadingQueue, false);
             loadingQueue.OnCommandAdded += HandleCommandAdded;
             loadingQueue.OnCommandRemoved += HandleCommandRemoved;
 

@@ -1,0 +1,22 @@
+{
+    "name": "BProvider.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5312972b1d3a8464c89ba3f6181dabeb",
+        "GUID:478a2357cc57436488a56e564b08d223",
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77",
+        "GUID:feb0459a412fc7546b2b22e9239101a5",
+        "GUID:1694f6765d59f8d479804de8277a31e7",
+        "GUID:24b9e271d5028fe428bd217d1f66aa60"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

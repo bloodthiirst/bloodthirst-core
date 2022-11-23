@@ -1,0 +1,9 @@
+<UXML xmlns:ui="UnityEngine.UIElements">	
+
+	<ui:VisualElement name="TabContainer" class="tab-container">
+
+		<ui:Label name="TabTitle" class="text-center-y" />
+
+	</ui:VisualElement>
+
+</UXML>

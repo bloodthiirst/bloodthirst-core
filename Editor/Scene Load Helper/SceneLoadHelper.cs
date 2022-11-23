@@ -35,7 +35,10 @@ public class SceneLoadHelper : EditorWindow
         StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(USS_PATH);
 
         root.styleSheets.Add(styleSheet);
-        root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
+        if (!root.styleSheets.Contains(EditorConsts.GlobalStyleSheet))
+        {
+            root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
+        }
 
         BootstrapWindow();
     }

@@ -15,19 +15,20 @@ namespace Bloodthirst.Editor.BInspector
     {
         private ObjectField ObjectField { get; set; }
 
-        public UnityObjectDrawer()
+        protected override void GenerateDrawer(LayoutContext layoutContext)
         {
-
-        }
-
-        protected override void PrepareUI(VisualElement root)
-        {
-            root.AddToClassList("row");
-            root.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
-
             ObjectField = new ObjectField();
             ObjectField.AddToClassList("grow-1");
-            root.Add(ObjectField);
+            ObjectField.AddToClassList("shrink-1");
+
+            ObjectField.objectType = ValueProvider.DrawerType();
+            object val = ValueProvider.Get();
+            ObjectField.SetValueWithoutNotify((UnityEngine.Object)val);
+            ObjectField.RegisterValueChangedCallback(HandleValueChanged);
+
+            DrawerContainer.AddToClassList("row");
+            DrawerContainer.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
+            DrawerContainer.Add(ObjectField);
         }
 
         public override object DefaultValue()
@@ -35,19 +36,20 @@ namespace Bloodthirst.Editor.BInspector
             return null;
         }
 
-        protected override void Postsetup()
+        public override void Tick()
         {
-            ObjectField.objectType = DrawerInfo.DrawerType();
-            ObjectField.SetValueWithoutNotify((UnityEngine.Object)Value);
-            ObjectField.RegisterValueChangedCallback(HandleValueChanged);
+            if (ObjectField.focusController.focusedElement == ObjectField)
+                return;
 
+            ObjectField.value =(UnityEngine.Object)ValueProvider.Get();
         }
+
+        protected override void PostLayout() { }
 
         private void HandleValueChanged(ChangeEvent<UnityEngine.Object> evt)
         {
-            DrawerInfo.Set(evt.newValue);
-            Value = evt.newValue;
-
+            DrawerValue = evt.newValue;
+            ValueProvider.Set(evt.newValue);
             TriggerOnValueChangedEvent();
         }
 

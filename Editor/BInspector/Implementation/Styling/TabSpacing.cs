@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
@@ -9,50 +6,26 @@ namespace Bloodthirst.Editor.BInspector
     {
         private const float DEFAULT_INDENTATION = 40;
 
-        private void RecursivelyAddTabSpacing(IValueDrawer valueDrawer)
-        {            
-            // if we are at the root level instance
-            // then we don't add padding and we just skip the children
-            if(valueDrawer.Parent == null)
-            {
-                foreach (IValueDrawer c in valueDrawer.ChildrenValueDrawers)
-                {
-
-                    if (!c.DrawerRoot.ClassListContains(ValueDrawerBase.VALUE_DRAWER_CONTAINER_CLASS))
-                        continue;
-
-                    RecursivelyAddTabSpacing(c);
-                }
-
-                return;
-            }
-            
-            Label label = ValueDrawerUtils.GetLabel(valueDrawer);
-
-            float padding = DEFAULT_INDENTATION;
-
-            if (label != null)
-            {
-                padding = label.resolvedStyle.width;
-            }
-
-            foreach (IValueDrawer c in valueDrawer.ChildrenValueDrawers)
-            {
-
-                if (!c.DrawerRoot.ClassListContains(ValueDrawerBase.VALUE_DRAWER_CONTAINER_CLASS))
-                    continue;
-                
-                c.DrawerRoot.style.paddingLeft = new StyleLength( padding);
-
-                RecursivelyAddTabSpacing(c);
-            }
-            
-        }
-
         public void Setup(IValueDrawer valueDrawer)
         {
-            RecursivelyAddTabSpacing(valueDrawer);
+            VisualElement currContainer = valueDrawer.DrawerContainer;
+
+            // is value container ?
+            if (!currContainer.ClassListContains(ValueDrawerBase.VALUE_DRAWER_CONTAINER_CLASS))
+                return;
+
+            Label label = currContainer.Q<VisualElement>(ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS)?.Q<Label>(className: ValueDrawerBase.VALUE_LABEL_CLASS);
+
+            // has a label ?
+            if (label == null)
+                return;
             
+
+            foreach (IValueDrawer c in valueDrawer.SubDrawers)
+            {
+                //c.DrawerContainer.style.paddingLeft = new StyleLength(label.resolvedStyle.width);
+                c.DrawerContainer.style.paddingLeft = new StyleLength(0f);
+            }
         }
     }
 }

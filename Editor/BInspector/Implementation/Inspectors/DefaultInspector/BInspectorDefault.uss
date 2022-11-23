@@ -9,11 +9,10 @@
 	margin-top : 1px;
 	margin-bottom : 1px;
 	flex-grow : 1;
-	-unity-text-align: middle-left;
 }
 
-.member-label
-{
-	flex-grow : 1;
-	-unity-text-align: middle-left;
+.value-label {
+	flex-grow: 1;
+	margin-right: 5px;
+	-unity-text-align: upper-left;
 }

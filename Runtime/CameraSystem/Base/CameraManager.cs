@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Core.Singleton;
-using Bloodthirst.Scripts.Utils;
+﻿using Bloodthirst.Scripts.Utils;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 using System;
@@ -9,13 +8,17 @@ using UnityEngine;
 
 namespace Bloodthirst.Systems.CameraSystem
 {
-    public class CameraManager : BSingleton<CameraManager>
+    public class CameraManager  : MonoBehaviour
     {
         public struct CameraState
         {
             public Vector3 position;
             public Quaternion rotation;
         }
+
+        private delegate void OnCameraChangedEvent(CameraState oldState , CameraState newState);
+
+        private static readonly Type callbackType = typeof(OnCameraChangedEvent);
 
         [ShowInInspector]
         HashSet<ICameraController> AllCameras = new HashSet<ICameraController>();
@@ -51,7 +54,7 @@ namespace Bloodthirst.Systems.CameraSystem
 
         public event Action<CameraState, CameraState> OnCameraViewChanged;
 
-        private Action<CameraState, CameraState>[] onChangedLookup = new Action<CameraState, CameraState>[2];
+        private OnCameraChangedEvent[] onChangedLookup = new OnCameraChangedEvent[2];
 
         private void HandleOnChangedNoOp(CameraState prev , CameraState curr)
         {
@@ -63,7 +66,7 @@ namespace Bloodthirst.Systems.CameraSystem
             OnCameraViewChanged?.Invoke(prev, curr);
         }
 
-        public override void OnSetupSingleton()
+        public void Initialize()
         {
             previousPosition = sceneCamera.transform.position;
             previousRotation = sceneCamera.transform.rotation;
@@ -213,7 +216,9 @@ namespace Bloodthirst.Systems.CameraSystem
 
             bool hasChanged = previousRotation != rot || previousPosition != pos;
 
-            int asInt = BitUtils.Reinterpret<bool, int>(hasChanged);
+            int asInt = OptimizationUtils.Reinterpret<bool, int>(hasChanged);
+
+            OnCameraChangedEvent callback = (OnCameraChangedEvent) OptimizationUtils.LookupTableDelegate(onChangedLookup[0], onChangedLookup[1], callbackType , hasChanged);
 
             previousPosition = pos;
             previousRotation = rot;

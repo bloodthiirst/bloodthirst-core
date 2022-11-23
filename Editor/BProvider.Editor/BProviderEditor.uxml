@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xmlns:custom="Bloodthirst.Editor.CustomComponent"
+    xmlns:bprovider="Bloodthirst.Core.BProvider.Editor"
+    xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+>
+
+    <engine:VisualElement class="p-5 col">
+    
+            <!-- CURRENT PLAY MODE -->
+            <engine:VisualElement name="PlayModeContainer" class="mode-container green-bg row">
+
+                    <engine:VisualElement name="PlayModeIcon" class="play-btn icon-40" />
+
+                    <engine:Label name="PlayModeText" text="Play mode/Editor mode" class="black-font text-center-y" />
+
+             </engine:VisualElement>
+
+             <!-- SELECT DATASOURCE -->
+             <engine:VisualElement name="SelectDatasource" class="col">
+             
+                <engine:VisualElement name="EditorProviderAssetContainer" class="m-5"  />
+
+                <engine:Label text="OR" class="text-center-xy grow-1"/>
+
+                <engine:Button name="CreateEditorProviderAssetBtn" text="Create new Editor Provider Asset" class="m-5" />
+
+             </engine:VisualElement>
+
+             <!--  MAIN DASHBOARD -->
+             <engine:VisualElement name="MainDashboad" class="col">
+             
+                  <!-- This would be the TabView element , so pretty much is should "host" the content of the its child tabs -->
+                <custom:TabUI name="ProviderTabs">
+            
+                    <custom:TabElement label="Class Singletons">
+						
+						<bprovider:BProviderBrowseView name="ClassSingletons"
+												   browse-type="ClassSingletons"/>
+					</custom:TabElement>
+
+                    <custom:TabElement label="Interface Singletons">
+					
+						<bprovider:BProviderBrowseView name="InterfaceSingletons"
+												   browse-type="InterfaceSingletons"/>
+					</custom:TabElement>
+
+					<custom:TabElement label="Class Instances">
+						
+						<bprovider:BProviderBrowseView name="ClassInstances"
+												   browse-type="ClassInstances"/>
+					</custom:TabElement>
+                    
+                    <custom:TabElement label="Interface Instances">
+						
+						<bprovider:BProviderBrowseView name="InterfaceInstances"
+												   browse-type="InterfaceInstances"/>
+					</custom:TabElement>
+
+				</custom:TabUI>
+
+             </engine:VisualElement>
+    
+    </engine:VisualElement>
+
+</engine:UXML>

@@ -16,6 +16,9 @@ namespace Bloodthirst.Core.GameInitPass
 {
     public class DependenciesInjectorBehaviour : MonoBehaviour, IPreGameSetup, IPostGameSetup
     {
+        [SerializeField]
+        private int preGameSetupOrder;
+
         [ReadOnly]
         [SerializeField]
         private List<ScriptableObject> allScriptables;
@@ -34,7 +37,8 @@ namespace Bloodthirst.Core.GameInitPass
                 .ToList();
         }
 #endif
-        int IPreGameSetup.Order => 0;
+
+        int IPreGameSetup.Order => preGameSetupOrder;
 
         void IPreGameSetup.Execute()
         {

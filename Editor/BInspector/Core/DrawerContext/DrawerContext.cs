@@ -2,7 +2,7 @@
 
 namespace Bloodthirst.Editor.BInspector
 {
-    public struct DrawerContext
+    public struct LayoutContext
     {
         public List<IValueDrawer> AllDrawers { get; set; }
         public int IndentationLevel { get; set; }

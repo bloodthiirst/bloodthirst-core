@@ -1,0 +1,23 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement class="column list-background">
+
+		<!-- ADD ELEMENT -->
+		<ui:VisualElement class="column list-element-style">
+			
+			<ui:Label text="Add"/>
+			<ui:VisualElement name="AddElementContainer" />
+			<ui:Button name="AddElementBtn" text="Add" class="m-0" />
+			
+		</ui:VisualElement>
+		
+		<!-- HEADER -->
+		<ui:VisualElement name="header" class="list-element-style">
+			<ui:Label text="Elements"/>
+		</ui:VisualElement>
+		
+
+		<!-- ELEMENT -->
+		<ui:VisualElement name="ElementsContainer" class="column"/>
+
+	</ui:VisualElement>
+</UXML>

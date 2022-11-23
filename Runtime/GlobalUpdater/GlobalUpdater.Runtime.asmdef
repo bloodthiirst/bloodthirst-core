@@ -1,0 +1,16 @@
+{
+    "name": "GlobalUpdater.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9c160b4bb49f8e04cbc0ca0c91fa5c7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

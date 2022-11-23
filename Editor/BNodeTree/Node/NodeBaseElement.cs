@@ -111,22 +111,6 @@ namespace Bloodthirst.Editor.BNodeTree
             NodeName.text = nameAttr == null ? NodeType.GetType().Name : nameAttr.Name;
 
             SetupFields();
-
-            FixLabels();
-        }
-
-        private void FixLabels()
-        {
-            if (BindableUIs.Count == 0)
-                return;
-
-            // max label length
-            int maxLabelLength = ValidMembers().Max(l => l.Name.Length);
-
-            // ratio picked
-            float fontRatio = 70 / 10f;
-
-            float labelWidth = fontRatio * maxLabelLength;
         }
 
         /// <summary>
@@ -180,11 +164,10 @@ namespace Bloodthirst.Editor.BNodeTree
         {
             IBInspectorDrawer inspector = BInspectorProvider.DefaultInspector;
 
-            VisualElement ui = inspector.CreateInspectorGUI(NodeType);
+            BInspectorDefault.RootEditor rootEditor = inspector.CreateInspectorGUI(NodeType);
+            VisualElement ui = rootEditor.RootContainer;
 
             FieldsContainer.Add(ui);
-            
-            ComplexValueDrawer drawer = new ComplexValueDrawer();
         }
 
         #region add input

@@ -1,0 +1,30 @@
+.item-container {
+    padding: 5px;
+}
+
+.item-icon {
+    height: 50px;
+    width: 50px;
+}
+
+.item-root{
+    margin-top : 5px;
+    margin-bottom : 5px;
+}
+
+.item-container-style {
+    border-color: dimgray;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-top-width: 2px;
+
+    border-top-left-radius : 5px;
+    border-top-right-radius : 5px;
+    border-bottom-left-radius : 5px;
+    border-bottom-right-radius : 5px;
+}
+
+   .unity-collection-view__item--selected:checked .item-container-style {
+        border-color: lightgray;
+    }

@@ -52,7 +52,10 @@ namespace Bloodthirst.Core.GameEventSystem
             visualTree.CloneTree(this);
 
             styleSheets.Add(styleSheet);
-            styleSheets.Add(EditorConsts.GlobalStyleSheet);
+            if (!styleSheets.Contains(EditorConsts.GlobalStyleSheet))
+            {
+                styleSheets.Add(EditorConsts.GlobalStyleSheet);
+            }
 
             InitializeUI();
             ListenUI();

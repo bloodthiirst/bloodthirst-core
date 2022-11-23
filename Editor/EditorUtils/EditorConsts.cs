@@ -19,7 +19,7 @@ namespace Bloodthirst.Editor
         public static readonly bool ON_ASSEMBLY_RELOAD_SCRIPTWATCHER = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_BADAPTER = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_BHOTRELOAD = false;
-        public static readonly bool ON_ASSEMBLY_RELOAD_BINSPECTOR_EDITOR = false;
+        public static readonly bool ON_ASSEMBLY_RELOAD_BINSPECTOR_EDITOR = true;
         public static readonly bool ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_ON_COMPONENT_ADDED = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_STARTUP_TRACKER = false;

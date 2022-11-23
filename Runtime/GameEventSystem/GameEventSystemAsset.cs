@@ -1,6 +1,7 @@
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace Bloodthirst.Core.GameEventSystem
@@ -18,6 +19,7 @@ namespace Bloodthirst.Core.GameEventSystem
 
         public string enumName;
         public string namespaceValue;
+        public AssemblyDefinitionAsset assemblyDefinition;
 
         [SerializeField]
         private List<EnumClassPair> classEnumPairs;

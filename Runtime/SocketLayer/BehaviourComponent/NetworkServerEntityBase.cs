@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Core.Singleton;
-using Bloodthirst.Socket.BehaviourComponent;
+﻿using Bloodthirst.Socket.BehaviourComponent;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,8 @@ namespace Bloodthirst.Socket.Core
         SCAN_COMPONENTS
     }
 
-    public abstract class NetworkServerEntityBase<TServer, TIdentifier> : BSingleton<NetworkServerEntityBase<TServer, TIdentifier>>, ISocketServerInjector<TIdentifier>
+    public abstract class NetworkServerEntityBase<TServer, TIdentifier> : MonoBehaviour, 
+        ISocketServerInjector<TIdentifier>
         where TServer : ManagedSocketServer<TIdentifier>
         where TIdentifier : IComparable<TIdentifier>
     {

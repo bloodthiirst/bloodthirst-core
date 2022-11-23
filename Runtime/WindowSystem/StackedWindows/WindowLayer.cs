@@ -1,5 +1,4 @@
-﻿using Bloodthirst.Core.Singleton;
-using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Sirenix.OdinInspector;
 using System;
@@ -9,7 +8,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.UI
 {
-    public abstract class WindowLayer<T> : BSingleton<T>, IWindowLayer, IPostSceneInitializationPass where T : WindowLayer<T>
+    public abstract class WindowLayer<T> : MonoBehaviour, IWindowLayer, IPostSceneInitializationPass where T : WindowLayer<T>
     {
         [SerializeField]
         protected RectTransform container;
@@ -36,12 +35,12 @@ namespace Bloodthirst.Core.UI
             CloseAll();
         }
 
-        public override void OnSetupSingleton()
+        void IWindowLayer.OnInitialize()
         {
             WindowLayerManager.Add(this);
         }
 
-        protected void OnDestroy()
+        void IWindowLayer.OnDestroy()
         {
             WindowLayerManager.Remove(this);
         }

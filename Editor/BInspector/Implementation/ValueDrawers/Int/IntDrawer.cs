@@ -14,38 +14,42 @@ namespace Bloodthirst.Editor.BInspector
     {
         private IntegerField IntField { get; set; }
 
-        public IntDrawer()
-        {
-
-        }
-
-        protected override void PrepareUI(VisualElement root)
-        {
-            root.AddToClassList("row");
-            root.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
-
-            IntField = new IntegerField();
-            IntField.AddToClassList("grow-1");
-            root.Add(IntField);
-        }
-
         public override object DefaultValue()
         {
             return 0;
         }
 
-        protected override void Postsetup()
+        public override void Tick()
         {
-            IntField.SetValueWithoutNotify((int) Value);
+            if (IntField.focusController.focusedElement == IntField)
+                return;
+
+            IntField.value = (int)ValueProvider.Get();
+        }
+
+        protected override void GenerateDrawer(LayoutContext layoutContext)
+        {
+            IntField = new IntegerField();
+            IntField.AddToClassList("grow-1");
+            IntField.AddToClassList("shrink-1");
+            IntField.SetValueWithoutNotify((int)ValueProvider.Get());
             IntField.RegisterValueChangedCallback(HandleValueChanged);
 
+            DrawerContainer.AddToClassList("row");
+            DrawerContainer.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
+
+            DrawerContainer.AddToClassList("grow-1");
+            DrawerContainer.Add(IntField);
         }
 
         private void HandleValueChanged(ChangeEvent<int> evt)
         {
-            DrawerInfo.Set(evt.newValue);
+            DrawerValue = evt.newValue;
+            ValueProvider.Set(evt.newValue);
             TriggerOnValueChangedEvent();
         }
+
+        protected override void PostLayout() { }
 
         public  override void Destroy()
         {

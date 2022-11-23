@@ -1,12 +1,11 @@
 ﻿using Bloodthirst.Core.AdvancedPool.Pools;
-using Bloodthirst.Core.Singleton;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public class EntitySpawner : BSingleton<EntitySpawner>, IEntitySpawner
+    public class EntitySpawner : MonoBehaviour , IEntitySpawner
     {
         public IGlobalPool GenericUnityPool { get; set; }
 

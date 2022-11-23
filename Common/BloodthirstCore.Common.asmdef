@@ -1,0 +1,19 @@
+{
+    "name": "BloodthirstCore.Common",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5312972b1d3a8464c89ba3f6181dabeb",
+        "GUID:439df852977ff5c40bca39a22cbdc1ca",
+        "GUID:9c160b4bb49f8e04cbc0ca0c91fa5c7c",
+        "GUID:3b52879d6b7ecc34e9e545f3bfce0e72"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

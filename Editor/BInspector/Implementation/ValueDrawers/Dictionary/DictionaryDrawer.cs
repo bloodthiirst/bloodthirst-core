@@ -9,6 +9,13 @@ namespace Bloodthirst.Editor.BInspector
 {
     public class DictionaryDrawer : ValueDrawerBase
     {
+        private struct AddElementData
+        {
+            public IValueDrawer Key { get; set; }
+            public IValueDrawer Value { get; set; }
+            public IDictionary Dictionary { get; set; }
+        }
+
         private const string DICT_PATH_UXML = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/DictionaryDrawer.uxml";
         private const string ELEMENT_PATH_UXML = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/Element/DictionaryElementDrawer.uxml";
         private const string PATH_USS = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/DictionaryDrawer.uss";
@@ -35,29 +42,31 @@ namespace Bloodthirst.Editor.BInspector
         public IValueDrawer AddKeyDrawer { get; private set; }
         public IValueDrawer AddValueDrawer { get; private set; }
         public VisualElement ElementsContainer { get; private set; }
+        private LayoutContext cachedLayoutContext;
 
-        public DictionaryDrawer()
+        public override void Tick()
         {
-
+            Clean();
+            Draw();
         }
 
-        protected override void PrepareUI(VisualElement root)
+        protected override void GenerateDrawer(LayoutContext layoutContext)
         {
-            root.AddToClassList("column");
-
+            // header
             UIHeader = new VisualElement();
             UIHeader.AddToClassList("row");
             UIHeader.AddToClassList("grow-1");
-
+            UIHeader.AddToClassList("shrink-1");
             UIHeader.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
 
-            // load dictionary ui
+            // content
             UIContainer = new VisualElement();
             UIContainer.AddToClassList("column");
             UIContainer.AddToClassList("grow-1");
 
-            root.Add(UIHeader);
-            root.Add(UIContainer);
+            DrawerContainer.AddToClassList("column");
+            DrawerContainer.Add(UIHeader);
+            DrawerContainer.Add(UIContainer);
         }
 
         public override object DefaultValue()
@@ -65,21 +74,14 @@ namespace Bloodthirst.Editor.BInspector
             return null;
         }
 
-        private struct AddElementData
-        {
-            public IValueDrawer Key { get; set; }
-            public IValueDrawer Value { get; set; }
-            public IDictionary Dictionary { get; set; }
-        }
-
         private void InstanceCreator()
         {
-            Type type = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
+            Type type = ValueProvider.DrawerType();
 
             TypeSelector = new TypeSelector(type);
             TypeSelector.AddToClassList("grow-1");
 
-            Type currentType = Value == null ? null : Value.GetType();
+            Type currentType = ValueProvider.Get() == null ? null : ValueProvider.Get().GetType();
             TypeSelector.SetValueWithoutNotify(currentType);
 
             TypeSelector.UnregisterValueChangedCallback(HandleValueTypeChanged);
@@ -99,7 +101,8 @@ namespace Bloodthirst.Editor.BInspector
                 newInstance = Activator.CreateInstance(newType);
             }
 
-            DrawerInfo.Set(newInstance);
+            DrawerValue = evt.newValue;
+            ValueProvider.Set(newInstance);
 
             TriggerOnValueChangedEvent();
             
@@ -107,10 +110,11 @@ namespace Bloodthirst.Editor.BInspector
             Draw();
         }
 
-        protected override void Postsetup()
+        protected override void PostLayout()
         {
             // get the dictionary types
-            Type[] typeArgs = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo).GenericTypeArguments;
+            Type t = ValueProvider.DrawerType();
+            Type[] typeArgs = t.GenericTypeArguments;
 
             KeyType = typeArgs[0];
             ValueType = typeArgs[1];
@@ -125,69 +129,77 @@ namespace Bloodthirst.Editor.BInspector
             AddKeyDrawer = ValueDrawerProvider.Get(KeyType);
             AddValueDrawer = ValueDrawerProvider.Get(ValueType);
 
-
-            DrawerContext cpy = DrawerContext;
-            cpy.IndentationLevel = 0;
+            AddKeyDrawer.DrawerValue = ReflectionUtils.GetDefaultValue(KeyType)();
+            AddValueDrawer.DrawerValue = ReflectionUtils.GetDefaultValue(ValueType)();
 
             // key setup
-            AddKeyDrawer.Setup(GetAddKeyDrawerInfo() , this, cpy);
-
+            ValueDrawerUtils.DoLayout(AddKeyDrawer , null ,GetAddKeyDrawerInfo());
+            
             // value setup
-            AddValueDrawer.Setup(GetAddValueDrawerInfo(), this, cpy);
+            ValueDrawerUtils.DoLayout(AddValueDrawer, null, GetAddValueDrawerInfo());
 
-            AddKeyContainer.Add(AddKeyDrawer.DrawerRoot);
-            AddValueContainer.Add(AddValueDrawer.DrawerRoot);
+            AddKeyContainer.Add(AddKeyDrawer.DrawerContainer);
+            AddValueContainer.Add(AddValueDrawer.DrawerContainer);
 
             // add btn
             AddElementBtn.RegisterCallback<ClickEvent>(HandleAddElementClick);
         }
 
-        private ValueDrawerInfoGeneric GetAddKeyDrawerInfo()
+        private ValueProviderGeneric GetAddKeyDrawerInfo()
         {
-            return new ValueDrawerInfoGeneric(
+            return new ValueProviderGeneric(
                             // state
                             null,
+
+                            // path
+                            new ValuePath() { PathType = PathType.CUSTOM },
 
                             // getter
                             () =>
                             {
-                                return AddKeyDrawer.Value;
+                                return AddKeyDrawer.DrawerValue;
                             },
                             // setter
                             (newKey) =>
                             {
-                                AddKeyDrawer.Value = newKey;
-
+                                AddKeyDrawer.DrawerValue = newKey;
                             },
                             // type
                             KeyType,
 
                             // index
+                            null,
                             null
                             );
         }
 
-        private ValueDrawerInfoGeneric GetAddValueDrawerInfo()
+        private ValueProviderGeneric GetAddValueDrawerInfo()
         {
-            return new ValueDrawerInfoGeneric(
+            return new ValueProviderGeneric(
                             // state
                             null,
+
+                            // path
+                            new ValuePath() { PathType = PathType.CUSTOM },
 
                             // getter
                             () =>
                             {
-                                return AddValueDrawer.Value;
+                                return AddValueDrawer.DrawerValue;
                             },
                             // setter
                             (newValue) =>
                             {
-                                AddValueDrawer.Value = newValue;
+                                AddValueDrawer.DrawerValue = newValue;
 
                             },
                             // type
                             ValueType,
 
                             // index
+                            null,
+
+                            // member info
                             null
                             );
         }
@@ -196,10 +208,18 @@ namespace Bloodthirst.Editor.BInspector
         {
             if(UIDictionary != null)
             {
+                AddKeyDrawer.Destroy();
+                AddValueDrawer.Destroy();
+
+                AddKeyContainer.Remove(AddKeyDrawer.DrawerContainer);
+                AddValueContainer.Remove(AddValueDrawer.DrawerContainer);
+
                 AddElementBtn.UnregisterCallback<ClickEvent>(HandleAddElementClick);
 
                 UIContainer.Remove(UIDictionary);
-                
+
+                AddKeyDrawer = null;
+                AddValueDrawer = null;
                 AddKeyContainer = null;
                 AddValueContainer = null;
                 AddElementBtn = null;
@@ -219,7 +239,7 @@ namespace Bloodthirst.Editor.BInspector
         {
             InstanceCreator();
 
-            if (Value != null)
+            if (ValueProvider.Get() != null)
             {
                 HasValue();
             }
@@ -239,7 +259,7 @@ namespace Bloodthirst.Editor.BInspector
             ElementsContainer = UIDictionary.Q<VisualElement>(nameof(ElementsContainer));
 
 
-            IDictionary dict = (IDictionary)Value;
+            IDictionary dict = (IDictionary)ValueProvider.Get();
 
             ElementsContainer.Clear();
 
@@ -248,7 +268,7 @@ namespace Bloodthirst.Editor.BInspector
             for (int i = 0; i < dict.Count; i++)
             {
                 DictionaryElementDrawer elem = new DictionaryElementDrawer();
-                elem.Setup(dict, i, KeyType, ValueType, DrawerContext);
+                elem.Setup(dict, i, KeyType, ValueType, cachedLayoutContext);
 
                 ElementsContainer.Add(elem.VisualElement);
             }
@@ -256,21 +276,21 @@ namespace Bloodthirst.Editor.BInspector
 
         private void HandleAddElementClick(ClickEvent evt)
         {
-            if(AddKeyDrawer.Value == null)
+            if(AddKeyDrawer.ValueProvider.Get() == null)
             {
                 EditorUtility.DisplayDialog("Error", "Dictionary key can't be Null", "Ok");
                 return;
             }
             
-            IDictionary dict = (IDictionary)Value;
+            IDictionary dict = (IDictionary)ValueProvider.Get();
 
-            if (dict.Contains(AddKeyDrawer.Value))
+            if (dict.Contains(AddKeyDrawer.ValueProvider.Get()))
             {
                 EditorUtility.DisplayDialog("Error", "Key already exists", "Ok");
                 return;
             }
 
-            dict.Add(AddKeyDrawer.Value , AddValueDrawer.Value);
+            dict.Add(AddKeyDrawer.ValueProvider.Get(), AddValueDrawer.ValueProvider.Get());
 
             Clean();
             Draw();
@@ -278,18 +298,11 @@ namespace Bloodthirst.Editor.BInspector
 
         public override void Destroy()
         {
-            if(TypeSelector != null)
-            {
-                TypeSelector.UnregisterValueChangedCallback(HandleValueTypeChanged);
-                UIHeader.Remove(TypeSelector);
-                TypeSelector = null;
-            }
+            Clean();
 
+         
             UIContainer.Clear();
-            UIContainer = null;
-
-            AddElementBtn.UnregisterCallback<ClickEvent>(HandleAddElementClick);
-            
+            UIContainer = null;            
         }
     }
 }

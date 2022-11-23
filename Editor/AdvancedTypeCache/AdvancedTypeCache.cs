@@ -191,29 +191,7 @@ namespace Bloodthirst.Core.Utils
 
         internal static void StartThread()
         {
-            List<TextAssetPathPair> deps = FetchUnityAssets().ToList();
-
-            IReadOnlyCollection<string> folderPaths = cacheAsset.GetAssemblyPaths();
-
-            // todo: make sure a script is associated to an assembly definition in a more robust way
-            // the problem here is that we are usig GetClass() which doesn't work for enums and structs for examples
-            // maybe manually scan if the file in included in an assembly folder , by checking all the assemblyDefs paths
-            // and seeing if the file is a child of the assembly's folder
-            for (int i = deps.Count - 1; i >= 0; i--)
-            {
-                TextAssetPathPair d = deps[i];
-
-                if(d.TextAsset.name == "GameEventID")
-                {
-
-                }
-                string containingAssembly = folderPaths.FirstOrDefault(f => d.AssetPath.Contains(f));
-
-                if (containingAssembly != null)
-                    continue;
-
-                deps.RemoveAt(i);
-            }
+            List<TextAssetPathPair> deps = new List<TextAssetPathPair>(FetchUnityAssetsInFolders());
 
             Thread t = new(() =>
             {
@@ -224,13 +202,26 @@ namespace Bloodthirst.Core.Utils
             t.Start();
         }
 
-        private static IEnumerable<TextAssetPathPair> FetchUnityAssets()
+        private static IEnumerable<TextAssetPathPair> FetchUnityAssetsInFolders()
         {
-            foreach (MonoScript t in EditorUtils.FindScriptAssets())
+            List<MonoScript> assets = new List<MonoScript>();
+            string[] paths = cacheAsset.GetAssemblyPaths().ToArray();
+            string[] guids = AssetDatabase.FindAssets("t:MonoScript" , paths);
+
+            for (int i = 0; i < guids.Length; i++)
             {
-                yield return new TextAssetPathPair() { TextAsset = t, AssetPath = AssetDatabase.GetAssetPath(t), TextContent = t.text };
+                string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+
+                MonoScript asset = AssetDatabase.LoadAssetAtPath<MonoScript>(assetPath);
+
+                if (asset == null)
+                    continue;
+
+                yield return new TextAssetPathPair() { TextAsset = asset, AssetPath = AssetDatabase.GetAssetPath(asset), TextContent = asset.text };
             }
+
         }
+
 
         private static List<BaseTypeDeclarationSyntax> TypesDeclaredInFile(string fileContent)
         {

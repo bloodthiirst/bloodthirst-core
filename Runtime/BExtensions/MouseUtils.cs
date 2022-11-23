@@ -1,9 +1,8 @@
-﻿using Bloodthirst.Core.Singleton;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Bloodthirst.Scripts.Core.Utils
 {
-    public class MouseUtils : BSingleton<MouseUtils>
+    public class MouseUtils : MonoBehaviour
     {
         /// <summary>
         /// Mouse Delta from last frame to current frame

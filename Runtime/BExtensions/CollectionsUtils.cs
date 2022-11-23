@@ -10,8 +10,6 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class CollectionsUtils
     {
-
-
         /// <summary>
         /// Collection case to linq
         /// </summary>

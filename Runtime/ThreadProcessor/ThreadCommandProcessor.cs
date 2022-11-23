@@ -1,11 +1,11 @@
-﻿using Bloodthirst.Core.Singleton;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Bloodthirst.Core.ThreadProcessor
 {
-    public class ThreadCommandProcessor : BSingleton<ThreadCommandProcessor>
+    public class ThreadCommandProcessor : MonoBehaviour
     {
         [ShowInInspector]
         private List<ISeparateThreadCommand> threadCommand;

@@ -1,12 +1,3 @@
-using Bloodthirst.Editor.BInspector;
-using Sirenix.Utilities;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
@@ -15,17 +6,29 @@ namespace Bloodthirst.Editor.BInspector
     {
         public void Setup(IValueDrawer valueDrawer)
         {
+            // todo : make the LabelDrawer actually create the labelcontainer instead of it searching for it in the actual drawer
+            if (valueDrawer.ValueProvider.ValuePath.PathType == PathType.ROOT ||
+                valueDrawer.ValueProvider.ValuePath.PathType == PathType.CUSTOM ||
+                valueDrawer.ValueProvider.ValuePath.PathType == PathType.LIST_ENTRY )
+                return;
+
             // find label placement
-            VisualElement labelContainer = valueDrawer.DrawerRoot.Q<VisualElement>(ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS);
+            VisualElement labelContainer = valueDrawer.DrawerContainer.Q<VisualElement>(ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS);
 
             if (labelContainer == null)
                 return;
 
+            // this is done to only pick up the label of the "current value drawer" and not pick one that belongs to its children
+            if (labelContainer.parent != valueDrawer.DrawerContainer)
+                return;
+
             // add label
             Label label = new Label();
-            label.AddToClassList("member-label");
-            label.name = $"Label_{valueDrawer.DrawerInfo.MemberInfo.Name}";
-            label.text = valueDrawer.DrawerInfo.MemberInfo.Name;
+            label.AddToClassList(ValueDrawerBase.VALUE_LABEL_CLASS);
+
+            string asString = valueDrawer.ValueProvider.ValuePath.ValuePathAsString();
+            label.name = $"Label_{asString}";
+            label.text = asString;
 
             labelContainer.Add(label);
         }

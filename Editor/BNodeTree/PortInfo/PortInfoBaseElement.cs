@@ -137,7 +137,7 @@ namespace Bloodthirst.Editor.BNodeTree
         {
             IBInspectorDrawer inspector = BInspectorProvider.DefaultInspector;
 
-            VisualElement ui = inspector.CreateInspectorGUI(PortType);
+            VisualElement ui = inspector.CreateInspectorGUI(PortType).RootContainer;
 
             FieldsContainer.Add(ui);
         }

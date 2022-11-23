@@ -117,8 +117,6 @@ namespace Bloodthirst.Core.Setup
                 List<GameObject> sceneGOs = ListPool<GameObject>.Get();
                 List<GameObject> cache = ListPool<GameObject>.Get();
 
-                // trigger scene callbacks
-                // todo ; change this do the interation per pass type instead of per scene
                 for (int i = 0; i < scenes.Count; i++)
                 {
                     string scenePath = scenes[i];
@@ -130,7 +128,8 @@ namespace Bloodthirst.Core.Setup
                     sceneGOs.AddRange(cache);
 
                 }
-                
+
+                // trigger scene callbacks
                 GameObjectUtils.GetAllComponents<IBeforeAllScenesInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
                 GameObjectUtils.GetAllComponents<ISceneInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
                 GameObjectUtils.GetAllComponents<IPostSceneInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());

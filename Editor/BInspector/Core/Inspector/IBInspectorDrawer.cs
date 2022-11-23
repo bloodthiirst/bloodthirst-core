@@ -1,10 +1,11 @@
 ﻿using UnityEngine.UIElements;
+using static Bloodthirst.Editor.BInspector.BInspectorDefault;
 
 namespace Bloodthirst.Editor.BInspector
 {
     public interface IBInspectorDrawer
     {
         void Initialize();
-        VisualElement CreateInspectorGUI(object instance);
+        RootEditor CreateInspectorGUI(object instance);
     }
 }

@@ -8,15 +8,15 @@ namespace Bloodthirst.Editor.BInspector
 {
     public class DictionaryElementDrawer
     {
-        private const string PATH_UXML =    "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/Element/DictionaryElementDrawer.uxml";
-        private const string PATH_USS =     "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/Element/DictionaryElementDrawer.uss";
+        private const string PATH_UXML = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/Element/DictionaryElementDrawer.uxml";
+        private const string PATH_USS = "Packages/com.bloodthirst.bloodthirst-core/Editor/BInspector/Implementation/ValueDrawers/Dictionary/Element/DictionaryElementDrawer.uss";
         private static VisualTreeAsset uxmlAsset => AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
         private static StyleSheet ussAsset => AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
 
         public VisualElement VisualElement { get; private set; }
         public VisualElement KeyContainer { get; private set; }
         public VisualElement ValueContainer { get; private set; }
-        public IValueDrawerInfo DrawerInfo { get; private set; }
+        public IValueProvider DrawerInfo { get; private set; }
         public Type KeyType { get; private set; }
         public Type ValueType { get; private set; }
         public IDictionary Dictionary { get; private set; }
@@ -32,7 +32,7 @@ namespace Bloodthirst.Editor.BInspector
             return null;
         }
 
-        public void Setup(IDictionary dictionary, int Index, Type keyType, Type valueType , DrawerContext drawerContext)
+        public void Setup(IDictionary dictionary, int Index, Type keyType, Type valueType, LayoutContext drawerContext)
         {
             this.KeyType = keyType;
             this.ValueType = valueType;
@@ -63,23 +63,25 @@ namespace Bloodthirst.Editor.BInspector
             Key = key;
             Value = val;
 
-            VisualElement element = uxmlAsset.CloneTree();
-
             // key setup
-            KeyDrawer.Setup( GetKeyDrawerInfo(Index), KeyDrawer, drawerContext );
-            // value setup
-            ValueDrawer.Setup( GetValueDrawerInfo(Index), ValueDrawer, drawerContext );
+            ValueDrawerUtils.DoLayout(KeyDrawer, null, GetKeyDrawerInfo(Index));
             
+            // value setup
+            ValueDrawerUtils.DoLayout(ValueDrawer, null, GetValueDrawerInfo(Index));
 
-            KeyContainer.Add(KeyDrawer.DrawerRoot);
-            ValueContainer.Add(ValueDrawer.DrawerRoot);
+
+            KeyContainer.Add(KeyDrawer.DrawerContainer);
+            ValueContainer.Add(ValueDrawer.DrawerContainer);
         }
 
-        private ValueDrawerInfoGeneric GetValueDrawerInfo(int Index)
+        private ValueProviderGeneric GetValueDrawerInfo(int Index)
         {
-            return new ValueDrawerInfoGeneric(
+            return new ValueProviderGeneric(
                                 // index
                                 Index,
+
+                                new ValuePath() { PathType = PathType.DICTIONARY_ENTRY , DictionaryKey = Index }, 
+
                                 // getter
                                 () =>
                                 {
@@ -112,16 +114,22 @@ namespace Bloodthirst.Editor.BInspector
                                 ValueType,
 
                                 // parent
-                                Dictionary
+                                Dictionary,
+
+                                // member info
+                                null
                                 );
         }
 
-        private ValueDrawerInfoGeneric GetKeyDrawerInfo(int Index)
+        private ValueProviderGeneric GetKeyDrawerInfo(int Index)
         {
-            return new ValueDrawerInfoGeneric(
+            return new ValueProviderGeneric(
 
                                 // index
                                 Index,
+
+                                 new ValuePath() { PathType = PathType.DICTIONARY_ENTRY, DictionaryKey = Index },
+
                                 // getter
                                 () =>
                                 {
@@ -156,7 +164,10 @@ namespace Bloodthirst.Editor.BInspector
                                 KeyType,
 
                                 // parent
-                                Dictionary
+                                Dictionary,
+
+                                // member info
+                                null
                                 );
         }
 

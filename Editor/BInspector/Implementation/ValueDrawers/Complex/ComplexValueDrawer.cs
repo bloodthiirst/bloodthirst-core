@@ -12,51 +12,75 @@ namespace Bloodthirst.Editor.BInspector
     public class ComplexValueDrawer : ValueDrawerBase
     {
         private TypeSelector TypeSelector { get; set; }
+        private VisualElement UIValue { get; set; }
         private VisualElement UIContainer { get; set; }
         private VisualElement UIHeader { get; set; }
 
+        private LayoutContext cachedLayoutContext;
+
         public override object DefaultValue()
         {
-            Type fieldType = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
+            Type fieldType = ValueProvider.DrawerType();
             return ReflectionUtils.GetDefaultValue(fieldType);
         }
 
-        public ComplexValueDrawer()
+        public override void Tick()
         {
+            object currentValue = ValueProvider.Get();
 
+            if (currentValue == DrawerValue)
+            {
+                for (int i = 0; i < SubDrawers.Count; i++)
+                {
+                    IValueDrawer s = SubDrawers[i];
+                    s.Tick();
+                }
+            }
+            else
+            {
+                DrawerValue = currentValue;
+                Clean();
+                Draw(cachedLayoutContext);
+            }
         }
 
-        protected override void PrepareUI(VisualElement root)
+        protected override void GenerateDrawer(LayoutContext layoutContext)
         {
-            root.AddToClassList("column");
+            DrawerContainer.AddToClassList("row");
 
+            // label
+            VisualElement labelContainer = new VisualElement() { name = VALUE_LABEL_CONTAINER_CLASS };
+
+            UIValue = new VisualElement();
+            UIValue.AddToClassList("column");
+            UIValue.AddToClassList("grow-1");
+            UIValue.AddToClassList("shrink-1");
+            
+            // header
             UIHeader = new VisualElement();
             UIHeader.AddToClassList("row");
             UIHeader.AddToClassList("grow-1");
-
-            UIHeader.Add(new VisualElement() { name = ValueDrawerBase.VALUE_LABEL_CONTAINER_CLASS });
-
-
+            UIHeader.AddToClassList("shrink-1");
+            
+            // container
             UIContainer = new VisualElement();
             UIContainer.AddToClassList("column");
             UIContainer.AddToClassList("grow-1");
-            UIContainer.RegisterCallback<GeometryChangedEvent>(HandleeometryChanged);
+            UIContainer.AddToClassList("shrink-1");
 
-            root.Add(UIHeader);
-            root.Add(UIContainer);
+            UIValue.Add(UIHeader);
+            UIValue.Add(UIContainer);
+
+            DrawerContainer.Add(labelContainer);
+            DrawerContainer.Add(UIValue);
+
+            cachedLayoutContext = layoutContext;
+            Draw(layoutContext);
         }
 
-        private void HandleeometryChanged(GeometryChangedEvent evt)
+        protected override void PostLayout()
         {
-            // label spacing
-            LabelSpacing labelSpacing = new LabelSpacing();
-            labelSpacing.Setup(UIContainer);
-        }
 
-        protected override void Postsetup()
-        {
-            Clean();
-            Draw();
         }
 
         private void Clean()
@@ -68,43 +92,43 @@ namespace Bloodthirst.Editor.BInspector
                 TypeSelector = null;
             }
 
-            foreach (IValueDrawer c in ChildrenValueDrawers)
+            for (int i = 0; i < SubDrawers.Count; i++)
             {
+                IValueDrawer c = SubDrawers[i];
+                cachedLayoutContext.AllDrawers.Remove(c);
                 c.Destroy();
             }
 
-            ChildrenValueDrawers.Clear();
+            SubDrawers.Clear();
             UIContainer.Clear();
+            UIHeader.Clear();
         }
 
-        private void Draw()
+        private void Draw(LayoutContext layoutContext)
         {
-            // in case root or struct
-            if (DrawerInfo.MemberInfo != null)
-            {
-                Type type = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
+            Type type = ValueProvider.DrawerType();
 
-                if (type.IsClass || type.IsInterface)
-                {
-                    InstanceCreator();
-                }
+            // if we're not in a root object and we are a class or interface type (not a struct or enum)
+            if (ValueProvider.ValuePath.PathType != PathType.ROOT && (type.IsClass || type.IsInterface))
+            {
+                InstanceCreator();
             }
 
-            if (Value != null)
+            if (ValueProvider.Get() != null)
             {
-                HasValue();
+                GenerateSubFields(layoutContext);
             }
 
         }
 
         private void InstanceCreator()
         {
-            Type type = ReflectionUtils.GetMemberType(DrawerInfo.MemberInfo);
+            Type type = ValueProvider.DrawerType();
 
             TypeSelector = new TypeSelector(type);
             TypeSelector.AddToClassList("grow-1");
 
-            Type instanceType = Value == null ? null : Value.GetType();
+            Type instanceType = ValueProvider.Get() == null ? null : ValueProvider.Get().GetType();
 
             TypeSelector.SetValueWithoutNotify(instanceType);
             TypeSelector.UnregisterValueChangedCallback(HandleValueTypeChanged);
@@ -124,18 +148,20 @@ namespace Bloodthirst.Editor.BInspector
                 newInstance = Activator.CreateInstance(newType);
             }
 
-            DrawerInfo.Set(newInstance);
-
+            DrawerValue = newInstance;
+            ValueProvider.Set(newInstance);
             TriggerOnValueChangedEvent();
 
             Clean();
-            Draw();
+            Draw(cachedLayoutContext);
         }
 
-        private void HasValue()
+        private void GenerateSubFields(LayoutContext layoutContext)
         {
+            // todo : put all the fields in a foldout parent
+
             // get the type data of the inspector component
-            Type type = Value.GetType();
+            Type type = ValueProvider.Get().GetType();
 
             // filter all the fields that should be drawn
             BTypeData typeData = BInspectorPropertyFilterProvider.GetFilteredProperties(type);
@@ -152,24 +178,28 @@ namespace Bloodthirst.Editor.BInspector
                 BMemberData m = validFields[i];
                 Type fieldType = ReflectionUtils.GetMemberType(m.MemberInfo);
                 IValueDrawer fieldDrawer = ValueDrawerProvider.Get(fieldType);
-                ChildrenValueDrawers.Add(fieldDrawer);
+                SubDrawers.Add(fieldDrawer);
 
                 // draw info
-                ValueDrawerInfoBasic info = new ValueDrawerInfoBasic() { ContainingInstance = Value, MemberData = m };
+                ValueDrawerInfoBasic info = new ValueDrawerInfoBasic() 
+                { 
+                    ValuePath = new ValuePath() { PathType = PathType.FIELD, FieldName = m.MemberInfo.Name }, 
+                    ContainingInstance = ValueProvider.Get(), 
+                    MemberData = m 
+                };
 
                 // indented context
-                DrawerContext cpy = DrawerContext;
-                cpy.AllDrawers.Add(fieldDrawer);
-                cpy.IndentationLevel++;
+                layoutContext.AllDrawers.Add(fieldDrawer);
+                layoutContext.IndentationLevel++;
 
                 // setup
-                fieldDrawer.Setup(info, this, cpy);
+                ValueDrawerUtils.DoLayout(fieldDrawer , this , info);
+
+                // todo : make the padding a styling pass
+                fieldDrawer.DrawerContainer.AddToClassList("m-5");
 
                 // add to parent layout
-                UIContainer.Add(fieldDrawer.DrawerRoot);
-
-                // add label
-                labelDrawer.Setup(fieldDrawer);
+                UIContainer.Add(fieldDrawer.DrawerContainer);
             }
 
             // methods
@@ -184,15 +214,13 @@ namespace Bloodthirst.Editor.BInspector
             // button methods
             foreach (MethodInfo m in methods)
             {
-                Button btn = new Button(() => m.Invoke(Value, null));
+                Button btn = new Button(() => m.Invoke(ValueProvider.Get(), null));
                 btn.text = m.Name;
 
                 UIContainer.Add(btn);
             }
 
-            // indentation space
-            TabSpacing tabSpacing = new TabSpacing();
-            tabSpacing.Setup(this);
+
         }
 
         public override void Destroy()
@@ -204,18 +232,21 @@ namespace Bloodthirst.Editor.BInspector
                 TypeSelector = null;
             }
 
-            foreach (IValueDrawer c in ChildrenValueDrawers)
+            foreach (IValueDrawer c in SubDrawers)
             {
                 c.Destroy();
             }
 
-            ChildrenValueDrawers.Clear();
+            SubDrawers.Clear();
 
-            DrawerRoot.Remove(UIHeader);
-            DrawerRoot.Remove(UIContainer);
+            UIValue.Remove(UIHeader);
+            UIValue.Remove(UIContainer);
+
+            DrawerContainer.Remove(UIValue);
 
             UIContainer = null;
             UIHeader = null;
+            UIValue = null;
         }
     }
 }

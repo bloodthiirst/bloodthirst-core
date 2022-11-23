@@ -229,7 +229,10 @@ namespace Bloodthirst.Editor.BRecorder
             StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(PATH_USS);
             VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PATH_UXML);
             visualTree.CloneTree(Root);
-            Root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
+            if (!Root.styleSheets.Contains(EditorConsts.GlobalStyleSheet))
+            {
+                Root.styleSheets.Add(EditorConsts.GlobalStyleSheet);
+            }
             Root.styleSheets.Add(styleSheet);
 
             EditorCoroutineUtility.StartCoroutine(CrtDelayedInit(), this);
