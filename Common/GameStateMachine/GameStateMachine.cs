@@ -1,9 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Assertions;
 
+/// <summary>
+/// <para>A class dedicated to transition and move from one state of the game to the other in a clean way </para>
+/// <para>Implementation wise , all you have to do is define a <typeparamref name="TGameState"/> base class for your game state and initialize the <see cref="GameStateMachine{TGameState}"/> with the root state</para>
+/// <para>Once the state machine is created , call <see cref="Initialize"/> and use <see cref="GoToState{TState}"/> to go from the current state to an other</para>
+/// <para>On shutdown , call <see cref="Destroy "/> to have a clean all the states</para>
+/// </summary>
+/// <typeparam name="TGameState"></typeparam>
 public class GameStateMachine<TGameState> where TGameState : IGameState
 {
     public TGameState Root { get; private set; }
@@ -19,6 +24,26 @@ public class GameStateMachine<TGameState> where TGameState : IGameState
         QueryGameStateTypes();
     }
 
+    public void Initialize()
+    {
+        foreach(TGameState state in gameStateTypes.Values)
+        {
+            state.OnInitialize();
+        }
+    }
+
+    public void Destroy()
+    {
+        if(!CurrentState.Equals(Root))
+        {
+            Exit();
+        }
+
+        foreach (TGameState state in gameStateTypes.Values)
+        {
+            state.OnDestroy();
+        }
+    }
     private void QueryGameStateTypes()
     {
         gameStateTypes = new Dictionary<Type, TGameState>();
@@ -59,24 +84,28 @@ public class GameStateMachine<TGameState> where TGameState : IGameState
         CurrentState.OnEnter();
     }
 
-    public void Exit()
+    public void Reset()
     {
-        IGameState curr = CurrentState;
-
-        while (curr != null)
-        {
-            curr.OnExit();
-            curr = curr.Parent;
-        }
+        GoToState(Root.GetType());
     }
 
-    public void GoToState<TState>() where TState : TGameState
+    /// <summary>
+    /// Climb up the gamestate's parent until we surpass the root (this exits the root as well)
+    /// </summary>
+    public void Exit()
     {
-        Type t = typeof(TState);
-
-        if (!gameStateTypes.TryGetValue(t, out TGameState state))
+        while (CurrentState != null)
         {
-            throw new Exception($"The state machine doesn't contains a state of type {t.Name}");
+            CurrentState.OnExitUp();
+            CurrentState = (TGameState)CurrentState.Parent;
+        }
+    }
+    private void GoToState(Type type)
+    {
+
+        if (!gameStateTypes.TryGetValue(type, out TGameState state))
+        {
+            throw new Exception($"The state machine doesn't contains a state of type {type.Name}");
         }
 
         List<TGameState> stateToParent = new List<TGameState>();
@@ -85,27 +114,35 @@ public class GameStateMachine<TGameState> where TGameState : IGameState
 
         if (!commonParent.Equals(CurrentState))
         {
-            CurrentState.OnExit();
+            CurrentState.OnExitUp();
         }
 
         for (int i = 0; i < currentToParent.Count - 1; i++)
         {
             TGameState curr = currentToParent[i];
 
-            curr.OnExit();
+            curr.OnExitUp();
         }
-
 
         for (int i = stateToParent.Count - 2; i >= 0; i--)
         {
+            TGameState prev = stateToParent[i + 1];
             TGameState curr = stateToParent[i];
 
+            prev.OnExitDown();
             curr.OnEnter();
         }
 
         state.OnEnter();
 
         CurrentState = state;
+    }
+
+    public void GoToState<TState>() where TState : TGameState
+    {
+        Type t = typeof(TState);
+
+        GoToState(t);
     }
 
     /// <summary>

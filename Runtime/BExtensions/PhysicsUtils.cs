@@ -27,7 +27,7 @@ namespace Bloodthirst.Scripts.Utils
         public static float SolveForSpeed(float initSpeed, float acceleration, float displacement)
         {
             // v * v = (u * u) + ( 2 * acceleration * displacement)
-            float v = MathF.Sqrt((initSpeed * initSpeed) + (2 * acceleration * displacement));
+            float v = Mathf.Sqrt((initSpeed * initSpeed) + (2 * acceleration * displacement));
             return v;
         }
 

@@ -6,6 +6,7 @@ public interface IGameState
     List<IGameState> SubStates { get; }
     void OnInitialize();
     void OnEnter();
-    void OnExit();
+    void OnExitUp();
+    void OnExitDown();
     void OnDestroy();
 }

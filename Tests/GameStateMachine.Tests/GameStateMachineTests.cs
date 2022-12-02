@@ -41,9 +41,14 @@ public abstract class GameStateBase : IGameState
         Debug.Log($"State {GetType().Name} entered");
     }
 
-    void IGameState.OnExit()
+    void IGameState.OnExitUp()
     {
-        Debug.Log($"State {GetType().Name} exited");
+        Debug.Log($"State {GetType().Name} exited up");
+    }
+
+    void IGameState.OnExitDown()
+    {
+        Debug.Log($"State {GetType().Name} exited down");
     }
 
     void IGameState.OnInitialize()
@@ -58,8 +63,7 @@ public class GameStateThird : GameStateBase { }
 
 public class GameStateMachineTests
 {
-    // A Test behaves as an ordinary method
-    [Test]
+    [Test( Description = "Simple game state machine Enter/Exit test" )]
     public void GameStateMachineTestsSimpleEnter()
     {
         GameStateRoot root = new GameStateRoot();
@@ -72,8 +76,26 @@ public class GameStateMachineTests
         gameState.Exit();  
     }
 
-    // A Test behaves as an ordinary method
-    [Test]
+    [Test(Description = "Going from root to first child")]
+    public void GameStateMachineTestsGoToDirectChild()
+    {
+        GameStateRoot root = new GameStateRoot();
+        root.AddSubState(new GameStateFirst());
+        root.AddSubState(new GameStateSecond());
+
+        GameStateMachine<GameStateBase> gameState = new GameStateMachine<GameStateBase>(root);
+
+        gameState.Enter();
+
+        Assert.IsTrue(gameState.CurrentState.GetType() == typeof(GameStateRoot));
+
+        gameState.GoToState<GameStateFirst>();
+
+        Assert.IsTrue(gameState.CurrentState.GetType() == typeof(GameStateFirst));
+
+    }
+
+    [Test(Description ="Going from root to first child , then from first child to second child")]
     public void GameStateMachineTestsGoToIndirectChild()
     {
         GameStateRoot root = new GameStateRoot();
@@ -94,9 +116,8 @@ public class GameStateMachineTests
 
         Assert.IsTrue(gameState.CurrentState.GetType() == typeof(GameStateSecond));
     }
-    
-    // A Test behaves as an ordinary method
-    [Test]
+
+    [Test(Description = "Going from root to first child , then from first child to third child that's located in a different branch and with more depth")]
     public void GameStateMachineTestsGoToDeeperIndirectChild()
     {
         GameStateRoot root = new GameStateRoot();
@@ -104,6 +125,7 @@ public class GameStateMachineTests
         root.AddSubState(new GameStateSecond()).AddSubState(new GameStateThird());
 
         GameStateMachine<GameStateBase> gameState = new GameStateMachine<GameStateBase>(root);
+        gameState.Initialize();
 
         gameState.Enter();
 
@@ -116,25 +138,10 @@ public class GameStateMachineTests
         gameState.GoToState<GameStateThird>();
 
         Assert.IsTrue(gameState.CurrentState.GetType() == typeof(GameStateThird));
+
+        gameState.Destroy();
+
     }
 
-    // A Test behaves as an ordinary method
-    [Test]
-    public void GameStateMachineTestsGoToDirectChild()
-    {
-        GameStateRoot root = new GameStateRoot();
-        root.AddSubState(new GameStateFirst());
-        root.AddSubState(new GameStateSecond());
 
-        GameStateMachine<GameStateBase> gameState = new GameStateMachine<GameStateBase>(root);
-
-        gameState.Enter();
-
-        Assert.IsTrue(gameState.CurrentState.GetType() == typeof(GameStateRoot));
-
-        gameState.GoToState<GameStateFirst>();
-
-        Assert.IsTrue(gameState.CurrentState.GetType() == typeof(GameStateFirst));
-       
-    }
 }
