@@ -1,4 +1,7 @@
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
+using Bloodthirst.Core.Utils;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,7 +35,7 @@ namespace Bloodthirst.Editor.BInspector
             Texture iconTexture = AssetDatabase.GetCachedIcon(path);
 
             icon.image = iconTexture;
-            name.text = script.GetClass().GetNiceName();
+            name.text = TypeUtils.GetNiceName(script.GetClass());
             clickZone.RegisterCallback<ClickEvent>(HandleClickOnScript);
 
             ui.styleSheets.Add(USSAsset);

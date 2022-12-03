@@ -1,5 +1,7 @@
 using DG.Tweening;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 
@@ -32,8 +34,8 @@ namespace Bloodthirst.Core.UI
 
         private bool isAnimating;
 
-        [ReadOnly]
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ReadOnly]#endif
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private bool isOpen = true;
 
         public bool IsAnimating
@@ -68,7 +70,7 @@ namespace Bloodthirst.Core.UI
         }
 
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public void Open()
         {
             if (isOpen)
@@ -87,7 +89,7 @@ namespace Bloodthirst.Core.UI
                 .Play();
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public void Close()
         {
             if (!isOpen)

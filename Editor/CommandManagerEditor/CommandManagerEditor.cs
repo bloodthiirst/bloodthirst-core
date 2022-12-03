@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
 using Bloodthirst.System.CommandSystem;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;

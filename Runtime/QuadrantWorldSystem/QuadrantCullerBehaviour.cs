@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using System.Linq;
 #if UNITY_EDITOR
@@ -31,17 +33,22 @@ namespace Bloodthirst.System.Quadrant
         [SerializeField]
         private Color gizmosCulledColor;
 
+        #if ODIN_INSPECTOR
         [BoxGroup("Editor Settings")]
+#endif
         [SerializeField]
         private bool showAll;
 
+#if ODIN_INSPECTOR
         [BoxGroup("Editor Settings")]
         [HideIf(nameof(showAll))]
+#endif
         [SerializeField]
         private float viewDistance;
 
-
+#if ODIN_INSPECTOR
         [BoxGroup("Editor Settings")]
+#endif
         [SerializeField]
         [Range(0, 1)]
         private float visibility;

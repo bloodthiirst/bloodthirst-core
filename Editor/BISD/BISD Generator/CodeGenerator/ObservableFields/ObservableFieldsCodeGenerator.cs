@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -209,7 +211,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
                         templateText = templateText.Replace("[FIELD_NICE_NAME]", FieldFormatedName(field));
 
-                        templateText = templateText.Replace("[FIELD_TYPE]", field.FieldType.GetNiceName());
+                        templateText = templateText.Replace("[FIELD_TYPE]", TypeUtils.GetNiceName(field.FieldType));
 
                         templateText = templateText.Replace("[FIELD]", field.Name);
 
@@ -310,7 +312,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         private static string FieldFormatedName(FieldInfo field)
         {
-            StringBuilder sb = new StringBuilder(field.GetNiceName());
+            StringBuilder sb = new StringBuilder( TypeUtils.GetNiceName(field.FieldType));
             sb[0] = Char.ToUpper(sb[0]);
             return sb.ToString();
         }

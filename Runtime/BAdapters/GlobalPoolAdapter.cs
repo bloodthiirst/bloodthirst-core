@@ -1,23 +1,26 @@
 using Bloodthirst.Core.AdvancedPool.Pools;
 using Bloodthirst.Core.BProvider;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
+using System;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
-    [BAdapterFor(typeof(GlobalPoolContainer))]
-    [RequireComponent(typeof(GlobalPoolContainer))]
+    [BAdapterFor(typeof(IGlobalPool))]
+    [RequireComponent(typeof(IGlobalPool))]
     public class GlobalPoolAdapter : MonoBehaviour, ISetupSingletonPass
     {
         void ISetupSingletonPass.Execute()
         {
-            GlobalPoolContainer globalPool = GetComponent<GlobalPoolContainer>();
+            IGlobalPool globalPool = GetComponent<IGlobalPool>();
 
             Assert.IsNotNull(globalPool);
 
-            BProviderRuntime.Instance.RegisterSingleton<GlobalPoolContainer, GlobalPoolContainer>(globalPool);
-            BProviderRuntime.Instance.RegisterSingleton<GlobalPoolContainer, IGlobalPool>(globalPool);
+            Type t = Type.GetType("GlobalPoolContainer");
+
+            BProviderRuntime.Instance.RegisterSingleton(t  ,globalPool);
+            BProviderRuntime.Instance.RegisterSingleton<IGlobalPool, IGlobalPool>(globalPool);
 
             globalPool.SetupPools();
         }

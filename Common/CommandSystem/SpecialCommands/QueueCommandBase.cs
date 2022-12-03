@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -15,7 +17,7 @@ namespace Bloodthirst.System.CommandSystem
         public event Action<ICommandBase, ICommandBase> OnCommandRemoved;
         public event Action<ICommandBase, ICommandBase> OnCommandAdded;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private Queue<CommandSettings> commandQueue;
         private readonly bool propagateFailOrInterrupt;
 

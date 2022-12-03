@@ -1,4 +1,6 @@
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -10,7 +12,7 @@ namespace Bloodthirst.Core.UILayout
         [SerializeField]
         protected LayoutStyle layoutStyle = new LayoutStyle();
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected Rect rect;
         protected ILayoutBox parentLayout;
         protected List<ILayoutBox> children = new List<ILayoutBox>();

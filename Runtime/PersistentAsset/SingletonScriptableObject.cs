@@ -1,10 +1,16 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Linq;
 using UnityEngine;
 
 namespace Bloodthirst.Core.PersistantAsset
 {
+#if ODIN_INSPECTOR
     public abstract class SingletonScriptableObject<T> : SerializedScriptableObject, ISingletonScriptableObject where T : SerializedScriptableObject
+#else
+    public abstract class SingletonScriptableObject<T> : ScriptableObject, ISingletonScriptableObject where T : ScriptableObject
+#endif
     {
         /// <summary>
         /// <para>Default path to the create the asset at</para>

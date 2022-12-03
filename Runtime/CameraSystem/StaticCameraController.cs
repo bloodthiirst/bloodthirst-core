@@ -1,27 +1,40 @@
 ﻿using Bloodthirst.Core.BProvider;
 using Bloodthirst.Scripts.Core.Utils;
 using Bloodthirst.Systems.CameraSystem;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 
 public class StaticCameraController : CameraControllerBase<StaticCameraController>
 {
+#if ODIN_INSPECTOR
     [BoxGroup("Horizontal Rotation")]
+#endif
     [SerializeField]
     private float yRotationValue;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Horizontal Rotation")]
+#endif
     [SerializeField]
     private float yRotationSensitivity;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Vertical Rotation")]
+#endif
     [SerializeField]
     private float xRotationSensitivity;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Vertical Rotation")]
+#endif
     [SerializeField]
     private float xRotationValue;
+
+#if ODIN_INSPECTOR
     [BoxGroup("Vertical Rotation")]
+#endif
     [SerializeField]
     private Vector2 xRotationMinMax;
 

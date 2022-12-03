@@ -1,9 +1,15 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Socket.Serializer;
-using Sirenix.OdinInspector;
-using Sirenix.Serialization;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,25 +20,35 @@ using UnityEngine;
 
 namespace Bloodthirst.Socket.Serialization
 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ODIN_INSPECTOR
     [InlineEditor]
+#endif
     public struct SerializerInfo
     {
+        
+#if ODIN_INSPECTOR
         [ShowInInspector]
         [HorizontalGroup]
         [LabelWidth(70)]
+#endif
         public string TypeName { get; set; }
 
+
+#if ODIN_INSPECTOR
         [ShowInInspector]
         [HorizontalGroup]
         [LabelWidth(90)]
+#endif
         public string SerializerName { get; set; }
     }
-#endif
 
     public class SerializerProvider : SingletonScriptableObject<SerializerProvider>
     {
-        [OdinSerialize]
+        
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
         [HideInInspector]
         private Dictionary<Type, INetworkSerializer> typeToSerializer;
 
@@ -44,8 +60,16 @@ namespace Bloodthirst.Socket.Serialization
         /// <summary>
         /// Container the list of the serialized
         /// </summary>
-        [ShowInInspector]
-        [ReadOnly]
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
+        
+#if ODIN_INSPECTOR
+[ReadOnly]
+#endif
+
         private List<SerializerInfo> SerializedTypes
         {
             get
@@ -62,12 +86,16 @@ namespace Bloodthirst.Socket.Serialization
 
             foreach (KeyValuePair<Type, INetworkSerializer> kv in typeToSerializer)
             {
-                serializedTypes.Add(new SerializerInfo() { TypeName = kv.Key.GetNiceName(), SerializerName = kv.Value.GetType().GetNiceName() });
+                serializedTypes.Add(new SerializerInfo() { TypeName = TypeUtils.GetNiceName(kv.Key), SerializerName = TypeUtils.GetNiceName(kv.Value.GetType()) });
             }
         }
 #endif
 
-        [Button]
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         public void Initialize()
         {
             if (typeToSerializer == null)

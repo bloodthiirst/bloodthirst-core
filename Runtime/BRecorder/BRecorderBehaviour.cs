@@ -1,6 +1,8 @@
 using Bloodthirst.BDeepCopy;
 using Bloodthirst.Runtime.BRecorder;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 
 public class BRecorderBehaviour : MonoBehaviour
@@ -14,7 +16,7 @@ public class BRecorderBehaviour : MonoBehaviour
     public bool playOnAwake;
 
     [SerializeField]
-    [ReadOnly]
+    #if ODIN_INSPECTOR[ReadOnly]#endif
     private bool isPlaying;
 
     private int nextCommandIndex;

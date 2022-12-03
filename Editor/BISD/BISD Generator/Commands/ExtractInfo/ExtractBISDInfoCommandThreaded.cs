@@ -5,7 +5,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CSharp;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -97,11 +99,15 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                     List<ClassDeclarationSyntax> classesList = new List<ClassDeclarationSyntax>();
 
                     // get classes inside namespaces
-                    root.Members.OfType<NamespaceDeclarationSyntax>().ForEach(n => classesList.AddRange(n.Members.OfType<ClassDeclarationSyntax>()));
-
+                    foreach (NamespaceDeclarationSyntax n in root.Members.OfType<NamespaceDeclarationSyntax>())
+                    {
+                        classesList.AddRange(n.Members.OfType<ClassDeclarationSyntax>());
+                    }
                     // get classes in file directly
-                    root.Members.OfType<ClassDeclarationSyntax>().ForEach(c => classesList.Add(c));
-
+                    foreach (ClassDeclarationSyntax c in root.Members.OfType<ClassDeclarationSyntax>())
+                    {
+                        classesList.Add(c);
+                    }
                     foreach (ClassDeclarationSyntax c in classesList)
                     {
                         AttributeSyntax attrib = c.AttributeLists.SelectMany(att => att.Attributes).FirstOrDefault(a => a.Name.ToString() == nameof(BISDTag));

@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 #if UNITY_EDITOR
 #endif
@@ -46,7 +48,7 @@ namespace Bloodthirst.System.Quadrant
 
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         private void Initialize()
         {
             quadrantManager.Clear();

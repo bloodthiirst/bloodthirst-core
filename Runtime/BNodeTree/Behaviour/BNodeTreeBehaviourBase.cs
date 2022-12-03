@@ -1,4 +1,6 @@
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +66,7 @@ namespace Bloodthirst.Runtime.BNodeTree
         public List<TNode> Roots { get; private set; }
 
         [SerializeField]
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ODIN_INSPECTOR
         [InfoBox(TYPE_WARNING_MESSAGE, nameof(ShowTypeWarning), InfoMessageType = InfoMessageType.Error)]
 #endif
         private NodeTreeData treeData;
@@ -143,13 +145,21 @@ namespace Bloodthirst.Runtime.BNodeTree
                 .ToList();
         }
 
-        [Button]
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         public void ResetCurrentNode()
         {
             ActiveNodeTyped = Roots[0];
         }
 
-        [Button]
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         public void AdvanceFromNode()
         {
             // if no current node is selected

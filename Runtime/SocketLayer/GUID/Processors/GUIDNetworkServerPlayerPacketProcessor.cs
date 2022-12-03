@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.PacketParser;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +14,7 @@ namespace Bloodthirst.Socket.BehaviourComponent
 
         private Dictionary<Guid, NetworkPlayerEntityBase<Guid>> playersActiveMap;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public IReadOnlyDictionary<Guid, NetworkPlayerEntityBase<Guid>> ReadbalePlayerActiveMap => playersActiveMap;
 
         private void Awake()

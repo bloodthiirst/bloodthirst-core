@@ -1,15 +1,23 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 
 namespace Bloodthirst.Core.SceneManager
 {
+#if ODIN_INSPECTOR
     [InlineEditor(InlineEditorModes.FullEditor, DrawHeader = false)]
+#endif
     public struct ReadOnlyString
     {
+        
+#if ODIN_INSPECTOR
         [ShowInInspector]
         [HorizontalGroup]
-        [HideLabel]
+        [HideLabel]        
         [ReadOnly]
+#endif
+
         [SerializeField]
         private string value;
 

@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Diagnostics;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,7 +20,7 @@ namespace Bloodthirst.Socket.BehaviourComponent
         /// Time elasped in milliseconds
         /// </summary>
         [SerializeField]
-        [ReadOnly]
+        #if ODIN_INSPECTOR[ReadOnly]#endif
         private long timeElapsed;
 
         /// <summary>

@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 
 namespace Bloodthirst.Core.UILayout
@@ -13,16 +15,16 @@ namespace Bloodthirst.Core.UILayout
             this.height = height;
         }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public float x { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public float y { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public float width { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public float height { get; set; }
         public Vector2 center => new Vector2(x + (width * 0.5f), y + (height * 0.5f));
         public Vector2 size => new Vector2(width, height);

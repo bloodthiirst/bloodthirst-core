@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Scripts.Core.GamePassInitiator;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections;
 using UnityEngine;
@@ -14,19 +16,19 @@ namespace Bloodthirst.Core.UI
         public IWindowLayer Manager => GetManager();
         public RectTransform ParentTransform => parentTransform;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public abstract bool IsFocused { get; set; }
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public bool IsOpen { get; set; }
 
         public virtual bool RequestOpen { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public virtual bool RequestFocus { get; set; }
 
         private bool requestUnfocus;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public virtual bool RequestUnfocus
         {
             get => requestUnfocus;
@@ -103,13 +105,13 @@ namespace Bloodthirst.Core.UI
         }
 
 #if UNITY_EDITOR
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         private void TriggerOpenEditor()
         {
             TriggerOpen();
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         private void TriggerCloseEditor()
         {
             TriggerClose();

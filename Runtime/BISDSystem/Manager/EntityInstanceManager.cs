@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Core.BProvider;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 
@@ -10,7 +12,7 @@ namespace Bloodthirst.Core.BISDSystem
         IEntityInstanceRegisterBehaviour, IEntityInstanceRegister,
         IEntityInstanceProviderBehaviour, IEntityInstanceProvider
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private BProvider.BProvider instanceProvider;
 
         public event Action<object> OnRegistered;

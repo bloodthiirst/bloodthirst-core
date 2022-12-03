@@ -2,7 +2,9 @@
 using Bloodthirst.BJson;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.JsonUnityObject;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,14 @@ namespace Bloodthirst.Runtime.BNodeTree
 {
     public class NodeTreeData : JsonScriptableObject
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Type NodeBaseType { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         [BJsonIgnore]
         private List<NodeData> nodes;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         [BJsonIgnore]
         private List<LinkData> links;
 

@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +9,7 @@ namespace Bloodthirst.Core.ThreadProcessor
 {
     public class ThreadCommandProcessor : MonoBehaviour
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private List<ISeparateThreadCommand> threadCommand;
 
 
@@ -23,7 +25,7 @@ namespace Bloodthirst.Core.ThreadProcessor
             }
         }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private ConcurrentQueue<IMainThreadCommand> mainThreadCommand;
 
 

@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Scripts.Utils;
 using DG.Tweening;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +22,10 @@ namespace Bloodthirst.Systems.CameraSystem
 
         private static readonly Type callbackType = typeof(OnCameraChangedEvent);
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         HashSet<ICameraController> AllCameras = new HashSet<ICameraController>();
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public ICameraController ActiveCamera { get; private set; }
 
         [SerializeField]

@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.System.CommandSystem;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +15,7 @@ namespace Bloodthirst.Core.SceneManager
 
         public event Action<ISceneInstanceManager> OnBeforeSceneUnloaded;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private List<ISceneInstanceManager> currentActiveScene;
 
         private ICommandManagerProvider commandManagerProvider;

@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Scripts.Utils;
 using Bloodthirst.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -29,7 +31,9 @@ namespace Bloodthirst.Core.UI
         /// </summary>
         public UVSmoothingType uvSmoothing;
 
+#if ODIN_INSPECTOR
         [ShowIf(nameof(uvSmoothing), Value = UVSmoothingType.LERP)]
+#endif
         [Range(0f, 1f)]
         public float uvSmoothLerp;
 

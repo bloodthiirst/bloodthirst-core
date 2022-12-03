@@ -1,4 +1,5 @@
-﻿using Bloodthirst.System.ContextSystem;
+﻿#if ODIN_INSPECTOR
+using Bloodthirst.System.ContextSystem;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using System;
@@ -23,8 +24,9 @@ namespace Bloodthirst.System.ContextSystem
                 .GetMethod(nameof(ContextSystemManagerEditor.Initialize), BindingFlags.NonPublic | BindingFlags.Static)
                 .CreateDelegate(typeof(Action));
 
-            InspectorPropertyInfo initializeButton = InspectorPropertyInfo.CreateForDelegate("Initialize", 0, typeof(ContextSystemManagerEditor), initializeDel , buttonAttrs);
+            InspectorPropertyInfo initializeButton = InspectorPropertyInfo.CreateForDelegate("Initialize", 0, typeof(ContextSystemManagerEditor), initializeDel, buttonAttrs);
             propertyInfos.Add(initializeButton);
         }
     }
 }
+#endif

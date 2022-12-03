@@ -3,7 +3,9 @@ using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.SocketLayer.BehaviourComponent;
 using Bloodthirst.Socket.BehaviourComponent;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,29 +21,49 @@ namespace Bloodthirst.Socket.Core
         where TClient : SocketClient<TIdentifier>
         where TIdentifier : IComparable<TIdentifier>
     {
-        [ShowInInspector]
+
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         public static bool IsClient => SocketConfig.Instance.IsClient;
 
-        [ShowInInspector]
+
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         private TClient socketClient;
 
         #region connexion info
 
-        [ReadOnly]
+
+#if ODIN_INSPECTOR
+[ReadOnly]
+#endif
+
         protected string ServerAddress => SocketConfig.Instance.ServerAddress;
 
-        [ReadOnly]
+
+#if ODIN_INSPECTOR
+[ReadOnly]
+#endif
+
         protected int ServerPort => SocketConfig.Instance.WorldServerPort;
 
+#if ODIN_INSPECTOR
         [ShowIf(nameof(socketClient), Value = null)]
+#endif
         public int portTCP => socketClient.PortTCP;
 
+#if ODIN_INSPECTOR
         [ShowIf(nameof(socketClient), Value = null)]
+#endif
         public int portUDP => socketClient.PortUDP;
 
-        #endregion
+#endregion
 
-        #region ISocketClientInjector
+#region ISocketClientInjector
 
         public TClient SocketClient
         {
@@ -59,7 +81,7 @@ namespace Bloodthirst.Socket.Core
             }
         }
 
-        #endregion
+#endregion
 
         [SerializeField]
         public UnityEvent OnClientConnected;
@@ -92,7 +114,11 @@ namespace Bloodthirst.Socket.Core
 
 
 
-        [Button]
+
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         //[DisableIf(nameof(IsClient), Value = false)]
         public void Connect()
         {
@@ -151,8 +177,11 @@ namespace Bloodthirst.Socket.Core
         }
 
 
-        [Button]
-        [EnableIf(nameof(IsClient), Value = true)]
+
+#if ODIN_INSPECTOR
+[Button]
+[EnableIf(nameof(IsClient), Value = true)]
+#endif
         public void Disconnect()
         {
             if (socketClient != null)

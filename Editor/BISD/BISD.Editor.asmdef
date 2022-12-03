@@ -19,12 +19,12 @@
     "overrideReferences": true,
     "precompiledReferences": [
         "Microsoft.CodeAnalysis.CSharp.dll",
-        "Sirenix.Utilities.dll",
-        "Sirenix.Serialization.dll",
         "Microsoft.CodeAnalysis.Features.dll",
         "Microsoft.CodeAnalysis.CSharp.Workspaces.dll",
         "Microsoft.CodeAnalysis.dll",
-        "System.Collections.Immutable.dll"
+        "System.Collections.Immutable.dll",
+        "Sirenix.Serialization.dll",
+        "Sirenix.Utilities.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

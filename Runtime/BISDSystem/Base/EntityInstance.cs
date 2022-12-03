@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -145,13 +147,13 @@ namespace Bloodthirst.Core.BISDSystem
 
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public void Enable()
         {
             IsActive = true;
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public void Disable()
         {
             IsActive = false;

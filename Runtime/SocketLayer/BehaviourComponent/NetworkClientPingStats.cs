@@ -5,7 +5,9 @@ using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 
@@ -18,17 +20,17 @@ namespace Bloodthirst.Socket.BehaviourComponent
 
         private PingStatsPacketClientProcessor PingRequest { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public GUIDSocketClient SocketClient { get; set; }
 
         private INetworkSerializer<PingStatsRequest> pingStatsRequestSerializer;
 
-        [ShowInInspector]
-        [ReadOnly]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        #if ODIN_INSPECTOR[ReadOnly]#endif
         private int pingTCP;
 
-        [ShowInInspector]
-        [ReadOnly]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        #if ODIN_INSPECTOR[ReadOnly]#endif
         private int pingUDP;
 
         [SerializeField]

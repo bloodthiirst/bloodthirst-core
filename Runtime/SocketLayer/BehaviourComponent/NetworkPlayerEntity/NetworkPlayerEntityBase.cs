@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,16 +15,16 @@ namespace Bloodthirst.Socket.BehaviourComponent
 
         private static bool IsClient => SocketConfig.Instance.IsClient;
 
-        [ShowInInspector]
-        [ReadOnly]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        #if ODIN_INSPECTOR[ReadOnly]#endif
         public TIdentifier NetworkID { get; set; }
 
         public bool IsPlayer => SocketClient<TIdentifier>.CurrentNetworkID.Equals(NetworkID);
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Dictionary<uint, PacketClientProcessorBase<TIdentifier>> clientProcessorsMap;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Dictionary<uint, PacketServerProcessorBase<TIdentifier>> serverProcessorsMap;
 
         public IReadOnlyDictionary<uint, PacketClientProcessorBase<TIdentifier>> ReadableClientProcessorsMap => clientProcessorsMap;

@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.BISDSystem;
 using Bloodthirst.Core.Utils;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -122,7 +124,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                         string templateText = string.Empty;
                         CodeGenerationUtils.GenerateGameDataInfoFromStateField(mem, out string name, out Type type);
 
-                        templateText = $"public {type.GetNiceName()} {name};";
+                        templateText = $"public { TypeUtils.GetNiceName(type)} {name};";
 
                         replacementText.Append(templateText)
                         .Append(Environment.NewLine)

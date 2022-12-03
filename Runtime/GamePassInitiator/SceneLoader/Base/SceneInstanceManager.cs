@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Core.Setup;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,7 +32,11 @@ namespace Bloodthirst.Core.SceneManager
         public int SceneIndex { get => sceneIndex; set => sceneIndex = value; }
 
         [SerializeField]
-        [ReadOnly]
+
+#if ODIN_INSPECTOR
+[ReadOnly]
+#endif
+
         private string scenePath;
         public string ScenePath { get => scenePath; set => scenePath = value; }
 
@@ -45,19 +51,31 @@ namespace Bloodthirst.Core.SceneManager
 
 
 
-        [ShowInInspector]
+
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         /// <summary>
         /// List of root gameObjects in the scene (Doesn't include child objects)
         /// </summary>
         protected List<GameObject> sceneGameObjects = new List<GameObject>();
 
-        [ShowInInspector]
+
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         /// <summary>
         /// Renderable UIs related to the scene
         /// </summary>
         protected List<Graphic> sceneUis = new List<Graphic>();
 
-        [ShowInInspector]
+
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         /// <summary>
         /// Renderable Objects other than UI related to the scene
         /// </summary>
@@ -192,11 +210,13 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
+#if ODIN_INSPECTOR
         [TitleGroup("Toggle GameObjectes active in the scene", GroupID = "EnableDisable")]
         [HorizontalGroup("EnableDisable/H")]
         [Button(ButtonSizes.Large)]
         [EnableIf("@UnityEngine.Application.isPlaying")]
         [PropertyTooltip("enables all the gameObjects under the scene")]
+#endif
         public void Enable()
         {
             if (isScenePlaying)
@@ -217,11 +237,13 @@ namespace Bloodthirst.Core.SceneManager
             OnSceneStateChanged?.Invoke((T)this);
         }
 
+#if ODIN_INSPECTOR
         [TitleGroup("Toggle GameObjectes active in the scene", GroupID = "EnableDisable")]
         [HorizontalGroup("EnableDisable/H")]
         [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("disables all the gameObjects under the scene")]
+#endif
         public void Disable()
         {
             if (!isScenePlaying)
@@ -243,12 +265,13 @@ namespace Bloodthirst.Core.SceneManager
 
             OnSceneStateChanged?.Invoke((T)this);
         }
-
+#if ODIN_INSPECTOR
         [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
         [HorizontalGroup("ShowHide/H")]
         [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("shows all the visual elements of the scene that were previously hidden")]
+#endif
         public void Show()
         {
             if (sceneVisible)
@@ -277,11 +300,13 @@ namespace Bloodthirst.Core.SceneManager
             OnSceneVisibilityChanged?.Invoke((T)this);
         }
 
+#if ODIN_INSPECTOR
         [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
         [HorizontalGroup("ShowHide/H")]
         [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("Hides all the visual elements of the scene \nNOTE : the objects are still active , just not visible")]
+#endif
         public void Hide()
         {
             if (!sceneVisible)
@@ -316,14 +341,16 @@ namespace Bloodthirst.Core.SceneManager
             OnSceneVisibilityChanged?.Invoke((T)this);
         }
 
+#if ODIN_INSPECTOR
         [TitleGroup("Unload the scene", GroupID = "Unload")]
         [HorizontalGroup("Unload/H")]
         [EnableIf("@UnityEngine.Application.isPlaying")]
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("Unloads the scene")]
+#endif
         public void UnloadScene()
         {
-            loadingManager.RunAsyncTask(new UnloadSingleSceneAsyncWrapper(this,  globalSceneManager , true));
+            loadingManager.RunAsyncTask(new UnloadSingleSceneAsyncWrapper(this, globalSceneManager, true));
         }
     }
 }

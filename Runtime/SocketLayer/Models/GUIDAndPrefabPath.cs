@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 
 namespace Bloodthirst.Models
@@ -6,10 +8,10 @@ namespace Bloodthirst.Models
     [Serializable]
     public struct GUIDAndPrefabPath
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Guid Guid { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public string PrefabPath { get; set; }
     }
 }

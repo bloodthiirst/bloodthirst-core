@@ -1,7 +1,9 @@
 ﻿using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +28,7 @@ namespace Bloodthirst.Socket.BehaviourComponent
             }
         }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public IReadOnlyDictionary<uint, PacketClientProcessorBase<Guid>> ReadbalePacketProcessor => packetProcessor;
 
         public TProcessor GetOrCreate<TProcessor, TData>() where TProcessor : PacketClientProcessor<TData, Guid>, new()

@@ -3,9 +3,12 @@ using Bloodthirst.Runtime.BInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Bloodthirst.Core.Utils;
 
 #if ODIN_INSPECTOR
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using Bloodthirst.Core.Utils;
 #endif
 
@@ -88,7 +91,11 @@ namespace Bloodthirst.JsonUnityObject
 
         [BButton]
 #if ODIN_INSPECTOR
-        [Button]
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
 #endif
         private void LogJson()
         {

@@ -1,7 +1,9 @@
 using Bloodthirst.Core.UI;
 using Bloodthirst.Scripts.Utils;
 using Bloodthirst.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -65,7 +67,9 @@ namespace Bloodthirst
         /// </summary>
         public UVSmoothingType UVSmoothing;
 
+#if ODIN_INSPECTOR
         [ShowIf(nameof(UVSmoothing), Value = UVSmoothingType.LERP)]
+#endif
         [Range(0f, 1f)]
         public float uvSmoothLerp;
 
@@ -114,7 +118,11 @@ namespace Bloodthirst
         }
 
 
-        [Button]
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         public void GenerateMesh()
         {
             Mesh mesh = new Mesh();
@@ -213,7 +221,7 @@ namespace Bloodthirst
             LineQuad prevQuad = null;
             LineQuad currQuad = null;
 
-            #region sowing
+#region sowing
 
             ///// sow the middle parts 
             // 0 : prev bottom
@@ -369,7 +377,7 @@ namespace Bloodthirst
             bottomRow.Add(currQuad.LeftDownPos);
             bottomRow.Add(currQuad.RightDownPos);
 
-            #endregion
+#endregion
 
             // TODO : massage the UVs down
             // group all verts that belong to topline and bottomline together

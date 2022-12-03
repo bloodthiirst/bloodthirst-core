@@ -6,7 +6,9 @@ using Bloodthirst.Socket.PacketParser;
 using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Socket.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,10 +16,10 @@ using UnityEngine;
 [Serializable]
 public class PingValues
 {
-    [ShowInInspector]
+    #if ODIN_INSPECTOR[ShowInInspector]#endif
     public long TCP { get; set; }
 
-    [ShowInInspector]
+    #if ODIN_INSPECTOR[ShowInInspector]#endif
     public long UDP { get; set; }
 
 }
@@ -31,7 +33,7 @@ public class NetworkServerPinger : MonoBehaviour
     [SerializeField]
     private NetworkServerTimer networkTimer;
 
-    [ShowInInspector]
+    #if ODIN_INSPECTOR[ShowInInspector]#endif
     private Dictionary<ConnectedClientSocket, PingValues> networkPingStats;
 
     public IReadOnlyDictionary<ConnectedClientSocket, PingValues> NetworkPingStats => networkPingStats;
@@ -39,10 +41,10 @@ public class NetworkServerPinger : MonoBehaviour
     [SerializeField]
     private GUIDNetworkServerGlobalPacketProcessor packetProcessor;
 
-    [ShowInInspector]
+    #if ODIN_INSPECTOR[ShowInInspector]#endif
     private PingPongUDPPacketServerProcessor pingPongUDPParser;
 
-    [ShowInInspector]
+    #if ODIN_INSPECTOR[ShowInInspector]#endif
     private PingPongTCPPacketServerProcessor pingPongTCPParser;
 
     [SerializeField]

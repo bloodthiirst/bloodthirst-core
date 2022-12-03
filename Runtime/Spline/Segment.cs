@@ -1,21 +1,23 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 
 namespace Bloodthirst.Utils
 {
     public class Segment<T> where T : INodePosition
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Vector3 Point1 { get; set; }
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Vector3 Handle1 { get; set; }
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Vector3 Point2 { get; set; }
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public Vector3 Handle2 { get; set; }
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public T Node1 { get; set; }
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public T Node2 { get; set; }
 
         private const int DRAW_ITERATIONS = 20;

@@ -1,19 +1,35 @@
-using Sirenix.OdinInspector;
-using Sirenix.Serialization;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System.Collections.Generic;
 using UnityEditorInternal;
 using UnityEngine;
 
 namespace Bloodthirst.Core.GameEventSystem
 {
+#if ODIN_INSPECTOR
     public class GameEventSystemAsset : SerializedScriptableObject
+#else
+    public class GameEventSystemAsset : ScriptableObject
+#endif
     {
         public struct EnumClassPair
         {
-            [OdinSerialize]
+
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
             public string enumValue;
 
-            [OdinSerialize]
+
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
             public string className;
         }
 
@@ -41,7 +57,7 @@ namespace Bloodthirst.Core.GameEventSystem
 
         public bool HasClass(string className)
         {
-            return classEnumPairs.Exists( p => p.className == className);
+            return classEnumPairs.Exists(p => p.className == className);
         }
 
         public bool HasEnum(string enumName)
@@ -49,9 +65,9 @@ namespace Bloodthirst.Core.GameEventSystem
             return classEnumPairs.Exists(p => p.enumValue == enumName);
         }
 
-        public void Add(string enumName , string className)
+        public void Add(string enumName, string className)
         {
-            classEnumPairs.Add( new EnumClassPair() { className = className, enumValue = enumName } );
+            classEnumPairs.Add(new EnumClassPair() { className = className, enumValue = enumName });
         }
 
         public void RemoveByIndex(int index)

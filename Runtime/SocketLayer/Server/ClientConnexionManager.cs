@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -6,7 +8,7 @@ namespace Bloodthirst.Socket
 {
     public class ClientConnexionManager<T> where T : IComparable<T>
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private Dictionary<T, ConnectedClientSocket> clientConnexions;
 
         public IReadOnlyDictionary<T, ConnectedClientSocket> ClientConnexions => clientConnexions;

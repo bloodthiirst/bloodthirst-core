@@ -1,5 +1,7 @@
 using Bloodthirst.Core.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,8 +34,8 @@ namespace Bloodthirst.Core.UI
         /// <summary>
         /// Do we need to update thee layout ?
         /// </summary>
-        [ReadOnly]
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ReadOnly]#endif
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private bool isDirty;
 
         public void AddFoladable(FoldableUI foldable)

@@ -1,7 +1,9 @@
 ﻿using Bloodthirst.Core.BISDSystem;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;

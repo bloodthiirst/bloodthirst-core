@@ -1,4 +1,6 @@
-﻿using Sirenix.Serialization;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,7 +39,7 @@ namespace Bloodthirst.Core.BProvider
         public event Action<T> OnAdded;
         public event Action<T> OnRemoved;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private List<T> elements;
         ICollection IBProviderList.Elements => elements;
 

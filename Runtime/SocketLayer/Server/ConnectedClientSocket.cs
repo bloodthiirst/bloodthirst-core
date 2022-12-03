@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -18,10 +20,10 @@ namespace Bloodthirst.Socket
 
         public TcpClient TcpClient { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public IPEndPoint TCPClientIP { get; set; }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public IPEndPoint UDPClientIP { get; set; }
 
         private byte[] Buffer = new byte[SocketConfig.Instance.PacketSize];

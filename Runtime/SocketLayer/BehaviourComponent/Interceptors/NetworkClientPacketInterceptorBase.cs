@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Socket.Core;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 
@@ -12,7 +14,7 @@ namespace Bloodthirst.Socket.BehaviourComponent
         where TClient : SocketClient<TIdentifier>
         where TIdentifier : IComparable<TIdentifier>
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public TClient SocketClient { get; set; }
 
         protected abstract void OnMessage(SocketClient<TIdentifier> socketClient, byte[] packet, PROTOCOL protocol);

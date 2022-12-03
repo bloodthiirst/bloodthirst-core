@@ -1,4 +1,6 @@
-﻿using Sirenix.Serialization;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +12,7 @@ namespace Bloodthirst.Runtime.BRecorder
         public event Action<IBRecorderCommand> OnCommandRemoved;
         public event Action<BRecorderSession> OnSessionChanged;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private List<IBRecorderCommand> RecorderCommands { get; set; }
 
         public IReadOnlyList<IBRecorderCommand> Commands => RecorderCommands;

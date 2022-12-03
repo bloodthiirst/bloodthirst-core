@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,7 @@ namespace Bloodthirst.Core.UI
 
         public event Action<IWindowLayer> OnLayerUnfocused;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private List<IUIWindow> uiWindows = new List<IUIWindow>();
 
         private List<IUIWindow> openWindows = new List<IUIWindow>();
@@ -126,7 +128,7 @@ namespace Bloodthirst.Core.UI
             }
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public void OpenAll()
         {
             for (int i = 0; i < uiWindows.Count; i++)
@@ -140,7 +142,7 @@ namespace Bloodthirst.Core.UI
             Refresh();
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public void CloseAll()
         {
             for (int i = 0; i < uiWindows.Count; i++)

@@ -1,5 +1,7 @@
 using Bloodthirst.Scripts.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 using static Bloodthirst.Scripts.Utils.PathUtils;
@@ -7,64 +9,95 @@ using static Bloodthirst.Scripts.Utils.PathUtils;
 public class PathFollower : MonoBehaviour
 {
 
+#if ODIN_INSPECTOR
     [BoxGroup("Inputs")]
+#endif
     [SerializeField]
     private double speed;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Inputs")]
+#endif
     [SerializeField]
     private double subDelta = 0.002d;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Inputs")]
+#endif
     [SerializeField]
     private Transform follower;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Inputs")]
+#endif
     [SerializeField]
     private Transform[] pointsAsTransforms;
 
     private Vector3[] points;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Follow Mode")]
+#endif
     [SerializeField]
     private bool invertSpeed;
 
+#if ODIN_INSPECTOR
     [BoxGroup("Follow Mode")]
+#endif
     [SerializeField]
+
+#if ODIN_INSPECTOR
     [PropertyRange(0, nameof(MaxIndex))]
+#endif
     private int gotToIndex;
 
     private int MaxIndex => pointsAsTransforms.Length - 1;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private bool isFollowing;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private double currentSpeedPerSecond;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private double curentIterationPerFrame;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private double pathLength;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private double totalDuration;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private double currentDuration;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private WALKING_RESULT result;
 
+#if ODIN_INSPECTOR
     [BoxGroup("State")]
+#endif
     [SerializeField]
     private WalkingState state;
 
@@ -72,7 +105,11 @@ public class PathFollower : MonoBehaviour
 
     private double lastSpeed;
 
-    [Button]
+    
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
     private void ResetFollow()
     {
         isFollowing = false;
@@ -99,7 +136,11 @@ public class PathFollower : MonoBehaviour
         lastSpeed = GetTimeDependentSpeedQuad(totalDuration);
     }
 
-    [Button]
+    
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
     private void StartFollow()
     {
         isFollowing = true;

@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.Setup;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,16 +21,26 @@ namespace Bloodthirst.Core.GameInitPass
         [SerializeField]
         private int preGameSetupOrder;
 
-        [ReadOnly]
+        
+#if ODIN_INSPECTOR
+[ReadOnly]
+#endif
+
         [SerializeField]
         private List<ScriptableObject> allScriptables;
 
+#if ODIN_INSPECTOR
         [FolderPath]
+#endif
         [SerializeField]
         private string[] searchInFolders;
 
 #if UNITY_EDITOR
-        [Button]
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         private void FetchAllScriptableObjects()
         {
             allScriptables = AssetDatabase.FindAssets($"t:{nameof(ScriptableObject)}", searchInFolders)

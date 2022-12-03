@@ -1,5 +1,7 @@
 using Bloodthirst.Core.UILayout;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -26,19 +28,19 @@ public class LayoutRootBehaviour : LayoutBehaviour
 
     private int cachedPixelHeight;
 
-    [Button]
+    #if ODIN_INSPECTOR[Button]#endif
     private void ResetChildRects()
     {
         LayoutBoxUtils.ResetChildrenRects(this);
     }
 
-    [Button]
+    #if ODIN_INSPECTOR[Button]#endif
     private void ReloadChildren()
     {
         LayoutBoxUtils.AddChildren(this);
     }
 
-    [Button]
+    #if ODIN_INSPECTOR[Button]#endif
     private void FlowRoot()
     {
         FlowLayoutEntry.FlowRoot(this);

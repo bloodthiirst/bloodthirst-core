@@ -1,4 +1,8 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,7 +32,9 @@ namespace Bloodthirst.Core.Audio
                 Preload();
         }
 
-        [Button]
+#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+        #if ODIN_INSPECTOR[Button]#endif
+#endif
         private void Clear()
         {
             // clear standalone
@@ -134,7 +140,9 @@ namespace Bloodthirst.Core.Audio
             return freeAudioSources.Dequeue();
         }
 
-        [Button]
+#if ODIN_INSPECTOR
+        #if ODIN_INSPECTOR[Button]#endif
+#endif
         public AudioSource PlayOnShot(AudioClip audioClip)
         {
             if (audioClip == null)

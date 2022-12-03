@@ -1,10 +1,14 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
+#endif
 using System;
 using UnityEngine;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
-    public abstract class UnityPoolBaseBehaviour<TObject> : MonoBehaviour, IPoolBehaviour , IPoolBehaviour<TObject> where TObject : Component
+    public abstract class UnityPoolBaseBehaviour<TObject> : MonoBehaviour, IPoolBehaviour, IPoolBehaviour<TObject> where TObject : Component
     {
         private static readonly Type type = typeof(TObject);
 
@@ -48,7 +52,9 @@ namespace Bloodthirst.Core.AdvancedPool
         Type IPoolBehaviour.Type => type;
 
         [SerializeField]
-        [ReadOnly]
+#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+        #if ODIN_INSPECTOR[ReadOnly]#endif
+#endif
         private string prefabPath;
         public string PrefabPath { get => prefabPath; set => prefabPath = value; }
         string IPoolBehaviour.PrefabPath { get => prefabPath; set => prefabPath = value; }

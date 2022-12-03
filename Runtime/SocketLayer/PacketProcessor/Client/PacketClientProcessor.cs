@@ -3,7 +3,9 @@ using Bloodthirst.Core.ThreadProcessor;
 using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
 using Bloodthirst.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 
 namespace Bloodthirst.Socket.PacketParser
@@ -11,7 +13,7 @@ namespace Bloodthirst.Socket.PacketParser
     public abstract class PacketClientProcessor<TType, TIdentitfier> : PacketClientProcessorBase<TIdentitfier> where TIdentitfier : IComparable<TIdentitfier>
     {
 #if UNITY_EDITOR
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private readonly string typeName = typeof(TType).Name;
 #endif
         private static readonly uint typeHash = HashUtils.StringToHash(typeof(TType).Name);

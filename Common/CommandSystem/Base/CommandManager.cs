@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 
 namespace Bloodthirst.System.CommandSystem
@@ -6,7 +8,7 @@ namespace Bloodthirst.System.CommandSystem
     public class CommandManager
     {
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private List<List<ICommandBase>> commandBatches;
 
         public CommandManager()

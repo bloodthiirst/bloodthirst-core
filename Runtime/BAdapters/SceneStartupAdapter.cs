@@ -3,7 +3,9 @@ using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.Setup;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,7 +22,7 @@ namespace Bloodthirst.Runtime.BAdapter
         private int preGameSetupOrder;
         int IPreGameSetup.Order => preGameSetupOrder;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && ODIN_INSPECTOR
         [InfoBox("$" + nameof(DuplicateMessage), nameof(HasDuplicate), InfoMessageType = InfoMessageType.Error)]
         [ValueDropdown(nameof(GetScenesList), FlattenTreeView = true)]
 #endif

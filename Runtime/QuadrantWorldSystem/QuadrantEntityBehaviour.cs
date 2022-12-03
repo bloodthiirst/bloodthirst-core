@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Core.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -79,7 +81,7 @@ namespace Bloodthirst.System.Quadrant
             }
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         private void Add()
         {
             ((IQuadrantEntity<QuadrantEntityBehaviour>)this).QuandrantId = null;
@@ -87,7 +89,7 @@ namespace Bloodthirst.System.Quadrant
         }
 
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         private void Remove()
         {
             if (manager == null)

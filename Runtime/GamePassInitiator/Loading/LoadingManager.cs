@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.Setup;
 using Bloodthirst.System.CommandSystem;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR
@@ -62,7 +64,7 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private BasicQueueCommand loadingQueue;
 
         private List<IProgressCommand> runningCommands;

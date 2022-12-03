@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,16 +8,16 @@ using UnityEngine;
 
 public class InputUtils : MonoBehaviour
 {
-    [ShowInInspector]
-    [ReadOnly]
+    #if ODIN_INSPECTOR[ShowInInspector]#endif
+    #if ODIN_INSPECTOR[ReadOnly]#endif
     private Dictionary<KeyCode, List<float>> pressHistory;
 
-    [ShowInInspector]
-    [ReadOnly]
+    #if ODIN_INSPECTOR[ShowInInspector]#endif
+    #if ODIN_INSPECTOR[ReadOnly]#endif
     private IReadOnlyList<KeyCode> allKeyCodes;
 
     [SerializeField]
-    [ReadOnly]
+    #if ODIN_INSPECTOR[ReadOnly]#endif
     private bool isEnabled;
 
     [SerializeField]

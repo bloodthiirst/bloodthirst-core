@@ -4,7 +4,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CSharp;
-using Sirenix.Serialization;
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,13 +25,13 @@ namespace Bloodthirst.Core.Utils
     {
         public class TypeInformation
         {
-            [OdinSerialize]
+            #if ODIN_INSPECTOR[OdinSerialize]#endif
             public Type type;
 
-            [OdinSerialize]
+            #if ODIN_INSPECTOR[OdinSerialize]#endif
             public TextAsset unityScript;
 
-            [OdinSerialize]
+            #if ODIN_INSPECTOR[OdinSerialize]#endif
             public string unityScriptPath;
         }
 

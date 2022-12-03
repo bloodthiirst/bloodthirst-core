@@ -1,7 +1,11 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using Bloodthirst.Core.Utils;
-using Sirenix.OdinInspector;
-using Sirenix.Serialization;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +28,17 @@ namespace Bloodthirst.Core.SceneManager
 
         public List<string> ScenesList => scenesList;
 
+
+#if ODIN_INSPECTOR
         [OdinSerialize]
         [ListDrawerSettings(Expanded = true, AlwaysAddDefaultValue = true)]
-#if UNITY_EDITOR
-        [OnValueChanged(nameof(ReorderList))]
-#endif
         [InfoBox("The first scene MUST contain a SceneLoadingManager", nameof(HasSceneLoadingManager), InfoMessageType = InfoMessageType.Error, VisibleIf = nameof(HasSceneLoadingManager))]
         [InfoBox("The scene setup seems to be correct", nameof(IsValid), InfoMessageType = InfoMessageType.Info, VisibleIf = nameof(IsValid))]
+#endif
+#if UNITY_EDITOR && ODIN_INSPECTOR
+        [OnValueChanged(nameof(ReorderList))]
+#endif
+
         private List<ReadOnlyString> editorList;
 
         [SerializeField]
@@ -102,8 +110,10 @@ namespace Bloodthirst.Core.SceneManager
 
             return sceneAssets;
         }
-        
+
+#if ODIN_INSPECTOR
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
+#endif
         public void ApplyToBuildSettings()
         {
             EditorBuildSettingsScene[] editorBuildSettingsScenes = new EditorBuildSettingsScene[scenesList.Count];
@@ -147,7 +157,9 @@ namespace Bloodthirst.Core.SceneManager
 
         }
 
+#if ODIN_INSPECTOR
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
+#endif
         public void InitializeScenes()
         {
             RefreshScenesList();
@@ -219,7 +231,7 @@ namespace Bloodthirst.Core.SceneManager
             Scene sceneRef = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
 
             bool cleanupScene = !sceneRef.isLoaded;
-            
+
             if (!sceneRef.IsValid())
             {
                 sceneRef = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);

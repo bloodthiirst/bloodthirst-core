@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Bloodthirst.Core.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEngine.Pool;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,7 +15,7 @@ using UnityEditor;
 
 namespace Bloodthirst.Core.Setup
 {
-    public class GameEnd : MonoBehaviour , IPreGameEnd  , IPostGameEnd
+    public class GameEnd : MonoBehaviour, IPreGameEnd, IPostGameEnd
     {
         int IPreGameEnd.Order => 0;
 
@@ -31,7 +33,7 @@ namespace Bloodthirst.Core.Setup
         {
 
             List<GameObject> allGOs = ListPool<GameObject>.Get();
-            
+
             // query
             GameObjectUtils.GetAllRootGameObjects(allGOs);
 
@@ -45,7 +47,7 @@ namespace Bloodthirst.Core.Setup
 
             GameObjectUtils.GetAllComponents(ref gameEnds, true);
 
-            IEnumerable<IAsynOperationWrapper> asyncOps = gameEnds.OrderBy( p => p.Order ).Select(g => g.GetAsyncOperations()).Where( g => g != null);
+            IEnumerable<IAsynOperationWrapper> asyncOps = gameEnds.OrderBy(p => p.Order).Select(g => g.GetAsyncOperations()).Where(g => g != null);
 
             foreach (IAsynOperationWrapper op in asyncOps)
             {
@@ -72,8 +74,10 @@ namespace Bloodthirst.Core.Setup
 #endif
         }
 
+#if ODIN_INSPECTOR
         [Button(ButtonSizes.Large)]
         [DisableInEditorMode]
+#endif
         public void Quit()
         {
             StartCoroutine(End());

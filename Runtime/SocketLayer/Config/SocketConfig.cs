@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Net;
 using System.Net.NetworkInformation;
 using UnityEngine;
@@ -71,7 +73,9 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
     /// </summary>
     public int GhostServerPort => ghostServerPort;
 
+#if ODIN_INSPECTOR
     [BoxGroup("IP")]
+#endif
     [SerializeField]
     private string serverAddress;
 
@@ -84,8 +88,11 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
 #if UNITY_EDITOR
     private IPAddress localVal;
 
+#if ODIN_INSPECTOR
     [BoxGroup("IP")]
     [ShowInInspector]
+#endif
+
     private bool IsValidAddress
     {
         get
@@ -94,8 +101,11 @@ public class SocketConfig : SingletonScriptableObject<SocketConfig>
         }
     }
 
+#if ODIN_INSPECTOR
     [BoxGroup("IP")]
     [ShowInInspector]
+#endif
+
     /// <summary>
     /// Is the port free to use
     /// </summary>

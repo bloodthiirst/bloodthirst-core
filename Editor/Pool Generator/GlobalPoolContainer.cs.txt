@@ -1,7 +1,8 @@
-﻿using Bloodthirst.Core.Singleton;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 using System.Linq;
 using System;
 
@@ -13,26 +14,11 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
     /// <para> The pools are created in the "PoolScene" , a scene that is specifically made to contain thses auto-generated pools</para>
     /// <para> The pool generation is done by the <see cref="PoolGenerator"> class</see></para>
     /// </summary>
-    public class GlobalPoolContainer : BSingleton<GlobalPoolContainer, IGlobalPool>, IGlobalPool
+    public class GlobalPoolContainer : MonoBehaviour , IGlobalPool
     {
         #region fields for the auto-generated pools
 
         // [START_POOLS]
-
-		/// <summary>
-		/// <para> this field is auto-generated , returns a pool for the prefab named : <c>PoolablePrefab</c></para>
-		/// </summary>
-		public PoolableTestPool PoolableTestPoolForPoolableprefab;
-
-		/// <summary>
-		/// <para> this field is auto-generated , returns a pool for the prefab named : <c>PoolablePrefab 1</c></para>
-		/// </summary>
-		public PoolableTestPool PoolableTestPoolForPoolableprefab1;
-
-		/// <summary>
-		/// <para> this field is auto-generated , returns a pool for the prefab named : <c>PR_Player</c></para>
-		/// </summary>
-		public EntityIdentifierPool EntityIdentifierPoolForPR_Player;
 
 		// [END_POOLS]
 
@@ -40,7 +26,9 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
         
         private List<IPoolBehaviour> allPools = new List<IPoolBehaviour>();
 
+#if ODIN_INSPECTOR
         [ShowInInspector]
+#endif
         public List<IPoolBehaviour> AllPools => allPools;
 
         public IPoolBehaviour<T> GetByPrefab<T>(GameObject prefab) where T : Component
@@ -86,7 +74,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
             return GetByType<T>().PoolWithType.Get<T>(filter);
         }
 
-        public override void OnSetupSingleton()
+        public void SetupPools()
         {
             // [LOAD_IN_LIST_START]
 

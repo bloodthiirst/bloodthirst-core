@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Models;
 using Bloodthirst.Socket.Serializer;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +16,7 @@ namespace Bloodthirst.Socket.Core
 
         public BasicSocketServer BasicSocketServer => basicSocketServer;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private ClientConnexionManager<TIdentifier> clientConnexionManager;
         public ClientConnexionManager<TIdentifier> ClientConnexionManager => clientConnexionManager;
 
@@ -22,7 +24,7 @@ namespace Bloodthirst.Socket.Core
 
         public ServerConnexionManager<TIdentifier> ServerConnexionManager => serverConnexionManager;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private List<ConnectedClientSocket> anonymousClients;
 
         public List<ConnectedClientSocket> AnonymousClients => anonymousClients;

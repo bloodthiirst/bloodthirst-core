@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Socket.Core;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 
@@ -7,10 +9,10 @@ namespace Bloodthirst.Socket.BehaviourComponent.NetworkPlayerEntity
 {
     public abstract class NetworkBehaviourBase<TIdentifier> : MonoBehaviour where TIdentifier : IComparable<TIdentifier>
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected static bool IsServer => SocketConfig.Instance.IsServer;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected static bool IsClient => SocketConfig.Instance.IsClient;
 
         protected static bool HasPlayer => !SocketClient<TIdentifier>.CurrentNetworkID.Equals(GUIDIdentifier.DefaultClientID);
@@ -30,10 +32,10 @@ namespace Bloodthirst.Socket.BehaviourComponent.NetworkPlayerEntity
             }
         }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected TIdentifier NetworkID => NetworkEntity.NetworkID;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected bool IsPlayer => NetworkEntity.IsPlayer;
 
     }

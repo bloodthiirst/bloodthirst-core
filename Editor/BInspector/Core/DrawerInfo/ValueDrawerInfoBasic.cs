@@ -1,6 +1,9 @@
 ﻿using Bloodthirst.BType;
+using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor.BInspector;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +33,7 @@ namespace Bloodthirst.Editor.BInspector
 
         public Type DrawerType()
         {
-            return MemberData.MemberInfo.GetReturnType();
+            return TypeUtils.GetReturnType(MemberData.MemberInfo);
         }
 
         public object GetContainingInstance()

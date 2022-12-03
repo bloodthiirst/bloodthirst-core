@@ -15,5 +15,7 @@ namespace Bloodthirst.Core.AdvancedPool.Pools
         IPoolBehaviour<T> GetByType<T>() where T : Component;
         IEnumerable<IPoolBehaviour<T>> GetAllByType<T>() where T : Component;
 
+        void SetupPools();
+
     }
 }

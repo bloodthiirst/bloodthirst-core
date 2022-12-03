@@ -1,6 +1,8 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.Utils;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +50,7 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public static Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> SaveRuntimeState()
         {
             Dictionary<ISavableIdentifier, List<ISavableGameSave>> savableToGamesaves = new Dictionary<ISavableIdentifier, List<ISavableGameSave>>();

@@ -9,7 +9,9 @@ using System.Linq;
 using UnityEditor.Callbacks;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using Bloodthirst.Runtime.BNodeTree;
 using Bloodthirst.BEventSystem;
 
@@ -543,7 +545,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
             if (validNodeTypes.Count == 0)
             {
-                Debug.LogError($"You need to have atleast one class that inherits from {typeof(NodeBase<>).GetNiceName() } in order to be able to use the node editor");
+                Debug.LogError($"You need to have atleast one class that inherits from { TypeUtils.GetNiceName(typeof(NodeBase<>)) } in order to be able to use the node editor");
                 Close();
                 return;
             }

@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -29,15 +31,15 @@ public class ImageAnimator : MonoBehaviour
     [SerializeField]
     private bool isLoopMode = default;
 
-    [ReadOnly]
+    #if ODIN_INSPECTOR[ReadOnly]#endif
     [SerializeField]
     private bool isPlaying;
 
-    [ReadOnly]
+    #if ODIN_INSPECTOR[ReadOnly]#endif
     [SerializeField]
     private bool isDone;
 
-    [ReadOnly]
+    #if ODIN_INSPECTOR[ReadOnly]#endif
     [SerializeField]
     private int currentFrame;
 
@@ -118,7 +120,7 @@ public class ImageAnimator : MonoBehaviour
         image.sprite = animationFrames[currentFrame];
     }
 
-    [Button]
+    #if ODIN_INSPECTOR[Button]#endif
     public void Play()
     {
         imageAnimatorController.StopAll();
@@ -126,7 +128,7 @@ public class ImageAnimator : MonoBehaviour
         isDone = false;
     }
 
-    [Button]
+    #if ODIN_INSPECTOR[Button]#endif
     public void Replay()
     {
         imageAnimatorController.StopAll();
@@ -134,14 +136,14 @@ public class ImageAnimator : MonoBehaviour
         Play();
     }
 
-    [Button]
+    #if ODIN_INSPECTOR[Button]#endif
     public void Init()
     {
         currentTimer = 0;
         isDone = false;
     }
 
-    [Button]
+    #if ODIN_INSPECTOR[Button]#endif
     public void Pause()
     {
         isPlaying = false;

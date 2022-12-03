@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Core.TreeList;
-using Sirenix.Serialization;
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System;
 using System.Collections.Generic;
 
@@ -7,22 +9,22 @@ namespace Bloodthirst.Core.BProvider
 {
     internal class TypeInfo
     {
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeList<Type, IBProviderSingleton> singletonTree;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeLeaf<Type, IBProviderSingleton> singletonLeaf;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeLeaf<Type, IBProviderList> instanceLeaf;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeList<Type, IBProviderList> instanceTree;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private List<Type> treeParentsList;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private Type mainType;
 
         internal Type MainType { get => mainType; set => mainType = value; }

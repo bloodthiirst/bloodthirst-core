@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using UnityEngine;
 
@@ -62,7 +64,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         public DATA TagData => tagData;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected INSTANCE instance = default;
 
         public INSTANCE Instance

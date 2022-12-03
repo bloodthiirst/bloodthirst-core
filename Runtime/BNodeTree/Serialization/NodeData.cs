@@ -1,19 +1,26 @@
-﻿using Sirenix.OdinInspector;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using UnityEngine;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {
     public class NodeData
     {
+#if ODIN_INSPECTOR
         [Title("Canvas UI info")]
+#endif
         [SerializeField]
         private Vector2 size;
 
         [SerializeField]
         private Vector2 position;
 
+#if ODIN_INSPECTOR
         [Title("Node Data")]
         [ShowInInspector]
+#endif
+
         private INodeType nodeType;
 
         public Vector2 Size
@@ -45,54 +52,72 @@ namespace Bloodthirst.Runtime.BNodeTree
 #endif
 
         #region from
+#if ODIN_INSPECTOR
         [Title("From")]
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
+#endif
         [SerializeField]
         private int fromNodeIndex;
 
+#if ODIN_INSPECTOR
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
+#endif
         [SerializeField]
         private int fromPortIndex;
 
+#if ODIN_INSPECTOR
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
+#endif
         [SerializeField]
         private PORT_DIRECTION fromPortDirection;
 
+#if ODIN_INSPECTOR
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_FROM_GROUP)]
+#endif
         [SerializeField]
         private PORT_TYPE fromPortType;
 
         #endregion
 
         #region to
+#if ODIN_INSPECTOR
         [Title("To")]
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
+#endif
         [SerializeField]
         private int toNodeIndex;
 
+#if ODIN_INSPECTOR
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
+#endif
         [SerializeField]
         private int toPortIndex;
 
+#if ODIN_INSPECTOR
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
+#endif
         [SerializeField]
         private PORT_DIRECTION toPortDirection;
 
+#if ODIN_INSPECTOR
         [HorizontalGroup(H_GROUP)]
         [VerticalGroup(V_TO_GROUP)]
+#endif
         [SerializeField]
         private PORT_TYPE toPortType;
 
         #endregion
 
+#if ODIN_INSPECTOR
         [Title("Link Data")]
+#endif
         [SerializeField]
         private ILinkType linkType;
 

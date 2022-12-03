@@ -1,4 +1,6 @@
-﻿using Sirenix.Utilities;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +32,16 @@ namespace Bloodthirst.Core.Utils
             typeof(double),
             typeof(float)
         };
+
+        public static IEnumerable<Type> GetBaseClasses(this Type type)
+        {
+            var t = type.BaseType;
+            while(t != null)
+            {
+                yield return t;
+                t = t.BaseType;
+            }
+        }
 
         // in later .NETs, you can cache reflection extensions using a static generic class and
         // a ConcurrentDictionary. E.g.
@@ -262,10 +274,70 @@ namespace Bloodthirst.Core.Utils
             return IsSubTypeOf(child, parent);
         }
 
+
+        private static string GetNiceNameRecursive(Type t)
+        {
+            // List<T> for example
+            if (t.IsGenericTypeDefinition)
+            {
+                return t.Name;
+            }
+
+            if(t.IsGenericType)
+            {
+                string str = t.Name + "<";
+
+                for(int i = 0; i < t.GenericTypeArguments.Length; i++)
+                {
+                    str += GetNiceNameRecursive(t.GenericTypeArguments[i]);
+                    str += ",";
+                }
+
+                str.TrimEnd(',');
+                str += ">";
+
+                return str;
+            }
+
+            return t.Name;
+        }
+
         public static string GetNiceName(Type t)
         {
-            return t.GetNiceName();
+            return GetNiceNameRecursive(t);
 
+        }
+
+
+        //
+        // Summary:
+        //     FieldInfo will return the fieldType, propertyInfo the PropertyType, MethodInfo
+        //     the return type and EventInfo will return the EventHandlerType.
+        //
+        // Parameters:
+        //   memberInfo:
+        //     The MemberInfo.
+        public static Type GetReturnType(this MemberInfo memberInfo)
+        {
+            FieldInfo fieldInfo = memberInfo as FieldInfo;
+            if ((object)fieldInfo != null)
+            {
+                return fieldInfo.FieldType;
+            }
+
+            PropertyInfo propertyInfo = memberInfo as PropertyInfo;
+            if ((object)propertyInfo != null)
+            {
+                return propertyInfo.PropertyType;
+            }
+
+            MethodInfo methodInfo = memberInfo as MethodInfo;
+            if ((object)methodInfo != null)
+            {
+                return methodInfo.ReturnType;
+            }
+
+            return (memberInfo as EventInfo)?.EventHandlerType;
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Core.Updater;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,12 +13,25 @@ namespace Bloodthirst.System.CommandSystem
 
     public class CommandManagerBehaviour : MonoBehaviour , IUpdatable , ICommandManagerProvider
     {
-        [ShowInInspector]
+
+
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
+#if ODIN_INSPECTOR
         [ShowIf("@UnityEngine.Application.isPlaying")]
+#endif
         public CommandManager commandManager;
 
-        [ReadOnly]
-        [ShowInInspector]
+        
+#if ODIN_INSPECTOR[ReadOnly]
+#endif
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         private bool isActive = false;
 
         public bool IsActive

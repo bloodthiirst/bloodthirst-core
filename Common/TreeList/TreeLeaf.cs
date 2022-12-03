@@ -1,20 +1,32 @@
-﻿using Sirenix.Serialization;
+﻿#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
+#endif
+
 using System.Collections.Generic;
 
 namespace Bloodthirst.Core.TreeList
 {
     public class TreeLeaf<TKey, TValue>
     {
-        [OdinSerialize]
+#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
+#endif
         private TreeLeaf<TKey, TValue> parent;
 
-        [OdinSerialize]
+#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
+#endif
         private List<TreeLeaf<TKey, TValue>> subLeafs;
 
-        [OdinSerialize]
+#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
+#endif
         private TKey leafKey;
-
-        [OdinSerialize]
+#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
+#endif
         private TValue val;
 
         public TKey LeafKey { get => leafKey; set => leafKey = value; }

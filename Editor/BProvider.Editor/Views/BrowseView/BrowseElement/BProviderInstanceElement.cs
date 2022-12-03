@@ -2,7 +2,9 @@
 using Bloodthirst.Editor;
 using Bloodthirst.Editor.BInspector;
 using Bloodthirst.Editor.CustomComponent;
-using Sirenix.Utilities;
+#if ODIN_INSPECTOR
+	using Sirenix.Utilities;
+#endif
 using System;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -61,7 +63,7 @@ namespace Bloodthirst.Core.BProvider.Editor
 
             TypeScript.value = typeS;
 
-            TypeName.value = objectType.GetNiceName();
+            TypeName.value = TypeUtils.GetNiceName(objectType);
 
             IBInspectorDrawer drawer = BInspectorProvider.DefaultInspector;
 

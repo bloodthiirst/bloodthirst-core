@@ -1,5 +1,7 @@
 ﻿using Bloodthirst.Socket.BehaviourComponent;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,13 +22,13 @@ namespace Bloodthirst.Socket.Core
         where TServer : ManagedSocketServer<TIdentifier>
         where TIdentifier : IComparable<TIdentifier>
     {
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public static bool IsServer => SocketConfig.Instance.IsServer;
 
         [SerializeField]
         private int Port => SocketConfig.Instance.WorldServerPort;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected TServer socketServer;
 
         public TServer SocketServer
@@ -37,14 +39,14 @@ namespace Bloodthirst.Socket.Core
             }
         }
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected int ActivePlayerCount => socketServer == null ? 0 : socketServer.ManagedClientsCount;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected int ActiveServerCount => socketServer == null ? 0 : socketServer.ServerConnexionManager.ServerConnexions.Count;
 
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         protected int WaitingClientCount => socketServer == null ? 0 : socketServer.AnonymousClientsCount;
 
 
@@ -65,10 +67,10 @@ namespace Bloodthirst.Socket.Core
         [SerializeField]
         public UnityEvent OnSeverStarted;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         public List<IOnSocketServerConnected<ManagedSocketServer<TIdentifier>, TIdentifier>> OnConnectedBehaviours;
 
-        [ShowInInspector]
+        #if ODIN_INSPECTOR[ShowInInspector]#endif
         private Dictionary<Type, SocketClient<TIdentifier>> ServerToServerClients;
 
         protected void Awake()
@@ -109,7 +111,7 @@ namespace Bloodthirst.Socket.Core
 
         protected abstract TServer CreateServer();
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         public void StartServer()
         {
 

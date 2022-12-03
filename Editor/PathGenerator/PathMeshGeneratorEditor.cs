@@ -1,7 +1,9 @@
 /**
 using Bloodthirst.Utils;
 using Packages.com.bloodthirst.bloodthirst_core.Runtime.UI.UILineRenderer;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;

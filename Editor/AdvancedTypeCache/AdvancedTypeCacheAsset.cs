@@ -1,5 +1,9 @@
-﻿using Sirenix.OdinInspector;
-using Sirenix.Serialization;
+﻿#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,37 +13,41 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.Utils
 {
+#if ODIN_INSPECTOR
     public class AdvancedTypeCacheAsset : SerializedScriptableObject
+#else
+    public class AdvancedTypeCacheAsset : ScriptableObject
+#endif
     {
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         internal Dictionary<Type, AdvancedTypeCache.TypeInformation> cache = new Dictionary<Type, AdvancedTypeCache.TypeInformation>();
 
         /// <summary>
         /// Contains relative paths of types we need to add after assemblyReload
         /// </summary>
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         internal List<string> newlyAddedScripts = new List<string>();
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         internal List<string> removedScripts = new List<string>();
 
         [Header("Assemblies to scan")]
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         internal AssemblyDefinitionAsset[] assmeblyDefs;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         internal AssemblyDefinitionReferenceAsset[] assemblyReferences;
 
         public IReadOnlyDictionary<Type, AdvancedTypeCache.TypeInformation> Cache => cache;
 
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         private void FullRefresh()
         {
             AdvancedTypeCache.StartThread();
         }
 
-        [Button]
+        #if ODIN_INSPECTOR[Button]#endif
         internal IReadOnlyCollection<string> GetAssemblyPaths()
         {
             HashSet<string> assemblyPaths = new HashSet<string>();

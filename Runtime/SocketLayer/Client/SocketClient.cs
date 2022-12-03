@@ -1,7 +1,9 @@
 ﻿using Bloodthirst.Socket.Core;
 using Bloodthirst.Socket.Serialization;
 using Bloodthirst.Socket.Serializer;
-using Sirenix.OdinInspector;
+#if ODIN_INSPECTOR
+	using Sirenix.OdinInspector;
+#endif
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -11,11 +13,18 @@ namespace Bloodthirst.Socket
 {
     public abstract class SocketClient<TIdentifier> where TIdentifier : IComparable<TIdentifier>
     {
+#if ODIN_INSPECTOR
         [BoxGroup]
         [ShowInInspector]
+#endif
+
         public static TIdentifier CurrentNetworkID;
 
-        [ShowInInspector]
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         public bool IsClient => isClient;
 
         private bool isClient = false;

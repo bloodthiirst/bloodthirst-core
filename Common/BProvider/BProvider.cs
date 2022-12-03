@@ -1,5 +1,7 @@
 using Bloodthirst.Core.TreeList;
-using Sirenix.Serialization;
+#if ODIN_INSPECTOR
+	using Sirenix.Serialization;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,22 +10,22 @@ namespace Bloodthirst.Core.BProvider
 {
     public class BProvider
     {
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private Dictionary<Type, InjectionInfo> typeToInjection;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private Dictionary<Type, TypeInfo> typeToInfoHash;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeList<Type, IBProviderList> classInstances;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeList<Type, IBProviderSingleton> classSingletons;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeList<Type, IBProviderSingleton> interfaceSingletons;
 
-        [OdinSerialize]
+        #if ODIN_INSPECTOR[OdinSerialize]#endif
         private TreeList<Type, IBProviderList> interfaceInstances;
 
         internal Dictionary<Type, InjectionInfo> TypeToInjection
