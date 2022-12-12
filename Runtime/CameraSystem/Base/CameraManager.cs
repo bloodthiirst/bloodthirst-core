@@ -22,10 +22,18 @@ namespace Bloodthirst.Systems.CameraSystem
 
         private static readonly Type callbackType = typeof(OnCameraChangedEvent);
 
-        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         HashSet<ICameraController> AllCameras = new HashSet<ICameraController>();
 
-        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         public ICameraController ActiveCamera { get; private set; }
 
         [SerializeField]

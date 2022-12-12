@@ -129,6 +129,12 @@ public class SceneLoadHelper : EditorWindow
 
             string scenePath = EditorBuildSettings.scenes[i].path;
 
+            if(string.IsNullOrEmpty(scenePath))
+            {
+                Debug.Log("A scene in the build settings might be missing or deleted , Check the build scenes");
+                continue;
+            }
+
             string sceneName = scenePath.Remove(scenePath.Length - 6).Split('/').Last();
 
             btn.text = "Load Scene : " + sceneName;

@@ -34,8 +34,16 @@ namespace Bloodthirst.Core.UI
 
         private bool isAnimating;
 
-        #if ODIN_INSPECTOR[ReadOnly]#endif
-        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        
+#if ODIN_INSPECTOR
+[ReadOnly]
+#endif
+
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         private bool isOpen = true;
 
         public bool IsAnimating
@@ -70,7 +78,11 @@ namespace Bloodthirst.Core.UI
         }
 
 
-        #if ODIN_INSPECTOR[Button]#endif
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         public void Open()
         {
             if (isOpen)
@@ -83,13 +95,17 @@ namespace Bloodthirst.Core.UI
 
             mySequence
                 .AppendCallback(() => IsAnimating = true)
-                .Append(rectTransform.DOSizeDelta(deltaSize, speed))
-                .Join(group.DOFade(1, speed))
+                //.Append(rectTransform.DOSizeDelta(deltaSize, speed))
+                //.Join(group.DOFade(1, speed))
                 .AppendCallback(() => IsAnimating = false)
                 .Play();
         }
 
-        #if ODIN_INSPECTOR[Button]#endif
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         public void Close()
         {
             if (!isOpen)
@@ -107,8 +123,8 @@ namespace Bloodthirst.Core.UI
             Sequence seq = DOTween.Sequence();
             seq
             .AppendCallback(() => IsAnimating = true)
-            .Append(rectTransform.DOSizeDelta(closedSize, speed))
-            .Join(group.DOFade(0, speed))
+            //.Append(rectTransform.DOSizeDelta(closedSize, speed))
+            //.Join(group.DOFade(0, speed))
             .AppendCallback(() => IsAnimating = false)
             .Play();
         }
