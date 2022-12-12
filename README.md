@@ -8,8 +8,14 @@ Ill gtry to briefly present most of the systems that the package offers.
 * Runtime : Systems that are meant to be used during runtime/playmore.
 * Editor : EditorWindows , CodeGenerators , SceneViewGui , Unity hooks and workflow tool , stuff to help you make stuff.
 * Graphics : Contains interresting shaders and graphics related stuff (not much going on for it for now)
-* Dependencies : This contains libraries and pluging that are used to make some of the tools (DOTween , Roslyn Compiler DLLs , etc ...)
 * Tests : UnitTests for the most important and delicate systems to make sure everthing is in check after we make changes.
+
+### Note about dependencies
+This repo doesn't **need** any dependencies , **BUT** the addition of some packages can make some funtionalities more thourough.
+The optional dependencies are :
+- Odin inspector
+- DOTween (You need to remove/add "DOTWEEN" to your Scripting Define Symbols depending on the package being present of not )
+- TextMeshPro
 
 ### Cool ! Now that you have a brief a idea about what this package will provide ill try to introduce the most interresting systems along with a brief description to get you familiar.
 
