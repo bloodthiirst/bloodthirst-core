@@ -53,7 +53,11 @@ namespace Bloodthirst.Core.AdvancedPool
 
         [SerializeField]
 #if ODIN_INSPECTOR || ODIN_INSPECTOR_3
-        #if ODIN_INSPECTOR[ReadOnly]#endif
+        
+#if ODIN_INSPECTOR
+[ReadOnly]
+#endif
+
 #endif
         private string prefabPath;
         public string PrefabPath { get => prefabPath; set => prefabPath = value; }

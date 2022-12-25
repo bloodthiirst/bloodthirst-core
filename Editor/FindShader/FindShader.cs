@@ -6,10 +6,7 @@ using System.Collections;
 using Bloodthirst.Core.Utils;
 using System.Collections.Generic;
 using Bloodthirst.Editor;
-using System;
 using UnityEditor.UIElements;
-using System.Linq;
-using Sirenix.Utilities;
 
 public class FindShader : EditorWindow
 {

@@ -1,8 +1,7 @@
-﻿using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+﻿#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ClothSim : MonoBehaviour
@@ -51,7 +50,9 @@ public class ClothSim : MonoBehaviour
 
     private float initStiffness;
 
+#if ODIN_INSPECTOR
     [Button]
+#endif
     private void InitCloth()
     {
         size = width * height;

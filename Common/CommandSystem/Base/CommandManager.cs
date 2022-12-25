@@ -8,7 +8,11 @@ namespace Bloodthirst.System.CommandSystem
     public class CommandManager
     {
 
-        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         private List<List<ICommandBase>> commandBatches;
 
         public CommandManager()
