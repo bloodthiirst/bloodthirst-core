@@ -38,7 +38,7 @@ public class SceneCreatorEditor : EditorWindow
 
         List<string> allScenePaths = EditorUtils.GetAllScenePathsInProject();
         
-        for (int i = 0; i < allScenes.Count; i++)
+        for (int i = 0; i < allScenePaths.Count; i++)
         {
             string scenePath = allScenePaths[i];
 
