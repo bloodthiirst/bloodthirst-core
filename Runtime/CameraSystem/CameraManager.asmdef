@@ -2,9 +2,9 @@
     "name": "CameraManager",
     "rootNamespace": "",
     "references": [
-        "GUID:399acc38f79c20d4c87fec7d1a9c7f20",
         "GUID:5312972b1d3a8464c89ba3f6181dabeb",
-        "GUID:1473e5c488cfd1b4f8a3082aad49e732"
+        "GUID:1473e5c488cfd1b4f8a3082aad49e732",
+        "GUID:d87cdfa4d38432247bf492b28a4d5364"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

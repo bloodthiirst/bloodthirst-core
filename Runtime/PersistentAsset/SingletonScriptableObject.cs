@@ -1,6 +1,7 @@
 ﻿#if ODIN_INSPECTOR
 	using Sirenix.OdinInspector;
 #endif
+using Bloodthirst.JsonUnityObject;
 using System.Linq;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace Bloodthirst.Core.PersistantAsset
 #if ODIN_INSPECTOR
     public abstract class SingletonScriptableObject<T> : SerializedScriptableObject, ISingletonScriptableObject where T : SerializedScriptableObject
 #else
-    public abstract class SingletonScriptableObject<T> : ScriptableObject, ISingletonScriptableObject where T : ScriptableObject
+    public abstract class SingletonScriptableObject<T> : JsonScriptableObject, ISingletonScriptableObject where T : ScriptableObject
 #endif
     {
         /// <summary>

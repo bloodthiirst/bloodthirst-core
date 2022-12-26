@@ -47,6 +47,8 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             "System"
         };
 
+        private StringBuilder sb = new StringBuilder();
+
         public bool ShouldInject(BISDInfoContainer typeInfo)
         {
             bool mustRegenerate = false;
@@ -142,7 +144,6 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
                 .ToArray();
         }
-
         private static EventInfo[] GetObservableEvents(BISDInfoContainer typeInfo)
         {
             //observers
@@ -310,9 +311,10 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 .ToArray();
         }
 
-        private static string FieldFormatedName(FieldInfo field)
+        private string FieldFormatedName(FieldInfo field)
         {
-            StringBuilder sb = new StringBuilder( TypeUtils.GetNiceName(field.FieldType));
+            sb.Clear();
+            sb.Append(field.Name.Replace("_" , ""));         
             sb[0] = Char.ToUpper(sb[0]);
             return sb.ToString();
         }

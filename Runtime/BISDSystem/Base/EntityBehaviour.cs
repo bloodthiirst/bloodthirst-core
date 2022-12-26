@@ -35,6 +35,9 @@ namespace Bloodthirst.Core.BISDSystem
         private readonly Type instanceType = typeof(INSTANCE);
         private readonly Type dataType = typeof(DATA);
 
+        [SerializeField]
+        private bool initializeInstanceOnAwake;
+
         /// <summary>
         /// The parent entity containing this behaviour
         /// </summary>
@@ -128,6 +131,20 @@ namespace Bloodthirst.Core.BISDSystem
         }
 
         #region Unity callbacks
+        protected virtual void Awake()
+        {
+            if(initializeInstanceOnAwake)
+            {
+                STATE state = new STATE();
+                state.Data = tagData;
+
+                INSTANCE ins = new INSTANCE();
+                ins.State = state;
+
+                Instance = ins;
+            }
+        }
+
         protected virtual void OnValidate()
         {
             if (entityIdentifier == null)

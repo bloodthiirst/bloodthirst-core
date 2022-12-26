@@ -9,7 +9,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 {
     public class CreateGameSaveFileCommand : CommandInstant<CreateGameSaveFileCommand>
     {
-        private const string GAME_DATA_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.GameSave.cs.txt";
+        private const string GAME_DATA_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/Template.GameSave.cs.txt";
 
         private const string REPLACE_KEYWORD = "[MODELNAME]";
 

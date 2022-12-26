@@ -50,7 +50,11 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        #if ODIN_INSPECTOR[Button]#endif
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         public static Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> SaveRuntimeState()
         {
             Dictionary<ISavableIdentifier, List<ISavableGameSave>> savableToGamesaves = new Dictionary<ISavableIdentifier, List<ISavableGameSave>>();

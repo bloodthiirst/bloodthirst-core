@@ -74,7 +74,11 @@ namespace Bloodthirst.Core.BISDSystem
         /// </summary>
         public EntityType EntityType => entityType;
 
-        #if ODIN_INSPECTOR[Button]#endif
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         /// <summary>
         /// <para>Announce the removal of the entity to the concerned objects</para>
         /// <para>Used by the spawners to control the lifecycle of the game entity</para>
@@ -84,7 +88,11 @@ namespace Bloodthirst.Core.BISDSystem
             OnEntityRemoved?.Invoke(this);
         }
 
-        #if ODIN_INSPECTOR[Button]#endif
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
         /// <summary>
         /// <para>Announce the spawn of the entity to the concerned objects</para>
         /// <para>Used by the spawners to control the lifecycle of the game entity</para>

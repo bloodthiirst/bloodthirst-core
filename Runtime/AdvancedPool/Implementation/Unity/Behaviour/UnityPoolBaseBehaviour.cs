@@ -1,7 +1,5 @@
 ﻿#if ODIN_INSPECTOR || ODIN_INSPECTOR_3
-#if ODIN_INSPECTOR
 	using Sirenix.OdinInspector;
-#endif
 #endif
 using System;
 using UnityEngine;

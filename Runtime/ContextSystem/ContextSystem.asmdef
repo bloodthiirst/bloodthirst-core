@@ -2,7 +2,8 @@
     "name": "ContextSystem",
     "rootNamespace": "",
     "references": [
-        "GUID:315fc73ff153fb24a8d896a4a2b90157"
+        "GUID:315fc73ff153fb24a8d896a4a2b90157",
+        "GUID:21e9fa1573f98384ca51f162b5d39574"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

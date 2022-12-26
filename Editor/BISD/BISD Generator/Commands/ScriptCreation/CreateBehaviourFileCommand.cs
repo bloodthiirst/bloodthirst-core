@@ -9,7 +9,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 {
     public class CreateBehaviourFileCommand : CommandInstant<CreateBehaviourFileCommand>
     {
-        private const string BEHAVIOUR_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.Behaviour.cs.txt";
+        private const string BEHAVIOUR_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/Template.Behaviour.cs.txt";
 
         private const string REPLACE_KEYWORD = "[MODELNAME]";
 
@@ -25,7 +25,8 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
         protected override void Execute()
         {
             string finalPath = EditorUtils.PathToProject + "/" + relativeFolderPath;
-            string scriptText = AssetDatabase.LoadAssetAtPath<TextAsset>(BEHAVIOUR_TEMPALTE).text.Replace(REPLACE_KEYWORD, modelName);
+            TextAsset templateScriptAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(BEHAVIOUR_TEMPALTE);
+            string scriptText = templateScriptAsset.text.Replace(REPLACE_KEYWORD, modelName);
             
             File.WriteAllText($"{finalPath}/{modelName}Behaviour.cs", scriptText);
             

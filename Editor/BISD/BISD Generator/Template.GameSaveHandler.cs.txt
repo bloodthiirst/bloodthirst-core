@@ -7,7 +7,7 @@ namespace Assets.Scripts.Game.[MODELNAME]Model
 {
     [BISDTag("[MODELNAME]" , ClassType.GAME_SAVE_HANDLER)]
     [Serializable]
-    public class [MODELNAME]GameSaveHandler : EntityGameSaveHandlerBase<[MODELNAME]GameSave , [MODELNAME]State>
+    public class [MODELNAME]GameSaveHandler : GameSaveHandlerBase<[MODELNAME]GameSave , [MODELNAME]State>
     {
         public override [MODELNAME]GameSave GetSave([MODELNAME]State state, SavingContext context)
         {

@@ -9,7 +9,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 {
     public class CreateInstanceFileCommand : CommandInstant<CreateInstanceFileCommand>
     {
-        private const string INSTANCE_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD Generator/Template.Instance.cs.txt";
+        private const string INSTANCE_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD Generator/Template.Instance.cs.txt";
         private const string REPLACE_KEYWORD = "[MODELNAME]";
 
         private readonly string modelName;

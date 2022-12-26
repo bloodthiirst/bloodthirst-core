@@ -26,7 +26,7 @@ namespace Bloodthirst.Editor.Commands
             commandManager = new CommandManager();
 
             globalList = new BasicListCommand(false);
-            //commandManager.AppendCommand(null, globalList , false);
+            commandManager.AppendCommand(null, globalList , false);
 
             lastTime = EditorApplication.timeSinceStartup;
 

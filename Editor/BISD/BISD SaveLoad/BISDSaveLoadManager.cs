@@ -11,8 +11,8 @@ namespace Bloodthirst.Core.BISD.Editor
     [InitializeOnLoad]
     public class BISDSaveLoadManager : EditorWindow
     {
-        private const string PATH_USS =  EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD SaveLoad/BISDSaveLoadManager.uss";
-        private const string PATH_UXML = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD SaveLoad/BISDSaveLoadManager.uxml";
+        private const string PATH_USS =  EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD SaveLoad/BISDSaveLoadManager.uss";
+        private const string PATH_UXML = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD SaveLoad/BISDSaveLoadManager.uxml";
 
         [MenuItem("Bloodthirst Tools/BISD Pattern/Save & Load Manager")]
         public static void ShowExample()

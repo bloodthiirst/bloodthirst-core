@@ -23,7 +23,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
     {
 
         #region global pool container
-        private const string GLOBAL_POOL_TEMPLATE =  EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Pool Generator/GlobalPoolContainer.cs.txt";
+        private const string GLOBAL_POOL_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Pool Generator/GlobalPoolContainer.cs.txt";
         private const string GLOBAL_POOL_START = "// [START_POOLS]";
         private const string GLOBAL_POOL_END = "// [END_POOLS]";
         #endregion
@@ -267,7 +267,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             // get all the scripts in the project
             List<MonoScript> scripts = EditorUtils.FindScriptAssets()
                 .Where(p => p != null)
-                .Where(p => p.GetClass() != null )
+                .Where(p => p.GetClass() != null)
                 .ToList();
 
             // look to see if there's a poolable type that doesnt't have it's pool script generated yet
@@ -402,7 +402,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             {
                 FieldInfo field = poolFields[i];
 
-               IPoolBehaviour correctPool = poolsInScene.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.Prefab.gameObject.name.RemoveWhitespace())));
+                IPoolBehaviour correctPool = poolsInScene.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.Prefab.gameObject.name.RemoveWhitespace())));
 
                 if (correctPool == null)
                 {
@@ -426,25 +426,22 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             // generate a pool for each prefab and add all of of the pools to the "Pools" scene
             foreach (Component poolablePrefab in PoolablePrefabs)
             {
-                IPoolBehaviour pool = allPools.FirstOrDefault(p => p.Prefab == poolablePrefab.gameObject);
+                IPoolBehaviour poolComponent = allPools.FirstOrDefault(p => p.Prefab == poolablePrefab.gameObject);
 
-                // if pool exists , skip
-                if (pool != null)
+                // if pool doesn't exists , create
+                if (poolComponent == null)
                 {
-                    poolsInScene.Add(pool);
-                    continue;
-                }
+                    GameObject newPoolGo = new GameObject($"Auto-Generated Pool [ {poolablePrefab.name} ]");
 
-                GameObject newPoolGo = new GameObject($"Auto-Generated Pool [ {poolablePrefab.name} ]");
-
-                Type poolType = TypeUtils.AllTypes.FirstOrDefault(t => t.Name.Equals(poolablePrefab.GetType().Name + "Pool"));
+                    Type poolType = TypeUtils.AllTypes.FirstOrDefault(t => t.Name.Equals(poolablePrefab.GetType().Name + "Pool"));
 
 
-                // an adapter behaviour we add to separate the pool funtionality from the scne initialization
-                PoolAdapter adapter = newPoolGo.AddComponent<PoolAdapter>();
+                    // an adapter behaviour we add to separate the pool funtionality from the scne initialization
+                    PoolAdapter adapter = newPoolGo.AddComponent<PoolAdapter>();
 
-                // add the pool behaviour
-                IPoolBehaviour poolComponent = newPoolGo.AddComponent(poolType) as IPoolBehaviour;
+                    // add the pool behaviour
+                    poolComponent = newPoolGo.AddComponent(poolType) as IPoolBehaviour;
+                }             
 
                 // assign the prefab
                 poolComponent.Prefab = poolablePrefab.gameObject;
@@ -456,7 +453,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                 poolComponent.Count = 100;
                 poolComponent.Initialize();
 
-                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(newPoolGo, poolsScene);
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(((Component)poolComponent).gameObject, poolsScene);
 
                 poolsInScene.Add(poolComponent);
             }
@@ -492,7 +489,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         /// <returns></returns>
         private static string PrefabToFieldName(Component prefab)
         {
-            return $"{prefab.GetType().Name}PoolFor{TextInfo.ToTitleCase(prefab.gameObject.name.RemoveWhitespace()) }";
+            return $"{prefab.GetType().Name}PoolFor{TextInfo.ToTitleCase(prefab.gameObject.name.RemoveWhitespace())}";
         }
 
         /// <summary>
@@ -502,7 +499,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         /// <returns></returns>
         private static string PrefabToFieldGenerator(Component prefab)
         {
-            return $"{prefab.GetType().Name}PoolFor{TextInfo.ToTitleCase(prefab.gameObject.name.RemoveWhitespace()) }";
+            return $"{prefab.GetType().Name}PoolFor{TextInfo.ToTitleCase(prefab.gameObject.name.RemoveWhitespace())}";
         }
 
         private static void RegenerateGlobalPoolFields()
@@ -634,22 +631,24 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         private static List<Component> GetAllPoolablePrefabs()
         {
             // search for prefabs
-            return Resources.LoadAll(string.Empty)
-                .Where(o => PrefabUtility.GetPrefabAssetType(o) == PrefabAssetType.Regular)
-                .OfType<GameObject>()
-                .Cast<GameObject>()
-                .Select(m =>
-                {
-                    foreach (Type v in PoolableTypes)
-                    {
-                        if (m.TryGetComponent(v, out Component comp))
-                            return comp;
-                    }
+            List<GameObject> allPrefabs = EditorUtils.FindAssetsAs<GameObject>("t:prefab");
+            List<Component> lst = new List<Component>(allPrefabs.Count);
 
-                    return null;
-                })
-                .Where(m => m != null)
-                .ToList();
+            for (int i = 0; i < allPrefabs.Count; i++)
+            {
+                GameObject currPrefab = allPrefabs[i];
+
+                foreach (Type poolableType in PoolableTypes)
+                {
+                    if (currPrefab.TryGetComponent(poolableType, out Component comp))
+                    {
+                        lst.Add(comp);
+                        break;
+                    }
+                }
+            }
+
+            return lst;
         }
 
         /// <summary>
@@ -672,7 +671,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
                 if (type == null)
                 {
-                    Debug.LogError($"Couldn't find type named {  TypeUtils.GetNiceName(type) } in the assembly");
+                    Debug.LogError($"Couldn't find type named {TypeUtils.GetNiceName(type)} in the assembly");
                     continue;
                 }
 
@@ -684,13 +683,13 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
                 if (!TypeUtils.IsSubTypeOf(type, typeof(MonoBehaviour)))
                 {
-                    Debug.LogError($"{ type.Name } is not derived from { nameof(MonoBehaviour) }");
+                    Debug.LogError($"{type.Name} is not derived from {nameof(MonoBehaviour)}");
                     continue;
                 }
 
                 if (type.GetCustomAttributes(typeof(GeneratePool), true).Count() == 0)
                 {
-                    Debug.LogError($"{ type.Name } doesn't contain the { nameof(GeneratePool) } attribute");
+                    Debug.LogError($"{type.Name} doesn't contain the {nameof(GeneratePool)} attribute");
                     continue;
                 }
 

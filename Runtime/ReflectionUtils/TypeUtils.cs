@@ -277,6 +277,31 @@ namespace Bloodthirst.Core.Utils
 
         private static string GetNiceNameRecursive(Type t)
         {
+            if(t == typeof(int))
+            {
+                return "int";
+            }
+            if (t == typeof(bool))
+            {
+                return "bool";
+            }
+            if (t == typeof(string))
+            {
+                return "string";
+            }
+            if (t == typeof(float))
+            {
+                return "float";
+            }
+            if (t == typeof(double))
+            {
+                return "double";
+            }
+            if (t == typeof(short))
+            {
+                return "short";
+            }
+
             // List<T> for example
             if (t.IsGenericTypeDefinition)
             {

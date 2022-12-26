@@ -60,9 +60,9 @@ namespace Bloodthirst.Core.Utils
 
         public static bool IsLayoutBuilt(this VisualElement root)
         {
-           return !root.Query<VisualElement>()
-                .Build()
-                .Any(v => float.IsNaN(v.layout.width) || float.IsNaN(v.layout.height));
+            return !root.Query<VisualElement>()
+                 .Build()
+                 .Any(v => float.IsNaN(v.layout.width) || float.IsNaN(v.layout.height));
         }
 
         public static void Display(this VisualElement visualElement, bool show)
@@ -81,18 +81,18 @@ namespace Bloodthirst.Core.Utils
             return pathToCurrentFolder;
         }
 
-       public static string GetFolderFromPath(string path)
+        public static string GetFolderFromPath(string path)
         {
             bool isFilePath = false;
-            for(int i = path.Length -1; i > -1; i--)
+            for (int i = path.Length - 1; i > -1; i--)
             {
-                if(path[i] == '.')
+                if (path[i] == '.')
                 {
                     isFilePath = true;
                     continue;
                 }
 
-                if(path[i] == '/')
+                if (path[i] == '/')
                 {
                     if (isFilePath)
                         return path.Substring(0, i);
@@ -202,7 +202,7 @@ namespace Bloodthirst.Core.Utils
 
                 MonoScript asset = AssetDatabase.LoadAssetAtPath<MonoScript>(assetPath);
 
-                if (asset != null )
+                if (asset != null)
                 {
                     assets.Add(asset);
                 }
@@ -244,6 +244,12 @@ namespace Bloodthirst.Core.Utils
 
             if (string.IsNullOrEmpty(path))
                 return null;
+
+            if(!path.StartsWith("Resources/"))
+            {
+                Debug.LogWarning($"The prefab {poolablePrefab.name} isn't placed in the Resources folder");
+                return path;
+            }
 
             int index = path.LastIndexOf("Resources/", path.Length - 1);
 

@@ -1,6 +1,7 @@
 #if ODIN_INSPECTOR
 	using Sirenix.OdinInspector;
 #endif
+using Bloodthirst.JsonUnityObject;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace Bloodthirst.Core.BISDSystem
 #if ODIN_INSPECTOR
     public class GameStateSaveInstance : SerializedScriptableObject
 #else
-    public class GameStateSaveInstance : ScriptableObject
+    public class GameStateSaveInstance : JsonScriptableObject
 #endif
     {
         [SerializeField]

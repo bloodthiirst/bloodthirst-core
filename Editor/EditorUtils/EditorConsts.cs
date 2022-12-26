@@ -20,11 +20,11 @@ namespace Bloodthirst.Editor
         public static readonly bool ON_ASSEMBLY_RELOAD_BADAPTER = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_BHOTRELOAD = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_BINSPECTOR_EDITOR = true;
-        public static readonly bool ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR = false;
+        public static readonly bool ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR = true;
         public static readonly bool ON_ASSEMBLY_RELOAD_ON_COMPONENT_ADDED = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_STARTUP_TRACKER = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_SCENE_DEPENDENCY_INJECTOR = false;
-        public static readonly bool ON_ASSEMBLY_RELOAD_BISD_SAVE_MANAGER = false;
+        public static readonly bool ON_ASSEMBLY_RELOAD_BISD_SAVE_MANAGER = true;
         public static readonly bool ON_ASSEMBLY_RELOAD_CONTEXT_SYSTEM = false;
 
         public const string GLOBAL_EDITOR_FOLRDER_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/";

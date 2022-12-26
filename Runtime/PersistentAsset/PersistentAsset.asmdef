@@ -1,3 +1,16 @@
 {
-	"name": "PersistentAsset"
+    "name": "PersistentAsset",
+    "rootNamespace": "",
+    "references": [
+        "GUID:21e9fa1573f98384ca51f162b5d39574"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

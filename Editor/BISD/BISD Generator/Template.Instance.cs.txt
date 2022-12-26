@@ -4,7 +4,6 @@
 using System;
 using Bloodthirst.Core.BISD.CodeGeneration;
 using Bloodthirst.Core.BISDSystem;
-using Sirenix.OdinInspector;
 
 namespace Assets.Scripts.Game.[MODELNAME]Model
 {

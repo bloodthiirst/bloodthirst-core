@@ -159,9 +159,7 @@ namespace Bloodthirst.Core.BISD.Editor
             // get models info in a threaded way
             CommandManagerEditor.Run(cmd);
 
-            while ( cmd.CommandState == COMMAND_STATE.SUCCESS ||
-                    cmd.CommandState == COMMAND_STATE.FAILED ||
-                    cmd.CommandState == COMMAND_STATE.INTERRUPTED)
+            while ( !cmd.IsDone())
             
             {
                 yield return null;
