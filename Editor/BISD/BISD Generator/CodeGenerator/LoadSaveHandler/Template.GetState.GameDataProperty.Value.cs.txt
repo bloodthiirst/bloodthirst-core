@@ -1,1 +1,0 @@
-﻿	 	 	state.[STATE_FIELD_NAME] = save.[SAVE_FIELD_NAME]_Value;

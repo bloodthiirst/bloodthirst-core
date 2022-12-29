@@ -1,2 +1,0 @@
-﻿
-		public [FIELD_TYPE] [FIELD_NICE_NAME]_Value;

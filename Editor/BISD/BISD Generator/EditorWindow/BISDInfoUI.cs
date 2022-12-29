@@ -9,7 +9,6 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using ICodeGenerator = Bloodthirst.Core.BISD.CodeGeneration.ICodeGenerator;
 
 namespace Bloodthirst.Core.BISD.Editor
 {

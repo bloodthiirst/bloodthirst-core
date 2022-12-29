@@ -1,9 +1,0 @@
-﻿			save.[SAVE_FIELD_NAME] = new List<int>();
-
-			if(state.[STATE_FIELD_NAME] != null)
-			{
-	 	 		for(int i = 0; i < state.[STATE_FIELD_NAME].Count; i++)
-	 	 		{
-	 	 	 		save.[SAVE_FIELD_NAME].Add( state.[STATE_FIELD_NAME][i].EntityIdentifier.Id );
-	 	 		}
-			}
