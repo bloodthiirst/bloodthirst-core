@@ -89,18 +89,18 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private string GenerateGetStateFields(BISDInfoContainer typeInfo, List<MemberInfo> members, string oldScript)
         {
             #region write the properties for the get state
-            List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(GET_STATE_START, GET_STATE_END);
+            List<SectionInfo> propsSections = oldScript.StringReplaceSection(GET_STATE_START, GET_STATE_END);
 
             int padding = 0;
 
             for (int i = 0; i < propsSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = propsSections[i];
-                Tuple<SECTION_EDGE, int, int> end = propsSections[i + 1];
+                SectionInfo start = propsSections[i];
+                SectionInfo end = propsSections[i + 1];
 
                 // if we have correct start and end
                 // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
                 {
                     StringBuilder replacementText = new StringBuilder();
 
@@ -140,9 +140,9 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     .Append("\t")
                     .Append("\t");
 
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
 
-                    int oldTextLength = end.Item2 - start.Item3;
+                    int oldTextLength = end.startIndex - start.endIndex;
 
                     padding += replacementText.Length - oldTextLength;
                 }
@@ -150,18 +150,18 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             #endregion
 
             #region write the properties for the get state referenced instances
-            List<Tuple<SECTION_EDGE, int, int>> refsSections = oldScript.StringReplaceSection(LINK_REFS_START, LINK_REFS_END);
+            List<SectionInfo> refsSections = oldScript.StringReplaceSection(LINK_REFS_START, LINK_REFS_END);
 
             padding = 0;
 
             for (int i = 0; i < refsSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = refsSections[i];
-                Tuple<SECTION_EDGE, int, int> end = refsSections[i + 1];
+                SectionInfo start = refsSections[i];
+                SectionInfo end = refsSections[i + 1];
 
                 // if we have correct start and end
                 // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
                 {
                     StringBuilder replacementText = new StringBuilder();
 
@@ -191,9 +191,9 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     .Append("\t")
                     .Append("\t");
 
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
 
-                    int oldTextLength = end.Item2 - start.Item3;
+                    int oldTextLength = end.startIndex - start.endIndex;
 
                     padding += replacementText.Length - oldTextLength;
                 }
@@ -207,18 +207,18 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         {
 
             #region write the properties for the get state for pure values
-            List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(GET_SAVE_START, GET_SAVE_END);
+            List<SectionInfo> propsSections = oldScript.StringReplaceSection(GET_SAVE_START, GET_SAVE_END);
 
             int padding = 0;
 
             for (int i = 0; i < propsSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = propsSections[i];
-                Tuple<SECTION_EDGE, int, int> end = propsSections[i + 1];
+                SectionInfo start = propsSections[i];
+                SectionInfo end = propsSections[i + 1];
 
                 // if we have correct start and end
                 // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
                 {
                     StringBuilder replacementText = new StringBuilder();
 
@@ -258,9 +258,9 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     .Append("\t")
                     .Append("\t");
 
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
 
-                    int oldTextLength = end.Item2 - start.Item3;
+                    int oldTextLength = end.startIndex - start.endIndex;
 
                     padding += replacementText.Length - oldTextLength;
                 }

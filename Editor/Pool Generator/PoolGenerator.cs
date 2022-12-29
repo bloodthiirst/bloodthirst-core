@@ -507,17 +507,17 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             string oldScript = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
 
             // fields section
-            List<Tuple<SECTION_EDGE, int, int>> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
+            List<StringExtensions.SectionInfo> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
 
             int padding = 0;
 
             for (int i = 0; i < fieldsSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = fieldsSections[i];
-                Tuple<SECTION_EDGE, int, int> end = fieldsSections[i + 1];
+                StringExtensions.SectionInfo start = fieldsSections[i];
+                StringExtensions.SectionInfo end = fieldsSections[i + 1];
                 // if we have correct start and end
                 // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
                 {
                     var replacementText = new StringBuilder();
 
@@ -554,15 +554,15 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                     .Append("\t")
                     .Append("\t");
 
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
 
-                    int oldTextLength = end.Item2 - start.Item3;
+                    int oldTextLength = end.startIndex - start.endIndex;
 
                     padding += replacementText.Length - oldTextLength;
                 }
             }
 
-            List<Tuple<SECTION_EDGE, int, int>> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
+            List<StringExtensions.SectionInfo> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
 
             // awake section
 
@@ -570,11 +570,11 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             for (int i = 0; i < awakeInitSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = awakeInitSections[i];
-                Tuple<SECTION_EDGE, int, int> end = awakeInitSections[i + 1];
+                StringExtensions.SectionInfo start = awakeInitSections[i];
+                StringExtensions.SectionInfo end = awakeInitSections[i + 1];
                 // if we have correct start and end
                 // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
                 {
                     var replacementText = new StringBuilder();
 
@@ -601,9 +601,9 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
                     .Append("\t")
                     .Append("\t");
 
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
 
-                    int oldTextLength = end.Item2 - start.Item3;
+                    int oldTextLength = end.startIndex - start.endIndex;
 
                     padding += replacementText.Length - oldTextLength;
                 }

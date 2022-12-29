@@ -56,6 +56,13 @@ namespace Bloodthirst.Core.Utils
                 .ToArray());
         }
 
+        public struct SectionInfo
+        {
+            public SECTION_EDGE sectionEdge;
+            public int startIndex;
+            public int endIndex;
+        }
+
         /// <summary>
         /// Given a source text , a start string and an end string , return the start index and end index
         /// </summary>
@@ -63,13 +70,13 @@ namespace Bloodthirst.Core.Utils
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public static List<Tuple<SECTION_EDGE, int, int>> StringReplaceSection(this string txt, string start, string end)
+        public static List<SectionInfo> StringReplaceSection(this string txt, string start, string end)
         {
             // data mean :
             // tyoe of token
             // int : start of token index
             // int : end of token index
-            List<Tuple<SECTION_EDGE, int, int>> sectionEdges = new List<Tuple<SECTION_EDGE, int, int>>();
+            List<SectionInfo> sectionEdges = new List<SectionInfo>();
 
             // all starts
             List<int> allStarts = AllIndexesOf(txt, start);
@@ -79,16 +86,16 @@ namespace Bloodthirst.Core.Utils
 
             foreach (int str in allStarts)
             {
-                sectionEdges.Add(new Tuple<SECTION_EDGE, int, int>(SECTION_EDGE.START, str, str + start.Length));
+                sectionEdges.Add(new SectionInfo() { sectionEdge = SECTION_EDGE.START, startIndex = str, endIndex = str + start.Length });
             }
 
             foreach (int str in allEnds)
             {
-                sectionEdges.Add(new Tuple<SECTION_EDGE, int, int>(SECTION_EDGE.END, str, str + end.Length));
+                sectionEdges.Add(new SectionInfo() { sectionEdge = SECTION_EDGE.END, startIndex = str, endIndex = str + end.Length });
             }
 
             // order by index in the original text
-            sectionEdges = sectionEdges.OrderBy(t => t.Item2).ToList();
+            sectionEdges = sectionEdges.OrderBy(t => t.startIndex).ToList();
 
             return sectionEdges;
         }

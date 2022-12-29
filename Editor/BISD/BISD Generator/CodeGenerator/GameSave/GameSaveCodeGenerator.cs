@@ -95,18 +95,18 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             string oldScript = typeInfo.GameSave.TextAsset.text;
 
             #region write the properties for the observables in the state
-            List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(START_TERM_CONST, END_TERM_CONST);
+            List<SectionInfo> propsSections = oldScript.StringReplaceSection(START_TERM_CONST, END_TERM_CONST);
 
             int padding = 0;
 
             for (int i = 0; i < propsSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = propsSections[i];
-                Tuple<SECTION_EDGE, int, int> end = propsSections[i + 1];
+                SectionInfo start = propsSections[i];
+                SectionInfo end = propsSections[i + 1];
 
                 // if we have correct start and end
                 // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
                 {
                     StringBuilder replacementText = new StringBuilder();
 
@@ -140,9 +140,9 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                     .Append("\t")
                     .Append("\t");
 
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
 
-                    int oldTextLength = end.Item2 - start.Item3;
+                    int oldTextLength = end.startIndex - start.endIndex;
 
                     padding += replacementText.Length - oldTextLength;
                 }

@@ -36,16 +36,16 @@ namespace Bloodthirst.Core.GameEventSystem
             string reslativeToAbsolute = AssetDatabase.GetAssetPath(enumScript);
             string oldScript = File.ReadAllText(reslativeToAbsolute);
 
-            List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(ENUM_ID_START, ENUM_ID_END);
+            List<StringExtensions.SectionInfo> propsSections = oldScript.StringReplaceSection(ENUM_ID_START, ENUM_ID_END);
 
             for (int i = 0; i < propsSections.Count - 1; i++)
             {
-                Tuple<SECTION_EDGE, int, int> start = propsSections[i];
-                Tuple<SECTION_EDGE, int, int> end = propsSections[i + 1];
+                StringExtensions.SectionInfo start = propsSections[i];
+                StringExtensions.SectionInfo end = propsSections[i + 1];
 
                 // if we have correct start and end
                 // then do the replacing
-                if (start.Item1 != SECTION_EDGE.START || end.Item1 != SECTION_EDGE.END)
+                if (start.sectionEdge != SECTION_EDGE.START || end.sectionEdge != SECTION_EDGE.END)
                 {
                     continue;
                 }
@@ -86,9 +86,9 @@ namespace Bloodthirst.Core.GameEventSystem
                 .Append("\t")
                 .Append("\t");
 
-                oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
+                oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
 
-                int oldTextLength = end.Item2 - start.Item3;
+                int oldTextLength = end.startIndex - start.endIndex;
             }
 
             File.WriteAllText(reslativeToAbsolute, oldScript);

@@ -1,9 +1,11 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
+using Bloodthirst.Editor.CodeGenerator;
 #if ODIN_INSPECTOR
-	using Sirenix.Utilities;
+using Sirenix.Utilities;
 #endif
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -174,121 +176,66 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 }
             }
             */
-
             string oldScript = typeInfo.InstancePartial.TextAsset.text;
+            string propTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_PROPERTY_TEMPALTE).text;
 
-            #region write the properties for the observables in the state
-            List<Tuple<SECTION_EDGE, int, int>> propsSections = oldScript.StringReplaceSection(PROPS_START_CONST, PROPS_END_CONST);
+            TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(oldScript);
 
-            int padding = 0;
-
-            string propertyTemplateText = AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_PROPERTY_TEMPALTE).text;
-
-            for (int i = 0; i < propsSections.Count - 1; i++)
+            // write properties
             {
-                Tuple<SECTION_EDGE, int, int> start = propsSections[i];
-                Tuple<SECTION_EDGE, int, int> end = propsSections[i + 1];
+                ITextSection propertiesScriptSection = scriptBuilder
+                    .CreateSection(new StartEndTextSection(PROPS_START_CONST, PROPS_END_CONST));
+                propertiesScriptSection
+                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                    .AddWriter(new AppendTextWriter(Environment.NewLine));
 
-                // if we have correct start and end
-                // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
+                foreach (FieldInfo field in fields)
                 {
-                    var replacementText = new StringBuilder();
+                    TemplateCodeBuilder propertiesBuilder = new TemplateCodeBuilder(propTemplate);
 
-                    replacementText.Append(Environment.NewLine);
-                    replacementText.Append(Environment.NewLine);
+                    propertiesBuilder
+                        .CreateSection(new EntireTextSection())
+                        .AddWriter(new ReplaceTermTextWriter("[INSTANCE_TYPE]", typeInfo.InstanceMain.TypeRef.Name))
+                        .AddWriter(new ReplaceTermTextWriter("[FIELD_NICE_NAME]", FieldFormatedName(field)))
+                        .AddWriter(new ReplaceTermTextWriter("[FIELD_TYPE]", TypeUtils.GetNiceName(field.FieldType)))
+                        .AddWriter(new ReplaceTermTextWriter("[FIELD]", field.Name));
 
-                    replacementText.Append("\t").Append("\t")
-                        .Append("#region state accessors")
-                        .Append(Environment.NewLine)
-                        .Append(Environment.NewLine);
+                    string propertyCode = propertiesBuilder.Build();
 
+                    propertiesScriptSection.AddWriter(new AppendTextWriter(propertyCode));
+                }
 
-                    foreach (FieldInfo field in fields)
-                    {
-                        string templateText = propertyTemplateText;
+                propertiesScriptSection
+                    .AddWriter(new AppendTextWriter(Environment.NewLine))
+                    .AddWriter(new AppendTextWriter("\t"));
+            }
 
-                        templateText = templateText.Replace("[INSTANCE_TYPE]", typeInfo.InstanceMain.TypeRef.Name);
+            // write namespaces
+            {
+                ITextSection namespacesScriptSection = scriptBuilder
+                    .CreateSection(new StartEndTextSection(NAMESPACE_START_CONST, NAMESPACE_END_CONST));
+                namespacesScriptSection
+                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                    .AddWriter(new AppendTextWriter(Environment.NewLine));
 
-                        templateText = templateText.Replace("[FIELD_NICE_NAME]", FieldFormatedName(field));
+                HashSet<string> namespaceAdded = new HashSet<string>();
 
-                        templateText = templateText.Replace("[FIELD_TYPE]", TypeUtils.GetNiceName(field.FieldType));
+                foreach (FieldInfo field in fields)
+                {
+                    if (field.FieldType.Namespace == null)
+                        continue;
 
-                        templateText = templateText.Replace("[FIELD]", field.Name);
+                    if (filterForNamespaces.Contains(field.FieldType.Namespace))
+                        continue;
 
-                        replacementText.Append(templateText)
-                        .Append(Environment.NewLine)
-                        .Append(Environment.NewLine);
-                    }
+                    if (!namespaceAdded.Add(field.FieldType.Namespace))
+                        continue;
 
-
-                    replacementText.Append("\t").Append("\t").Append("#endregion state accessors");
-
-                    replacementText
-                    .Append(Environment.NewLine)
-                    .Append(Environment.NewLine)
-                    .Append("\t")
-                    .Append("\t");
-
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
-
-                    int oldTextLength = end.Item2 - start.Item3;
-
-                    padding += replacementText.Length - oldTextLength;
+                    namespacesScriptSection.AddWriter(new AppendTextWriter($"using {field.FieldType.Namespace};\n"));
                 }
             }
-            #endregion
 
-            #region write the namspaces for the observables in the state
-            List<Tuple<SECTION_EDGE, int, int>> namespaceSections = oldScript.StringReplaceSection(NAMESPACE_START_CONST, NAMESPACE_END_CONST);
-
-            padding = 0;
-
-            for (int i = 0; i < namespaceSections.Count - 1; i++)
-            {
-                Tuple<SECTION_EDGE, int, int> start = namespaceSections[i];
-                Tuple<SECTION_EDGE, int, int> end = namespaceSections[i + 1];
-
-                // if we have correct start and end
-                // then do the replacing
-                if (start.Item1 == SECTION_EDGE.START && end.Item1 == SECTION_EDGE.END)
-                {
-                    StringBuilder replacementText = new StringBuilder();
-
-                    HashSet<string> namespaceAdded = new HashSet<string>();
-
-                    replacementText
-                        .Append(Environment.NewLine)
-                        .Append(Environment.NewLine);
-
-                    foreach (FieldInfo field in fields)
-                    {
-                        if (field.FieldType.Namespace == null)
-                            continue;
-
-                        if (filterForNamespaces.Contains(field.FieldType.Namespace))
-                            continue;
-
-                        if (!namespaceAdded.Add(field.FieldType.Namespace))
-                            continue;
-
-                        replacementText.Append($"using {field.FieldType.Namespace};")
-                        .Append(Environment.NewLine);
-                    }
-
-
-                    replacementText
-                    .Append(Environment.NewLine);
-
-                    oldScript = oldScript.ReplaceBetween(start.Item3, end.Item2, replacementText.ToString());
-
-                    int oldTextLength = end.Item2 - start.Item3;
-
-                    padding += replacementText.Length - oldTextLength;
-                }
-            }
-            #endregion
-
+            oldScript = scriptBuilder.Build();
 
             // save
             File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.InstancePartial.TextAsset), oldScript);
@@ -297,7 +244,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             EditorUtility.SetDirty(typeInfo.InstancePartial.TextAsset);
 
             //
-            Debug.Log($"model type affected [{ typeInfo.ModelName }]");
+            Debug.Log($"model type affected [{typeInfo.ModelName}]");
         }
 
         private static FieldInfo[] GetObseravableFields(BISDInfoContainer TypeList)
@@ -314,7 +261,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private string FieldFormatedName(FieldInfo field)
         {
             sb.Clear();
-            sb.Append(field.Name.Replace("_" , ""));         
+            sb.Append(field.Name.Replace("_", ""));
             sb[0] = Char.ToUpper(sb[0]);
             return sb.ToString();
         }
