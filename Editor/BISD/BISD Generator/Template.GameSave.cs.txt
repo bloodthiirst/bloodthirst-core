@@ -1,4 +1,6 @@
-﻿using Bloodthirst.Core.BISD.CodeGeneration;
+﻿//NAMESPACE_START
+//NAMESPACE_END
+using Bloodthirst.Core.BISD.CodeGeneration;
 using Bloodthirst.Core.BISDSystem;
 using System;
 using System.Collections.Generic;

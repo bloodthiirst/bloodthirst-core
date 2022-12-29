@@ -1,11 +1,14 @@
-﻿using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.BISDSystem;
+using Bloodthirst.Core.Utils;
+using Bloodthirst.Editor.CodeGenerator;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEditor;
+using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.BISD.CodeGeneration
 {
@@ -14,135 +17,157 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         private const string START_TERM_CONST = "//GAMEDATA_START";
         private const string END_TERM_CONST = "//GAMEDATA_END";
 
+        /// <summary>
+        /// The start of the part of the script to inject the auto-generated observables
+        /// </summary>
+        private const string NAMESPACE_START_CONST = @"//NAMESPACE_START";
+
+        /// <summary>
+        /// The end of the part of the script to inject the auto-generated observables
+        /// </summary>
+        private const string NAMESPACE_END_CONST = @"//NAMESPACE_END";
+
+        private readonly string[] filterForNamespaces = new string[]
+        {
+            "System",
+            "System.Collections.Generic"
+        };
+
         public bool ShouldInject(BISDInfoContainer container)
         {
             // if file doenst exist then we can't generate code
             if (container.GameSave?.ModelName == null)
-                return false;
-
-            // make sure all the fields have their corresponding save-state fields generated with correct names and types
-            List<MemberInfo> savable = GetMembersInState(container);
-            List<MemberInfo> generated = GetMembersInGameData(container);
-
-            for (int i = savable.Count - 1; i >= 0; i--)
             {
-                bool found = false;
-                MemberInfo s = savable[i];
-
-                for (int j = generated.Count - 1; j >= 0; j--)
-                {
-                    MemberInfo g = generated[j];
-
-                    CodeGenerationUtils.GenerateGameDataInfoFromStateField(s, out string n, out Type t);
-
-                    // if we found matching fields , then we delete them since they are validated and go next
-                    if (g.Name.Equals(n) && ReflectionUtils.GetMemberType(g) == t)
-                    {
-                        found = true;
-                        savable.RemoveAt(i);
-                        generated.RemoveAt(j);
-                        break;
-                    }
-
-                }
-
-                if (!found)
-                    return true;
+                Debug.LogWarning($"The gamesave file doesn't exist for the {container.ModelName} , consider regenerating it");
+                return false;
             }
 
-            return false;
+            // make sure all the fields have their corresponding save-state fields generated with correct names and types
+            using (ListPool<MemberInfo>.Get(out List<MemberInfo> savable))
+            using (ListPool<MemberInfo>.Get(out List<MemberInfo> generated))
+            {
+                savable.AddRange(GetFieldsInState(container));
+                generated.AddRange(GetFieldsInGameData(container));
+
+                for (int i = savable.Count - 1; i >= 0; i--)
+                {
+                    bool found = false;
+                    MemberInfo s = savable[i];
+
+                    for (int j = generated.Count - 1; j >= 0; j--)
+                    {
+                        MemberInfo g = generated[j];
+
+                        CodeGenerationUtils.GenerateGameDataInfoFromStateField(s, out string n, out Type t);
+
+                        // if we found matching fields , then we delete them since they are validated and go next
+                        if (g.Name == n && ReflectionUtils.GetMemberType(g) == t)
+                        {
+                            found = true;
+                            savable.RemoveAt(i);
+                            generated.RemoveAt(j);
+                            break;
+                        }
+
+                    }
+
+                    if (!found)
+                        return true;
+                }
+
+                return false;
+            }
         }
 
-        private List<MemberInfo> GetMembersInGameData(BISDInfoContainer typeInfo)
+        private IEnumerable<FieldInfo> GetFieldsInGameData(BISDInfoContainer typeInfo)
         {
-            List<MemberInfo> f = typeInfo.GameSave
-                .TypeRef
-                .GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Cast<MemberInfo>()
-                .ToList();
+            BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-            return f;
+            foreach (FieldInfo f in typeInfo.GameSave.TypeRef.GetFields(flags))
+            {
+                yield return f;
+            }
         }
 
-        private List<MemberInfo> GetMembersInState(BISDInfoContainer typeInfo)
+        private IEnumerable<MemberInfo> GetFieldsInState(BISDInfoContainer typeInfo)
         {
-            List<MemberInfo> f = typeInfo.State
-                .TypeRef
-                .GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Cast<MemberInfo>()
-                .ToList();
+            BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-            f.Add(typeInfo.State.TypeRef.BaseType.GetProperty("Data", BindingFlags.Public | BindingFlags.Instance));
-            f.Add(typeInfo.State.TypeRef.BaseType.GetProperty("Id", BindingFlags.Public | BindingFlags.Instance));
+            foreach (FieldInfo f in typeInfo.State.TypeRef.GetFields(flags))
+            {
+                yield return f;
+            }
 
-            return f;
+            yield return typeInfo.State.TypeRef.BaseType.GetProperty("Data", BindingFlags.Public | BindingFlags.Instance);
+            yield return typeInfo.State.TypeRef.BaseType.GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
         }
 
         public void InjectGeneratedCode(BISDInfoContainer typeInfo)
         {
-            // TODO : replace with TemplateCodeBuilder + add the section for adding namespaces
-            List<MemberInfo> members = GetMembersInState(typeInfo);
-
             string oldScript = typeInfo.GameSave.TextAsset.text;
+            TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(oldScript);
 
-            #region write the properties for the observables in the state
-            List<StringExtensions.SectionInfo> propsSections = oldScript.StringReplaceSection(START_TERM_CONST, END_TERM_CONST);
-
-            int padding = 0;
-
-            for (int i = 0; i < propsSections.Count - 1; i++)
+            using (ListPool<MemberInfo>.Get(out List<MemberInfo> stateMembers))
             {
-                StringExtensions.SectionInfo start = propsSections[i];
-                StringExtensions.SectionInfo end = propsSections[i + 1];
+                stateMembers.AddRange(GetFieldsInState(typeInfo));
 
-                // if we have correct start and end
-                // then do the replacing
-                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
+                // populate save from state
                 {
-                    StringBuilder replacementText = new StringBuilder();
+                    ITextSection populateSaveFromStateSection = scriptBuilder.CreateSection(new StartEndTextSection(START_TERM_CONST, END_TERM_CONST));
 
-                    replacementText.Append(Environment.NewLine);
-                    replacementText.Append(Environment.NewLine);
-
-                    replacementText.Append("\t").Append("\t")
-                        .Append("#region gamesave accessors")
-                        .Append(Environment.NewLine)
-                        .Append(Environment.NewLine);
-
-
-                    foreach (MemberInfo mem in members)
+                    populateSaveFromStateSection.AddWriter(new ReplaceAllTextWriter(string.Empty));
+                    populateSaveFromStateSection.AddWriter(new AppendTextWriter(Environment.NewLine));
+                    
+                    foreach (MemberInfo member in stateMembers)
                     {
-                        string templateText = string.Empty;
-                        CodeGenerationUtils.GenerateGameDataInfoFromStateField(mem, out string name, out Type type);
+                        CodeGenerationUtils.GenerateGameDataInfoFromStateField(member, out string name, out Type type);
 
                         string typeNiceName = TypeUtils.GetNiceName(type);
-                        templateText = $"\t\tpublic {typeNiceName} {name};";
+                        string templateText = $"\t\tpublic {typeNiceName} {name};";
 
-                        replacementText.Append(templateText)
-                        .Append(Environment.NewLine)
-                        .Append(Environment.NewLine);
+                        populateSaveFromStateSection.AddWriter(new AppendTextWriter($"{templateText}\n"));
+
                     }
+                }
 
+                // write namespaces
+                {
+                    ITextSection namespacesScriptSection = scriptBuilder
+                        .CreateSection(new StartEndTextSection(NAMESPACE_START_CONST, NAMESPACE_END_CONST));
 
-                    replacementText.Append("\t").Append("\t").Append("#endregion gamesave accessors");
+                    namespacesScriptSection
+                        .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                        .AddWriter(new AppendTextWriter(Environment.NewLine));
 
-                    replacementText
-                    .Append(Environment.NewLine)
-                    .Append(Environment.NewLine)
-                    .Append("\t")
-                    .Append("\t");
+                    using (HashSetPool<string>.Get(out HashSet<string> namespaceAdded))
+                    {
+                        for (int i = 0; i < stateMembers.Count; i++)
+                        {
+                            MemberInfo member = stateMembers[i];
 
-                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
+                            Type memberType = TypeUtils.GetReturnType(member);
 
-                    int oldTextLength = end.startIndex - start.endIndex;
+                            string namespaceAsString = memberType.Namespace;
 
-                    padding += replacementText.Length - oldTextLength;
+                            if (string.IsNullOrEmpty(namespaceAsString))
+                                continue;
+
+                            if (filterForNamespaces.Contains(namespaceAsString))
+                                continue;
+
+                            if (!namespaceAdded.Add(memberType.Namespace))
+                                continue;
+
+                            namespacesScriptSection.AddWriter(new AppendTextWriter($"using {memberType.Namespace};\n"));
+                        }
+                    }
                 }
             }
-            #endregion
+
+            string newScriptText = scriptBuilder.Build();
 
             // save
-            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.GameSave.TextAsset), oldScript);
+            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.GameSave.TextAsset), newScriptText);
 
             // set dirty
             EditorUtility.SetDirty(typeInfo.GameSave.TextAsset);
