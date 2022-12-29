@@ -5,7 +5,6 @@ using Bloodthirst.Editor.CodeGenerator;
 using Sirenix.Utilities;
 #endif
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +12,7 @@ using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
-using static Bloodthirst.Core.Utils.StringExtensions;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.BISD.CodeGeneration
 {
@@ -55,69 +54,65 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
         {
             bool mustRegenerate = false;
 
-            // fields of state
-            FieldInfo[] fields = GetObseravableFields(typeInfo);
-
-            // instance vars
-            PropertyInfo[] props = GetObservableProps(typeInfo);
-
-            // events
-            EventInfo[] events = GetObservableEvents(typeInfo);
-            MethodInfo[] methods = GetObservableMethods(typeInfo);
-
-            // check if we need to regenerate the code
-
-            // we check for double the count since every observable has 2 properties
-            // 1 getter and setter that trigger event
-            // 1 setter that doesn't notify
-
-            if (fields.Length * 3 != props.Length)
+            using (ListPool<FieldInfo>.Get(out List<FieldInfo> fields))
+            using (ListPool<PropertyInfo>.Get(out List<PropertyInfo> props))
+            using (ListPool<EventInfo>.Get(out List<EventInfo> events))
+            using (ListPool<MethodInfo>.Get(out List<MethodInfo> methods))
             {
-                return true;
-            }
+                // fields of state
+                fields.AddRange(GetObseravableFields(typeInfo));
 
-            if (fields.Length != events.Length)
-            {
-                return true;
-            }
+                // instance vars
+                props.AddRange(GetObservableProps(typeInfo));
 
-            if (fields.Length != methods.Length)
-            {
-                return true;
-            }
+                // events
+                events.AddRange(GetObservableEvents(typeInfo));
 
-            else
-            {
+                // methods
+                methods.AddRange(GetObservableMethods(typeInfo));
+
+                // check if we need to regenerate the code
+
+                // we check for double the count since every observable has 2 properties
+                // 1 getter and setter that trigger event
+                // 1 setter that doesn't notify
+
+                if (fields.Count * 3 != props.Count)
+                {
+                    return true;
+                }
+
+                if (fields.Count != events.Count)
+                {
+                    return true;
+                }
+
+                if (fields.Count != methods.Count)
+                {
+                    return true;
+                }
+
+
                 foreach (FieldInfo field in fields)
                 {
                     string propertyName = FieldFormatedName(field);
-
                     string eventName = $"On{propertyName}Changed";
                     string triggerName = $"Trigger{propertyName}Changed";
 
                     // search for observer with valid name
-                    // property check
-                    PropertyInfo property = props.FirstOrDefault(o => o.Name.Equals(propertyName));
-
-                    if (property == null)
+                    if (!props.Has(p => p.Name == propertyName))
                     {
                         mustRegenerate = true;
                         break;
                     }
 
-                    // property check
-                    EventInfo eventProp = events.FirstOrDefault(o => o.Name.Equals(eventName));
-
-                    if (eventProp == null)
+                    if (!events.Has(p => p.Name == eventName))
                     {
                         mustRegenerate = true;
                         break;
                     }
 
-                    // property check
-                    MethodInfo method = methods.FirstOrDefault(o => o.Name.Equals(triggerName));
-
-                    if (method == null)
+                    if (!methods.Has(p => p.Name == triggerName))
                     {
                         mustRegenerate = true;
                         break;
@@ -125,137 +120,146 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 }
             }
 
-            // if dont have to regenerate , go to next type
-
+            // if dont have to regenerate , go to next field
             return mustRegenerate;
-        }
-
-        private static MethodInfo[] GetObservableMethods(BISDInfoContainer typeInfo)
-        {
-            //observers
-            return typeInfo.InstanceMain.TypeRef
-                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
-                .ToArray();
-        }
-        private static PropertyInfo[] GetObservableProps(BISDInfoContainer typeInfo)
-        {
-            //observers
-            return typeInfo.InstanceMain.TypeRef
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
-                .ToArray();
-        }
-        private static EventInfo[] GetObservableEvents(BISDInfoContainer typeInfo)
-        {
-            //observers
-            return typeInfo.InstanceMain.TypeRef
-                .GetEvents(BindingFlags.Public | BindingFlags.Instance)
-                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
-                .ToArray();
         }
 
         public void InjectGeneratedCode(BISDInfoContainer typeInfo)
         {
-            FieldInfo[] fields = GetObseravableFields(typeInfo);
-
-            // do the generation
-
-            // separate the parts
-
-            /* Generate something like this
-            public event Action<PlayerInstance> OnHealthChanged;
-
-            public float HealthProp
+            using (ListPool<FieldInfo>.Get(out List<FieldInfo> fields))
             {
-                get => state.health;
-                set
+                fields.AddRange(GetObseravableFields(typeInfo));
+
+                // do the generation
+
+                // separate the parts
+
+                /* Generate something like this
+                public event Action<PlayerInstance> OnHealthChanged;
+
+                public float HealthProp
                 {
-                    state.health = value;
-                    OnHealthChanged?.Invoke(this);
+                    get => state.health;
+                    set
+                    {
+                        state.health = value;
+                        OnHealthChanged?.Invoke(this);
+                    }
                 }
-            }
-            */
-            string oldScript = typeInfo.InstancePartial.TextAsset.text;
-            string propTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_PROPERTY_TEMPALTE).text;
+                */
+                string oldScript = typeInfo.InstancePartial.TextAsset.text;
+                string propTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(STATE_PROPERTY_TEMPALTE).text;
 
-            TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(oldScript);
+                TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(oldScript);
 
-            // write properties
-            {
-                ITextSection propertiesScriptSection = scriptBuilder
-                    .CreateSection(new StartEndTextSection(PROPS_START_CONST, PROPS_END_CONST));
-                propertiesScriptSection
-                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
-                    .AddWriter(new AppendTextWriter(Environment.NewLine));
-
-                foreach (FieldInfo field in fields)
+                // write properties
                 {
-                    TemplateCodeBuilder propertiesBuilder = new TemplateCodeBuilder(propTemplate);
+                    ITextSection propertiesScriptSection = scriptBuilder
+                        .CreateSection(new StartEndTextSection(PROPS_START_CONST, PROPS_END_CONST));
+                    propertiesScriptSection
+                        .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                        .AddWriter(new AppendTextWriter(Environment.NewLine));
 
-                    propertiesBuilder
-                        .CreateSection(new EntireTextSection())
-                        .AddWriter(new ReplaceTermTextWriter("[INSTANCE_TYPE]", typeInfo.InstanceMain.TypeRef.Name))
-                        .AddWriter(new ReplaceTermTextWriter("[FIELD_NICE_NAME]", FieldFormatedName(field)))
-                        .AddWriter(new ReplaceTermTextWriter("[FIELD_TYPE]", TypeUtils.GetNiceName(field.FieldType)))
-                        .AddWriter(new ReplaceTermTextWriter("[FIELD]", field.Name));
+                    for (int i = 0; i < fields.Count; i++)
+                    {
+                        FieldInfo field = fields[i];
+                        TemplateCodeBuilder propertiesBuilder = new TemplateCodeBuilder(propTemplate);
 
-                    string propertyCode = propertiesBuilder.Build();
+                        propertiesBuilder
+                            .CreateSection(new EntireTextSection())
+                            .AddWriter(new ReplaceTermTextWriter("[INSTANCE_TYPE]", typeInfo.InstanceMain.TypeRef.Name))
+                            .AddWriter(new ReplaceTermTextWriter("[FIELD_NICE_NAME]", FieldFormatedName(field)))
+                            .AddWriter(new ReplaceTermTextWriter("[FIELD_TYPE]", TypeUtils.GetNiceName(field.FieldType)))
+                            .AddWriter(new ReplaceTermTextWriter("[FIELD]", field.Name));
 
-                    propertiesScriptSection.AddWriter(new AppendTextWriter(propertyCode));
+                        string propertyCode = propertiesBuilder.Build();
+
+                        propertiesScriptSection.AddWriter(new AppendTextWriter(propertyCode));
+                    }
+
+                    propertiesScriptSection
+                        .AddWriter(new AppendTextWriter(Environment.NewLine))
+                        .AddWriter(new AppendTextWriter("\t\t"));
                 }
 
-                propertiesScriptSection
-                    .AddWriter(new AppendTextWriter(Environment.NewLine))
-                    .AddWriter(new AppendTextWriter("\t"));
-            }
-
-            // write namespaces
-            {
-                ITextSection namespacesScriptSection = scriptBuilder
-                    .CreateSection(new StartEndTextSection(NAMESPACE_START_CONST, NAMESPACE_END_CONST));
-                namespacesScriptSection
-                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
-                    .AddWriter(new AppendTextWriter(Environment.NewLine));
-
-                HashSet<string> namespaceAdded = new HashSet<string>();
-
-                foreach (FieldInfo field in fields)
+                // write namespaces
                 {
-                    if (field.FieldType.Namespace == null)
-                        continue;
+                    ITextSection namespacesScriptSection = scriptBuilder
+                        .CreateSection(new StartEndTextSection(NAMESPACE_START_CONST, NAMESPACE_END_CONST));
 
-                    if (filterForNamespaces.Contains(field.FieldType.Namespace))
-                        continue;
+                    namespacesScriptSection
+                        .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                        .AddWriter(new AppendTextWriter(Environment.NewLine));
 
-                    if (!namespaceAdded.Add(field.FieldType.Namespace))
-                        continue;
+                    using (HashSetPool<string>.Get(out HashSet<string> namespaceAdded))
+                    {
 
-                    namespacesScriptSection.AddWriter(new AppendTextWriter($"using {field.FieldType.Namespace};\n"));
+                        for (int i = 0; i < fields.Count; i++)
+                        {
+                            FieldInfo field = fields[i];
+
+                            string namespaceAsString = field.FieldType.Namespace;
+
+                            if (string.IsNullOrEmpty(namespaceAsString))
+                                continue;
+
+                            if (filterForNamespaces.Contains(namespaceAsString))
+                                continue;
+
+                            if (!namespaceAdded.Add(field.FieldType.Namespace))
+                                continue;
+
+                            namespacesScriptSection.AddWriter(new AppendTextWriter($"using {field.FieldType.Namespace};\n"));
+                        }
+                    }
                 }
+
+                string newScriptText = scriptBuilder.Build();
+
+                // save
+                File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.InstancePartial.TextAsset), newScriptText);
+
+                // set dirty
+                EditorUtility.SetDirty(typeInfo.InstancePartial.TextAsset);
+
+                //
+                Debug.Log($"model type affected [{typeInfo.ModelName}]");
             }
 
-            oldScript = scriptBuilder.Build();
-
-            // save
-            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.InstancePartial.TextAsset), oldScript);
-
-            // set dirty
-            EditorUtility.SetDirty(typeInfo.InstancePartial.TextAsset);
-
-            //
-            Debug.Log($"model type affected [{typeInfo.ModelName}]");
         }
 
-        private static FieldInfo[] GetObseravableFields(BISDInfoContainer TypeList)
+        private static IEnumerable<MethodInfo> GetObservableMethods(BISDInfoContainer typeInfo)
+        {
+            //observers
+            return typeInfo.InstanceMain.TypeRef
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null);
+        }
+
+        private static IEnumerable<PropertyInfo> GetObservableProps(BISDInfoContainer typeInfo)
+        {
+            //observers
+            return typeInfo.InstanceMain.TypeRef
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null);
+        }
+
+        private static IEnumerable<EventInfo> GetObservableEvents(BISDInfoContainer typeInfo)
+        {
+            //observers
+            return typeInfo.InstanceMain.TypeRef
+                .GetEvents(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null);
+        }
+
+        private static IEnumerable<FieldInfo> GetObseravableFields(BISDInfoContainer TypeList)
         {
             // fields
             return TypeList.State.TypeRef
                 .GetFields(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => !f.Name.Equals("data"))
                 .Where(f => !f.Name.Equals("id"))
-                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null)
-                .ToArray();
+                .Where(f => f.GetCustomAttribute<ObservableAttribute>() != null);
         }
 
         private string FieldFormatedName(FieldInfo field)

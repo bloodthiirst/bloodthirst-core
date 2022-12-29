@@ -1,5 +1,6 @@
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
+using Bloodthirst.Editor.CodeGenerator;
 using Bloodthirst.Runtime.BAdapter;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
-using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,7 +23,14 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
     {
 
         #region global pool container
+        private const string GLOBAL_POOL_FIELD_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Pool Generator/Template.PoolField.cs.txt";
+        
+        private const string PREFAB_NAME_TERM = "[PREFAB_NAME]";
+        private const string PREFAB_TYPE_TERM = "[PREFAB_TYPE]";
+        private const string PREFAB_FIELD_NAME_TERM = "[PREFAB_FIELD_NAME]";
+
         private const string GLOBAL_POOL_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Pool Generator/GlobalPoolContainer.cs.txt";
+
         private const string GLOBAL_POOL_START = "// [START_POOLS]";
         private const string GLOBAL_POOL_END = "// [END_POOLS]";
         #endregion
@@ -34,6 +41,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         private const string POOL_SCENE_FOLDER_PATH = "Assets/Scenes/PoolScene";
         private const string CLASS_NAME_REPLACE_KEYWORD = "[BEHAVIOUR]";
         private const string CLASS_NAMESPACE_REPLACE_KEYWORD = "[NAMESPACE]";
+        private const string GLOBAL_POOL_LIST_START = "// [LOAD_IN_LIST_START]";
+        private const string GLOBAL_POOL_LIST_END = "// [LOAD_IN_LIST_END]";
         #endregion
 
         private static readonly string[] filterFiles =
@@ -504,116 +513,61 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static void RegenerateGlobalPoolFields()
         {
-            string oldScript = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
+            string globalPoolTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
+            string globalPoolFieldTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_FIELD_TEMPLATE).text;
 
-            // fields section
-            List<StringExtensions.SectionInfo> fieldsSections = oldScript.StringReplaceSection(GLOBAL_POOL_START, GLOBAL_POOL_END);
+            TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(globalPoolTemplate);
 
-            int padding = 0;
-
-            for (int i = 0; i < fieldsSections.Count - 1; i++)
+            // write fields
             {
-                StringExtensions.SectionInfo start = fieldsSections[i];
-                StringExtensions.SectionInfo end = fieldsSections[i + 1];
-                // if we have correct start and end
-                // then do the replacing
-                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
+                ITextSection poolFieldsWriter = scriptBuilder
+                    .CreateSection(new StartEndTextSection(GLOBAL_POOL_START, GLOBAL_POOL_END));
+                poolFieldsWriter
+                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                    .AddWriter(new AppendTextWriter(Environment.NewLine));
+
+                foreach (Component prefab in PoolablePrefabs)
                 {
-                    var replacementText = new StringBuilder();
+                    TemplateCodeBuilder fieldBuilder = new TemplateCodeBuilder(globalPoolFieldTemplate);
+                    fieldBuilder
+                        .CreateSection(new EntireTextSection())
+                        .AddWriter(new ReplaceTermTextWriter(PREFAB_FIELD_NAME_TERM, PrefabToFieldName(prefab)))
+                        .AddWriter(new ReplaceTermTextWriter(PREFAB_TYPE_TERM, prefab.GetType().Name))
+                        .AddWriter(new ReplaceTermTextWriter(PREFAB_NAME_TERM, prefab.name));
 
-                    replacementText.Append(Environment.NewLine);
-                    replacementText.Append(Environment.NewLine);
+                    string poolFieldText = fieldBuilder.Build();
 
-
-
-                    foreach (Component prefab in PoolablePrefabs)
-                    {
-                        string templateText = $"public {prefab.GetType().Name}Pool {PrefabToFieldName(prefab)};";
-
-                        replacementText
-                            .Append('\t')
-                            .Append('\t')
-                            .Append("/// <summary>")
-                            .Append(Environment.NewLine)
-                            .Append('\t')
-                            .Append('\t')
-                            .Append($"/// <para> this field is auto-generated , returns a pool for the prefab named : <c>{prefab.name}</c></para>")
-                            .Append(Environment.NewLine)
-                            .Append('\t')
-                            .Append('\t')
-                            .Append("/// </summary>")
-                            .Append(Environment.NewLine)
-                            .Append('\t')
-                            .Append('\t')
-                            .Append(templateText)
-                            .Append(Environment.NewLine)
-                            .Append(Environment.NewLine);
-                    }
-
-                    replacementText
-                    .Append("\t")
-                    .Append("\t");
-
-                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
-
-                    int oldTextLength = end.startIndex - start.endIndex;
-
-                    padding += replacementText.Length - oldTextLength;
+                    poolFieldsWriter.AddWriter(new AppendTextWriter(poolFieldText));
                 }
+
+                poolFieldsWriter
+                    .AddWriter(new AppendTextWriter(Environment.NewLine))
+                    .AddWriter(new AppendTextWriter("\t\t"));
             }
 
-            List<StringExtensions.SectionInfo> awakeInitSections = oldScript.StringReplaceSection("// [LOAD_IN_LIST_START]", "// [LOAD_IN_LIST_END]");
-
-            // awake section
-
-            padding = 0;
-
-            for (int i = 0; i < awakeInitSections.Count - 1; i++)
+            // write initialization
             {
-                StringExtensions.SectionInfo start = awakeInitSections[i];
-                StringExtensions.SectionInfo end = awakeInitSections[i + 1];
-                // if we have correct start and end
-                // then do the replacing
-                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
+                ITextSection poolIntializationSection = scriptBuilder
+                    .CreateSection(new StartEndTextSection(GLOBAL_POOL_LIST_START, GLOBAL_POOL_LIST_END));
+                poolIntializationSection
+                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                    .AddWriter(new AppendTextWriter(Environment.NewLine));
+
+                foreach (Component prefab in PoolablePrefabs)
                 {
-                    var replacementText = new StringBuilder();
-
-                    replacementText.Append(Environment.NewLine);
-                    replacementText.Append(Environment.NewLine);
-
-
-
-                    foreach (Component pool in PoolablePrefabs)
-                    {
-                        string templateText = $"AllPools.Add({PrefabToFieldName(pool)});";
-
-                        replacementText
-                            .Append('\t')
-                            .Append('\t')
-                            .Append('\t')
-                            .Append(templateText)
-                            .Append(Environment.NewLine)
-                            .Append(Environment.NewLine);
-                    }
-
-                    replacementText
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t");
-
-                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
-
-                    int oldTextLength = end.startIndex - start.endIndex;
-
-                    padding += replacementText.Length - oldTextLength;
+                    poolIntializationSection.AddWriter(new AppendTextWriter($"AllPools.Add({PrefabToFieldName(prefab)});"));
                 }
+
+                poolIntializationSection
+                    .AddWriter(new AppendTextWriter(Environment.NewLine))
+                    .AddWriter(new AppendTextWriter("\t\t"));
             }
 
+            string newScriptText = scriptBuilder.Build();
 
-            string relativePath = $"{POOL_SCRIPTS_PATH}/GlobalPoolContainer.cs";
-            string pathToProject = EditorUtils.PathToProject;
+            string absolutePath = EditorUtils.RelativeToAbsolutePath( $"{POOL_SCRIPTS_PATH}/GlobalPoolContainer.cs");
 
-            File.WriteAllText(pathToProject + "/" + relativePath, oldScript);
+            File.WriteAllText(absolutePath, newScriptText);
         }
 
         private static void CreatePoolScene()
@@ -622,7 +576,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             SceneCreatorEditor.CreateNewScene("Assets/Scenes", "Pool");
         }
 
-        #region project wide queries
+#region project wide queries
 
         /// <summary>
         /// Get all poolable prefabs in the project
@@ -699,7 +653,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             return validTypes;
         }
 
-        #endregion
+#endregion
 
 
 

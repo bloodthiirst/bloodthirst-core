@@ -1,18 +1,11 @@
-﻿using Bloodthirst.Core.BISDSystem;
-using Bloodthirst.Core.Utils;
-#if ODIN_INSPECTOR
-	using Sirenix.Utilities;
-#endif
+﻿using Bloodthirst.Core.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
-using UnityEngine;
-using static Bloodthirst.Core.Utils.StringExtensions;
 
 namespace Bloodthirst.Core.BISD.CodeGeneration
 {
@@ -87,22 +80,20 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
 
         public void InjectGeneratedCode(BISDInfoContainer typeInfo)
         {
-            if (!ShouldInject(typeInfo))
-                return;
-
+            // TODO : replace with TemplateCodeBuilder + add the section for adding namespaces
             List<MemberInfo> members = GetMembersInState(typeInfo);
 
             string oldScript = typeInfo.GameSave.TextAsset.text;
 
             #region write the properties for the observables in the state
-            List<SectionInfo> propsSections = oldScript.StringReplaceSection(START_TERM_CONST, END_TERM_CONST);
+            List<StringExtensions.SectionInfo> propsSections = oldScript.StringReplaceSection(START_TERM_CONST, END_TERM_CONST);
 
             int padding = 0;
 
             for (int i = 0; i < propsSections.Count - 1; i++)
             {
-                SectionInfo start = propsSections[i];
-                SectionInfo end = propsSections[i + 1];
+                StringExtensions.SectionInfo start = propsSections[i];
+                StringExtensions.SectionInfo end = propsSections[i + 1];
 
                 // if we have correct start and end
                 // then do the replacing
@@ -124,7 +115,8 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                         string templateText = string.Empty;
                         CodeGenerationUtils.GenerateGameDataInfoFromStateField(mem, out string name, out Type type);
 
-                        templateText = $"public { TypeUtils.GetNiceName(type)} {name};";
+                        string typeNiceName = TypeUtils.GetNiceName(type);
+                        templateText = $"\t\tpublic {typeNiceName} {name};";
 
                         replacementText.Append(templateText)
                         .Append(Environment.NewLine)

@@ -1,0 +1,5 @@
+﻿    /// <summary>
+    /// <para> this field is auto-generated , returns a pool for the prefab named : <c>[PREFAB_NAME]</c></para>
+    /// </summary>
+    public [PREFAB_TYPE]Pool [PREFAB_FIELD_NAME];
+

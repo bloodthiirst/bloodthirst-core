@@ -45,7 +45,6 @@ namespace Bloodthirst.Core.BISDSystem
             return GetState((TSave)save, context);
         }
 
-
         void IGameStateLoader.LinkReferences(ISavableGameSave save, ISavableState state, LoadingContext context)
         {
             LinkReferences((TSave)save, (TState)state, context);

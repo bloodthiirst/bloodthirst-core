@@ -1,10 +1,12 @@
 ﻿using Bloodthirst.Core.BISDSystem;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
+using Bloodthirst.Editor.CodeGenerator;
 #if ODIN_INSPECTOR
 	using Sirenix.Utilities;
 #endif
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +14,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
+using UnityEngine.Pool;
 using static Bloodthirst.Core.Utils.StringExtensions;
 
 namespace Bloodthirst.Core.BISD.CodeGeneration
@@ -53,17 +57,18 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             return container.GameSaveHandler.ModelName != null;
         }
 
-        private List<MemberInfo> GetStateFields(BISDInfoContainer typeInfo)
+        private IEnumerable<MemberInfo> GetStateFields(BISDInfoContainer typeInfo)
         {
-            List<MemberInfo> f = new List<MemberInfo>();
+            BindingFlags flags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            FieldInfo[] childStateFields = typeInfo.State.TypeRef.GetFields(flags);
 
-            FieldInfo[] childStateFields =  typeInfo.State.TypeRef.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            yield return typeInfo.State.TypeRef.BaseType.GetProperty("Data" , BindingFlags.Public | BindingFlags.Instance);
+            yield return typeInfo.State.TypeRef.BaseType.GetProperty("Id" , BindingFlags.Public | BindingFlags.Instance);
 
-            f.Add(typeInfo.State.TypeRef.BaseType.GetProperty("Data" , BindingFlags.Public | BindingFlags.Instance));
-            f.Add(typeInfo.State.TypeRef.BaseType.GetProperty("Id" , BindingFlags.Public | BindingFlags.Instance));
-            f.AddRange(childStateFields);
-
-            return f;
+            foreach(FieldInfo f in childStateFields)
+            {
+                yield return f;
+            }
         }
 
         public void InjectGeneratedCode(BISDInfoContainer typeInfo)
@@ -71,205 +76,88 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
             if (!ShouldInject(typeInfo))
                 return;
 
-            List<MemberInfo> fields = GetStateFields(typeInfo);
-
             string oldScript = typeInfo.GameSaveHandler.TextAsset.text;
 
-            oldScript = GenerateGetSaveFields(typeInfo, fields, oldScript);
-            oldScript = GenerateGetStateFields(typeInfo, fields, oldScript);
+            TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(oldScript);
+
+            using (ListPool<MemberInfo>.Get(out List<MemberInfo> stateMembers))
+            {
+                stateMembers.AddRange(GetStateFields(typeInfo));
+
+                // populate save from state
+                {
+                    ITextSection populateSaveFromStateSection = scriptBuilder.CreateSection(new StartEndTextSection(GET_SAVE_START, GET_SAVE_END));
+
+                    populateSaveFromStateSection
+                        .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                        .AddWriter(new AppendTextWriter($"\t\t\t{typeInfo.GameSave.TypeRef.Name} save = new {typeInfo.GameSave.TypeRef.Name}();\n"));
+
+                    foreach (MemberInfo mem in stateMembers)
+                    {
+                        populateSaveFromStateSection.AddWriter(new AppendTextWriter($"{CopyValueFromStateToSave(mem, typeInfo)}\n"));
+                       
+                    }
+
+                    populateSaveFromStateSection.AddWriter(new AppendTextWriter("\t\t\treturn save;"));
+
+                    populateSaveFromStateSection
+                        .AddWriter(new AppendTextWriter(Environment.NewLine))
+                        .AddWriter(new AppendTextWriter("\t\t"));
+                }
+
+                // populate state from save
+                {
+                    ITextSection populateStateFromSaveSection = scriptBuilder.CreateSection(new StartEndTextSection(GET_STATE_START, GET_STATE_END));
+
+                    populateStateFromSaveSection
+                        .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                        .AddWriter(new AppendTextWriter($"\t\t\t{typeInfo.State.TypeRef.Name} state = new {typeInfo.State.TypeRef.Name}();\n"));
+
+                    foreach (MemberInfo mem in stateMembers)
+                    {
+                        populateStateFromSaveSection.AddWriter(new AppendTextWriter($"{CopyValueFromSaveToState(mem, typeInfo)}\n"));
+
+                    }
+
+                    populateStateFromSaveSection.AddWriter(new AppendTextWriter("\t\t\treturn state;"));
+
+                    populateStateFromSaveSection
+                        .AddWriter(new AppendTextWriter(Environment.NewLine))
+                        .AddWriter(new AppendTextWriter("\t\t"));
+                }
+
+                // populate link refs
+                {
+                    ITextSection linkRefsSection = scriptBuilder.CreateSection(new StartEndTextSection(LINK_REFS_START, LINK_REFS_END));
+
+                    linkRefsSection
+                        .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                        .AddWriter(new AppendTextWriter($"\t\t\t{typeInfo.State.TypeRef.Name} state = new {typeInfo.State.TypeRef.Name}();\n"));
+
+                    foreach (MemberInfo mem in stateMembers)
+                    {
+                        linkRefsSection.AddWriter(new AppendTextWriter($"{LinkReferenecsInState(mem, typeInfo)}\n"));
+
+                    }
+
+                    linkRefsSection.AddWriter(new AppendTextWriter("\t\t\treturn state;"));
+
+                    linkRefsSection
+                        .AddWriter(new AppendTextWriter(Environment.NewLine))
+                        .AddWriter(new AppendTextWriter("\t\t"));
+                }
+            }
+
+            string newScriptText = scriptBuilder.Build();
 
             // save
-            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.GameSaveHandler.TextAsset), oldScript);
+            File.WriteAllText(AssetDatabase.GetAssetPath(typeInfo.GameSaveHandler.TextAsset), newScriptText);
 
             // set dirty
             EditorUtility.SetDirty(typeInfo.GameSaveHandler.TextAsset);
-
         }
 
-        private string GenerateGetStateFields(BISDInfoContainer typeInfo, List<MemberInfo> members, string oldScript)
-        {
-            #region write the properties for the get state
-            List<SectionInfo> propsSections = oldScript.StringReplaceSection(GET_STATE_START, GET_STATE_END);
-
-            int padding = 0;
-
-            for (int i = 0; i < propsSections.Count - 1; i++)
-            {
-                SectionInfo start = propsSections[i];
-                SectionInfo end = propsSections[i + 1];
-
-                // if we have correct start and end
-                // then do the replacing
-                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
-                {
-                    StringBuilder replacementText = new StringBuilder();
-
-                    replacementText.Append(Environment.NewLine);
-                    replacementText.Append(Environment.NewLine);
-
-                    replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append("#region auto-generated get state code")
-                        .Append(Environment.NewLine);
-
-                    // new instance
-                    replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append($"{typeInfo.State.TypeRef.Name} state = new {typeInfo.State.TypeRef.Name}();")
-                        .Append(Environment.NewLine);
-
-                    // assign fields
-                    foreach (MemberInfo mem in members)
-                    {
-                        string templateText = string.Empty;
-                        templateText = CopyFieldGetState(mem, typeInfo);
-
-                        replacementText.Append(templateText)
-                        .Append(Environment.NewLine);
-                    }
-
-                    // return instance
-                    replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append($"return state;")
-                        .Append(Environment.NewLine);
-
-                    replacementText.Append("\t").Append("\t").Append("\t").Append("#endregion")
-                        .Append(Environment.NewLine);
-
-                    replacementText
-                    .Append(Environment.NewLine)
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t");
-
-                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
-
-                    int oldTextLength = end.startIndex - start.endIndex;
-
-                    padding += replacementText.Length - oldTextLength;
-                }
-            }
-            #endregion
-
-            #region write the properties for the get state referenced instances
-            List<SectionInfo> refsSections = oldScript.StringReplaceSection(LINK_REFS_START, LINK_REFS_END);
-
-            padding = 0;
-
-            for (int i = 0; i < refsSections.Count - 1; i++)
-            {
-                SectionInfo start = refsSections[i];
-                SectionInfo end = refsSections[i + 1];
-
-                // if we have correct start and end
-                // then do the replacing
-                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
-                {
-                    StringBuilder replacementText = new StringBuilder();
-
-                    replacementText.Append(Environment.NewLine);
-                    replacementText.Append(Environment.NewLine);
-
-                    replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append("#region auto-generated get referenecs save code")
-                        .Append(Environment.NewLine);
-
-                    // assign fields
-                    foreach (MemberInfo mem in members)
-                    {
-                        string templateText = string.Empty;
-                        templateText = CopyFieldRefGetSave(mem, typeInfo);
-
-                        replacementText.Append(templateText)
-                        .Append(Environment.NewLine);
-                    }
-
-                    replacementText.Append("\t").Append("\t").Append("\t").Append("#endregion")
-                        .Append(Environment.NewLine);
-
-                    replacementText
-                    .Append(Environment.NewLine)
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t");
-
-                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
-
-                    int oldTextLength = end.startIndex - start.endIndex;
-
-                    padding += replacementText.Length - oldTextLength;
-                }
-            }
-            #endregion
-
-            return oldScript;
-        }
-
-        private static string GenerateGetSaveFields(BISDInfoContainer typeInfo, List<MemberInfo> members, string oldScript)
-        {
-
-            #region write the properties for the get state for pure values
-            List<SectionInfo> propsSections = oldScript.StringReplaceSection(GET_SAVE_START, GET_SAVE_END);
-
-            int padding = 0;
-
-            for (int i = 0; i < propsSections.Count - 1; i++)
-            {
-                SectionInfo start = propsSections[i];
-                SectionInfo end = propsSections[i + 1];
-
-                // if we have correct start and end
-                // then do the replacing
-                if (start.sectionEdge == SECTION_EDGE.START && end.sectionEdge == SECTION_EDGE.END)
-                {
-                    StringBuilder replacementText = new StringBuilder();
-
-                    replacementText.Append(Environment.NewLine);
-                    replacementText.Append(Environment.NewLine);
-
-                    replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append("#region auto-generated get save code")
-                        .Append(Environment.NewLine);
-
-                    // new instance
-                    replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append($"{typeInfo.GameSave.TypeRef.Name} save = new {typeInfo.GameSave.TypeRef.Name}();")
-                        .Append(Environment.NewLine);
-
-                    // assign fields
-                    foreach (MemberInfo mem in members)
-                    {
-                        string templateText = string.Empty;
-                        templateText = CopyFieldValueGetSave(mem , typeInfo);
-
-                        replacementText.Append(templateText)
-                        .Append(Environment.NewLine);
-                    }
-
-                    // return instance
-                    replacementText.Append("\t").Append("\t").Append("\t")
-                        .Append($"return save;")
-                        .Append(Environment.NewLine);
-
-                    replacementText.Append("\t").Append("\t").Append("\t").Append("#endregion")
-                        .Append(Environment.NewLine);
-
-                    replacementText
-                    .Append(Environment.NewLine)
-                    .Append("\t")
-                    .Append("\t")
-                    .Append("\t");
-
-                    oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
-
-                    int oldTextLength = end.startIndex - start.endIndex;
-
-                    padding += replacementText.Length - oldTextLength;
-                }
-            }
-            #endregion
-
-            return oldScript;
-        }
-        private static string CopyFieldValueGetSave(MemberInfo mem, BISDInfoContainer typeInfo)
+        private static string CopyValueFromStateToSave(MemberInfo mem, BISDInfoContainer typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()
@@ -322,7 +210,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 return templateText;
             }
         }
-        private static string CopyFieldRefGetSave(MemberInfo mem, BISDInfoContainer typeInfo)
+        private static string LinkReferenecsInState(MemberInfo mem, BISDInfoContainer typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()
@@ -373,7 +261,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
                 return string.Empty;
             }
         }
-        private static string CopyFieldGetState(MemberInfo mem, BISDInfoContainer typeInfo)
+        private static string CopyValueFromSaveToState(MemberInfo mem, BISDInfoContainer typeInfo)
         {
             List<Type> interfaces = ReflectionUtils.GetMemberType(mem)
                 .GetInterfaces()

@@ -1,10 +1,12 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
+using Bloodthirst.Editor.CodeGenerator;
 using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -36,62 +38,30 @@ namespace Bloodthirst.Core.GameEventSystem
             string reslativeToAbsolute = AssetDatabase.GetAssetPath(enumScript);
             string oldScript = File.ReadAllText(reslativeToAbsolute);
 
-            List<StringExtensions.SectionInfo> propsSections = oldScript.StringReplaceSection(ENUM_ID_START, ENUM_ID_END);
 
-            for (int i = 0; i < propsSections.Count - 1; i++)
+            TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(oldScript);
+
+            // write enum values
             {
-                StringExtensions.SectionInfo start = propsSections[i];
-                StringExtensions.SectionInfo end = propsSections[i + 1];
-
-                // if we have correct start and end
-                // then do the replacing
-                if (start.sectionEdge != SECTION_EDGE.START || end.sectionEdge != SECTION_EDGE.END)
-                {
-                    continue;
-                }
-
-                StringBuilder replacementText = new StringBuilder();
-
-                replacementText.Append(Environment.NewLine);
-                replacementText.Append(Environment.NewLine);
-
-                replacementText.Append("\t").Append("\t")
-                    .Append("#region generated gameevent IDs")
-                    .Append(Environment.NewLine)
-                    .Append(Environment.NewLine);
-
+                ITextSection enumValuesWriter = scriptBuilder
+                    .CreateSection(new StartEndTextSection(ENUM_ID_START, ENUM_ID_END));
+                enumValuesWriter
+                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
+                    .AddWriter(new AppendTextWriter(Environment.NewLine));
 
                 for (int j = 0; j < Asset.Count; j++)
                 {
-                    string comment = string.Empty;
-                    string templateText = string.Empty;
-
-
-                    templateText = $"{Asset[j].enumValue},";
-
-                    replacementText.Append("\t").Append("\t").Append(comment)
-                        .Append(Environment.NewLine);
-
-                    replacementText.Append("\t").Append("\t").Append(templateText)
-                    .Append(Environment.NewLine)
-                    .Append(Environment.NewLine);
+                    enumValuesWriter.AddWriter(new AppendTextWriter($"\t\t{Asset[j].enumValue}{Environment.NewLine}"));
                 }
 
-
-                replacementText.Append("\t").Append("\t").Append("#endregion generated gameevent IDs");
-
-                replacementText
-                .Append(Environment.NewLine)
-                .Append(Environment.NewLine)
-                .Append("\t")
-                .Append("\t");
-
-                oldScript = oldScript.ReplaceBetween(start.endIndex, end.startIndex, replacementText.ToString());
-
-                int oldTextLength = end.startIndex - start.endIndex;
+                enumValuesWriter
+                    .AddWriter(new AppendTextWriter(Environment.NewLine))
+                    .AddWriter(new AppendTextWriter("\t\t"));
             }
 
-            File.WriteAllText(reslativeToAbsolute, oldScript);
+            string newScriptText = scriptBuilder.Build();
+
+            File.WriteAllText(reslativeToAbsolute, newScriptText);
 
             EditorUtility.SetDirty(enumScript);
             EditorUtility.SetDirty(Asset);

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -310,18 +311,20 @@ namespace Bloodthirst.Core.Utils
 
             if(t.IsGenericType)
             {
-                string str = t.Name + "<";
+                string cleanName = t.Name;
+                int index = cleanName.IndexOf('`');
+                cleanName = cleanName.Substring(0, index);
+                StringBuilder sb = new StringBuilder(cleanName + "<");
 
                 for(int i = 0; i < t.GenericTypeArguments.Length; i++)
                 {
-                    str += GetNiceNameRecursive(t.GenericTypeArguments[i]);
-                    str += ",";
+                    sb.Append(GetNiceNameRecursive(t.GenericTypeArguments[i]));
+                    sb.Append(',');
                 }
 
-                str.TrimEnd(',');
-                str += ">";
+                sb[sb.Length - 1] = '>';
 
-                return str;
+                return sb.ToString();
             }
 
             return t.Name;
