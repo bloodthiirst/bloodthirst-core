@@ -10,10 +10,10 @@ Ill gtry to briefly present most of the systems that the package offers.
 * Graphics : Contains interresting shaders and graphics related stuff (not much going on for it for now)
 * Tests : UnitTests for the most important and delicate systems to make sure everthing is in check after we make changes.
 
-### Note about dependencies
-This repo doesn't **need** any dependencies , **BUT** the addition of some packages can make some funtionalities more thourough.
-The optional dependencies are :
-- Odin inspector
+### Note about dependencies/settings
+This repo needs a few dependencies/settings :
+- API compatibility level needs to be set to .NET framework (and not .NET Standard 2.1)
+- Odin inspector (Optional)
 - DOTween (You need to remove/add "DOTWEEN" to your Scripting Define Symbols depending on the package being present of not )
 - TextMeshPro
 
