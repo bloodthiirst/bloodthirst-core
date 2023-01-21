@@ -3,7 +3,7 @@ Is my personal repo containing my variaty of tools/editors/systems that i use as
 Ill gtry to briefly present most of the systems that the package offers.
 
 ## How the package is divided
-### The package is divided mainly into 6 parts (as seen from the folder structure)
+### The package is divided mainly into 5 parts (as seen from the folder structure)
 * Common : Utils and Helper extensions that provide handy methods/shortcuts , this is used all over the package.
 * Runtime : Systems that are meant to be used during runtime/playmore.
 * Editor : EditorWindows , CodeGenerators , SceneViewGui , Unity hooks and workflow tool , stuff to help you make stuff.
