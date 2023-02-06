@@ -112,11 +112,12 @@ public class UILinelement : VisualElement
             InvertHandles = false
         };
 
-
+        List<UIVertex> curve = new List<UIVertex>();
+        List<int> indicies = new List<int>();
+        LineUtils.PointsToCurve(points, settings, out lineLength, ref curve, ref indicies);
         // List<UIVertex> curve = VectorUtils.PointsToCurve(points,settings,out lineLength);
-        List<UIVertex> curve = null;
 
-        MeshWriteData mwd = cxt.Allocate(curve.Count, curve.Count, arrowTexture);
+        MeshWriteData mwd = cxt.Allocate(curve.Count, indicies.Count, arrowTexture);
 
         // the vertices are setup with the center (0,0) being the top left corner of the rect of the VisualElement
         Vertex[] curveToVerts = curve.Select(v => new Vertex() { position = v.position, uv = v.uv0, tint = Color.white }).ToArray();
@@ -137,7 +138,8 @@ public class UILinelement : VisualElement
 
 
         mwd.SetAllVertices(curveToVerts);
-        mwd.SetAllIndices(curveToVerts.Select((v, i) => (ushort)i).ToArray());
+       // mwd.SetAllIndices(curveToVerts.Select((v, i) => (ushort)i).ToArray());
+       mwd.SetAllIndices(indicies.Select( i => (ushort)i).ToArray());
     }
 
 }
