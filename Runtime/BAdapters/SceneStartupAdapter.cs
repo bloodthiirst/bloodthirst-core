@@ -77,7 +77,7 @@ namespace Bloodthirst.Runtime.BAdapter
 
             for (int i = 0; i < startupScenesList.Length; i++)
             {
-                string scenePath = ScenesListData.Instance.ScenesList[i];
+                string scenePath = startupScenesList[i];
                 Scene scene = SceneManager.GetSceneByPath(scenePath);
                 if (!scene.isLoaded)
                 {

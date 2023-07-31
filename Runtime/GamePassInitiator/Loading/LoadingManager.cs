@@ -64,7 +64,11 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        #if ODIN_INSPECTOR[ShowInInspector]#endif
+        
+#if ODIN_INSPECTOR
+[ShowInInspector]
+#endif
+
         private BasicQueueCommand loadingQueue;
 
         private List<IProgressCommand> runningCommands;

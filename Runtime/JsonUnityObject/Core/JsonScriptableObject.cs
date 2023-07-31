@@ -24,7 +24,7 @@ namespace Bloodthirst.JsonUnityObject
         /// Contains the actual JSON representation of the object
         /// </summary>
         [BJsonIgnore]
-#if ODIN_INSPECTOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
         [ShowIf(nameof(showJsonData))]
 #endif
         [BInspectorIgnore]
@@ -36,7 +36,7 @@ namespace Bloodthirst.JsonUnityObject
         /// Contains all the unity objects references that should remain serialized by unity
         /// </summary>
         [BJsonIgnore]
-#if ODIN_INSPECTOR
+#if ODIN_INSPECTOR && UNITY_EDITOR
         [ShowIf(nameof(showJsonData))]
 #endif
         [BInspectorIgnore]
@@ -91,7 +91,11 @@ namespace Bloodthirst.JsonUnityObject
 
         [BButton]
 #if ODIN_INSPECTOR
-        #if ODIN_INSPECTOR[Button]#endif
+        
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
 #endif
         private void LogJson()
         {

@@ -83,7 +83,7 @@ namespace Bloodthirst.Core.UI
             SetVerticesDirty();
             this.UpdateGeometry();
         }
-
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
@@ -102,6 +102,7 @@ namespace Bloodthirst.Core.UI
                 spline.SetVertexData(points);
             }
         }
+#endif
 
         private void InitPoints()
         {

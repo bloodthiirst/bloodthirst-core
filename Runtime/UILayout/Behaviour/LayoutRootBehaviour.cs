@@ -3,7 +3,11 @@ using Bloodthirst.Core.UILayout;
 	using Sirenix.OdinInspector;
 #endif
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
+
 using UnityEngine;
 
 [ExecuteAlways]
@@ -28,19 +32,31 @@ public class LayoutRootBehaviour : LayoutBehaviour
 
     private int cachedPixelHeight;
 
-    #if ODIN_INSPECTOR[Button]#endif
+    
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
     private void ResetChildRects()
     {
         LayoutBoxUtils.ResetChildrenRects(this);
     }
 
-    #if ODIN_INSPECTOR[Button]#endif
+    
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
     private void ReloadChildren()
     {
         LayoutBoxUtils.AddChildren(this);
     }
 
-    #if ODIN_INSPECTOR[Button]#endif
+    
+#if ODIN_INSPECTOR
+[Button]
+#endif
+
     private void FlowRoot()
     {
         FlowLayoutEntry.FlowRoot(this);
@@ -81,7 +97,19 @@ public class LayoutRootBehaviour : LayoutBehaviour
             }
         }
     }
+    private void RecursiveFindRectThatContainPoint(ILayoutBox layoutBox, Vector2 canvasPos, List<ILayoutBox> layouts)
+    {
+        if (LayoutBoxUtils.IsInsideRect(layoutBox.Rect, canvasPos))
+        {
+            layouts.Add(layoutBox);
+        }
 
+        foreach (ILayoutBox c in layoutBox.ChildLayouts)
+        {
+            RecursiveFindRectThatContainPoint(c, canvasPos, layouts);
+        }
+    }
+#if UNITY_EDITOR
     private void OnEnable()
     {
         SceneView.duringSceneGui -= HandleSceneView;
@@ -124,19 +152,6 @@ public class LayoutRootBehaviour : LayoutBehaviour
             LayoutBoxUtils.DrawSingleLayout(l, sv, canvasInfo);
         }
 
-    }
-
-    private void RecursiveFindRectThatContainPoint(ILayoutBox layoutBox, Vector2 canvasPos, List<ILayoutBox> layouts)
-    {
-        if (LayoutBoxUtils.IsInsideRect(layoutBox.Rect, canvasPos))
-        {
-            layouts.Add(layoutBox);
-        }
-
-        foreach (ILayoutBox c in layoutBox.ChildLayouts)
-        {
-            RecursiveFindRectThatContainPoint(c, canvasPos, layouts);
-        }
     }
 
     public bool TryGetMousePositionCanvasSpace(SceneView sv, UICanvasInfoBase canvasInfo, out Vector2 canvasPos, out Vector3 worldPos)
@@ -192,4 +207,5 @@ public class LayoutRootBehaviour : LayoutBehaviour
         Handles.color = screenOutline;
         LayoutBoxUtils.DrawRect(new Bloodthirst.Core.UILayout.Rect() { x = 0, y = 0, width = cam.pixelWidth, height = cam.pixelHeight }, sv, canvasInfo);
     }
+#endif
 }

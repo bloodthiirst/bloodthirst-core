@@ -1,12 +1,12 @@
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 #endif
-#if ODIN_INSPECTOR
-	using Sirenix.Serialization;
-#endif
-using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditorInternal;
+#endif
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Bloodthirst.Core.GameEventSystem
 {
@@ -35,8 +35,9 @@ namespace Bloodthirst.Core.GameEventSystem
 
         public string enumName;
         public string namespaceValue;
+#if UNITY_EDITOR
         public AssemblyDefinitionAsset assemblyDefinition;
-
+#endif
         [SerializeField]
         private List<EnumClassPair> classEnumPairs;
 

@@ -1,15 +1,16 @@
+#if UNITY_EDITOR
+using Unity.EditorCoroutines.Editor;
 using UnityEditor;
+using Bloodthirst.Editor;
+using Bloodthirst.Editor.CustomComponent;
+#endif
+
 using UnityEngine;
 using UnityEngine.UIElements;
-using Unity.EditorCoroutines.Editor;
 using System.Collections;
 using Bloodthirst.Core.Utils;
 using System.Collections.Generic;
-using UnityEditor.UIElements;
-using System;
-using Bloodthirst.Editor;
 using Bloodthirst.Core.GameEventSystem;
-using Bloodthirst.Editor.CustomComponent;
 using System.Linq;
 
 namespace Bloodthirst.Core.BProvider.Editor

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Bloodthirst.Editor;
 using System.Linq;
 using UnityEditor;
@@ -29,3 +30,4 @@ namespace Bloodthirst.System.ContextSystem
         }
     }
 }
+#endif

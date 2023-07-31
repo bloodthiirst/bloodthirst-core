@@ -1,4 +1,7 @@
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
+
 using UnityEngine;
 
 namespace Bloodthirst.Core.UILayout
@@ -34,7 +37,7 @@ namespace Bloodthirst.Core.UILayout
 
             return sum;
         }
-
+#if UNITY_EDITOR
         public static void DrawSingleLayout(ILayoutBox layoutBox, SceneView sv, UICanvasInfoBase canvasInfo)
         {
             DrawRect(layoutBox.Rect, sv, canvasInfo);
@@ -51,6 +54,7 @@ namespace Bloodthirst.Core.UILayout
             Handles.DrawLine(p3, p4);
             Handles.DrawLine(p4, p1);
         }
+#endif
         public static bool IsInsideRect(Rect rect, Vector2 p)
         {
             if (p.x < rect.x)
@@ -106,7 +110,7 @@ namespace Bloodthirst.Core.UILayout
                 ResetChildrenRects(child);
             }
         }
-
+#if UNITY_EDITOR
         public static void DrawLayoutOutlines(ILayoutBox layoutBox, SceneView sv, UICanvasInfoBase canvasInfo)
         {
             Color elemCol = Color.white;
@@ -134,6 +138,7 @@ namespace Bloodthirst.Core.UILayout
                 DrawLayoutOutlines(c, sv, canvasInfo);
             }
         }
+#endif
 
     }
 

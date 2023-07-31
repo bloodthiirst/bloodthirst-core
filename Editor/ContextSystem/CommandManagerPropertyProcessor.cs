@@ -1,13 +1,9 @@
-﻿#if ODIN_INSPECTOR
-using Bloodthirst.System.ContextSystem;
+﻿#if ODIN_INSPECTOR &&  UNITY_EDITOR
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bloodthirst.System.ContextSystem
 {

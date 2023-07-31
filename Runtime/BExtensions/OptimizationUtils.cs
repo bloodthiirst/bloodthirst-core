@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.Serialization;
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -9,6 +10,20 @@ namespace Bloodthirst.Scripts.Utils
     {
         private static Func<IntPtr,Type,Delegate> GetDelegateForFunctionPointerInternal;
         private static Func<Delegate,IntPtr> GetFunctionPointerForDelegateInternal;
+
+        public static byte[] CopyByteArray(byte[] source, int offset, int size)
+        {
+            byte[] copy = new byte[size];
+
+            unsafe
+            {
+                fixed (byte* ptr = &copy[0])
+                {
+                    Marshal.Copy(source, offset, (IntPtr)ptr, size);
+                }
+            }
+            return copy;
+        }
 
         static OptimizationUtils()
         {

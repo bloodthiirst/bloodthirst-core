@@ -44,7 +44,7 @@ namespace Bloodthirst.Runtime.BNodeTree
 
     public class LinkData
     {
-#if UNITY_EDITOR && ODIN_INSPECTOR
+#if ODIN_INSPECTOR
 
         const string H_GROUP = "H_GROUP";
         const string V_FROM_GROUP = "H_GROUP/V_FROM_GROUP";

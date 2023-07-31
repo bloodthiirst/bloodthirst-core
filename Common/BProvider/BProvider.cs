@@ -10,22 +10,46 @@ namespace Bloodthirst.Core.BProvider
 {
     public class BProvider
     {
-        #if ODIN_INSPECTOR[OdinSerialize]#endif
+        
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
         private Dictionary<Type, InjectionInfo> typeToInjection;
 
-        #if ODIN_INSPECTOR[OdinSerialize]#endif
+        
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
         private Dictionary<Type, TypeInfo> typeToInfoHash;
 
-        #if ODIN_INSPECTOR[OdinSerialize]#endif
+        
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
         private TreeList<Type, IBProviderList> classInstances;
 
-        #if ODIN_INSPECTOR[OdinSerialize]#endif
+        
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
         private TreeList<Type, IBProviderSingleton> classSingletons;
 
-        #if ODIN_INSPECTOR[OdinSerialize]#endif
+        
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
         private TreeList<Type, IBProviderSingleton> interfaceSingletons;
 
-        #if ODIN_INSPECTOR[OdinSerialize]#endif
+        
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
         private TreeList<Type, IBProviderList> interfaceInstances;
 
         internal Dictionary<Type, InjectionInfo> TypeToInjection
@@ -107,7 +131,7 @@ namespace Bloodthirst.Core.BProvider
                 info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            return (TSingletonType)info.SingletonLeaf.Value.Value;
+            return (TSingletonType)info.SingletonLeaf?.Value?.Value;
         }
 
         public IEnumerable<TSingletonType> GetSingletons<TSingletonType>() where TSingletonType : class

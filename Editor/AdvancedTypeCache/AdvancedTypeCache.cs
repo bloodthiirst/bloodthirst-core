@@ -25,13 +25,25 @@ namespace Bloodthirst.Core.Utils
     {
         public class TypeInformation
         {
-            #if ODIN_INSPECTOR[OdinSerialize]#endif
+            
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
             public Type type;
 
-            #if ODIN_INSPECTOR[OdinSerialize]#endif
+            
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
             public TextAsset unityScript;
 
-            #if ODIN_INSPECTOR[OdinSerialize]#endif
+            
+#if ODIN_INSPECTOR
+[OdinSerialize]
+#endif
+
             public string unityScriptPath;
         }
 

@@ -6,16 +6,21 @@
         "GUID:fc39af5560e2f0d45a684977ceb06a77",
         "GUID:ef1cf7a4d0cb39041bccbaf7920b5b0f"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
+    "overrideReferences": true,
     "precompiledReferences": [
         "System.CodeDom.dll",
         "Microsoft.CodeAnalysis.dll",
         "Microsoft.CodeAnalysis.CSharp.dll",
         "Microsoft.CodeAnalysis.Features.dll",
-        "Microsoft.DiaSymReader.dll"
+        "Microsoft.DiaSymReader.dll",
+        "Sirenix.Serialization.dll",
+        "Sirenix.OdinInspector.Attributes.dll",
+        "System.Collections.Immutable.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],
