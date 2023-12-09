@@ -357,7 +357,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
             SetupCanvasActions();
 
-            this.SetAntiAliasing(4);
+            this.SetAntiAliasing(8);
 
             EditorApplication.update -= Update;
             EditorApplication.update += Update;

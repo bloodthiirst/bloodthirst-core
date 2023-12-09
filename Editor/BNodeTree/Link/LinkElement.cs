@@ -9,7 +9,6 @@ namespace Bloodthirst.Editor.BNodeTree
     public class LinkElement
     {
         private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/Link/LinkElement.uss";
-
         public INodeEditor NodeEditor { get; }
         public ILinkType LinkType { get; set; }    
         public PortBaseElement From { get; private set; }
@@ -39,7 +38,6 @@ namespace Bloodthirst.Editor.BNodeTree
             Root.styleSheets.Add(customUss);
 
             Root.AddToClassList("link-container");
-            Root.AddToClassList("unity-button");
 
             NodeEditor.BEventSystem.Listen<OnNodeMoved>(HandleNodeMoved);
             NodeEditor.BEventSystem.Listen<OnNodeResized>(HandleNodeResized);

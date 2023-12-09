@@ -6,6 +6,12 @@ using UnityEngine.UIElements;
 using Bloodthirst.Editor.BNodeTree;
 using Bloodthirst.Scripts.Utils;
 using Bloodthirst;
+using UnityEngine.Pool;
+using Unity.Collections;
+using Unity.EditorCoroutines.Editor;
+using System.Collections;
+using System;
+using Bloodthirst.Core.Utils;
 
 public class UILinelement : VisualElement
 {
@@ -57,8 +63,10 @@ public class UILinelement : VisualElement
     public UILinelement(float thickness = 20f)
     {
         name = "Link";
+        usageHints = UsageHints.DynamicColor | UsageHints.DynamicTransform;
         arrowTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(ARROW_TEXTURE);
         generateVisualContent += HandleContentGeneration;
+
         Thickness = thickness;
     }
 
@@ -69,34 +77,40 @@ public class UILinelement : VisualElement
 
     void UpdateBounds()
     {
-        fromLocal = this.WorldToLocal(from.worldBound.center);
-        toLocal = this.WorldToLocal(to.worldBound.center);
+        fromLocal = this.parent.WorldToLocal(from.worldBound.center);
+        toLocal = this.parent.WorldToLocal(to.worldBound.center);
 
         Vector2 min = Vector2.Min(fromLocal, toLocal);
         Vector2 max = Vector2.Max(fromLocal, toLocal);
 
-        style.left = min.x;
-        style.top = min.y;
+        style.left = (int)min.x;
+        style.top = (int)min.y;
 
-        style.width = max.x - min.x;
-        style.height = max.y - min.y;
+        style.width = (int)(max.x - min.x);
+        style.height = (int)(max.y - min.y);
+
+        MarkDirtyRepaint();
+        //EditorCoroutineUtility.StartCoroutineOwnerless(CrtWaitLayout());
+    }
+
+    private IEnumerator CrtWaitLayout()
+    {
+        while (!this.IsLayoutBuilt())
+        {
+            yield return null;
+        }
 
         MarkDirtyRepaint();
     }
 
-    private void HandleContentGeneration(MeshGenerationContext cxt)
+    private void HandleContentGeneration(MeshGenerationContext ctx)
     {
         Vector2 start = Vector2.zero;
         Vector2 end = Vector2.zero;
 
-        start = cxt.visualElement.WorldToLocal(From.worldBound.center);
-        end = cxt.visualElement.WorldToLocal(To.worldBound.center);
+        start = ctx.visualElement.WorldToLocal(From.worldBound.center);
+        end = ctx.visualElement.WorldToLocal(To.worldBound.center);
 
-        List<Vector2> points = new List<Vector2>
-        {
-            start,
-            end
-        };
 
         float lineLength = 0;
 
@@ -112,34 +126,64 @@ public class UILinelement : VisualElement
             InvertHandles = false
         };
 
-        List<UIVertex> curve = new List<UIVertex>();
-        List<int> indicies = new List<int>();
-        LineUtils.PointsToCurve(points, settings, out lineLength, ref curve, ref indicies);
-        // List<UIVertex> curve = VectorUtils.PointsToCurve(points,settings,out lineLength);
-
-        MeshWriteData mwd = cxt.Allocate(curve.Count, indicies.Count, arrowTexture);
-
-        // the vertices are setup with the center (0,0) being the top left corner of the rect of the VisualElement
-        Vertex[] curveToVerts = curve.Select(v => new Vertex() { position = v.position, uv = v.uv0, tint = Color.white }).ToArray();
-
-        float uvSliceX = lineLength / Thickness;
-
-        for (int i = 0; i < curveToVerts.Length; i++)
+        using (ListPool<Vector2>.Get(out List<Vector2> points))
+        using (ListPool<UIVertex>.Get(out List<UIVertex> curve))
+        using (ListPool<int>.Get(out List<int> indicies))
         {
-            // fade color
-            curveToVerts[i].tint = Color32.Lerp(FromColor, ToColor, curveToVerts[i].uv.x);
+            points.Add(start);
+            points.Add(end);
 
-            // stretch uvs
-            curveToVerts[i].uv.x *= uvSliceX;
+            LineUtils.PointsToCurve(points, settings, out lineLength, ref curve, ref indicies);
 
-            // fix depth
-            curveToVerts[i].position.z = Vertex.nearZ;
+            for (int i = 0; i < curve.Count / 2; i++)
+            {
+                int otherIndex = curve.Count - 1 - i;
+                UIVertex curr = curve[i];
+                curve[i] = curve[otherIndex];
+                curve[otherIndex] = curr;
+            }
+
+            MeshWriteData mwd = ctx.Allocate(curve.Count, indicies.Count, arrowTexture);
+
+            // the vertices are setup with the center (0,0) being the top left corner of the rect of the VisualElement
+            NativeArray<Vertex> curveToVerts = new NativeArray<Vertex>(curve.Count, Allocator.Temp);
+
+            for (int i = 0; i < curve.Count; ++i)
+            {
+                UIVertex curr = curve[i];
+                curveToVerts[i] = new Vertex() { position = curr.position, uv = curr.uv0, tint = Color.white };
+            }
+
+            float uvSliceX = lineLength / Thickness;
+
+            for (int i = 0; i < curveToVerts.Length; i++)
+            {
+                Vertex curr = curveToVerts[i];
+
+                // fade color
+                curr.tint = Color32.Lerp(FromColor, ToColor, curveToVerts[i].uv.x);
+
+                // stretch uvs
+                curr.uv.x *= uvSliceX;
+
+                // fix depth
+                curr.position.z = Vertex.nearZ;
+
+                curveToVerts[i] = curr;
+            }
+
+            mwd.SetAllVertices(curveToVerts);
+
+            NativeArray<ushort> tmp = new NativeArray<ushort>(indicies.Count, Allocator.Temp);
+
+            for (int i = 0; i < indicies.Count; i++)
+            {
+                int ind = indicies[i];
+                tmp[i] = (ushort)ind;
+            }
+            
+            mwd.SetAllIndices(tmp);
         }
-
-
-        mwd.SetAllVertices(curveToVerts);
-       // mwd.SetAllIndices(curveToVerts.Select((v, i) => (ushort)i).ToArray());
-       mwd.SetAllIndices(indicies.Select( i => (ushort)i).ToArray());
     }
 
 }
