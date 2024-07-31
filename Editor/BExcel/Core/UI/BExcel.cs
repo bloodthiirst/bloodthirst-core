@@ -61,8 +61,14 @@ namespace Bloodthirst.Editor.BExcelEditor
                 // setup
                 if (filter != null)
                 {
+                    BExcelContext ctx = new BExcelContext()
+                    {
+                        CurrentAsset = this.CurrentAsset,
+                        CurrentExcelFile = this.CurrentExcelFile,
+                    };
+
                     // filter
-                    filter.Setup(this);
+                    filter.Setup(ctx);
 
                     filter.OnFilterChanged -= HandleFilterChanged;
                     filter.OnFilterChanged += HandleFilterChanged;

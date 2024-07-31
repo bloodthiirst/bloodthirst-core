@@ -22,7 +22,7 @@ namespace Bloodthirst.Editor.BExcelEditor
 
         public event Action<IBExcelFilter> OnFilterChanged = null;
 
-        public BExcel Editor { get; private set; }
+        public BExcelContext Editor { get; private set; }
 
         /// <summary>
         /// Copy of the input Excel file in bytes
@@ -41,7 +41,7 @@ namespace Bloodthirst.Editor.BExcelEditor
             OnFilterChanged?.Invoke(this);
         }
 
-        void IBExcelFilter.Setup(BExcel editor)
+        void IBExcelFilter.Setup(BExcelContext editor)
         {
             this.Editor = editor;
             SourceAsStream = new MemoryStream((int)Editor.CurrentExcelFile.Stream.Length);

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Pool;
 
 namespace Bloodthirst.Editor.BExcelEditor
@@ -21,22 +22,22 @@ namespace Bloodthirst.Editor.BExcelEditor
     {
         public event Action<IBExcelFilter> OnFilterChanged = null;
 
-        public BExcel Editor { get; private set; }
+        public BExcelContext Editor { get; private set; }
 
         /// <summary>
         /// Copy of the input Excel file in bytes
         /// </summary>
         private MemoryStream SourceAsStream { get; set; }
-        internal string AssetExportPath { get; set; }
-        internal string ScriptExportPath { get; set; }
-        internal string Namespace { get; set; }
+        public string AssetExportPath { get; set; }
+        public string ScriptExportPath { get; set; }
+        public string Namespace { get; set; }
 
-        internal void NotifyFilterChanged()
+        public void NotifyFilterChanged()
         {
             OnFilterChanged?.Invoke(this);
         }
 
-        void IBExcelFilter.Setup(BExcel editor)
+        void IBExcelFilter.Setup(BExcelContext editor)
         {
             this.Editor = editor;
             SourceAsStream = new MemoryStream((int)Editor.CurrentExcelFile.Stream.Length);
@@ -77,7 +78,7 @@ namespace Bloodthirst.Editor.BExcelEditor
 
         private BExcelOutput ExcelToAsset(ExcelPackage excel)
         {
-            BExcelOutput asset = new BExcelOutput();
+            BExcelOutput asset = ScriptableObject.CreateInstance<BExcelOutput>();
 
             asset.scriptNamespace = Namespace;
             asset.scriptPath = ScriptExportPath;
