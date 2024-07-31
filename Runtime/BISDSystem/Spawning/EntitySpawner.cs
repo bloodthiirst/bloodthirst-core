@@ -60,10 +60,6 @@ namespace Bloodthirst.Core.BISDSystem
         {
             // get instance register and provider and identifier
 
-            IEntityInstanceRegister instanceRegister = entity.GetComponentInChildren<IEntityInstanceRegisterBehaviour>().InstanceRegister;
-
-            IEntityInstanceProvider instanceProvider = entity.GetComponentInChildren<IEntityInstanceProviderBehaviour>().InstanceProvider;
-
             EntityIdentifier entityIdentifier = entity.GetComponentInChildren<EntityIdentifier>();
 
             BEHAVIOUR behaviour = entity.gameObject.AddComponent<BEHAVIOUR>();
@@ -76,7 +72,7 @@ namespace Bloodthirst.Core.BISDSystem
             // query instance dependencies
             if (behaviour is IQueryInstance query)
             {
-                query.QueryInstance(instanceProvider);
+                query.QueryInstance();
             }
 
             return behaviour;

@@ -48,13 +48,6 @@ namespace Bloodthirst.Core.BISDSystem
             set => entityIdentifier = value;
         }
 
-        private IEntityInstanceRegister entityInstanceRegister;
-        protected IEntityInstanceRegister EntityInstanceRegister
-        {
-            get => entityInstanceRegister;
-            set => entityInstanceRegister = value;
-        }
-
         public DATA Data => instance.State.Data;
 
         public STATE State => instance.State;
@@ -77,11 +70,7 @@ namespace Bloodthirst.Core.BISDSystem
             {
                 if (instance != null)
                 {
-                    EntityInstanceRegister?.Unregister(instance);
-                    InstanceRegister<INSTANCE>.Unregister(instance);
-
                     instance.BeforeEntityRemoved -= OnEntityRemove;
-                    instance.OnIsActiveChanged -= OnIsActiveChanged;
 
                     OnDisposedInstance(instance);
                     instance.NotifyInstanceDisposed();
@@ -98,33 +87,13 @@ namespace Bloodthirst.Core.BISDSystem
                 instance.EntityIdentifier = EntityIdentifier;
                 OnSetInstance(instance);
 
-                EntityInstanceRegister?.Register(instance);
-                InstanceRegister<INSTANCE>.Register(instance);
-
                 instance.BeforeEntityRemoved -= OnEntityRemove;
                 instance.BeforeEntityRemoved += OnEntityRemove;
-
-                instance.OnIsActiveChanged += OnIsActiveChanged;
 
                 instance.NotifyInstanceBinded();
 
                 instance.NotifyStateChanged();
             }
-        }
-
-        protected virtual void OnIsActiveChanged(INSTANCE instance)
-        {
-            if (instance.IsActive)
-            {
-                EntityInstanceRegister.Register(instance);
-                InstanceRegister<INSTANCE>.Register(instance);
-            }
-            else
-            {
-                EntityInstanceRegister.Unregister(instance);
-                InstanceRegister<INSTANCE>.Unregister(instance);
-            }
-
         }
 
         #region Unity callbacks

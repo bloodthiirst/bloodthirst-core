@@ -65,30 +65,6 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        [SerializeField]
-        private bool isActive = true;
-
-        /// <summary>
-        /// Is this instance active ?
-        /// </summary>
-        public bool IsActive
-        {
-            get => isActive;
-            private set
-            {
-                if (isActive == value)
-                    return;
-
-                isActive = value;
-                OnIsActiveChanged?.Invoke((INSTANCE)this);
-            }
-        }
-
-        public IEntityInstanceProvider InstanceProvider { get; set; }
-
-
-        public event Action<INSTANCE> OnIsActiveChanged;
-
         /// <summary>
         /// Event to listen to instance remove
         /// </summary>
@@ -145,18 +121,6 @@ namespace Bloodthirst.Core.BISDSystem
         public EntityInstance()
         {
 
-        }
-
-        #if ODIN_INSPECTOR[Button]#endif
-        public void Enable()
-        {
-            IsActive = true;
-        }
-
-        #if ODIN_INSPECTOR[Button]#endif
-        public void Disable()
-        {
-            IsActive = false;
         }
 
         private void OnEntitySpawned(EntityIdentifier entityIdentifier)

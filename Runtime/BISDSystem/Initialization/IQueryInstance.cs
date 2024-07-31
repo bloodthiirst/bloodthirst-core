@@ -2,6 +2,6 @@
 {
     public interface IQueryInstance
     {
-        void QueryInstance(IEntityInstanceProvider instanceProvider);
+        void QueryInstance();
     }
 }
