@@ -14,8 +14,9 @@ public class GameStateMachine<TGameState> where TGameState : IGameState
     public TGameState Root { get; private set; }
 
     private Dictionary<Type, TGameState> gameStateTypes;
+    public IReadOnlyDictionary<Type, TGameState> AllGameStates => gameStateTypes;
 
-    public TGameState CurrentState { get; private set; }
+    public TGameState CurrentState { get; set; }
 
     public GameStateMachine(TGameState root)
     {
@@ -24,26 +25,6 @@ public class GameStateMachine<TGameState> where TGameState : IGameState
         QueryGameStateTypes();
     }
 
-    public void Initialize()
-    {
-        foreach(TGameState state in gameStateTypes.Values)
-        {
-            state.OnInitialize();
-        }
-    }
-
-    public void Destroy()
-    {
-        if(!CurrentState.Equals(Root))
-        {
-            Exit();
-        }
-
-        foreach (TGameState state in gameStateTypes.Values)
-        {
-            state.OnDestroy();
-        }
-    }
     private void QueryGameStateTypes()
     {
         gameStateTypes = new Dictionary<Type, TGameState>();
@@ -79,70 +60,27 @@ public class GameStateMachine<TGameState> where TGameState : IGameState
         }
     }
 
-    public void Enter()
-    {
-        CurrentState.OnEnter();
-    }
-
-    public void Reset()
-    {
-        GoToState(Root.GetType());
-    }
-
     /// <summary>
-    /// Climb up the gamestate's parent until we surpass the root (this exits the root as well)
+    /// <para>Finds the common parent state between A and B</para>
+    /// <para>returns the paths leading from A->parent and B->parent </para>
     /// </summary>
-    public void Exit()
+    /// <param name="stateA"></param>
+    /// <param name="stateB"></param>
+    /// <param name="parentToDest">the first element is the common parent , and the last element is B's parent</param>
+    /// <param name="srcToParent">the first element is A's parent , and the last element is the common parent</param>
+    /// <returns></returns>
+    public void GoToState(Type destType, List<TGameState> srcToParent, List<TGameState> parentToDest  , out TGameState dest)
     {
-        while (CurrentState != null)
+        if (!gameStateTypes.TryGetValue(destType, out TGameState state))
         {
-            CurrentState.OnExitUp();
-            CurrentState = (TGameState)CurrentState.Parent;
-        }
-    }
-    private void GoToState(Type type)
-    {
-
-        if (!gameStateTypes.TryGetValue(type, out TGameState state))
-        {
-            throw new Exception($"The state machine doesn't contains a state of type {type.Name}");
+            throw new Exception($"The state machine doesn't contains a state of type {destType.Name}");
         }
 
-        List<TGameState> stateToParent = new List<TGameState>();
-        List<TGameState> currentToParent = new List<TGameState>();
-        TGameState commonParent = FindCommonParent(state, CurrentState, stateToParent, currentToParent);
+        dest = state;
 
-        if (!commonParent.Equals(CurrentState))
-        {
-            CurrentState.OnExitUp();
-        }
+        TGameState commonParent = FindCommonParent(CurrentState , dest, srcToParent , parentToDest);
 
-        for (int i = 0; i < currentToParent.Count - 1; i++)
-        {
-            TGameState curr = currentToParent[i];
-
-            curr.OnExitUp();
-        }
-
-        for (int i = stateToParent.Count - 2; i >= 0; i--)
-        {
-            TGameState prev = stateToParent[i + 1];
-            TGameState curr = stateToParent[i];
-
-            prev.OnExitDown();
-            curr.OnEnter();
-        }
-
-        state.OnEnter();
-
-        CurrentState = state;
-    }
-
-    public void GoToState<TState>() where TState : TGameState
-    {
-        Type t = typeof(TState);
-
-        GoToState(t);
+        parentToDest.Reverse();
     }
 
     /// <summary>

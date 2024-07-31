@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.Core.Utils;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine.EventSystems;
 
 namespace Bloodthirst.Core.UI
 {
-    public class UIWindowHandle : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IAwakePass
+    public class UIWindowHandle : MonoBehaviour, IPointerDownHandler, IPointerUpHandler , IOnSceneLoaded , IOnSceneUnload
     {
         [SerializeField]
         private RectTransform uiWindowTransform = null;
@@ -25,15 +26,14 @@ namespace Bloodthirst.Core.UI
         {
             canMove = false;
         }
-
-        void IAwakePass.Execute()
-        {
-            Execute();
-        }
-
-        private void Execute()
+        public void OnLoaded(ISceneInstanceManager sceneInstance)
         {
             _mouseUtils = BProviderRuntime.Instance.GetSingleton<MouseUtils>();
+        }
+
+        public void OnUnload(ISceneInstanceManager sceneInstance)
+        {
+            _mouseUtils = null;
         }
 
         private void Update()

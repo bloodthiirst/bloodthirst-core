@@ -1,21 +1,21 @@
 ﻿using Bloodthirst.Core.PersistantAsset;
 using Bloodthirst.Core.Utils;
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 #if ODIN_INSPECTOR
-	using Sirenix.Serialization;
+using Sirenix.Serialization;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 #endif
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.SceneManager
@@ -26,13 +26,12 @@ namespace Bloodthirst.Core.SceneManager
         [HideInInspector]
         private List<string> scenesList = new List<string>();
 
-        public List<string> ScenesList => scenesList;
-
+        public IReadOnlyList<string> ScenesList => scenesList;
 
 #if ODIN_INSPECTOR
         [OdinSerialize]
-        [ListDrawerSettings(Expanded = true, AlwaysAddDefaultValue = true)]
-        [InfoBox("The first scene MUST contain a SceneLoadingManager", nameof(HasSceneLoadingManager), InfoMessageType = InfoMessageType.Error, VisibleIf = nameof(HasSceneLoadingManager))]
+        [ListDrawerSettings(ShowFoldout = false, AlwaysAddDefaultValue = true)]
+        [InfoBox("The first scene MUST contain a " + nameof(LoadingManager), nameof(HasSceneLoadingManager), InfoMessageType = InfoMessageType.Error, VisibleIf = nameof(HasSceneLoadingManager))]
         [InfoBox("The scene setup seems to be correct", nameof(IsValid), InfoMessageType = InfoMessageType.Info, VisibleIf = nameof(IsValid))]
 #endif
 #if UNITY_EDITOR && ODIN_INSPECTOR
@@ -61,29 +60,29 @@ namespace Bloodthirst.Core.SceneManager
 
         private bool SceneHasManager(string sceneName)
         {
+            string managerTypename = sceneName + "SceneManager";
 
-            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            for (int i = 0; i < TypeUtils.AllTypes.Count; i++)
             {
-                foreach (Type t in a.GetTypes())
+                Type t = TypeUtils.AllTypes[i];
+
+                if (t.Name.Equals(managerTypename, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (t.Name.Equals(sceneName + "Manager"))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+
             }
 
             return false;
         }
-        private List<SceneAsset> GetAllSceneInTheProjectWithManager()
+        private void GetAllSceneInTheProjectWithManager(List<SceneAsset> sceneAssets)
         {
             // load scene assets
             string[] scenesGUIDs = AssetDatabase.FindAssets("t:Scene");
 
-            List<SceneAsset> sceneAssets = new List<SceneAsset>();
-
-            foreach (string sceneGUID in scenesGUIDs)
+            for (int i = 0; i < scenesGUIDs.Length; i++)
             {
+                string sceneGUID = scenesGUIDs[i];
                 string scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
 
                 // has manager
@@ -108,11 +107,12 @@ namespace Bloodthirst.Core.SceneManager
                 }
             }
 
-            return sceneAssets;
         }
 
 #if ODIN_INSPECTOR
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
+#else
+        [ContextMenu(nameof(ApplyToBuildSettings))]
 #endif
         public void ApplyToBuildSettings()
         {
@@ -159,6 +159,8 @@ namespace Bloodthirst.Core.SceneManager
 
 #if ODIN_INSPECTOR
         [Button(ButtonSizes.Medium, ButtonStyle.CompactBox)]
+#else
+        [ContextMenu(nameof(InitializeScenes))]
 #endif
         public void InitializeScenes()
         {
@@ -173,49 +175,56 @@ namespace Bloodthirst.Core.SceneManager
 
         private void RefreshScenesList()
         {
-            List<SceneAsset> allScenesWithManager = GetAllSceneInTheProjectWithManager();
-
-            EditorBuildSettingsScene[] editorScenes = new EditorBuildSettingsScene[allScenesWithManager.Count];
-
-            // try to keep the same order of the old list
-            for (int i = 0; i < allScenesWithManager.Count; i++)
+            using (ListPool<SceneAsset>.Get(out List<SceneAsset> allScenesWithManager))
             {
-                SceneAsset curr = allScenesWithManager[i];
+                GetAllSceneInTheProjectWithManager(allScenesWithManager);
 
-                string scenePath = AssetDatabase.GetAssetPath(curr);
+                EditorBuildSettingsScene[] editorScenes = new EditorBuildSettingsScene[allScenesWithManager.Count];
 
-                editorScenes[i] = new EditorBuildSettingsScene(scenePath, true);
-            }
+                // try to keep the same order of the old list
+                for (int i = 0; i < allScenesWithManager.Count; i++)
+                {
+                    SceneAsset curr = allScenesWithManager[i];
 
-            // apply the change to the scenes list in build settings
-            EditorBuildSettings.scenes = editorScenes;
+                    string scenePath = AssetDatabase.GetAssetPath(curr);
 
-            scenesList.Clear();
+                    editorScenes[i] = new EditorBuildSettingsScene(scenePath, true);
+                }
 
-            // save the scenes info in dictionary
-            for (int i = 0; i < allScenesWithManager.Count; i++)
-            {
-                SceneAsset curr = allScenesWithManager[i];
+                scenesList.Clear();
 
-                string scenePath = AssetDatabase.GetAssetPath(curr);
+                // save the scenes info in dictionary
+                for (int i = 0; i < allScenesWithManager.Count; i++)
+                {
+                    SceneAsset curr = allScenesWithManager[i];
 
-                // add to the final list
-                scenesList.Add(scenePath);
+                    string scenePath = AssetDatabase.GetAssetPath(curr);
+
+                    // add to the final list
+                    scenesList.Add(scenePath);
+                }
             }
         }
         private void RefreshSceneManagerIndices()
         {
-            isValidSetup = true;
+            isValidSetup = false;
 
             // save the scenes info in dictionary
             for (int i = 0; i < scenesList.Count; i++)
             {
                 // setup scene manager index
-                SetupSceneInstanceManager(i);
+                SetupSceneInstanceManager(i, out bool hasLoadingManager);
+
+                isValidSetup |= hasLoadingManager;
+
+                if (hasLoadingManager)
+                {
+                    string tmp = scenesList[i];
+                    scenesList[i] = scenesList[0];
+                    scenesList[0] = tmp;
+                }
             }
         }
-
-
 
 #if UNITY_EDITOR
         public void OnPreprocessBuild(BuildReport report)
@@ -224,8 +233,10 @@ namespace Bloodthirst.Core.SceneManager
         }
 #endif
 
-        private void SetupSceneInstanceManager(int sceneIndex)
+        private void SetupSceneInstanceManager(int sceneIndex, out bool hasLoadingManager)
         {
+            hasLoadingManager = false;
+
             string scenePath = scenesList[sceneIndex];
 
             Scene sceneRef = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
@@ -240,31 +251,31 @@ namespace Bloodthirst.Core.SceneManager
             if (!sceneRef.IsValid())
                 return;
 
-            GameObject[] rootGOs = sceneRef.GetRootGameObjects();
-
-            if (sceneIndex == 0)
+            using (ListPool<GameObject>.Get(out List<GameObject> rootGOs))
             {
+                sceneRef.GetRootGameObjects(rootGOs);
+
                 LoadingManager sceneLoadingManager = rootGOs
                     .FirstOrDefault(go => go.GetComponent<LoadingManager>() != null)?
                     .GetComponent<LoadingManager>();
 
-                isValidSetup &= sceneLoadingManager != null;
-            }
+                hasLoadingManager = sceneLoadingManager != null;
 
-            ISceneInstanceManager sceneInstanceManager = rootGOs
-                .FirstOrDefault(go => go.GetComponent<ISceneInstanceManager>() != null)?
-                .GetComponent<ISceneInstanceManager>();
+                ISceneInstanceManager sceneInstanceManager = rootGOs
+                    .FirstOrDefault(go => go.GetComponent<ISceneInstanceManager>() != null)?
+                    .GetComponent<ISceneInstanceManager>();
 
-            if (sceneInstanceManager != null)
-            {
-                sceneInstanceManager.SceneIndex = sceneIndex;
-                sceneInstanceManager.ScenePath = scenePath;
-                EditorSceneManager.SaveScene(sceneRef);
-            }
+                if (sceneInstanceManager != null)
+                {
+                    sceneInstanceManager.SceneIndex = sceneIndex;
+                    sceneInstanceManager.ScenePath = scenePath;
+                    EditorSceneManager.SaveScene(sceneRef);
+                }
 
-            if (cleanupScene)
-            {
-                EditorSceneManager.CloseScene(sceneRef, true);
+                if (cleanupScene)
+                {
+                    EditorSceneManager.CloseScene(sceneRef, true);
+                }
             }
         }
 #endif

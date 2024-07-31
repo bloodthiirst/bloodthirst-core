@@ -1,11 +1,10 @@
-﻿using OfficeOpenXml;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 
-namespace Bloodthirst.Editor.BSearch
+namespace Bloodthirst.Editor.BExcelEditor
 {
     public interface IBExcelFilterUI
     {
-        VisualElement Bind(IBExcelFilter filter, ExcelPackage excelFile);
+        VisualElement Bind(IBExcelFilter filter, BExcel editor);
         void Unbind();
 
     }

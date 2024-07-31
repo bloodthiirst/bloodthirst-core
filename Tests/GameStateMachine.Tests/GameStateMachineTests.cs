@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+
 public abstract class GameStateBase : IGameState
 {
     IGameState IGameState.Parent { get; set; }

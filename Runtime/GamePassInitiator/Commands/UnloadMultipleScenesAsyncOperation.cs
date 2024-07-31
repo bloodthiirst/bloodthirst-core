@@ -1,40 +1,39 @@
 ﻿using Bloodthirst.Core.SceneManager;
-using Bloodthirst.Core.Utils;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.Setup
 {
     public class UnloadMultipleScenesAsyncWrapper : IAsynOperationWrapper
     {
         private readonly IList<ISceneInstanceManager> scenes;
-        private readonly GlobalSceneManager globalSceneManager;
-        
-        public UnloadMultipleScenesAsyncWrapper(IList<ISceneInstanceManager> scenes, GlobalSceneManager globalSceneManager)
+
+        private readonly bool showLoadingScreen;
+        public bool ShowLoadingScreen => showLoadingScreen;
+        public UnloadMultipleScenesAsyncWrapper(IList<ISceneInstanceManager> scenes, bool showLoadingScreen)
         {
             this.scenes = scenes;
-            this.globalSceneManager = globalSceneManager;
+            this.showLoadingScreen = showLoadingScreen;
+        }
+        public bool ShouldExecute()
+        {
+            return true;
         }
 
         IProgressCommand IAsynOperationWrapper.CreateOperation()
         {
-            return new UnloadMultipleScenesAsyncOperation(scenes , globalSceneManager);
+            return new UnloadMultipleScenesAsyncOperation(scenes);
         }
     }
 
-    public class UnloadMultipleScenesAsyncOperation : TreeCommandBase<LoadMultipleScenesAsyncOperation> , IProgressCommand
+    public class UnloadMultipleScenesAsyncOperation : TreeCommandBase<LoadMultipleScenesAsyncOperation>, IProgressCommand
     {
         private readonly IList<ISceneInstanceManager> scenes;
-        private readonly GlobalSceneManager globalSceneManager;
         private List<UnloadSingleSceneAsyncOperation> subCommands;
-        public UnloadMultipleScenesAsyncOperation(IList<ISceneInstanceManager> scenes, GlobalSceneManager globalSceneManager) : base()
+        public UnloadMultipleScenesAsyncOperation(IList<ISceneInstanceManager> scenes) : base()
         {
             this.scenes = scenes;
-            this.globalSceneManager = globalSceneManager;
 
             subCommands = new List<UnloadSingleSceneAsyncOperation>();
         }
@@ -59,31 +58,11 @@ namespace Bloodthirst.Core.Setup
         string IProgressCommand.TaskName => $"Loading {scenes.Count} scenes";
         public override void OnStart()
         {
-            List<GameObject> sceneGOs = ListPool<GameObject>.Get();
-            List<GameObject> cache = ListPool<GameObject>.Get();
-
-            // trigger scene callbacks
-            for (int i = 0; i < scenes.Count; i++)
-            {
-                ISceneInstanceManager sceneInstanceManager = scenes[i];
-
-                UnityEngine.SceneManagement.Scene scene = sceneInstanceManager.Scene;
-
-                // note : this does a clear already so no need to do it ourselves
-                scene.GetRootGameObjects(cache);
-                sceneGOs.AddRange(cache);
-            }
-
-            GameObjectUtils.GetAllComponents<IBeforeSceneUnload>(sceneGOs, true).ForEach(e => e.Execute());
-
-            ListPool<GameObject>.Release(cache);
-            ListPool<GameObject>.Release(sceneGOs);
-
             for (int i = 0; i < scenes.Count; i++)
             {
                 ISceneInstanceManager scene = scenes[i];
 
-                UnloadSingleSceneAsyncOperation cmd = new UnloadSingleSceneAsyncOperation(scene  , globalSceneManager , false);
+                UnloadSingleSceneAsyncOperation cmd = new UnloadSingleSceneAsyncOperation(scene, false);
 
                 cmd.OnCurrentProgressChanged += Cmd_OnCurrentProgressChanged;
 

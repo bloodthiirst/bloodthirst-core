@@ -16,6 +16,24 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class EditorUtils
     {
+        private static Func<string> GetActiveFolderPathCached;
+
+        /// <summary>
+        /// Returns the folder selected in the project tab
+        /// </summary>
+        /// <returns></returns>
+        public static string GetProjectTabPath()
+        {
+            if(GetActiveFolderPathCached == null)
+            {
+                GetActiveFolderPathCached = (Func<string>) typeof(ProjectWindowUtil)
+                    .GetMethod("GetActiveFolderPath", BindingFlags.Static | BindingFlags.NonPublic)
+                    .CreateDelegate(typeof(Func<string>));
+            }
+
+            return GetActiveFolderPathCached();
+        }
+
 
         public static Texture GetIcon(UnityEngine.Object obj)
         {
@@ -23,10 +41,10 @@ namespace Bloodthirst.Core.Utils
             return tex;
         }
 
-        public static List<T> FindAssets<T>() where T : UnityEngine.Object
+        public static List<T> FindAssets<T>(params string[] paths) where T : UnityEngine.Object
         {
             List<T> queryResults = AssetDatabase
-                .FindAssets($"t:{typeof(T).Name}")
+                .FindAssets($"t:{typeof(T).Name}" , paths)
                 .Select(g => AssetDatabase.GUIDToAssetPath(g))
                 .Select(p => AssetDatabase.LoadAssetAtPath<T>(p))
                 .ToList();
@@ -34,10 +52,10 @@ namespace Bloodthirst.Core.Utils
             return queryResults;
         }
 
-        public static List<T> FindAssetsAs<T>(string queryText)
+        public static List<T> FindAssetsAs<T>(string queryText , params string[] paths)
         {
             List<T> queryResults = AssetDatabase
-                .FindAssets(queryText)
+                .FindAssets(queryText , paths)
                 .Select(g => AssetDatabase.GUIDToAssetPath(g))
                 .Select(p => AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(p))
                 .Cast<T>()

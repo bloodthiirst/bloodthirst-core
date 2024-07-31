@@ -2,3 +2,8 @@
 {
     height : 75px;
 }
+
+.scene-entry
+{
+    min-width : 150px;
+}

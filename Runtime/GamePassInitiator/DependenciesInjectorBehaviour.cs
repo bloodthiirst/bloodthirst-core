@@ -1,17 +1,17 @@
-﻿using Bloodthirst.Core.Setup;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
-#if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
-#endif
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using UnityEngine;
+using System.Collections.Generic;
+using Bloodthirst.Core.Setup;
 using Bloodthirst.Core.BProvider;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Core.SceneManager.DependencyInjector;
+using Bloodthirst.Core.PersistantAsset;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+#endif
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
 #endif
 
 namespace Bloodthirst.Core.GameInitPass
@@ -20,11 +20,6 @@ namespace Bloodthirst.Core.GameInitPass
     {
         [SerializeField]
         private int preGameSetupOrder;
-
-        
-#if ODIN_INSPECTOR
-[ReadOnly]
-#endif
 
         [SerializeField]
         private List<ScriptableObject> allScriptables;
@@ -36,9 +31,9 @@ namespace Bloodthirst.Core.GameInitPass
         private string[] searchInFolders;
 
 #if UNITY_EDITOR
-        
+
 #if ODIN_INSPECTOR
-[Button]
+        [Button]
 #endif
 
         private void FetchAllScriptableObjects()
@@ -62,54 +57,21 @@ namespace Bloodthirst.Core.GameInitPass
             SceneDependencies();
         }
 
-
-
         private void ScriptableObjects()
         {
             BProvider.BProvider scProvider = new BProvider.BProvider();
 
-            List<IScriptableObject> scInstances = allScriptables.OfType<IScriptableObject>().ToList();
-            List<IScriptableObjectSingleton> scSingletons = allScriptables.OfType<IScriptableObjectSingleton>().ToList();
-
-            // instances
-            foreach (IScriptableObject s in scInstances)
+            foreach(ScriptableObject sc in allScriptables)
             {
-                Type t = s.GetType();
+                Type scType = sc.GetType();
 
-                Type[] interfaces = t.GetInterfaces();
-                Type genericType = interfaces.FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IScriptableObject<>));
-
-                if (genericType == null)
+                if( sc is  ISingletonScriptableObject singleton)
+                {
+                    scProvider.RegisterSingleton(scType, singleton);
                     continue;
-
-                if (!genericType.IsGenericType)
-                {
-                    scProvider.RegisterInstance(t, s);
                 }
-                else
-                {
-                    Type genericParam = genericType.GetGenericArguments()[0];
-                    scProvider.RegisterInstance(genericParam, s);
-                }
-            }
 
-            // singletons
-            foreach (IScriptableObjectSingleton s in scSingletons)
-            {
-                Type t = s.GetType();
-
-                Type[] interfaces = t.GetInterfaces();
-                Type genericType = interfaces.FirstOrDefault(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IScriptableObjectSingleton<>));
-
-                if (!genericType.IsGenericType)
-                {
-                    scProvider.RegisterInstance(t, s);
-                }
-                else
-                {
-                    Type genericParam = genericType.GetGenericArguments()[0];
-                    scProvider.RegisterInstance(genericParam, s);
-                }
+                scProvider.RegisterInstance(scType, sc);
             }
 
             BProviderRuntime.Instance.MergeWith(scProvider);

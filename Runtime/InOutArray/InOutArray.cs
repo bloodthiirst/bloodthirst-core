@@ -51,7 +51,7 @@ public class InOutArray<T>
     /// <summary>
     /// Array containing the appropiate Add Method to use/jump to
     /// </summary>
-    private Action<T>[] addJumpTable;
+    private Func<T,int>[] addJumpTable;
 
     #endregion
 
@@ -102,7 +102,7 @@ public class InOutArray<T>
         count = 0;
 
         // add actions
-        addJumpTable = new Action<T>[2];
+        addJumpTable = new Func<T, int>[2];
 
         removeAtJumpTable = new Action<int>[2];
 
@@ -129,7 +129,7 @@ public class InOutArray<T>
     #region adding
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Add(T item)
+    public int Add(T item)
     {
         bool hasGap = stackPointer != -1;
 
@@ -137,25 +137,30 @@ public class InOutArray<T>
         // 0 if we don't have a gap in the array
         int asInt = OptimizationUtils.Reinterpret<bool, int>(hasGap);
 
-        addJumpTable[asInt](item);
+        return addJumpTable[asInt](item);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void InsertInGap(T item)
+    private int InsertInGap(T item)
     {
         int emptySlot = EmptyIndiciesStack[stackPointer--];
 
         flagArray[emptySlot] = 1;
         InternalArray[emptySlot] = item;
         count++;
+
+        return emptySlot;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AddAtTheEnd(T item)
+    private int AddAtTheEnd(T item)
     {
-        flagArray[nextNewIndex] = 1;
-        InternalArray[nextNewIndex++] = item;
+        int insertionIndex = nextNewIndex++;
+        flagArray[insertionIndex] = 1;
+        InternalArray[insertionIndex] = item;
         count++;
+
+        return insertionIndex;
     }
 
     #endregion

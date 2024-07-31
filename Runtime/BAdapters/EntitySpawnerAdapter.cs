@@ -1,18 +1,20 @@
 using Bloodthirst.Core.AdvancedPool.Pools;
 using Bloodthirst.Core.BISDSystem;
 using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using UnityEngine;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
-    [BAdapterFor(typeof(IEntitySpawner))]
-    [RequireComponent(typeof(IEntitySpawner))]
-    public class EntitySpawnerAdapter : MonoBehaviour , IQuerySingletonPass
+    [BAdapterFor(typeof(EntitySpawner))]
+    [RequireComponent(typeof(EntitySpawner))]
+    public class EntitySpawnerAdapter : MonoBehaviour , IOnSceneLoaded
     {
-        void IQuerySingletonPass.Execute()
+        void IOnSceneLoaded.OnLoaded(ISceneInstanceManager sceneInstance)
         {
-            IEntitySpawner spawner = GetComponent<IEntitySpawner>();
+            EntitySpawner spawner = GetComponent<EntitySpawner>();
+            BProviderRuntime.Instance.RegisterSingleton(spawner);
 
             IGlobalPool globalPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>();
             spawner.GenericUnityPool = globalPool;

@@ -1,5 +1,6 @@
 using Bloodthirst.Core.AdvancedPool.Pools;
 using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using System;
 using UnityEngine;
@@ -9,17 +10,14 @@ namespace Bloodthirst.Runtime.BAdapter
 {
     [BAdapterFor(typeof(IGlobalPool))]
     [RequireComponent(typeof(IGlobalPool))]
-    public class GlobalPoolAdapter : MonoBehaviour, ISetupSingletonPass
+    public class GlobalPoolAdapter : MonoBehaviour, IOnSceneLoaded
     {
-        void ISetupSingletonPass.Execute()
+        void IOnSceneLoaded.OnLoaded(ISceneInstanceManager sceneInstance)
         {
             IGlobalPool globalPool = GetComponent<IGlobalPool>();
 
             Assert.IsNotNull(globalPool);
 
-            Type t = Type.GetType("GlobalPoolContainer");
-
-            BProviderRuntime.Instance.RegisterSingleton(t  ,globalPool);
             BProviderRuntime.Instance.RegisterSingleton<IGlobalPool, IGlobalPool>(globalPool);
 
             globalPool.SetupPools();

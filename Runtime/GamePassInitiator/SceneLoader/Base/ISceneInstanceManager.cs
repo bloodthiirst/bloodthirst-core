@@ -14,9 +14,7 @@ namespace Bloodthirst.Core.SceneManager
         int SceneIndex { get; set; }
         string ScenePath { get; set; }
 
-        void Initialize(LoadingManager loadingManager, GlobalSceneManager globalSceneManager);
-        void OnPostInitialization();
-        void QuerySceneGameObjects();
+        void Initialize(LoadingManager loadingManager);
         void AddToScene(GameObject gameObject);
         void RemoveFromScene(GameObject gameObject);
         void Disable();

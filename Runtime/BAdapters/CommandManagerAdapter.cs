@@ -3,6 +3,7 @@ using Bloodthirst.Core.Setup;
 using Bloodthirst.Core.Updater;
 using Bloodthirst.System.CommandSystem;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Runtime.BAdapter
 {
@@ -12,6 +13,13 @@ namespace Bloodthirst.Runtime.BAdapter
     {
         [SerializeField]
         private int preGameSetupOrder;
+
+        [SerializeField]
+        private GameObject updaterObject;
+
+        [SerializeField]
+        private bool isDefaultProvider;
+
         int IPreGameSetup.Order => preGameSetupOrder;
 
         void IPreGameSetup.Execute()
@@ -19,13 +27,15 @@ namespace Bloodthirst.Runtime.BAdapter
             CommandManagerBehaviour commandManagerBehaviour = GetComponent<CommandManagerBehaviour>();
             commandManagerBehaviour.Initialize();
 
-            IUpdater updater = BProviderRuntime.Instance.GetSingleton<DefaultUpdaterBehaviour>();
-            
+            IUpdater updater = updaterObject.GetComponent<IUpdater>();
+            Assert.IsNotNull(updater);
+
             updater.Register(commandManagerBehaviour);
 
-            BProviderRuntime.Instance.RegisterSingleton<CommandManagerBehaviour, ICommandManagerProvider>(commandManagerBehaviour);
+            if (isDefaultProvider)
+            {
+                BProviderRuntime.Instance.RegisterSingleton<CommandManagerBehaviour, ICommandManagerProvider>(commandManagerBehaviour);
+            }
         }
-
-
     }
 }

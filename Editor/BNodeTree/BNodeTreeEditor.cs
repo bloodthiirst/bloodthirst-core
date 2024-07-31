@@ -10,10 +10,12 @@ using UnityEditor.Callbacks;
 using Unity.EditorCoroutines.Editor;
 using System.Collections;
 #if ODIN_INSPECTOR
-	using Sirenix.Utilities;
+using Sirenix.Utilities;
 #endif
 using Bloodthirst.Runtime.BNodeTree;
 using Bloodthirst.BEventSystem;
+using UnityEngine.Assertions;
+using Sirenix.Utilities;
 
 namespace Bloodthirst.Editor.BNodeTree
 {
@@ -72,7 +74,7 @@ namespace Bloodthirst.Editor.BNodeTree
             {
                 float old = zoom;
                 zoom = Mathf.Clamp(value, ZoomMinMax.x, ZoomMinMax.y);
-                BEventSystem.Trigger(new OnZoomChanged(this , old, zoom));
+                BEventSystem.Trigger(new OnZoomChanged(this, old, zoom));
             }
         }
 
@@ -179,7 +181,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         private IEnumerator CrtTriggerSelectTreeDataChanged()
         {
-            BEventSystem.Trigger(new OnDataSelectionChanged(this ,selectedNodeData));
+            BEventSystem.Trigger(new OnDataSelectionChanged(this, selectedNodeData));
             yield break;
         }
 
@@ -457,13 +459,32 @@ namespace Bloodthirst.Editor.BNodeTree
 
         private void InitWithDefaultNode()
         {
-            Type defaultNodeType = TypeUtils.AllTypes.FirstOrDefault(t => t.BaseType == NodeBaseType && t.GetCustomAttributes(typeof(DefaultNodeAttribute), false) != null);
+            Type defaultNodeType = null;
 
-            if (defaultNodeType != null)
+            for (int i = 0; i < TypeUtils.AllTypes.Count; i++)
             {
-                INodeType firstNode = (INodeType)Activator.CreateInstance(defaultNodeType);
-                AddNode(firstNode, Vector3.zero);
+                Type curr = TypeUtils.AllTypes[i];
+
+                if (!curr.IsClass)
+                    continue;
+
+                if (curr.IsAbstract)
+                    continue;
+
+                if (!TypeUtils.IsSubTypeOf(curr, NodeBaseType))
+                    continue;
+
+                if (curr.GetAttribute<DefaultNodeAttribute>(true) == null)
+                    continue;
+
+                defaultNodeType = curr;
+                break;
             }
+
+            Assert.IsNotNull(defaultNodeType);
+
+            INodeType firstNode = (INodeType)Activator.CreateInstance(defaultNodeType);
+            AddNode(firstNode, Vector3.zero);
         }
 
         private void HandlePlayModeStateChanged(PlayModeStateChange state)
@@ -545,7 +566,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
             if (validNodeTypes.Count == 0)
             {
-                Debug.LogError($"You need to have atleast one class that inherits from { TypeUtils.GetNiceName(typeof(NodeBase<>)) } in order to be able to use the node editor");
+                Debug.LogError($"You need to have atleast one class that inherits from {TypeUtils.GetNiceName(typeof(NodeBase<>))} in order to be able to use the node editor");
                 Close();
                 return;
             }
@@ -610,7 +631,7 @@ namespace Bloodthirst.Editor.BNodeTree
                 n.NodeID = generatedID;
             }
 
-            NodeBaseElement node = new NodeBaseElement(n , this);
+            NodeBaseElement node = new NodeBaseElement(n, this);
 
 
             // add nodes to list
@@ -648,7 +669,7 @@ namespace Bloodthirst.Editor.BNodeTree
             from.PortType.LinkAttached = typedLink;
 
             // ui
-            LinkElement link = new LinkElement( this, typedLink, from, to);
+            LinkElement link = new LinkElement(this, typedLink, from, to);
 
             Canvas.Add(link.VisualElement);
             AllLinks.Add(link);
@@ -945,7 +966,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         private void OnKeyPress(KeyDownEvent evt)
         {
-            BEventSystem.Trigger(new OnWindowKeyPressed(this ,evt));
+            BEventSystem.Trigger(new OnWindowKeyPressed(this, evt));
         }
 
         private void OnRightClick(ContextClickEvent evt)
@@ -953,7 +974,7 @@ namespace Bloodthirst.Editor.BNodeTree
             if (IsInsideNode(evt.mousePosition))
                 return;
 
-           BEventSystem.Trigger(new OnCanvasMouseContextClick(this , evt));
+            BEventSystem.Trigger(new OnCanvasMouseContextClick(this, evt));
         }
 
         private void OnMouseClick(ClickEvent evt)
@@ -961,32 +982,32 @@ namespace Bloodthirst.Editor.BNodeTree
             if (IsInsideNode(evt.position))
                 return;
 
-            BEventSystem.Trigger(new OnCanvasMouseClick(this ,evt));
+            BEventSystem.Trigger(new OnCanvasMouseClick(this, evt));
         }
 
         private void OnMouseMove(MouseMoveEvent evt)
         {
-            BEventSystem.Trigger(new OnCanvasMouseMove(this ,evt));
+            BEventSystem.Trigger(new OnCanvasMouseMove(this, evt));
         }
 
         private void OnMouseUp(MouseUpEvent evt)
         {
-            BEventSystem.Trigger(new OnCanvasMouseUp(this ,evt));
+            BEventSystem.Trigger(new OnCanvasMouseUp(this, evt));
         }
 
         private void OnMouseDown(MouseDownEvent evt)
         {
-            BEventSystem.Trigger(new OnCanvasMouseDown(this , evt));
+            BEventSystem.Trigger(new OnCanvasMouseDown(this, evt));
         }
 
         private void OnMouseLeave(MouseLeaveEvent evt)
         {
-            BEventSystem.Trigger(new OnCanvasMouseLeave(this ,evt));
+            BEventSystem.Trigger(new OnCanvasMouseLeave(this, evt));
         }
 
         private void OnScrollWheel(WheelEvent evt)
         {
-            BEventSystem.Trigger(new OnCanvasScrollWheel(this ,evt));
+            BEventSystem.Trigger(new OnCanvasScrollWheel(this, evt));
         }
         #endregion
     }

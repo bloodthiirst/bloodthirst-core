@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <!-- EXCEL ASSET -->
+    <engine:Label text="Excel Export Settings :" class="title"/>
+
+    <!-- EXPORT ASSET -->
+    <engine:VisualElement class="row">
+    
+        <!-- EXPORT PATH -->
+        <engine:TextField label="Asset export path" name="AssetExportPath" class="title flex-grow"/>
+    
+        <!-- CHANGE EXPORT -->
+        <engine:Button name="ChangeAssetExportBtn" text="Change"/>
+
+    </engine:VisualElement>
+
+    <!-- EXPORT SCRIPT -->
+    <engine:VisualElement class="row">
+    
+        <!-- EXPORT PATH -->
+        <engine:TextField label="Script export path" name="ScriptExportPath" class="title flex-grow"/>
+    
+        <!-- CHANGE EXPORT -->
+        <engine:Button name="ChangeScriptExportBtn" text="Change"/>
+
+    </engine:VisualElement>
+
+    <!-- NAMESPACE -->
+    <engine:TextField label="Namespace" name="Namespace" class="flex-grow"/>
+
+
+</engine:UXML>

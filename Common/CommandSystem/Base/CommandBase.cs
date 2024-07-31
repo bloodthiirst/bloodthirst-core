@@ -1,5 +1,5 @@
 ﻿#if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using System;
 using UnityEngine;
@@ -104,7 +104,7 @@ namespace Bloodthirst.System.CommandSystem
 
         public CommandBase()
         {
-            CommandState = COMMAND_STATE.WATING;
+            commandState = COMMAND_STATE.WATING;
             FallbackCommand = null;
         }
 
@@ -116,7 +116,7 @@ namespace Bloodthirst.System.CommandSystem
         public virtual ICommandBase GetExcutingCommand()
         {
             // waiting
-            switch (CommandState)
+            switch (commandState)
             {
                 case COMMAND_STATE.WATING:
                     return this;
@@ -165,7 +165,7 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         public void Success()
         {
-            CommandState = COMMAND_STATE.SUCCESS;
+            commandState = COMMAND_STATE.SUCCESS;
             OnSuccess();
             End();
         }
@@ -175,7 +175,7 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         public void Fail()
         {
-            CommandState = COMMAND_STATE.FAILED;
+            commandState = COMMAND_STATE.FAILED;
             OnFailed();
             End();
         }
@@ -185,15 +185,17 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         public void Interrupt()
         {
-            // if is done or has started
+            
+            // if is done or hasn't started
             // then there's nothing to interrupt
-            if (CommandState != COMMAND_STATE.EXECUTING)
+            if (commandState != COMMAND_STATE.EXECUTING)
             {
-                CommandState = COMMAND_STATE.INTERRUPTED;
+                commandState = COMMAND_STATE.INTERRUPTED;
                 return;
             }
 
-            CommandState = COMMAND_STATE.INTERRUPTED;
+            commandState = COMMAND_STATE.INTERRUPTED;
+
             OnInterrupt();
             End();
         }
@@ -207,7 +209,7 @@ namespace Bloodthirst.System.CommandSystem
             End();
 
             // reset the parameters
-            CommandState = COMMAND_STATE.EXECUTING;
+            commandState = COMMAND_STATE.EXECUTING;
         }
         #endregion
 

@@ -1,10 +1,10 @@
-﻿using Bloodthirst.Core.SceneManager;
+﻿using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Pool;
@@ -12,29 +12,102 @@ using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.Setup
 {
+    public class WaitSecondsAsyncWrapper : IAsynOperationWrapper
+    {
+        private readonly float seconds;
+
+        private readonly bool showLoadingScreen;
+        public bool ShowLoadingScreen => showLoadingScreen;
+        public WaitSecondsAsyncWrapper(float seconds, bool showLoadingScreen)
+        {
+            this.seconds = seconds;
+            this.showLoadingScreen = showLoadingScreen;
+        }
+
+        public IProgressCommand CreateOperation()
+        {
+            return new WaitSecondsCommand(seconds);
+        }
+
+        public bool ShouldExecute()
+        {
+            return true;
+        }
+    }
+
+    public class WaitSecondsCommand : CommandBase<WaitSecondsCommand>, IProgressCommand
+    {
+        public string TaskName => string.Empty;
+
+        private float currentProgress;
+        private float seconds;
+
+        public float CurrentProgress
+        {
+            get => currentProgress;
+            private set
+            {
+                if (currentProgress == value)
+                    return;
+
+                float old = currentProgress;
+                currentProgress = value;
+
+                OnCurrentProgressChanged?.Invoke(this, old, currentProgress);
+            }
+        }
+
+
+        public event Action<IProgressCommand, float, float> OnCurrentProgressChanged;
+
+        public WaitSecondsCommand(float seconds)
+        {
+            this.seconds = seconds;
+        }
+
+        public override void OnStart()
+        {
+        }
+
+        public override void OnTick(float delta)
+        {
+            CurrentProgress += delta / seconds;
+        
+            if(CurrentProgress >= 1)
+            {
+                Success();
+            }
+        }
+    }
+
     public class LoadSingleSceneAsyncWrapper : IAsynOperationWrapper
     {
         private readonly string scenePath;
-        private readonly GlobalSceneManager globalSceneManager;
         private readonly bool triggerSceneCallbacks;
-
-        public LoadSingleSceneAsyncWrapper(string scenePath, bool triggerSceneCallbacks, GlobalSceneManager globalSceneManager)
+        private readonly bool showLoadingScreen;
+        public bool ShowLoadingScreen => showLoadingScreen;
+        public LoadSingleSceneAsyncWrapper(string scenePath, bool triggerSceneCallbacks, bool showLoadingScreen)
         {
             this.scenePath = scenePath;
             this.triggerSceneCallbacks = triggerSceneCallbacks;
-            this.globalSceneManager = globalSceneManager;
+            this.showLoadingScreen = showLoadingScreen;
+        }
+
+        public bool ShouldExecute()
+        {
+            Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
+            return !scene.isLoaded;
         }
 
         IProgressCommand IAsynOperationWrapper.CreateOperation()
         {
-            return new LoadSingleSceneAsyncOperation(scenePath, triggerSceneCallbacks , globalSceneManager);
+            return new LoadSingleSceneAsyncOperation(scenePath, triggerSceneCallbacks);
         }
     }
 
-    public class LoadSingleSceneAsyncOperation : CommandBase<LoadSingleSceneAsyncOperation> , IProgressCommand
+    public class LoadSingleSceneAsyncOperation : CommandBase<LoadSingleSceneAsyncOperation>, IProgressCommand
     {
         private readonly string scenePath;
-        private readonly GlobalSceneManager globalSceneManager;
         private readonly bool triggerSceneCallbacks;
         private AsyncOperation op;
 
@@ -58,59 +131,62 @@ namespace Bloodthirst.Core.Setup
 
         string IProgressCommand.TaskName => $"Loading Scene {scenePath}";
 
-        public LoadSingleSceneAsyncOperation(string scene, bool triggerSceneCallbacks, GlobalSceneManager globalSceneManager)
+        public LoadSingleSceneAsyncOperation(string scene, bool triggerSceneCallbacks)
         {
             this.scenePath = scene;
             this.triggerSceneCallbacks = triggerSceneCallbacks;
-            this.globalSceneManager = globalSceneManager;
         }
 
         public override void OnStart()
         {
             op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(scenePath, LoadSceneMode.Additive);
-            op.completed += OnSceneLoadComplete;
         }
 
         public override void OnTick(float delta)
         {
             CurrentProgress = op.progress;
+
+            if (op.isDone)
+            {
+                OnSceneLoadComplete();
+            }
         }
 
-        private void OnSceneLoadComplete(AsyncOperation op)
+        private void OnSceneLoadComplete()
         {
-            Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
+            Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath("Assets/" + scenePath + ".unity");
 
-            List<GameObject> sceneGOs = ListPool<GameObject>.Get();
-            scene.GetRootGameObjects(sceneGOs);
-
-            if (triggerSceneCallbacks)
+            using (ListPool<GameObject>.Get(out List<GameObject> sceneGOs))
+            using (ListPool<IOnSceneLoaded>.Get(out List<IOnSceneLoaded> loaded))
+            using (ListPool<ISceneInstanceManager>.Get(out List<ISceneInstanceManager> manager))
             {
-                GameObjectUtils.GetAllComponents<IBeforeAllScenesInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<ISceneInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IPostSceneInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IAfterAllScenesIntializationPass>(sceneGOs, true).ForEach(e => e.Execute()); ;
+                scene.GetRootGameObjects(sceneGOs);
 
-                GameObjectUtils.GetAllComponents<ISetupSingletonPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IQuerySingletonPass>(sceneGOs, true).ForEach(e => e.Execute()); ;
-                GameObjectUtils.GetAllComponents<IInjectPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IAwakePass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IEnablePass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IPostEnablePass>(sceneGOs, true).ForEach(e => e.Execute());
+                GameObjectUtils.GetAllComponents(ref manager, sceneGOs, true);
+
+                Assert.IsTrue(manager.Count == 1);
+
+                ISceneInstanceManager sceneManager = manager[0];
+
+                if (triggerSceneCallbacks)
+                {
+                    GameObjectUtils.GetAllComponents(ref loaded, sceneGOs, true);
+
+                    for (int i = 0; i < loaded.Count; i++)
+                    {
+                        IOnSceneLoaded e = loaded[i];
+                        e.OnLoaded(sceneManager);
+                    }
+                }
+
+                BProviderRuntime.Instance.RegisterInstance<ISceneInstanceManager>(sceneManager);
+
+                CurrentProgress = 1;
+
+                Success();
             }
 
-            ISceneInstanceManager sceneInstanceManager = GameObjectUtils.GetAllComponents<ISceneInstanceManager>(sceneGOs, true).FirstOrDefault();
 
-            Assert.IsNotNull(sceneInstanceManager);
-
-            globalSceneManager.RegisterScene(sceneInstanceManager);
-
-            op.completed -= OnSceneLoadComplete;
-
-            ListPool<GameObject>.Release(sceneGOs);
-
-            CurrentProgress = 1;
-
-            Success();
         }
     }
 }

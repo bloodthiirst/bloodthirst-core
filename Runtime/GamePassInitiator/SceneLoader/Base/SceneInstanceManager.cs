@@ -89,33 +89,16 @@ namespace Bloodthirst.Core.SceneManager
 
         private LoadingManager loadingManager;
 
-        private GlobalSceneManager globalSceneManager;
-
-        [SerializeField]
-        private UnityEvent onSceneInitialization;
-
-        [SerializeField]
-        private UnityEvent onPostSceneInitialization;
-
-        void ISceneInstanceManager.Initialize(LoadingManager loadingManager, GlobalSceneManager globalSceneManager)
+        
+        void ISceneInstanceManager.Initialize(LoadingManager loadingManager)
         {
             this.loadingManager = loadingManager;
-            this.globalSceneManager = globalSceneManager;
 
             Scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(ScenePath);
 
             Assert.IsNotNull(loadingManager);
 
             QuerySceneGameObjects();
-
-            onSceneInitialization?.Invoke();
-        }
-
-        void ISceneInstanceManager.OnPostInitialization()
-        {
-            onPostSceneInitialization?.Invoke();
-
-            Debug.Log($" [SCENE LOADED] {Scene.name} - Loading Order => {Scene.buildIndex}");
         }
 
         public void QuerySceneGameObjects()
@@ -348,9 +331,9 @@ namespace Bloodthirst.Core.SceneManager
         [Button(ButtonSizes.Large)]
         [PropertyTooltip("Unloads the scene")]
 #endif
-        public void UnloadScene()
+        private void UnloadScene()
         {
-            loadingManager.RunAsyncTask(new UnloadSingleSceneAsyncWrapper(this, globalSceneManager, true));
+            loadingManager.RunAsyncTask(new UnloadSingleSceneAsyncWrapper(this, true, true));
         }
     }
 }

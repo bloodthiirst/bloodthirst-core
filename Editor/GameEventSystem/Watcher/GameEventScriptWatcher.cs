@@ -16,12 +16,15 @@ namespace Bloodthirst.Core.GameEventSystem
             if (!EditorConsts.ON_ASSEMBLY_RELOAD_GAME_EVENT_SCRIPT_WATCHER)
                 return;
 
-            ScriptAssetWatcher.OnScriptRemoved -= HandleScriptRemoved;
-            ScriptAssetWatcher.OnScriptRemoved += HandleScriptRemoved;
+            AssetWatcher.OnAssetRemoved -= HandleScriptRemoved;
+            AssetWatcher.OnAssetRemoved += HandleScriptRemoved;
         }
 
-        private static void HandleScriptRemoved(MonoImporter monoImporter)
+        private static void HandleScriptRemoved(AssetImporter importer)
         {
+            if (!(importer is MonoImporter monoImporter))
+                return;
+
             MonoScript script = monoImporter.GetScript();
 
             if (script == null)

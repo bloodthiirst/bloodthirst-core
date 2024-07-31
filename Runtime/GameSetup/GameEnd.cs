@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using Bloodthirst.Core.Utils;
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using UnityEngine.Pool;
 #if UNITY_EDITOR
@@ -29,49 +29,74 @@ namespace Bloodthirst.Core.Setup
             Debug.Log("[IPostGameEnd] Game has unloaded successfully");
         }
 
-        public IEnumerator End()
+        private IEnumerator End()
         {
-
-            List<GameObject> allGOs = ListPool<GameObject>.Get();
-
-            // query
-            GameObjectUtils.GetAllRootGameObjects(allGOs);
-
-            // pre
-            GameObjectUtils.GetAllComponents<IPreGameEnd>(allGOs, true).OrderBy(p => p.Order).ToList().ForEach((e) => e.Execute());
-
-            // setup
-            LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
-
-            List<IGameEnd> gameEnds = ListPool<IGameEnd>.Get();
-
-            GameObjectUtils.GetAllComponents(ref gameEnds, true);
-
-            IEnumerable<IAsynOperationWrapper> asyncOps = gameEnds.OrderBy(p => p.Order).Select(g => g.GetAsyncOperations()).Where(g => g != null);
-
-            foreach (IAsynOperationWrapper op in asyncOps)
+            using (ListPool<GameObject>.Get(out List<GameObject> allGOs))
+            using (ListPool<IPreGameEnd>.Get(out List<IPreGameEnd> preGameEnd))
+            using (ListPool<IGameEnd>.Get(out List<IGameEnd> gameEnds))
+            using (ListPool<IAsynOperationWrapper>.Get(out List<IAsynOperationWrapper> asyncOps))
+            using (ListPool<IPostGameEnd>.Get(out List<IPostGameEnd> postGameEnd))
             {
-                manager.RunAsyncTask(op);
-            }
+                // query
+                GameObjectUtils.GetAllRootGameObjects(allGOs);
 
-            ListPool<IGameEnd>.Release(gameEnds);
+                // pre
+                {
+                    GameObjectUtils.GetAllComponents<IPreGameEnd>(ref preGameEnd, allGOs, true);
+                    preGameEnd.Sort((a, b) => a.Order.CompareTo(b.Order));
+                    foreach (IPreGameEnd e in preGameEnd)
+                    {
+                        e.Execute();
+                    }
+                }
 
-            yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
+                LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
 
-            // refetch because IGameEnd will destroy most of the game scenes
-            allGOs.Clear();
-            GameObjectUtils.GetAllRootGameObjects(allGOs);
+                // setup
+                {
+                    GameObjectUtils.GetAllComponents(ref gameEnds, true);
 
-            // post
-            GameObjectUtils.GetAllComponents<IPostGameEnd>(allGOs, true).ForEach((e) => e.Execute());
+                    gameEnds.Sort((a, b) => a.Order.CompareTo(b.Order));
 
-            ListPool<GameObject>.Release(allGOs);
+                    foreach (IGameEnd e in gameEnds)
+                    {
+                        IAsynOperationWrapper op = e.GetAsyncOperations();
 
+                        if (op == null)
+                            continue;
+
+                        asyncOps.Add(op);
+                    }
+
+                    foreach (IAsynOperationWrapper op in asyncOps)
+                    {
+                        manager.RunAsyncTask(op);
+                    }
+                }
+
+                yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
+
+                // post
+                {
+                    // refetch because IGameEnd will destroy most of the game scenes
+                    allGOs.Clear();
+                    GameObjectUtils.GetAllRootGameObjects(allGOs);
+
+                    // post
+                    GameObjectUtils.GetAllComponents<IPostGameEnd>(ref postGameEnd, allGOs, true);
+
+                    foreach (IPostGameEnd e in postGameEnd)
+                    {
+                        e.Execute();
+                    }
+
+                }
 #if UNITY_EDITOR
-            EditorApplication.ExitPlaymode();
+                EditorApplication.ExitPlaymode();
 #else
             Application.Quit(0);
 #endif
+            }
         }
 
 #if ODIN_INSPECTOR

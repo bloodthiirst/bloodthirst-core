@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.System.Quadrant
 {
@@ -17,6 +18,7 @@ namespace Bloodthirst.System.Quadrant
         public event Action<List<int>, T> OnEntityRemoved;
 
         private Vector3 cubeSize;
+
         /// <summary>
         /// The size of the cube that will be used to divide the world
         /// </summary>
@@ -54,23 +56,24 @@ namespace Bloodthirst.System.Quadrant
         private void OnCubeResized()
         {
             // cache previous entities
-            List<TLeaf> list = new List<TLeaf>();
-
-            foreach (TLeaf l in quadTree.RootLeafs)
+            using (ListPool<TLeaf>.Get(out List<TLeaf> list))
             {
-                list.AddRange(l.GetAllRecursively());
-            }
-
-            quadTree.Clear();
-
-            List<T> elements = list.SelectMany(l => l.Elements).ToList();
-
-            foreach (TLeaf l in list)
-            {
-                foreach (T e in l.Elements)
+                foreach (TLeaf l in quadTree.RootLeafs)
                 {
-                    e.QuandrantId = null;
-                    Add(e);
+                    list.AddRange(l.GetAllRecursively());
+                }
+
+                quadTree.Clear();
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    TLeaf l = list[i];
+
+                    foreach (T e in l.Elements)
+                    {
+                        e.QuandrantId = null;
+                        Add(e);
+                    }
                 }
             }
         }

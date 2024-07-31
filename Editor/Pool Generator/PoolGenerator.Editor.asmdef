@@ -8,15 +8,20 @@
         "GUID:fc39af5560e2f0d45a684977ceb06a77",
         "GUID:12e5c912b42f2454ab6e7e789904681c",
         "GUID:db0ea49d14eadb245afa192ac9e0e422",
-        "GUID:0d1d1b8996d59334bb6075ac242efaef"
+        "GUID:0d1d1b8996d59334bb6075ac242efaef",
+        "GUID:315fc73ff153fb24a8d896a4a2b90157",
+        "GUID:bdf04e037803ea54c8664d76b65b745c",
+        "GUID:21e9fa1573f98384ca51f162b5d39574"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Sirenix.Serialization.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

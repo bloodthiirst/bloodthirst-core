@@ -129,7 +129,7 @@ namespace Bloodthirst.Core.Utils
             }
             catch(Exception ex)
             {
-
+                Debug.LogException(ex);
             }
 
             return null;

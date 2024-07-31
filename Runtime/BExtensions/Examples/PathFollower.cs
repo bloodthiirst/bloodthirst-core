@@ -3,6 +3,7 @@ using Bloodthirst.Scripts.Utils;
 	using Sirenix.OdinInspector;
 #endif
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static Bloodthirst.Scripts.Utils.PathUtils;
 
@@ -123,7 +124,7 @@ public class PathFollower : MonoBehaviour
         state = new WalkingState();
         state.currentPosition = points[0];
         state.pathIndex = 0;
-        state.distanceWalked = 0;
+        state.totalDistanceWalked = 0;
 
 
         follower.position = state.currentPosition;

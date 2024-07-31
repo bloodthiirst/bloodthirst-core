@@ -5,41 +5,52 @@ using Bloodthirst.System.CommandSystem;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Pool;
+using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.Setup
 {
     public class LoadMultipleScenesAsyncWrapper : IAsynOperationWrapper
     {
         private readonly IList<string> scenes;
-        private readonly GlobalSceneManager globalSceneManager;
         private readonly bool triggerCallbacks;
-
-        public LoadMultipleScenesAsyncWrapper(IList<string> scenes, GlobalSceneManager globalSceneManager, bool triggerCallbacks)
+        private readonly bool showLoadingScreen;
+        public bool ShowLoadingScreen => showLoadingScreen;
+        public LoadMultipleScenesAsyncWrapper(IList<string> scenes, bool triggerCallbacks, bool showLoadingScreen)
         {
             this.scenes = scenes;
-            this.globalSceneManager = globalSceneManager;
             this.triggerCallbacks = triggerCallbacks;
+            this.showLoadingScreen = showLoadingScreen;
+        }
+
+        public bool ShouldExecute()
+        {
+            foreach (string s in scenes)
+            {
+                Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(s);
+
+                if (!scene.isLoaded)
+                    return true;
+            }
+
+            return false;
         }
 
         IProgressCommand IAsynOperationWrapper.CreateOperation()
         {
-            return new LoadMultipleScenesAsyncOperation(scenes, globalSceneManager, triggerCallbacks);
+            return new LoadMultipleScenesAsyncOperation(scenes, triggerCallbacks);
         }
     }
-
-
 
     public class LoadMultipleScenesAsyncOperation : TreeCommandBase<LoadMultipleScenesAsyncOperation>, IProgressCommand
     {
         private readonly IList<string> scenes;
-        private readonly GlobalSceneManager globalSceneManager;
         private readonly bool triggerCallbacks;
         private List<LoadSingleSceneAsyncOperation> subCommands;
-        public LoadMultipleScenesAsyncOperation(IList<string> scenes, GlobalSceneManager globalSceneManager, bool triggerCallbacks) : base()
+        public LoadMultipleScenesAsyncOperation(IList<string> scenes, bool triggerCallbacks) : base()
         {
             this.scenes = scenes;
-            this.globalSceneManager = globalSceneManager;
             this.triggerCallbacks = triggerCallbacks;
             subCommands = new List<LoadSingleSceneAsyncOperation>();
         }
@@ -68,7 +79,7 @@ namespace Bloodthirst.Core.Setup
             {
                 string scene = scenes[i];
 
-                LoadSingleSceneAsyncOperation cmd = new LoadSingleSceneAsyncOperation(scene, false, globalSceneManager);
+                LoadSingleSceneAsyncOperation cmd = new LoadSingleSceneAsyncOperation(scene, false);
 
                 cmd.OnCurrentProgressChanged += Cmd_OnCurrentProgressChanged;
 
@@ -114,37 +125,34 @@ namespace Bloodthirst.Core.Setup
 
             if (triggerCallbacks)
             {
-                List<GameObject> sceneGOs = ListPool<GameObject>.Get();
-                List<GameObject> cache = ListPool<GameObject>.Get();
-
-                for (int i = 0; i < scenes.Count; i++)
+                using (ListPool<GameObject>.Get(out List<GameObject> sceneGOs))
+                using (ListPool<IOnSceneLoaded>.Get(out List<IOnSceneLoaded> loaded))
+                using (ListPool<ISceneInstanceManager>.Get(out List<ISceneInstanceManager> manager))
                 {
-                    string scenePath = scenes[i];
+                    for (int i = 0; i < scenes.Count; i++)
+                    {
+                        string scenePath = scenes[i];
 
-                    UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
+                        Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
 
-                    // note : this does a clear already so no need to do it ourselves
-                    scene.GetRootGameObjects(cache);
-                    sceneGOs.AddRange(cache);
+                        // note : this does a clear already so no need to do it ourselves
+                        scene.GetRootGameObjects(sceneGOs);
 
+                        // trigger scene callbacks
+                        GameObjectUtils.GetAllComponents(ref loaded, sceneGOs, true);
+                        GameObjectUtils.GetAllComponents(ref manager, sceneGOs, true);
+
+                        Assert.IsTrue(manager.Count == 1);
+
+                        ISceneInstanceManager sceneInstance = manager[0];
+
+                        for (int j = 0; j < loaded.Count; j++)
+                        {
+                            IOnSceneLoaded e = loaded[j];
+                            e.OnLoaded(sceneInstance);
+                        }
+                    }
                 }
-
-                // trigger scene callbacks
-                GameObjectUtils.GetAllComponents<IBeforeAllScenesInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<ISceneInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IPostSceneInitializationPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IAfterAllScenesIntializationPass>(sceneGOs, true).ForEach(e => e.Execute()); ;
-
-                GameObjectUtils.GetAllComponents<ISetupSingletonPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IQuerySingletonPass>(sceneGOs, true).ForEach(e => e.Execute()); ;
-                GameObjectUtils.GetAllComponents<IInjectPass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IAwakePass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IEnablePass>(sceneGOs, true).ForEach(e => e.Execute());
-                GameObjectUtils.GetAllComponents<IPostEnablePass>(sceneGOs, true).ForEach(e => e.Execute());
-
-
-                ListPool<GameObject>.Release(cache);
-                ListPool<GameObject>.Release(sceneGOs);
             }
 
             subCommands.Clear();

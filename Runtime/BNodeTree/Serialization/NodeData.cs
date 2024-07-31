@@ -1,5 +1,7 @@
 ﻿#if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.Serialization;
+using Sirenix.OdinInspector;
+
 #endif
 using UnityEngine;
 
@@ -19,6 +21,7 @@ namespace Bloodthirst.Runtime.BNodeTree
 #if ODIN_INSPECTOR
         [Title("Node Data")]
         [ShowInInspector]
+        [OdinSerialize]
 #endif
 
         private INodeType nodeType;

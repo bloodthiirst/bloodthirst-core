@@ -2,14 +2,16 @@
     "name": "SceneLoadHelper.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:fc39af5560e2f0d45a684977ceb06a77"
+        "GUID:fc39af5560e2f0d45a684977ceb06a77",
+        "GUID:ef1cf7a4d0cb39041bccbaf7920b5b0f",
+        "GUID:478a2357cc57436488a56e564b08d223"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
+    "overrideReferences": true,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],

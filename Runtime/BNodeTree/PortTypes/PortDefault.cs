@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Runtime.BInspector;
+using Sirenix.Serialization;
 using System;
 
 namespace Bloodthirst.Runtime.BNodeTree
@@ -8,12 +9,18 @@ namespace Bloodthirst.Runtime.BNodeTree
         #region PortDefault<TNode> implementation
         [BInspectorIgnore]
         public Type PortValueType { get; protected set; }
+
+        [OdinSerialize]
         public string PortName { get; set; }
         [BInspectorIgnore]
         internal TNode ParentNode { get; set; }
+        
         [BInspectorIgnore]
+        [OdinSerialize]
         public PORT_DIRECTION PortDirection { get; set; }
+        
         [BInspectorIgnore]
+        [OdinSerialize]
         internal PORT_TYPE PortType { get; set; }
         [BInspectorIgnore]
         public ILinkType<TNode> LinkAttached { get; internal set; }

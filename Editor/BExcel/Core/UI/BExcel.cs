@@ -6,11 +6,10 @@ using System.Linq;
 using OfficeOpenXml;
 using System.IO;
 using Bloodthirst.Core.Utils;
-using Bloodthirst.Editor.BSearch;
 using System.Collections.Generic;
 using System;
 
-namespace Bloodthirst.Editor.BExcel
+namespace Bloodthirst.Editor.BExcelEditor
 {
     public class BExcel : EditorWindow
     {
@@ -63,14 +62,14 @@ namespace Bloodthirst.Editor.BExcel
                 if (filter != null)
                 {
                     // filter
-                    filter.Setup(CurrentExcelFile);
+                    filter.Setup(this);
 
                     filter.OnFilterChanged -= HandleFilterChanged;
                     filter.OnFilterChanged += HandleFilterChanged;
 
                     // ui
                     filterUi = filter.CreatetUI();
-                    VisualElement filterUiElement = filterUi.Bind(filter , CurrentExcelFile);
+                    VisualElement filterUiElement = filterUi.Bind(filter, this);
 
                     FilterUIContainer.Display(true);
                     FilterUIContainer.Add(filterUiElement);
@@ -79,17 +78,25 @@ namespace Bloodthirst.Editor.BExcel
                 Refresh();
             }
         }
+
+        public UnityEngine.Object CurrentAsset { get; set; }
         private ExcelPackage currentExcelFile;
-        private ExcelPackage CurrentExcelFile
+        private MemoryStream currentMemoryStream;
+
+        public ExcelPackage CurrentExcelFile
         {
             get => currentExcelFile;
             set
             {
                 if (currentExcelFile == value)
+                {
                     return;
+                }
 
                 if (currentExcelFile != null)
+                {
                     currentExcelFile.Dispose();
+                }
 
                 currentExcelFile = value;
                 Refresh();
@@ -122,7 +129,7 @@ namespace Bloodthirst.Editor.BExcel
         {
             err = string.Empty;
 
-            if (!Filter.IsValid(out err))  
+            if (!Filter.IsValid(out err))
                 return false;
 
             return true;
@@ -231,7 +238,9 @@ namespace Bloodthirst.Editor.BExcel
         }
         private void HandleExcelAssetChanged(ChangeEvent<UnityEngine.Object> evt)
         {
-            if(evt.newValue == null)
+            CurrentAsset = evt.newValue;
+
+            if (evt.newValue == null)
             {
                 CurrentExcelFile = null;
                 return;
@@ -239,18 +248,29 @@ namespace Bloodthirst.Editor.BExcel
 
             UnityEngine.Object excelFile = evt.newValue;
 
-            string fullPath = EditorUtils.RelativeToAbsolutePath(AssetDatabase.GetAssetPath(excelFile));
-            byte[] textAsBytes = File.ReadAllBytes(fullPath);
-
-            MemoryStream memoryStream = new MemoryStream(textAsBytes);
-
             try
             {
-                CurrentExcelFile = new ExcelPackage(memoryStream);
+                string fullPath = EditorUtils.RelativeToAbsolutePath(AssetDatabase.GetAssetPath(excelFile));
+                byte[] textAsBytes = File.ReadAllBytes(fullPath);
+
+                currentMemoryStream = new MemoryStream(textAsBytes);
+
+                ExcelPackage excel = new ExcelPackage(currentMemoryStream);
+                excel.Save();
+
+                CurrentExcelFile = excel;
             }
-            catch
+            catch (Exception ex)
             {
-                CurrentExcelFile = null;
+                Debug.LogException(ex);
+
+                if (CurrentExcelFile != null)
+                {
+                    CurrentExcelFile.Dispose();
+                    CurrentExcelFile = null;
+                }
+
+                ExcelAsset.SetValueWithoutNotify(null);
             }
         }
         #endregion
@@ -263,7 +283,7 @@ namespace Bloodthirst.Editor.BExcel
                 CurrentExcelFile = null;
             }
 
-            if(filter != null)
+            if (filter != null)
             {
                 filter.OnFilterChanged -= HandleFilterChanged;
                 filterUi.Unbind();

@@ -16,6 +16,7 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.UIElements;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -88,10 +89,10 @@ namespace Bloodthirst.Core.Utils
             AssemblyReloadEvents.beforeAssemblyReload += BeforeReload;
             AssemblyReloadEvents.afterAssemblyReload += AfterReload;
 
-            ScriptAssetWatcher.OnScriptCreated += HandleCreated;
-            ScriptAssetWatcher.OnScriptMoved += HandleCreated;
-            ScriptAssetWatcher.OnScriptEdited += HandleEdited;
-            ScriptAssetWatcher.OnScriptRemoved += HandleRemoved;
+            AssetWatcher.OnAssetCreated += HandleCreated;
+            AssetWatcher.OnAssetMoved += HandleCreated;
+            AssetWatcher.OnAssetEdited += HandleEdited;
+            AssetWatcher.OnAssetRemoved += HandleRemoved;
         }
 
         private static void BeforeReload()
@@ -120,6 +121,12 @@ namespace Bloodthirst.Core.Utils
                 string curr = CacheAsset.newlyAddedScripts[i];
 
                 TextAsset scriptAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(curr);
+
+                if(scriptAsset == null)
+                {
+                    CacheAsset.newlyAddedScripts.RemoveAt(i);
+                    continue;
+                }
 
                 List<BaseTypeDeclarationSyntax> types = TypesDeclaredInFile(scriptAsset.text);
 
@@ -187,18 +194,27 @@ namespace Bloodthirst.Core.Utils
             ListPool<Type>.Release(typesToRemove);
         }
 
-        private static void HandleRemoved(MonoImporter monoImporter)
+        private static void HandleRemoved(AssetImporter importer)
         {
+            if (!(importer is MonoImporter monoImporter))
+                return;
+
             cacheAsset.removedScripts.Add(monoImporter.assetPath);
         }
 
-        private static void HandleCreated(MonoImporter monoImporter)
+        private static void HandleCreated(AssetImporter importer)
         {
+            if (!(importer is MonoImporter monoImporter))
+                return;
+
             cacheAsset.newlyAddedScripts.Add(monoImporter.assetPath);
         }
 
-        private static void HandleEdited(MonoImporter monoImporter)
+        private static void HandleEdited(AssetImporter importer)
         {
+            if (!(importer is MonoImporter monoImporter))
+                return;
+
             cacheAsset.newlyAddedScripts.Add(monoImporter.assetPath);
             cacheAsset.removedScripts.Add(monoImporter.assetPath);
         }

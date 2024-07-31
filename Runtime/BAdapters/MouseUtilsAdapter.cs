@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Scripts.Core.Utils;
 using UnityEngine;
@@ -8,9 +9,9 @@ namespace Bloodthirst.Runtime.BAdapter
 {
     [BAdapterFor(typeof(MouseUtils))]
     [RequireComponent(typeof(MouseUtils))]
-    public class MouseUtilsAdapter : MonoBehaviour, ISetupSingletonPass
+    public class MouseUtilsAdapter : MonoBehaviour, IOnSceneLoaded
     {
-        void ISetupSingletonPass.Execute()
+        void IOnSceneLoaded.OnLoaded(ISceneInstanceManager sceneInstance)
         {
             MouseUtils mouseUtils = GetComponent<MouseUtils>();
 

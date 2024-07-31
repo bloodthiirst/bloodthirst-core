@@ -59,7 +59,7 @@ namespace Bloodthirst.Core.UI
                 // spawn the ui
                 for (int i = 0; i < uiDiff; i++)
                 {
-                    UI ui = pool.Get();
+                    UI ui = pool.GetTyped();
                     cachedUIs.Add(ui);
                 }
             }

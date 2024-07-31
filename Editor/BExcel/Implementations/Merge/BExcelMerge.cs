@@ -6,10 +6,15 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEngine.Pool;
 
-namespace Bloodthirst.Editor.BSearch
+namespace Bloodthirst.Editor.BExcelEditor
 {
 
+    /// <summary>
+    /// <para>Excel filter made for merging results from multiple sheets into a single one</para>
+    /// <para>The filter groups all the rows by key</para>
+    /// </summary>
     [BExcelFilterName("Excel Merger")]
     public class BExcelMerge : IBExcelFilter
     {
@@ -17,12 +22,16 @@ namespace Bloodthirst.Editor.BSearch
 
         public event Action<IBExcelFilter> OnFilterChanged = null;
 
-        private byte[] ExcelFileAsData { get; set; }
+        public BExcel Editor { get; private set; }
 
+        /// <summary>
+        /// Copy of the input Excel file in bytes
+        /// </summary>
+        private MemoryStream SourceAsStream { get; set; }
         internal string ExportPath { get; set; }
 
         internal string OriginalTab { get; set; }
-        internal UnityEngine.Color OriginalColor{ get; set; }
+        internal UnityEngine.Color OriginalColor { get; set; }
         internal UnityEngine.Color DuplicateColor { get; set; }
 
         internal List<string> DuplicateTabs { get; set; } = new List<string>();
@@ -32,10 +41,13 @@ namespace Bloodthirst.Editor.BSearch
             OnFilterChanged?.Invoke(this);
         }
 
-        void IBExcelFilter.Setup(ExcelPackage excelFile)
-        {;
-            ExcelFileAsData = excelFile.GetAsByteArray();
+        void IBExcelFilter.Setup(BExcel editor)
+        {
+            this.Editor = editor;
+            SourceAsStream = new MemoryStream((int)Editor.CurrentExcelFile.Stream.Length);
+            Editor.CurrentExcelFile.SaveAs(SourceAsStream);
         }
+
         bool IBExcelFilter.IsValid(out string errText)
         {
             if (string.IsNullOrEmpty(ExportPath))
@@ -50,36 +62,39 @@ namespace Bloodthirst.Editor.BSearch
                 return false;
             }
 
-            List<string> tabsNames = new List<string>();
-            tabsNames.Add(OriginalTab);
-            tabsNames.AddRange(DuplicateTabs);
-
-            List<string> unique = tabsNames.Distinct().ToList();
-
-            if (unique.Count != tabsNames.Count)
+            using (ListPool<string>.Get(out List<string> tabsNames))
+            using (ListPool<string>.Get(out List<string> uniqueNames))
             {
-                errText = "All the tabs used have to be unique";
-                return false;
-            }
+                tabsNames.Add(OriginalTab);
+                tabsNames.AddRange(DuplicateTabs);
 
-            errText = string.Empty;
-            return true;
+                uniqueNames.AddRange(tabsNames.Distinct());
+
+                if (uniqueNames.Count != tabsNames.Count)
+                {
+                    errText = "All the tabs used have to be unique";
+                    return false;
+                }
+
+                errText = string.Empty;
+                return true;
+            }
         }
 
         void IBExcelFilter.Execute()
         {
-            byte[] result = GenerateCleanExcel();
-            ExportExcelFile(result);
+            using (ExcelPackage output = GenerateCleanExcel())
+            {
+                ExportExcelFile(output);
+            }
         }
 
-        private void ExportExcelFile(byte[] bytesCopy)
+        private void ExportExcelFile(ExcelPackage output)
         {
             string absolutePath = EditorUtils.RelativeToAbsolutePath(ExportPath);
 
-            using (FileStream fileStream = new FileStream(absolutePath, FileMode.OpenOrCreate, FileAccess.Write))
-            {
-                fileStream.Write(bytesCopy, 0, bytesCopy.Length);
-            }
+            FileInfo fileInfo = new FileInfo(absolutePath);
+            output.SaveAs(fileInfo);
 
             AssetDatabase.Refresh();
 
@@ -97,152 +112,190 @@ namespace Bloodthirst.Editor.BSearch
             EditorGUIUtility.PingObject(fileInProject);
         }
 
-        private byte[] GenerateCleanExcel()
+        private ExcelPackage GenerateCleanExcel()
         {
-            byte[] bytesCopy = new byte[ExcelFileAsData.Length];
-            ExcelFileAsData.CopyTo(bytesCopy, 0);
+            // copy the input excel sheet
+            ExcelPackage editableSheet = new ExcelPackage(SourceAsStream);
+            editableSheet.Save();
 
-            MemoryStream memCopy = new MemoryStream(bytesCopy);
-            ExcelPackage safeCopy = new ExcelPackage(memCopy);
-
-            ExcelWorksheet[] worksheets = new ExcelWorksheet[DuplicateTabs.Count + 1];
-
-            worksheets[0] = safeCopy.Workbook.Worksheets[OriginalTab];
-
-            ExcelWorksheet originalSheet = worksheets[0];
-
-            for (int i = 0; i < DuplicateTabs.Count; i++)
+            // we get an array of all the worksheets in question
+            // with the original sheet at index 0
+            ExcelWorksheet[] allTabs = new ExcelWorksheet[DuplicateTabs.Count + 1];
+            ExcelWorksheet originalTab = null;
             {
-                string tabName = DuplicateTabs[i];
-                worksheets[i + 1] = safeCopy.Workbook.Worksheets[tabName];
-            }
+                allTabs[0] = editableSheet.Workbook.Worksheets[OriginalTab];
+                originalTab = allTabs[0];
 
-
-            // stack all the key/values here
-            Dictionary<string, List<List<ExcelRange>>> keysValueContainer = new Dictionary<string, List<List<ExcelRange>>>();
-
-            int totalColumns = originalSheet.Dimension.Columns;
-
-            for (int i = 0; i < worksheets.Length; i++)
-            {
-                ExcelWorksheet curr = worksheets[i];
-
-                // rows
-                // start from 2 to skip header
-                // note : indexes start from 1 apparently , fking dumb idea
-                for (int row = 2; row < curr.Dimension.Rows + 1; row++)
+                for (int i = 0; i < DuplicateTabs.Count; i++)
                 {
-                    ExcelRange key = curr.Cells[row, 1];
-
-                    string keyVal = key.Text;
-
-                    // skip empty keys
-                    if (string.IsNullOrEmpty(keyVal) || string.IsNullOrWhiteSpace(keyVal))
-                        continue;
-
-                    keyVal = keyVal.Trim();
-
-                    // remove the _Old from the end of keys
-                    while (keyVal.ToLower().EndsWith(OLD_POST_FIX))
-                    {
-                        keyVal = keyVal.Remove(keyVal.Length - 1 - OLD_POST_FIX.Length, OLD_POST_FIX.Length);
-                    }
-
-                    if (!keysValueContainer.TryGetValue(keyVal, out List<List<ExcelRange>> list))
-                    {
-                        list = new List<List<ExcelRange>>();
-                        keysValueContainer.Add(keyVal, list);
-                    }
-
-                    // store all the row values
-                    List<ExcelRange> rowCells = new List<ExcelRange>();
-
-                    for (int x = 1; x < totalColumns + 1; x++)
-                    {
-                        rowCells.Add(curr.Cells[row, x]);
-                    }
-
-                    // add to the list of dulicate rows for the current key
-                    list.Add(rowCells);
+                    string tabName = DuplicateTabs[i];
+                    allTabs[i + 1] = editableSheet.Workbook.Worksheets[tabName];
                 }
             }
 
-            int totalRows = keysValueContainer.Select(kv => kv.Value.Count).Sum();
+            // get the total width of the tab (in columns)
+            int totalColumns = originalTab.Dimension.Columns;
+
+            // stack all the key/values here
+            // At this step , we iterate over all the tabs and scan all the keys
+            // the key value consist of :
+            // Key => Key in the sheet
+            // Value => Collection of rows that have the same key
+            Dictionary<string, List<List<ExcelRange>>> keyToDuplicateRowsContainer = new Dictionary<string, List<List<ExcelRange>>>();
+            {
+                for (int i = 0; i < allTabs.Length; i++)
+                {
+                    ExcelWorksheet curr = allTabs[i];
+
+                    // rows
+                    // start from 2 to skip header
+                    // note : indexes start from 1 apparently , fking dumb idea
+                    for (int row = 2; row < curr.Dimension.Rows + 1; row++)
+                    {
+                        ExcelRange key = curr.Cells[row, 1];
+
+                        string keyVal = key.Text;
+
+                        // skip empty keys
+                        if (string.IsNullOrEmpty(keyVal) || string.IsNullOrWhiteSpace(keyVal))
+                            continue;
+
+                        // remove annoying spaces
+                        keyVal = keyVal.Trim();
+
+                        // remove the _Old from the end of keys
+                        while (keyVal.ToLower().EndsWith(OLD_POST_FIX))
+                        {
+                            keyVal = keyVal.Remove(keyVal.Length - 1 - OLD_POST_FIX.Length, OLD_POST_FIX.Length);
+                        }
+
+                        if (!keyToDuplicateRowsContainer.TryGetValue(keyVal, out List<List<ExcelRange>> duplicatesList))
+                        {
+                            duplicatesList = new List<List<ExcelRange>>();
+                            keyToDuplicateRowsContainer.Add(keyVal, duplicatesList);
+                        }
+
+                        // store all the row values
+                        List<ExcelRange> dupliocateRowCells = new List<ExcelRange>();
+
+                        for (int x = 1; x < totalColumns + 1; x++)
+                        {
+                            dupliocateRowCells.Add(curr.Cells[row, x]);
+                        }
+
+                        // add to the list of duplicate rows for the current key
+                        duplicatesList.Add(dupliocateRowCells);
+                    }
+                }
+            }
+
+            // get the total number of ALL the rows found
+            int totalRows = keyToDuplicateRowsContainer.Select(kv => kv.Value.Count).Sum();
 
             // create result worksheet
             string mergedsheetName = OriginalTab + "_Merged";
-            ExcelWorksheet mergedSheet = safeCopy.Workbook.Worksheets.Add(mergedsheetName);
-            safeCopy.Workbook.Worksheets.MoveBefore(mergedsheetName, OriginalTab);
+            ExcelWorksheet mergedSheet = editableSheet.Workbook.Worksheets.Add(mergedsheetName);
+            editableSheet.Workbook.Worksheets.MoveBefore(mergedsheetName, OriginalTab);
 
             // create rows/cols
             mergedSheet.InsertRow(1, totalRows);
             mergedSheet.InsertColumn(1, totalColumns);
 
-            // copy cols width
-            for (int i = 1; i < totalColumns + 1; i++)
-            {
-                mergedSheet.Column(i).Width = originalSheet.Column(i).Width;
-            }
-
-            
             // copy tab color
-            Color col = originalSheet.TabColor;
-            mergedSheet.TabColor = col;
-            
+            {
+                Color col = originalTab.TabColor;
+                mergedSheet.TabColor = col;
+            }
 
             // copy header
             for (int x = 1; x < totalColumns + 1; x++)
             {
-                originalSheet.Cells[1, x].Copy(mergedSheet.Cells[1, x]);
+                originalTab.Cells[1, x].Copy(mergedSheet.Cells[1, x]);
             }
 
+            // we keep incrementing this index during the iteration
+            // to stack all the merge results one after the other
             int rowIndex = 2;
 
             // flatten the cells
-            foreach (KeyValuePair<string, List<List<ExcelRange>>> kv in keysValueContainer)
+            // the idea is to go from the same key being present in multiple tabs
+            // to a single tab that has all the rows grouped WITH clear distinction to show the duplicated ones
+            // example :
+            // we go from having the same <Key> in [Tab1] [Tab2] and [Tab_3]
+            // to having <Key> <Key_old> <Key_old_old> all of them in [Tab1_Merged]
+            foreach (KeyValuePair<string, List<List<ExcelRange>>> kv in keyToDuplicateRowsContainer)
             {
                 // start with creating the key
                 string key = kv.Key;
 
-                for (int o = 0; o < kv.Value.Count; o++)
+                for (int duplicateIndex = 0; duplicateIndex < kv.Value.Count; duplicateIndex++)
                 {
-                    List<ExcelRange> cellsToCopy = kv.Value[o];
+                    List<ExcelRange> cellsToCopy = kv.Value[duplicateIndex];
 
                     // append the _Old at the end
-                    for (int r = 0; r < o; r++)
+                    for (int r = 0; r < duplicateIndex; r++)
                     {
                         key += "_Old";
                     }
 
-                    UnityEngine.Color bgColor = o == 0 ? OriginalColor : DuplicateColor;
+                    // we assign the original color only to the entries of the original tab (which are always are index 0)
+                    // the rest get the duplicate color
+                    UnityEngine.Color bgColor = duplicateIndex == 0 ? OriginalColor : DuplicateColor;
 
-                    Color excelColor = Color.FromArgb((int) (bgColor.a * 255), (int) (bgColor.r * 255), (int) (bgColor.g * 255) , (int) (bgColor.b * 255));
-                    
+                    Color excelColor = Color.FromArgb((int)(bgColor.a * 255), (int)(bgColor.r * 255), (int)(bgColor.g * 255), (int)(bgColor.b * 255));
+
                     // do the actual copying
                     for (int c = 0; c < cellsToCopy.Count; c++)
                     {
                         ExcelRange resultCell = mergedSheet.Cells[rowIndex, c + 1];
                         cellsToCopy[c].Copy(resultCell);
-                        resultCell.Style.Fill.BackgroundColor.SetColor(excelColor);
+                        //resultCell.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        //resultcell.style.fill.backgroundcolor.setcolor(excelcolor);
                     }
 
+                    // assign the key
                     mergedSheet.Cells[rowIndex, 1].Value = key;
 
                     rowIndex++;
                 }
             }
 
-            mergedSheet.Cells[2, 1, totalRows , totalColumns].Sort(1 , true);
+            // copy columns width
+            for (int i = 1; i < totalColumns + 1; i++)
+            {
+                ExcelColumn merged = mergedSheet.Column(i);
+                ExcelColumn oringial = originalTab.Column(i);
 
-            bytesCopy = safeCopy.GetAsByteArray();
+                merged.Width = oringial.Width;
+                merged.BestFit = oringial.BestFit;
+                merged.ColumnMax = oringial.ColumnMax;
+                merged.Hidden = oringial.Hidden;
+            }
 
-            // clean up
-            memCopy.Close();
-            memCopy.Dispose();
+            // copy row height
+            for (int i = 1; i < totalRows + 1; i++)
+            {
+                ExcelRow merged = mergedSheet.Row(i);
+                ExcelRow oringial = originalTab.Row(i);
 
-            safeCopy.Dispose();
+                merged.CustomHeight = oringial.CustomHeight;
+                merged.Height = oringial.Height;
+                merged.StyleID = oringial.StyleID;
+            }
 
-            return bytesCopy;
+
+            // finally we take all the of the content of the stylesheet (except for the header)
+            // and we sort of the lines by key (the first column)
+            mergedSheet.Cells[2, 1, totalRows, totalColumns].Sort(1, true);
+
+            // finally , at this point the styesheet should be correctly setup
+            // so we read out the content as bytes to return
+            // note : the stylesheet created here  is temporary and used only to manipulate the data
+            // so all we need is the result as bytes , then we can dispose of the stylesheet
+            editableSheet.Save();
+
+            return editableSheet;
+
         }
 
         IBExcelFilterUI IBExcelFilter.CreatetUI()
@@ -252,8 +305,9 @@ namespace Bloodthirst.Editor.BSearch
 
         void IBExcelFilter.Clean()
         {
+            SourceAsStream.Dispose();
             OnFilterChanged = null;
-            ExcelFileAsData = null;
+            SourceAsStream = null;
         }
     }
 }

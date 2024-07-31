@@ -7,16 +7,16 @@ namespace Bloodthirst.Editor
     {
 
         /// <summary>
-        /// NOTE : AdvancedTypeCache depends of the ScriptWatcher , toggle it on if you want to use it
+        /// NOTE : AdvancedTypeCache depends of the AssetWatcher , toggle it on if you want to use it
         /// </summary>
         public static readonly bool ON_ASSEMBLY_RELOAD_GAME_EVENT_SCRIPT_WATCHER = false;
 
         /// <summary>
-        /// NOTE : AdvancedTypeCache depends of the ScriptWatcher , toggle it on if you want to use it
+        /// NOTE : AdvancedTypeCache depends of the AssetWatcher , toggle it on if you want to use it
         /// </summary>
         public static readonly bool ON_ASSEMBLY_RELOAD_ADVANCED_TYPE_CACHE = true;
         
-        public static readonly bool ON_ASSEMBLY_RELOAD_SCRIPTWATCHER = false;
+        public static readonly bool ON_ASSEMBLY_RELOAD_ASSET_WATCHER = true;
         public static readonly bool ON_ASSEMBLY_RELOAD_BADAPTER = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_BHOTRELOAD = false;
         public static readonly bool ON_ASSEMBLY_RELOAD_BINSPECTOR_EDITOR = true;

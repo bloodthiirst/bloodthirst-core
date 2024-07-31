@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.Serialization;
+using System;
 using System.Collections.Generic;
 
 namespace Bloodthirst.Runtime.BNodeTree
@@ -13,7 +14,10 @@ namespace Bloodthirst.Runtime.BNodeTree
 
         public event Action<IPortType> OnPortRemoved;
 
+        [OdinSerialize]
         public int NodeID { get; set; } = -1;
+
+        [OdinSerialize]
         public List<IPortType> Ports { get; set; }
 
         #region INodeType implementation

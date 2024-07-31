@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    
+<engine:VisualElement class="row">
+    <editor:ObjectField name="SceneAsset" class="grow-1 shrink-0 scene-entry"/>
+    <engine:Toggle name="IsOpen" class="grow-0"/>
+    <engine:Button name="LoadSingleBtn" text="Load single" class="grow-0"/>
+    <engine:Button name="LoadAdditivelyBtn" text="Load additively" class="grow-0"/>
+    <engine:Button name="UnloadBtn" text="Unload" class="grow-0"/>
+</engine:VisualElement>
+
+</engine:UXML>

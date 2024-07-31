@@ -129,7 +129,7 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private void HandleGenerateBehaviour()
         {
-            CommandManagerEditor.RunInstant(new CreateBehaviourFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+            CommandManagerEditor.RunInstant(new CreateBehaviourFileCommand(InfoContainer.ModelName, InfoContainer.NamepsaceName, InfoContainer.ModelFolder));
         }
 
         private static void HandleAfterReload()
@@ -139,33 +139,33 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private void HandleGenerateInstance()
         {
-            CommandManagerEditor.RunInstant(new CreateInstanceFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+            CommandManagerEditor.RunInstant(new CreateInstanceFileCommand(InfoContainer.ModelName, InfoContainer.NamepsaceName, InfoContainer.ModelFolder));
         }
 
         private void HandleGenerateInstancePartial()
         {
-            CommandManagerEditor.RunInstant(new CreateInstancePartialFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+            CommandManagerEditor.RunInstant(new CreateInstancePartialFileCommand(InfoContainer.ModelName, InfoContainer.NamepsaceName, InfoContainer.ModelFolder));
         }
 
 
         private void HandleGenerateState()
         {
-            CommandManagerEditor.RunInstant(new CreateStateFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+            CommandManagerEditor.RunInstant(new CreateStateFileCommand(InfoContainer.ModelName, InfoContainer.NamepsaceName, InfoContainer.ModelFolder));
         }
 
         private void HandleGenerateData()
         {
-            CommandManagerEditor.RunInstant(new CreateDataFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+            CommandManagerEditor.RunInstant(new CreateDataFileCommand(InfoContainer.ModelName, InfoContainer.NamepsaceName, InfoContainer.ModelFolder));
         }
 
         private void HandleGenerateGameData()
         {
-            CommandManagerEditor.RunInstant(new CreateGameSaveFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+            CommandManagerEditor.RunInstant(new CreateGameSaveFileCommand(InfoContainer.ModelName, InfoContainer.NamepsaceName, InfoContainer.ModelFolder));
         }
 
         private void HandleGenerateLoadSaveHandler()
         {
-            CommandManagerEditor.RunInstant(new CreateGameSaveHandlerFileCommand(InfoContainer.ModelName, InfoContainer.ModelFolder));
+            CommandManagerEditor.RunInstant(new CreateGameSaveHandlerFileCommand(InfoContainer.ModelName, InfoContainer.NamepsaceName, InfoContainer.ModelFolder));
         }
 
         private void HandleFolderBtn()

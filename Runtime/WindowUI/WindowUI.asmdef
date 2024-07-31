@@ -1,0 +1,16 @@
+{
+    "name": "WindowUI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c311329d69ba2b543b12826b90890901"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -157,25 +157,4 @@ namespace Bloodthirst.Core.BInput
             }
         }
     }
-
-    /*
-    
-    /// <summary>
-    /// Somewhere in ur code in the initialization of ur game , this should be called
-    /// </summary>
-    public void OnGameSetup()
-    {
-        //...
-        // at this point the updateHandler should be registered
-        BInput input = new BInput();
-
-        IBUpdateHandler updateHandler = ServiceProvider.GetSingleton<IBUpdateHandler>();
-
-        // now the input handler will tick since it's added to the "updatables" list
-        updateHandler.Add(input);
-
-        // now we register input singleton in order for it to be used/provided to things that depend on it using "ServiceProvider.GetSingleton<IBInput>()"
-        ServiceProvider.RegisterSingleton<IBInput>(input);
-    }
-    */
 }

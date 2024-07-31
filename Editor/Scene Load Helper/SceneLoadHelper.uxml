@@ -11,8 +11,7 @@ xsi:schemaLocation="
                         UnityEditor.PackageManager.UI ../../../../../UIElementsSchema/UnityEditor.PackageManager.UI.xsd
 "
 >
-    <engine:Label text="Scene Load Helper" />
-  <engine:VisualElement name="RowsContainer">
-    
-  </engine:VisualElement>
+  <engine:Label text="Scene Load Helper" />
+  <engine:VisualElement name="RowsContainer"/>
+  <engine:Button name="LoadAllBtn" text="Load all additively" class="big-btn"/>
 </engine:UXML>

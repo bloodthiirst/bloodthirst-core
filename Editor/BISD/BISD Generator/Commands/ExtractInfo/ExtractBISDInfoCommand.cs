@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CSharp;
 #if ODIN_INSPECTOR
-	using Sirenix.Utilities;
+using Sirenix.Utilities;
 #endif
 using System;
 using System.Collections.Generic;
@@ -69,12 +69,29 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                 {
                     classesList.Add(c);
                 }
-                foreach (ClassDeclarationSyntax c in classesList)
+
+                foreach (ClassDeclarationSyntax currClass in classesList)
                 {
-                    AttributeSyntax attrib = c.AttributeLists.SelectMany(att => att.Attributes).FirstOrDefault(a => a.Name.ToString() == nameof(BISDTag));
+                    AttributeSyntax attrib = currClass.AttributeLists.SelectMany(att => att.Attributes).FirstOrDefault(a => a.Name.ToString() == nameof(BISDTag));
 
                     if (attrib == null)
                         continue;
+
+                    string namespaceName = default;
+
+                    SyntaxNode parentNode = currClass.Parent;
+
+                    while (parentNode != null)
+                    {
+                        if (parentNode is NamespaceDeclarationSyntax namespaceNode)
+                        {
+                            namespaceName = "Found";
+                            break;
+                        }
+
+                        parentNode = parentNode.Parent;
+                    }
+                    Debug.Log(namespaceName);
 
                     string modelName = default;
 
@@ -112,6 +129,8 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
 
                             // enum value as string
                             modelEnum = modelNameSyntax.Name.Identifier.ValueText;
+
+
                         }
                     }
 
@@ -121,6 +140,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                         val = new BISDInfoContainer();
                         val.ModelName = modelName;
                         val.ModelFolder = fileFolder;
+                        val.NamepsaceName = namespaceName;
                         typeList.Add(modelName, val);
                     }
 

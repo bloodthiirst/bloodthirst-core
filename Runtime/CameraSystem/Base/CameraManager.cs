@@ -1,5 +1,5 @@
 ﻿using Bloodthirst.Scripts.Utils;
-using DG.Tweening;
+
 #if ODIN_INSPECTOR
 	using Sirenix.OdinInspector;
 #endif
@@ -47,9 +47,6 @@ namespace Bloodthirst.Systems.CameraSystem
         private ICameraController initCamera = default;
 
         [SerializeField]
-        public Ease easeMode;
-
-        [SerializeField]
         public bool isInTransition;
 
         [SerializeField]
@@ -84,9 +81,6 @@ namespace Bloodthirst.Systems.CameraSystem
             onChangedLookup[0] = HandleOnChangedNoOp;
             onChangedLookup[1] = HandleOnChangedCallback;
 
-
-            DisableAllCameras();
-
             isManagerActive = true;
 
             PickInitialCamera();
@@ -100,14 +94,6 @@ namespace Bloodthirst.Systems.CameraSystem
         public void RemoveCamera(ICameraController camera)
         {
             AllCameras.Remove(camera);
-        }
-
-        private void DisableAllCameras()
-        {
-            foreach (ICameraController camera in AllCameras)
-            {
-                camera.isEnabled = false;
-            }
         }
 
         private void PickInitialCamera()
@@ -130,12 +116,10 @@ namespace Bloodthirst.Systems.CameraSystem
             // disable old camera
             if (ActiveCamera != null)
             {
-                ActiveCamera.isEnabled = false;
                 ActiveCamera = null;
             }
 
             ActiveCamera = camera;
-            ActiveCamera.isEnabled = false;
 
             isInTransition = true;
 
@@ -145,6 +129,7 @@ namespace Bloodthirst.Systems.CameraSystem
 
             camera.ApplyTransform(out position, out rotation);
 
+            /*
             Sequence seqPosition = DOTween.Sequence()
                                     .Append(sceneCamera.transform.DOMove(position, transitionDuration))
                                     .SetEase(easeMode);
@@ -163,13 +148,14 @@ namespace Bloodthirst.Systems.CameraSystem
 
             // play the transition
             mergedPosAndRot.Play();
-
+            */
+            // todo : remporary fix , to avoid using dotween
+            sceneCamera.transform.SetLocalPositionAndRotation(position , rotation);
             camera.OnCameraControllerSelected(false);
         }
 
         private void OnTransitionComplete()
         {
-            ActiveCamera.isEnabled = true;
             isInTransition = false;
         }
         private void OnTransitionUpdate()
@@ -193,7 +179,6 @@ namespace Bloodthirst.Systems.CameraSystem
             // disable old camera
             if (ActiveCamera != null)
             {
-                ActiveCamera.isEnabled = false;
                 ActiveCamera = null;
             }
 
@@ -209,9 +194,9 @@ namespace Bloodthirst.Systems.CameraSystem
 
         }
 
-        private void Update()
+        private void LateUpdate()
         {
-            if (pause || !isManagerActive || isInTransition || ActiveCamera == null || !ActiveCamera.isEnabled)
+            if (pause || !isManagerActive || isInTransition || ActiveCamera == null)
                 return;
 
             ActiveCamera.ApplyTransform(out Vector3 pos, out Quaternion rot);
@@ -225,17 +210,16 @@ namespace Bloodthirst.Systems.CameraSystem
             CameraState currState = new CameraState() { position = pos, rotation = rot };
 
             bool hasChanged = previousRotation != rot || previousPosition != pos;
-
-            int asInt = OptimizationUtils.Reinterpret<bool, int>(hasChanged);
-
-            OnCameraChangedEvent callback = (OnCameraChangedEvent) OptimizationUtils.LookupTableDelegate(onChangedLookup[0], onChangedLookup[1], callbackType , hasChanged);
-
+            
             previousPosition = pos;
             previousRotation = rot;
 
             sceneCamera.transform.SetPositionAndRotation(pos, rot);
 
-            onChangedLookup[asInt](prevState, currState);
+            if (hasChanged)
+            {
+                HandleOnChangedCallback(prevState, currState);
+            }
         }
     }
 }

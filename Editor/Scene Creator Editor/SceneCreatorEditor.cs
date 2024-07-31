@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -14,18 +15,64 @@ using UnityEngine.UIElements;
 public class SceneCreatorEditor : EditorWindow
 {
     private const string SCENE_MANAGER_TEMPALTE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Creator Editor/Template.SceneManager.cs.txt";
+    private const string SCENE_CREATOR_DATA = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Creator Editor/SceneCreatorData.asset";
 
     private const string REPLACE_KEYWORD = "[SCENENAME]";
+
+    private static IReadOnlyList<Type> SceneManagerTypes;
+
+    private static Type SceneManagerAdapterType;
+
+    static SceneCreatorEditor()
+    {
+        // get SceneManagerAdapterType
+        SceneManagerAdapterType = TypeUtils.AllTypes.FirstOrDefault(t => t.Name == "SceneInstanceManagerAdapter");
+
+        // get all SceneManger types
+        SceneManagerTypes = new List<Type>(TypeUtils.AllTypes
+                                    .Where(t => t.IsClass)
+                                    .Where(t => !t.IsAbstract)
+                                    .Where(t => TypeUtils.IsSubTypeOf(t, typeof(MonoBehaviour)) && TypeUtils.IsSubTypeOf(t, typeof(ISceneInstanceManager))));
+    }
+
+    private static SceneCreatorData data;
+    private static SceneCreatorData Data
+    {
+        get
+        {
+            if (data == null)
+            {
+                data = AssetDatabase.LoadAssetAtPath<SceneCreatorData>(SCENE_CREATOR_DATA);
+            }
+
+            if (data == null)
+            {
+                AssetDatabase.CreateAsset(new SceneCreatorData(), SCENE_CREATOR_DATA);
+                data = AssetDatabase.LoadAssetAtPath<SceneCreatorData>(SCENE_CREATOR_DATA);
+            }
+
+            return data;
+        }
+    }
+
+    [InitializeOnLoadMethod]
+    public static void Init()
+    {
+        for (int i = Data.pendingScenesToProcess.Count - 1; i >= 0; i--)
+        {
+            string s = Data.pendingScenesToProcess[i];
+
+            if (CheckForSceneManager(s))
+            {
+                Data.pendingScenesToProcess.RemoveAt(i);
+            }
+        }
+    }
 
     [MenuItem("Bloodthirst Tools/Scene Management/Refresh Scene Setup")]
     private static void SetupTheSceneManagers()
     {
-        EditorApplication.update -= SetupTheSceneManagers;
-
-        bool isNewSceneAdded = false;
-
         // save open scenes
-
         List<Scene> savedOpenScenes = new List<Scene>();
         for (int i = 0; i < SceneManager.sceneCount; i++)
         {
@@ -33,109 +80,13 @@ public class SceneCreatorEditor : EditorWindow
             savedOpenScenes.Add(scene);
         }
 
-        // get all scenes and open them
-        List<Scene> allScenes = new List<Scene>();
-
         List<string> allScenePaths = EditorUtils.GetAllScenePathsInProject();
-        
+
         for (int i = 0; i < allScenePaths.Count; i++)
         {
             string scenePath = allScenePaths[i];
 
-            if (!scenePath.StartsWith("Assets/Scenes"))
-                continue;
-
-            Scene s = SceneManager.GetSceneByPath(scenePath);
-
-            if (!s.IsValid())
-            {
-                s = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
-            }
-            allScenes.Add(s);
-        }
-
-
-        for (int i = 0; i < allScenes.Count; i++)
-        {
-            Scene scene = allScenes[i];
-
-            if (!scene.IsValid())
-            {
-                Debug.LogError($"the scene '{scene.name}' is invalid");
-                continue;
-            }
-            /*
-            if (scene.buildIndex == -1)
-            {
-                continue;
-            }
-            */
-            bool hasManager = scene.GetRootGameObjects().FirstOrDefault(g => g.name.Equals("Scene Manager")) != null;
-
-            // if scene does not have a manager
-
-            if (!hasManager)
-            {
-                // search for the manager type
-
-                Type sceneManagerType = null;
-                Type sceneManagerAdapter = TypeUtils.AllTypes.FirstOrDefault(t => t.Name == "SceneInstanceManagerAdapter");
-
-                IEnumerable<Type> allTypes = TypeUtils.AllTypes
-                                            .Where(t => typeof(MonoBehaviour).IsAssignableFrom(t))
-                                            .Where(t => t.Name.Contains(scene.name + "Manager"));
-
-                foreach (Type t in allTypes)
-                {
-                    if (t.Name.Contains(scene.name + "Manager"))
-                    {
-                        sceneManagerType = t;
-                        break;
-                    }
-                }
-
-                // if scene doesnt have a manager then
-
-                if (sceneManagerType == null)
-                {
-                    //Debug.LogError("Couldn't find the right scene manager for the scene : " + scene.name);
-                    continue;
-                }
-
-                // create the manager gameObject
-
-                GameObject sceneManager = new GameObject("Scene Manager");
-
-                UnityEditor.SceneManagement.EditorSceneManager.MoveGameObjectToScene(sceneManager, scene);
-
-                // add the scene manager component
-
-                sceneManager.AddComponent(sceneManagerType);
-                sceneManager.AddComponent(sceneManagerAdapter);
-
-                UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
-
-                isNewSceneAdded = true;
-            }
-        }
-
-        // close scene and leave the ones previously open
-
-        foreach (string scenePath in EditorUtils.GetAllScenePathsInProject())
-        {
-            Scene s = SceneManager.GetSceneByPath(scenePath);
-
-            if (!savedOpenScenes.Contains(s))
-            {
-                EditorSceneManager.CloseScene(s, true);
-            }
-        }
-
-        // if no scene has been added then exit
-
-        if (!isNewSceneAdded)
-        {
-            return;
+            CheckForSceneManager(scenePath);
         }
 
         // refresh the scene list data
@@ -155,8 +106,98 @@ public class SceneCreatorEditor : EditorWindow
 
         if (HasOpenInstances<SceneLoadHelper>())
         {
-            GetWindow<SceneLoadHelper>().RefreshWindow();
+            GetWindow<SceneLoadHelper>().RedrawUI();
         }
+    }
+
+    /// <summary>
+    /// Checks whether the scene is well setup and tries to setup it up
+    /// </summary>
+    /// <param name="scenePath"></param>
+    /// <returns>true if scene is well setup , false otherwise</returns>
+    private static bool CheckForSceneManager(string scenePath)
+    {
+        if (!scenePath.StartsWith("Assets/Scenes"))
+            return false;
+
+        bool needToClose = false;
+
+        Scene currScene = SceneManager.GetSceneByPath(scenePath);
+
+        if (!currScene.isLoaded)
+        {
+            currScene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+            needToClose = true;
+        }
+
+        if (!HasManagerType(currScene, out Type managerType))
+        {
+            if (needToClose)
+            {
+                EditorSceneManager.CloseScene(currScene, true);
+            }
+            return false;
+        }
+
+        if (HasManager(currScene, managerType))
+        {
+            if (needToClose)
+            {
+                EditorSceneManager.CloseScene(currScene, true);
+            }
+            return true;
+        }
+
+        AddManager(currScene, managerType);
+
+        if (needToClose)
+        {
+            EditorSceneManager.CloseScene(currScene, true);
+        }
+
+        return true;
+    }
+
+    private static bool HasManager(Scene scene, Type managerType)
+    {
+        foreach (GameObject go in scene.GetRootGameObjects())
+        {
+            Component managerCmp = go.GetComponentInChildren(managerType);
+
+            if (managerCmp != null)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasManagerType(Scene scene, out Type managerType)
+    {
+        foreach (Type t in SceneManagerTypes)
+        {
+            if (t.Name == (scene.name + "SceneManager"))
+            {
+                managerType = t;
+                return true;
+            }
+        }
+
+        managerType = null;
+        return false;
+    }
+
+    private static void AddManager(Scene scene, Type managerType)
+    {
+        // create the manager gameObject
+        GameObject sceneManager = new GameObject("Scene Manager");
+
+        SceneManager.MoveGameObjectToScene(sceneManager, scene);
+
+        // add the scene manager component
+        sceneManager.AddComponent(SceneManagerAdapterType);
+        sceneManager.AddComponent(managerType);
+
+        EditorSceneManager.SaveScene(scene);
     }
 
     [MenuItem("Bloodthirst Tools/Scene Management/Scene Creator Editor")]
@@ -186,7 +227,7 @@ public class SceneCreatorEditor : EditorWindow
         root = rootVisualElement;
 
         // Import UXML
-        VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH  + "Scene Creator Editor/SceneCreatorEditor.uxml");
+        VisualTreeAsset visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Creator Editor/SceneCreatorEditor.uxml");
 
         VisualElement labelFromUXML = visualTree.CloneTree();
 
@@ -220,7 +261,7 @@ public class SceneCreatorEditor : EditorWindow
     /// <returns></returns>
     public static string GetSelectedPathOrFallback()
     {
-        string path = "Assets";
+        string path = EditorUtils.GetProjectTabPath();
 
         foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
         {
@@ -249,35 +290,42 @@ public class SceneCreatorEditor : EditorWindow
     /// <param name="sceneName"></param>
     public static void CreateNewScene(string currentFolder, string sceneName)
     {
-        string fullSceneName = sceneName + "Scene";
-
         // folder containing the scene related files
-        string relativePath = $"{currentFolder}/{fullSceneName}";
+        string relativePath = $"{currentFolder}/{sceneName}";
+        string scenePath = $"{relativePath}/{sceneName}.unity";
+        string scriptPath = $"{relativePath}/{sceneName}SceneManager.cs";
 
         EditorUtils.CreateFoldersFromPath(relativePath);
 
-        string finalPath = $"{EditorUtils.PathToProject}/{relativePath}/{sceneName}";
-
-
-
-        string fileContent = AssetDatabase.LoadAssetAtPath<TextAsset>(SCENE_MANAGER_TEMPALTE).text.Replace(REPLACE_KEYWORD, sceneName);
-
         // create file and write its content
-        File.WriteAllText(finalPath + "SceneManager.cs", fileContent);
+        {
+            string absoluteFilePath = EditorUtils.RelativeToAbsolutePath(scriptPath);
+            string fileContent = AssetDatabase.LoadAssetAtPath<TextAsset>(SCENE_MANAGER_TEMPALTE).text.Replace(REPLACE_KEYWORD, sceneName);
+            File.WriteAllText(absoluteFilePath, fileContent);
+        }
 
         // create scene asset
+        {
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+            scene.name = sceneName;
 
-        Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
-        scene.name = sceneName + "Scene";
+            /*
+            Scene openScene = EditorSceneManager.GetSceneByPath(scenePath);
 
-        EditorSceneManager.SaveScene(scene, $"{relativePath}/{fullSceneName}.unity");
+            if(openScene.isLoaded)
+            {
+                EditorSceneManager.CloseScene(openScene, true);
+            }
+            */
+            EditorSceneManager.SaveScene(scene, scenePath, true);
+            EditorSceneManager.CloseScene(scene, true);
+        }
 
-        EditorSceneManager.CloseScene(scene, true);
+        Data.pendingScenesToProcess.Add(scenePath);
 
-        AssetDatabase.ImportAsset($"{relativePath} ", ImportAssetOptions.ForceUpdate);
-
+        AssetDatabase.ImportAsset(scenePath, ImportAssetOptions.ForceUpdate);
+        AssetDatabase.ImportAsset(scriptPath, ImportAssetOptions.ForceUpdate);
         AssetDatabase.SaveAssets();
-
 
     }
 
@@ -293,7 +341,7 @@ public class SceneCreatorEditor : EditorWindow
             GenerateBtn.SetEnabled(true);
 
 
-            string FolderName = evt.newValue + "Scene";
+            string FolderName = evt.newValue;
 
             string relativePath = GetSelectedPathOrFallback()
                         + "/"

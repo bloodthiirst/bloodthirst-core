@@ -1,7 +1,7 @@
 ﻿using Bloodthirst.Core.Setup;
 using Bloodthirst.System.CommandSystem;
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using System;
 using System.Collections.Generic;
@@ -42,7 +42,10 @@ namespace Bloodthirst.Core.SceneManager
         [SerializeField]
         private LOADDING_STATE state;
 
+        [SerializeField]
+        private bool showLoading;
 
+        public bool ShowLoading => showLoading;
         /// <summary>
         /// Progress value between 0 -> 1
         /// </summary>
@@ -64,23 +67,28 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        
+
 #if ODIN_INSPECTOR
-[ShowInInspector]
+        [ShowInInspector]
 #endif
 
-        private BasicQueueCommand loadingQueue;
+        private List<AsynOperationInternalHandle> pendingCommands;
 
-        private List<IProgressCommand> runningCommands;
+#if ODIN_INSPECTOR
+        [ShowInInspector]
+#endif
+        private List<AsynOperationInternalHandle> doneCommands;
 
-        private List<IProgressCommand> remainingCommands;
+#if ODIN_INSPECTOR
+        [ShowInInspector]
+#endif
+        private AsynOperationInternalHandle currentOperation;
+
+        private CommandManager commandManager;
 
         public IProgressCommand CurrentTask()
         {
-            if (remainingCommands.Count == 0)
-                return null;
-
-            return remainingCommands[0];
+            return currentOperation?.command;
         }
 
         public void Initialize(ICommandManagerProvider commandManagerProvider)
@@ -88,63 +96,92 @@ namespace Bloodthirst.Core.SceneManager
             State = LOADDING_STATE.FREE;
             Progress = 0;
 
-            runningCommands = new List<IProgressCommand>();
-            remainingCommands = new List<IProgressCommand>();
+            pendingCommands = new List<AsynOperationInternalHandle>();
+            doneCommands = new List<AsynOperationInternalHandle>();
+            currentOperation = null;
 
-
-            loadingQueue = new BasicQueueCommand(true);
-            commandManagerProvider.Get().AppendCommand(this, loadingQueue, false);
-            loadingQueue.OnCommandAdded += HandleCommandAdded;
-            loadingQueue.OnCommandRemoved += HandleCommandRemoved;
-
+            commandManager = commandManagerProvider.Get();
         }
 
         public void Interrupt()
         {
-            loadingQueue.Interrupt();
-            loadingQueue.OnCommandAdded -= HandleCommandAdded;
-            loadingQueue.OnCommandRemoved -= HandleCommandRemoved;
+            if (currentOperation == null)
+                return;
+
+            currentOperation.command.Interrupt();
+            currentOperation.handle.IsDone = true;
+            currentOperation = null;
+        }
+
+        private void Update()
+        {
+            // if nothing to run
+            if (pendingCommands.Count == 0 && currentOperation == null)
+            {
+                doneCommands.Clear();
+                RefreshState();
+                return;
+            }
+
+            // check if current operation is done
+            if (currentOperation != null)
+            {
+                if (!currentOperation.command.IsDone())
+                {
+                    RefreshState();
+                    return;
+                }
+
+
+                currentOperation.handle.IsDone = true;
+                doneCommands.Add(currentOperation);
+                currentOperation = null;
+            }
+
+            // try to run the next command if needed
+            while (pendingCommands.Count != 0 && currentOperation == null)
+            {
+                AsynOperationInternalHandle curr = pendingCommands[0];
+                pendingCommands.RemoveAt(0);
+
+                if (!curr.handle.Operation.ShouldExecute())
+                {
+                    curr.handle.IsDone = true;
+                }
+                else
+                {
+                    currentOperation = curr;
+                    showLoading = curr.ShowLoadingScreen;
+
+                    IProgressCommand cmd = curr.handle.Operation.CreateOperation();
+                    curr.command = cmd;
+                    commandManager.AppendCommand(this, cmd, true);
+                }
+            }
+
+            RefreshState();
         }
 
         private void RefreshState()
         {
-            if (runningCommands.Count == 0)
+            if (pendingCommands.Count == 0 && currentOperation == null)
             {
                 SetStateAndProgress(LOADDING_STATE.FREE, 0);
                 return;
             }
 
-            float progressSum = 0f;
-            float totalOpsSum = 0f;
+            float progressSum = doneCommands.Count;
+            float totalOpsSum = pendingCommands.Count + doneCommands.Count;
 
-            bool notDone = false;
-
-            for (int i = 0; i < runningCommands.Count; i++)
+            if (currentOperation != null)
             {
-                IProgressCommand curr = runningCommands[i];
-                /*
-                progressSum += curr.CurrentProgress * curr.TotalOpsCount;
-                totalOpsSum += curr.TotalOpsCount;
-                */
-
-                progressSum += curr.CurrentProgress;
+                progressSum += currentOperation.command.CurrentProgress;
                 totalOpsSum++;
-
-
-                notDone = notDone || (curr.CurrentProgress != 1);
             }
 
             float progressPerecentage = progressSum / totalOpsSum;
 
-            if (notDone)
-            {
-                SetStateAndProgress(LOADDING_STATE.LOADING, progressPerecentage);
-                return;
-
-            }
-
-            runningCommands.Clear();
-            SetStateAndProgress(LOADDING_STATE.FREE, 0);
+            SetStateAndProgress(LOADDING_STATE.LOADING, progressPerecentage);
         }
 
         private void SetStateAndProgress(LOADDING_STATE state, float progress)
@@ -174,41 +211,41 @@ namespace Bloodthirst.Core.SceneManager
             }
         }
 
-        private void HandleProgressChanged(IProgressCommand progressCommand, float oldValue, float newValue)
+        public AsyncOperationHandle RunAsyncTask(IAsynOperationWrapper asyncOperations)
         {
-            RefreshState();
+            AsyncOperationHandle handle = new AsyncOperationHandle()
+            {
+                Operation = asyncOperations,
+                IsDone = false
+            };
+
+            AsynOperationInternalHandle internalHandle = new AsynOperationInternalHandle()
+            {
+                command = null,
+                handle = handle,
+                ShowLoadingScreen = asyncOperations.ShowLoadingScreen
+            };
+
+            pendingCommands.Add(internalHandle);
+
+            return handle;
         }
 
-        private void HandleCommandRemoved(ICommandBase batch, ICommandBase cmd)
+
+        private class AsynOperationInternalHandle
         {
-            IProgressCommand casted = (IProgressCommand)cmd;
-            casted.OnCurrentProgressChanged -= HandleProgressChanged;
-
-
-            remainingCommands.Remove(casted);
-
-            RefreshState();
+            public AsyncOperationHandle handle;
+            public IProgressCommand command;
+            public bool ShowLoadingScreen;
         }
-
-        private void HandleCommandAdded(ICommandBase batch, ICommandBase cmd)
-        {
-            IProgressCommand casted = (IProgressCommand)cmd;
-            casted.OnCurrentProgressChanged += HandleProgressChanged;
-
-            runningCommands.Add(casted);
-            remainingCommands.Add(casted);
-
-            RefreshState();
-        }
-
-        public IProgressCommand RunAsyncTask(IAsynOperationWrapper asyncOperations)
-        {
-            IProgressCommand cmd = asyncOperations.CreateOperation();
-            loadingQueue.Enqueue(cmd);
-
-            return cmd;
-        }
-
     }
+
+    public class AsyncOperationHandle
+    {
+        public IAsynOperationWrapper Operation;
+        public bool IsDone;
+    }
+
+
 
 }

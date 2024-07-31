@@ -1,8 +1,5 @@
 #if UNITY_EDITOR
 using Bloodthirst.System.CommandSystem;
-#if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
-#endif
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -22,6 +19,11 @@ namespace Bloodthirst.Editor.Commands
         {
             if (!EditorConsts.ON_ASSEMBLY_RELOAD_COMMAND_MANAGER_EDITOR)
                 return;
+
+            if(commandManager != null)
+            {
+                commandManager.Clear();
+            }
 
             commandManager = new CommandManager();
 

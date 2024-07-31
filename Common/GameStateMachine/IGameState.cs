@@ -3,10 +3,5 @@
 public interface IGameState
 {
     IGameState Parent { get; set; }
-    List<IGameState> SubStates { get; }
-    void OnInitialize();
-    void OnEnter();
-    void OnExitUp();
-    void OnExitDown();
-    void OnDestroy();
+    IReadOnlyList<IGameState> SubStates { get; }
 }

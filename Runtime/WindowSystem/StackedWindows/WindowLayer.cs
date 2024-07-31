@@ -1,4 +1,5 @@
-﻿using Bloodthirst.Core.Utils;
+﻿using Bloodthirst.Core.SceneManager;
+using Bloodthirst.Core.Utils;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 #if ODIN_INSPECTOR
 	using Sirenix.OdinInspector;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.UI
 {
-    public abstract class WindowLayer<T> : MonoBehaviour, IWindowLayer, IPostSceneInitializationPass where T : WindowLayer<T>
+    public abstract class WindowLayer<T> : MonoBehaviour, IWindowLayer, IOnSceneLoaded where T : WindowLayer<T>
     {
         [SerializeField]
         protected RectTransform container;
@@ -32,7 +33,7 @@ namespace Bloodthirst.Core.UI
         public List<IUIWindow> UiWindows { get => uiWindows; set => uiWindows = value; }
 
 
-        void IPostSceneInitializationPass.Execute()
+        public void OnLoaded(ISceneInstanceManager manager)
         {
             CloseAll();
         }

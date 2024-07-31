@@ -84,8 +84,8 @@ namespace Bloodthirst.Editor.CustomComponent
             SearchResult.makeItem = this._MakeItem;
             SearchResult.bindItem = this._BindItem;
             
-            SearchResult.onSelectionChange -= this._OnSelectionChanged;
-            SearchResult.onSelectionChange += this._OnSelectionChanged;
+            SearchResult.selectionChanged -= this._OnSelectionChanged;
+            SearchResult.selectionChanged += this._OnSelectionChanged;
 
             SearchResult.RefreshItems();
 

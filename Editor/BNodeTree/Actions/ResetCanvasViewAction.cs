@@ -21,6 +21,13 @@ namespace Bloodthirst.Editor.BNodeTree
         {
             List<NodeBaseElement> asList = NodeEditor.AllNodes;
 
+            if(asList.Count == 0)
+            {
+                NodeEditor.Zoom = 1;
+                NodeEditor.PanningOffset = Vector2.zero;
+                return;
+            }
+
             float left = asList[0].VisualElement.localBound.xMin;
             float right = asList[0].VisualElement.localBound.xMax;
             float top = asList[0].VisualElement.localBound.yMin;

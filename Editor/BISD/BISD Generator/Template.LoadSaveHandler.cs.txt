@@ -3,7 +3,7 @@ using Bloodthirst.Core.BISDSystem;
 using System;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.Game.[MODELNAME]Model
+namespace [NAMESPACE].[MODELNAME]Model
 {
     [BISDTag("[MODELNAME]" , ClassType.LOAD_SAVE_HANDLER)]
     [Serializable]

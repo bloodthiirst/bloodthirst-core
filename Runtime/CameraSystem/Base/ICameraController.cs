@@ -10,7 +10,8 @@ namespace Bloodthirst.Systems.CameraSystem
 
         void OnCameraControllerSelected(bool isImmidiate);
 
-        void Initialize(CameraManager cameraManager);
+        void Register(CameraManager cameraManager);
+        void Unregister(CameraManager cameraManager);
 
     }
 }

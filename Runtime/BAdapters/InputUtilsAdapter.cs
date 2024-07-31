@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -7,9 +8,9 @@ namespace Bloodthirst.Runtime.BAdapter
 {
     [BAdapterFor(typeof(InputUtils))]
     [RequireComponent(typeof(InputUtils))]
-    public class InputUtilsAdapter : MonoBehaviour, ISetupSingletonPass
+    public class InputUtilsAdapter : MonoBehaviour, IOnSceneLoaded
     {
-        void ISetupSingletonPass.Execute()
+        void IOnSceneLoaded.OnLoaded(ISceneInstanceManager sceneInstance)
         {
             InputUtils globalPool = GetComponent<InputUtils>();
 

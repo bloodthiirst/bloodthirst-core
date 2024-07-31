@@ -1,11 +1,11 @@
 using Bloodthirst.Core.Utils;
-using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Editor.BInspector
@@ -60,7 +60,7 @@ namespace Bloodthirst.Editor.BInspector
 
         public static void DoLayoutRoot(IValueDrawer drawer, IValueProvider info)
         {
-            Assert.True(info.ValuePath.PathType == PathType.ROOT);
+            Assert.IsTrue(info.ValuePath.PathType == PathType.ROOT);
 
             LayoutContext ctx = new LayoutContext()
             {
@@ -80,7 +80,7 @@ namespace Bloodthirst.Editor.BInspector
 
         public static void DoDestroyRoot(IValueDrawer drawer)
         {
-            Assert.True(drawer.ValueProvider.ValuePath.PathType == PathType.ROOT);
+            Assert.IsTrue(drawer.ValueProvider.ValuePath.PathType == PathType.ROOT);
 
             drawer.DrawerContainer.UnregisterCallback<GeometryChangedEvent>(HandleRootDrawerChanged);
 

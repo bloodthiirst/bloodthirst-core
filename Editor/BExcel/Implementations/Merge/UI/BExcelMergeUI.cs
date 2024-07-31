@@ -1,20 +1,21 @@
-﻿using OfficeOpenXml;
+﻿using Bloodthirst.Core.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Bloodthirst.Editor.BSearch
+namespace Bloodthirst.Editor.BExcelEditor
 {
     public class BExcelMergeUI : IBExcelFilterUI
     {
         private const string UXML_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BExcel/Implementations/Merge/UI/BExcelMergeUI.uxml";
         private const string USS_PATH = "Packages/com.bloodthirst.bloodthirst-core/Editor/BExcel/Implementations/Merge/UI/BExcelMergeUI.uss";
 
-        private ExcelPackage ExcelFile { get; set; }
+        private BExcel Editor { get; set; }
         private BExcelMerge ExcelMerge { get; set; }
 
         private VisualElement Root { get; set; }
@@ -32,11 +33,11 @@ namespace Bloodthirst.Editor.BSearch
 
         private List<string> TabNames { get; set; }
 
-        VisualElement IBExcelFilterUI.Bind(IBExcelFilter filter , ExcelPackage excelFile)
+        VisualElement IBExcelFilterUI.Bind(IBExcelFilter filter , BExcel editor)
         {
-            ExcelFile = excelFile;
+            Editor = editor;
             ExcelMerge = (BExcelMerge)filter;
-            TabNames = ExcelFile.Workbook.Worksheets.Select( w => w.Name).ToList();
+            TabNames = editor.CurrentExcelFile.Workbook.Worksheets.Select( w => w.Name).ToList();
             Root = new VisualElement();
 
             // UXML
@@ -84,7 +85,13 @@ namespace Bloodthirst.Editor.BSearch
 
         private void HandleChangeExportClicked()
         {
-            string path = EditorUtility.SaveFilePanelInProject("Select export path", "Merge_Result", "xlsx" , String.Empty);
+            string relativePath = AssetDatabase.GetAssetPath(Editor.CurrentAsset);
+            string defaultPath = EditorUtils.RelativeToAbsolutePath(relativePath);
+
+            string filename = Path.GetFileNameWithoutExtension(defaultPath);
+            string folder = Path.GetDirectoryName(relativePath);
+
+            string path = EditorUtility.SaveFilePanelInProject("Select export path", $"{filename}_Merge", "xlsx" , String.Empty , folder);
 
             ExportPath.value = path;
         }

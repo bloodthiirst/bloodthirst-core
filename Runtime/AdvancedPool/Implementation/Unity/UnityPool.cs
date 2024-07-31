@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
+   
     public class UnityPool<TObject> : UnityPoolBase where TObject : Component
     {
         private static readonly Type Type = typeof(TObject);
@@ -100,28 +101,7 @@ namespace Bloodthirst.Core.AdvancedPool
             _UsedInstances.Remove(comp);
         }
 
-        public override void Get(out GameObject go)
-        {
-            CheckPoolSize();
 
-            TObject obj = _Pool[0];
-
-            _Pool.RemoveAt(0);
-            _UsedInstances.Add(obj);
-
-            obj.transform.SetParent(null);
-            obj.gameObject.SetActive(true);
-
-            IOnSpawn[] array = obj.GetComponentsInChildren<IOnSpawn>(true);
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                IOnSpawn onSpawn = array[i];
-                onSpawn.OnSpawn();
-            }
-
-            go = obj.gameObject;
-        }
 
         public TObject Get<T>(Predicate<TObject> filter)
         {
@@ -162,7 +142,30 @@ namespace Bloodthirst.Core.AdvancedPool
             }
         }
 
-        public TObject Get()
+        public override GameObject Get()
+        {
+            CheckPoolSize();
+
+            TObject obj = _Pool[0];
+
+            _Pool.RemoveAt(0);
+            _UsedInstances.Add(obj);
+
+            obj.transform.SetParent(null);
+            obj.gameObject.SetActive(true);
+
+            IOnSpawn[] array = obj.GetComponentsInChildren<IOnSpawn>(true);
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                IOnSpawn onSpawn = array[i];
+                onSpawn.OnSpawn();
+            }
+
+            return obj.gameObject;
+        }
+
+        public TObject GetTyped()
         {
             CheckPoolSize();
 
@@ -211,7 +214,7 @@ namespace Bloodthirst.Core.AdvancedPool
             ReturnWithoutCallbacks(t);
         }
 
-        protected override string GetName(Component original, int index)
+        protected override string GetName(UnityEngine.Object original, int index)
         {
             return $"{original.name} - {index}";
         }

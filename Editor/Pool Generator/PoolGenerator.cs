@@ -1,16 +1,16 @@
+using Bloodthirst.Core.AdvancedPool.Pools;
 using Bloodthirst.Core.Utils;
 using Bloodthirst.Editor;
-using Bloodthirst.Editor.CodeGenerator;
 using Bloodthirst.Runtime.BAdapter;
+using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.AdvancedPool.Editor
@@ -24,7 +24,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         #region global pool container
         private const string GLOBAL_POOL_FIELD_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Pool Generator/Template.PoolField.cs.txt";
-        
+
         private const string PREFAB_NAME_TERM = "[PREFAB_NAME]";
         private const string PREFAB_TYPE_TERM = "[PREFAB_TYPE]";
         private const string PREFAB_FIELD_NAME_TERM = "[PREFAB_FIELD_NAME]";
@@ -36,9 +36,8 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         #endregion
 
         #region auto-gen pools
-        private const string POOL_TEMPLATE = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Pool Generator/Template.Pool.cs.txt";
-        private const string POOL_SCRIPTS_PATH = "Assets/Scripts/Pools";
-        private const string POOL_SCENE_FOLDER_PATH = "Assets/Scenes/PoolScene";
+        private const string POOL_SCENE_FOLDER_PATH = "Assets/Scenes/Pool";
+        private const string POOL_SCENE_ASSET_PATH = POOL_SCENE_FOLDER_PATH + "/Pool.unity";
         private const string CLASS_NAME_REPLACE_KEYWORD = "[BEHAVIOUR]";
         private const string CLASS_NAMESPACE_REPLACE_KEYWORD = "[NAMESPACE]";
         private const string GLOBAL_POOL_LIST_START = "// [LOAD_IN_LIST_START]";
@@ -73,11 +72,6 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static List<Component> poolablePrefabs;
 
-        private static Type GetGlobalPoolContainerType()
-        {
-            return TypeUtils.AllTypes.FirstOrDefault(p => p.Name.Equals("GlobalPoolContainer"));
-        }
-
         private static List<Component> PoolablePrefabs
         {
             get
@@ -98,6 +92,13 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             Create();
         }
 
+        [MenuItem("Bloodthirst Tools/AutoGen Pools/Fill Pools Data")]
+        public static void FillPrefabPools()
+        {
+            QueryPrefabs();
+        }
+
+
         [MenuItem("Bloodthirst Tools/AutoGen Pools/Refresh Pools")]
         public static void RefreshPools()
         {
@@ -106,89 +107,12 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static void Clean()
         {
-            // delete global container + pools
-            AssetDatabase.DeleteAsset(POOL_SCRIPTS_PATH);
-
             // delete pools scene
             AssetDatabase.DeleteAsset(POOL_SCENE_FOLDER_PATH);
         }
 
-        private static bool CanRelink()
-        {
-            // there are no poolable types that need to be treated
-            if (PoolableTypes.Count == 0)
-            {
-                return false;
-            }
-
-            // there are no poolable prfabs that need to be treated
-            if (PoolablePrefabs.Count == 0)
-            {
-                return false;
-            }
-
-            if (!HasAllPrefabPoolScripts())
-            {
-                return false;
-            }
-
-            if (!HasGlobalPool())
-            {
-                return false;
-            }
-
-            if (!HasAllPoolFields())
-            {
-                return false;
-            }
-
-            // create it if it's not found
-            // return since the SceneManager script generation will trigger domain reload
-            if (!HasPoolScene())
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool HasAllPoolFields()
-        {
-            Type type = GetGlobalPoolContainerType();
-
-            if (type == null)
-            {
-                return false;
-            }
-
-            // pools fiels
-            List<FieldInfo> poolFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance).ToList();
-
-            if (poolFields.Count != PoolablePrefabs.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < poolFields.Count; i++)
-            {
-                FieldInfo field = poolFields[i];
-
-                Component correctPool = PoolablePrefabs.FirstOrDefault();
-
-                if (correctPool == null)
-                {
-                    Debug.LogError("=> ERROR not all fiels are generated");
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         private static void Create()
         {
-            EditorApplication.delayCall -= Create;
-
             // there are no poolable types that need to be treated
             if (PoolableTypes.Count == 0)
             {
@@ -200,148 +124,25 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             {
                 return;
             }
-
-            bool isReadyToLinkReferences = true;
-
-            AssetDatabase.StartAssetEditing();
-
-            // create folder for the pool scripts
-            EditorUtils.CreateFoldersFromPath(POOL_SCRIPTS_PATH);
-
-            if (!HasAllPrefabPoolScripts())
-            {
-                CreateAllPrefabPoolScripts();
-                isReadyToLinkReferences = false;
-            }
-
-            if (!HasGlobalPool())
-            {
-                isReadyToLinkReferences = false;
-                CreateGlobalPool();
-                RegenerateGlobalPoolFields();
-
-            }
-
-            if (!HasAllPoolFields())
-            {
-                isReadyToLinkReferences = false;
-                RegenerateGlobalPoolFields();
-            }
-
-
-            AssetDatabase.StopAssetEditing();
 
             //create it if it's not found
             // return since the SceneManager script generation will trigger domain reload
             if (!HasPoolScene())
             {
-                isReadyToLinkReferences = false;
-
-                CreatePoolScene();
+                EditorTasks.Add(CreatePoolScene);
             }
 
-
-            if (!isReadyToLinkReferences)
-            {
-                Debug.LogWarning("=> NOT READY to link references");
-
-                // wait for the next reload and recheck again
-                EditorApplication.delayCall -= Create;
-                EditorApplication.delayCall += Create;
-                return;
-            }
-
-            Debug.LogWarning("=> READY to link references");
-
-            BootstrapGameObjectsInScene();
-
-            /*
-            EditorApplication.update -= CheckForPoolsInScene;
-            EditorApplication.update += CheckForPoolsInScene;
-            */
+            EditorTasks.Add(BootstrapGameObjectsInScene);
         }
 
         private static bool HasSceneManager()
         {
             // open scene
-            Scene poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            Scene poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(POOL_SCENE_ASSET_PATH, UnityEditor.SceneManagement.OpenSceneMode.Additive);
 
             GameObject manager = poolsScene.GetRootGameObjects().FirstOrDefault(go => go.name.Equals("Scene Manager"));
 
             return manager != null;
-        }
-
-        private static bool HasAllPrefabPoolScripts()
-        {
-            // get all the scripts in the project
-            List<MonoScript> scripts = EditorUtils.FindScriptAssets()
-                .Where(p => p != null)
-                .Where(p => p.GetClass() != null)
-                .ToList();
-
-            // look to see if there's a poolable type that doesnt't have it's pool script generated yet
-            for (int i = 0; i < PoolableTypes.Count; i++)
-            {
-                Type t = PoolableTypes[i];
-                string poolName = $"{t.Name}Pool";
-
-                TextAsset poolScript = scripts.FirstOrDefault(p => p.GetClass().Name.Equals(poolName));
-
-                // pool class already exists
-                if (poolScript == null)
-                    return false;
-            }
-
-            return true;
-        }
-
-        private static void CreateAllPrefabPoolScripts()
-        {
-            List<MonoScript> scripts = EditorUtils.FindScriptAssets()
-                .Where(s => s != null)
-                .Where(s => s.GetClass() != null)
-                .ToList();
-
-            // generate the scripts
-            foreach (Type t in PoolableTypes)
-            {
-                TextAsset poolScript = scripts.FirstOrDefault(p => p.GetClass().Name.Equals($"{t.Name}Pool"));
-
-                // pool class already exists
-                if (poolScript != null)
-                    continue;
-
-                string relativePath = $"{POOL_SCRIPTS_PATH}/{$"{t.Name}Pool.cs"}";
-                string absolutePath = EditorUtils.RelativeToAbsolutePath(relativePath);
-
-                TextAsset poolTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(POOL_TEMPLATE);
-                string scriptText = poolTemplate
-                                .text
-                                .Replace(CLASS_NAME_REPLACE_KEYWORD, t.Name)
-                                .Replace(CLASS_NAMESPACE_REPLACE_KEYWORD, t.Namespace == null ? string.Empty : $"using {t.Namespace};");
-
-                File.WriteAllText(absolutePath, scriptText);
-
-                AssetDatabase.ImportAsset(relativePath);
-            }
-        }
-
-        private static void CreateGlobalPool()
-        {
-            string relativePath = $"{POOL_SCRIPTS_PATH}/GlobalPoolContainer.cs";
-            string pathToProject = EditorUtils.PathToProject;
-
-            File.WriteAllText(pathToProject + "/" + relativePath, AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text);
-
-            AssetDatabase.ImportAsset(relativePath);
-        }
-
-        private static bool HasGlobalPool()
-        {
-            return EditorUtils.FindScriptAssets()
-                .Where(s => s != null)
-                .Where(s => s.GetClass() != null)
-                .FirstOrDefault(p => p.GetClass().Name.Equals("GlobalPoolContainer")) != null;
         }
 
         /// <summary>
@@ -351,7 +152,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         /// <returns></returns>
         private static bool HasPoolScene()
         {
-            return AssetDatabase.LoadAssetAtPath<SceneAsset>($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity");
+            return AssetDatabase.LoadAssetAtPath<SceneAsset>(POOL_SCENE_ASSET_PATH);
         }
 
         /// <summary>
@@ -359,40 +160,26 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         /// </summary>
         private static void BootstrapGameObjectsInScene()
         {
-
             if (!HasPoolScene())
             {
-                Debug.LogError("PoolScene not found in the project");
+                Debug.LogError("Pool.unity not found in the project");
                 return;
             }
 
             Debug.LogWarning("=> LINKING Pool refs");
 
             // open scene
-            Scene poolsScene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity");
+            Scene poolsScene = SceneManager.GetSceneByPath(POOL_SCENE_ASSET_PATH);
             bool wasOpen = true;
 
             if (!poolsScene.IsValid())
             {
                 wasOpen = false;
-                poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene($"{POOL_SCENE_FOLDER_PATH}/PoolScene.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
+                poolsScene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(POOL_SCENE_ASSET_PATH, UnityEditor.SceneManagement.OpenSceneMode.Additive);
             }
+
             // create global pool GO if necessary
-            Component globalPoolComp = CreateGlobalPoolGameObject(ref poolsScene);
-
-            // create all pools GOs 
-            List<IPoolBehaviour> poolsInScene = CreateSubPoolsGameObjects(ref poolsScene);
-
-            // pools fiels
-            List<FieldInfo> poolFields = GetGlobalPoolContainerType().GetFields(BindingFlags.Public | BindingFlags.Instance).ToList();
-
-            if (poolFields.Count != poolsInScene.Count)
-            {
-                Debug.LogError("=> ERROR the number of fields isn't equal to the number of pools available");
-                return;
-            }
-
-            AssignPoolsToFields(poolFields, poolsInScene, globalPoolComp);
+            GlobalPoolContainer globalPoolComp = CreateGlobalPoolGameObject(ref poolsScene);
 
             UnityEditor.SceneManagement.EditorSceneManager.SaveScene(poolsScene);
 
@@ -402,181 +189,52 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             }
 
             Debug.Log("=> SUCESS AutoGen-Pool setup successfully !");
-
         }
 
-        private static void AssignPoolsToFields(List<FieldInfo> poolFields, List<IPoolBehaviour> poolsInScene, Component globalPoolComp)
+        private static GlobalPoolContainer CreateGlobalPoolGameObject(ref Scene poolsScene)
         {
-            for (int i = 0; i < poolFields.Count; i++)
-            {
-                FieldInfo field = poolFields[i];
+            Type adapterType = TypeUtils.AllTypes
+                .Where(t => t.GetCustomAttribute(typeof(BAdapterForAttribute)) != null)
+                .FirstOrDefault(t => t.GetCustomAttribute<BAdapterForAttribute>().AdapterForType == typeof(IGlobalPool));
 
-                IPoolBehaviour correctPool = poolsInScene.FirstOrDefault(p => field.Name.EndsWith(TextInfo.ToTitleCase(p.Prefab.gameObject.name.RemoveWhitespace())));
-
-                if (correctPool == null)
-                {
-                    Debug.LogError("=> ERROR couldn't link pool field to the correct pool GO");
-                    return;
-                }
-
-                field.SetValue(globalPoolComp, correctPool);
-            }
-        }
-
-        private static List<IPoolBehaviour> CreateSubPoolsGameObjects(ref Scene poolsScene)
-        {
-            List<IPoolBehaviour> allPools = poolsScene
-                            .GetRootGameObjects()
-                            .Select(go => go.GetComponent<IPoolBehaviour>())
-                            .Where(c => c != null).ToList();
-
-            List<IPoolBehaviour> poolsInScene = new List<IPoolBehaviour>();
-
-            // generate a pool for each prefab and add all of of the pools to the "Pools" scene
-            foreach (Component poolablePrefab in PoolablePrefabs)
-            {
-                IPoolBehaviour poolComponent = allPools.FirstOrDefault(p => p.Prefab == poolablePrefab.gameObject);
-
-                // if pool doesn't exists , create
-                if (poolComponent == null)
-                {
-                    GameObject newPoolGo = new GameObject($"Auto-Generated Pool [ {poolablePrefab.name} ]");
-
-                    Type poolType = TypeUtils.AllTypes.FirstOrDefault(t => t.Name.Equals(poolablePrefab.GetType().Name + "Pool"));
-
-
-                    // an adapter behaviour we add to separate the pool funtionality from the scne initialization
-                    PoolAdapter adapter = newPoolGo.AddComponent<PoolAdapter>();
-
-                    // add the pool behaviour
-                    poolComponent = newPoolGo.AddComponent(poolType) as IPoolBehaviour;
-                }             
-
-                // assign the prefab
-                poolComponent.Prefab = poolablePrefab.gameObject;
-
-                // we need to eliminate everyting before the resource folder
-                string resPath = EditorUtils.GetResourcesPath(poolablePrefab);
-
-                poolComponent.PrefabPath = resPath;
-                poolComponent.Count = 100;
-                poolComponent.Initialize();
-
-                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(((Component)poolComponent).gameObject, poolsScene);
-
-                poolsInScene.Add(poolComponent);
-            }
-
-            return poolsInScene;
-        }
-
-        private static Component CreateGlobalPoolGameObject(ref Scene poolsScene)
-        {
-            Type type = GetGlobalPoolContainerType();
+            Assert.IsNotNull(adapterType);
 
             // get or create global pool container
             GameObject globalPoolGO = poolsScene
                 .GetRootGameObjects()
-                .FirstOrDefault(go => go.GetComponent(type) != null);
+                .FirstOrDefault(go => go.TryGetComponent(out GlobalPoolContainer _));
+
+            GlobalPoolContainer globalPool = null;
 
             if (globalPoolGO == null)
             {
-                globalPoolGO = new GameObject(type.Name);
-                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(globalPoolGO, poolsScene);
-                Component comp = globalPoolGO.AddComponent(type);
+                globalPoolGO = new GameObject(nameof(GlobalPoolContainer));
+                SceneManager.MoveGameObjectToScene(globalPoolGO, poolsScene);
 
-                return comp;
+                globalPoolGO.AddComponent(adapterType);
+                globalPool = globalPoolGO.AddComponent<GlobalPoolContainer>();
             }
-
-            return globalPoolGO.GetComponent(type);
-        }
-
-        /// <summary>
-        /// Generates the appropriate name for a pool
-        /// </summary>
-        /// <param name="pool"></param>
-        /// <returns></returns>
-        private static string PrefabToFieldName(Component prefab)
-        {
-            return $"{prefab.GetType().Name}PoolFor{TextInfo.ToTitleCase(prefab.gameObject.name.RemoveWhitespace())}";
-        }
-
-        /// <summary>
-        /// Generates the appropriate name for a pool
-        /// </summary>
-        /// <param name="pool"></param>
-        /// <returns></returns>
-        private static string PrefabToFieldGenerator(Component prefab)
-        {
-            return $"{prefab.GetType().Name}PoolFor{TextInfo.ToTitleCase(prefab.gameObject.name.RemoveWhitespace())}";
-        }
-
-        private static void RegenerateGlobalPoolFields()
-        {
-            string globalPoolTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_TEMPLATE).text;
-            string globalPoolFieldTemplate = AssetDatabase.LoadAssetAtPath<TextAsset>(GLOBAL_POOL_FIELD_TEMPLATE).text;
-
-            TemplateCodeBuilder scriptBuilder = new TemplateCodeBuilder(globalPoolTemplate);
-
-            // write fields
+            else
             {
-                ITextSection poolFieldsWriter = scriptBuilder
-                    .CreateSection(new StartEndTextSection(GLOBAL_POOL_START, GLOBAL_POOL_END));
-                poolFieldsWriter
-                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
-                    .AddWriter(new AppendTextWriter(Environment.NewLine));
-
-                foreach (Component prefab in PoolablePrefabs)
-                {
-                    TemplateCodeBuilder fieldBuilder = new TemplateCodeBuilder(globalPoolFieldTemplate);
-                    fieldBuilder
-                        .CreateSection(new EntireTextSection())
-                        .AddWriter(new ReplaceTermTextWriter(PREFAB_FIELD_NAME_TERM, PrefabToFieldName(prefab)))
-                        .AddWriter(new ReplaceTermTextWriter(PREFAB_TYPE_TERM, prefab.GetType().Name))
-                        .AddWriter(new ReplaceTermTextWriter(PREFAB_NAME_TERM, prefab.name));
-
-                    string poolFieldText = fieldBuilder.Build();
-
-                    poolFieldsWriter.AddWriter(new AppendTextWriter(poolFieldText));
-                }
-
-                poolFieldsWriter
-                    .AddWriter(new AppendTextWriter(Environment.NewLine))
-                    .AddWriter(new AppendTextWriter("\t\t"));
+                globalPool = globalPoolGO.GetComponent<GlobalPoolContainer>();
             }
 
-            // write initialization
-            {
-                ITextSection poolIntializationSection = scriptBuilder
-                    .CreateSection(new StartEndTextSection(GLOBAL_POOL_LIST_START, GLOBAL_POOL_LIST_END));
-                poolIntializationSection
-                    .AddWriter(new ReplaceAllTextWriter(string.Empty))
-                    .AddWriter(new AppendTextWriter(Environment.NewLine));
+            Assert.IsNotNull(globalPool);
 
-                foreach (Component prefab in PoolablePrefabs)
-                {
-                    poolIntializationSection.AddWriter(new AppendTextWriter($"AllPools.Add({PrefabToFieldName(prefab)});"));
-                }
+            GlobalPoolData poolData = EditorUtils.FindAssets<GlobalPoolData>(Array.Empty<string>()).FirstOrDefault();
+            Assert.IsNotNull(poolData);
 
-                poolIntializationSection
-                    .AddWriter(new AppendTextWriter(Environment.NewLine))
-                    .AddWriter(new AppendTextWriter("\t\t"));
-            }
+            globalPool.PoolData = poolData;
 
-            string newScriptText = scriptBuilder.Build();
-
-            string absolutePath = EditorUtils.RelativeToAbsolutePath( $"{POOL_SCRIPTS_PATH}/GlobalPoolContainer.cs");
-
-            File.WriteAllText(absolutePath, newScriptText);
+            return globalPool;
         }
 
         private static void CreatePoolScene()
         {
-            EditorApplication.update -= CreatePoolScene;
             SceneCreatorEditor.CreateNewScene("Assets/Scenes", "Pool");
         }
 
-#region project wide queries
+        #region project wide queries
 
         /// <summary>
         /// Get all poolable prefabs in the project
@@ -653,9 +311,28 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
             return validTypes;
         }
 
-#endregion
 
+        private static void QueryPrefabs()
+        {
+            GlobalPoolData poolData = EditorUtils.FindAssets<GlobalPoolData>(Array.Empty<string>()).FirstOrDefault();
+            Assert.IsNotNull(poolData);
 
+            foreach (Component p in PoolablePrefabs)
+            {
+                poolData.Add(p.gameObject, 50);
+            }
 
+            // cleanup "null" entries
+            poolData.Remove(null);
+
+            EditorUtility.SetDirty(poolData);
+            AssetDatabase.SaveAssetIfDirty(poolData);
+
+            Selection.activeObject = poolData;
+            EditorGUIUtility.PingObject(poolData);
+        }
     }
+
+    #endregion
 }
+

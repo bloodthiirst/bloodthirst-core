@@ -4,6 +4,7 @@
     {
         public string ModelName { get; set; }
         public string ModelFolder { get; set; }
+        public string NamepsaceName { get; set; }
         public BISDInfo Behaviour { get; set; }
         public BISDInfo InstanceMain { get; set; }
         public BISDInfo InstancePartial { get; set; }

@@ -11,22 +11,23 @@ namespace Bloodthirst.Systems.CameraSystem
 
         protected CameraManager _cameraManager;
 
-        void ICameraController.Initialize(CameraManager cameraManager)
+        public void Register(CameraManager cameraManager)
         {
             _cameraManager = cameraManager;
-            _cameraManager.RemoveCamera(this);
             _cameraManager.RegisterCamera(this);
-            Initialize(cameraManager);
+            OnRegister(cameraManager);
         }
-
-        public virtual void Initialize(CameraManager cameraManager) { }
-
-        private void OnDisable()
+        public void Unregister(CameraManager cameraManager)
         {
-            if (_cameraManager != null)
-                _cameraManager.RemoveCamera(this);
+            _cameraManager.RemoveCamera(this);
+            OnUnregister(cameraManager);
+            _cameraManager = null;
         }
 
+        public virtual void OnRegister(CameraManager cameraManager) { }
+        public virtual void OnUnregister(CameraManager cameraManager) { }
         public abstract void OnCameraControllerSelected(bool isImmidiate);
+
+
     }
 }

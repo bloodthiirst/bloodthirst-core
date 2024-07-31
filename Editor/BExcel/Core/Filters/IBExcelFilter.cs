@@ -1,14 +1,11 @@
-﻿using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
-using UnityEngine.UIElements;
+﻿using System;
 
-namespace Bloodthirst.Editor.BSearch
+namespace Bloodthirst.Editor.BExcelEditor
 {
     public interface IBExcelFilter
     {
         event Action<IBExcelFilter> OnFilterChanged;
-        void Setup(ExcelPackage excelFile);
+        void Setup(BExcel excel);
         IBExcelFilterUI CreatetUI();
         bool IsValid(out string errText);
         void Execute();

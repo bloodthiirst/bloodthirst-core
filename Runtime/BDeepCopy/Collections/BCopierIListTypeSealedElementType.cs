@@ -64,8 +64,6 @@ namespace Bloodthirst.BDeepCopy
 
             // cached locals
             object curr = null;
-            Type currType = null;
-            IBCopierInternal c = null;
             object copy = null;
 
             for (int i = 0; i < casted.Count; i++)

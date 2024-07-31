@@ -108,9 +108,9 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                     {
                         classesList.Add(c);
                     }
-                    foreach (ClassDeclarationSyntax c in classesList)
+                    foreach (ClassDeclarationSyntax currClass in classesList)
                     {
-                        AttributeSyntax attrib = c.AttributeLists.SelectMany(att => att.Attributes).FirstOrDefault(a => a.Name.ToString() == nameof(BISDTag));
+                        AttributeSyntax attrib = currClass.AttributeLists.SelectMany(att => att.Attributes).FirstOrDefault(a => a.Name.ToString() == nameof(BISDTag));
 
                         if (attrib == null)
                             continue;
@@ -118,6 +118,29 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
                         string modelName = default;
 
                         string modelEnum = default;
+
+                        string namespaceName = default;
+
+                        NamespaceDeclarationSyntax namespaceNode = null;
+                        {
+                            SyntaxNode parentNode = currClass.Parent;
+
+                            while (parentNode != null)
+                            {
+                                if (parentNode is NamespaceDeclarationSyntax)
+                                {
+                                    namespaceNode = (NamespaceDeclarationSyntax)parentNode;
+                                    break;
+                                }
+
+                                parentNode = parentNode.Parent;
+                            }
+                        }
+
+                        if(namespaceNode != null)
+                        {
+                            namespaceName = namespaceNode.Name.ToFullString();
+                        }
 
                         string fileFolder = d.AssetPath;
 

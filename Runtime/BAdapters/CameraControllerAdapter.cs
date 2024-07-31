@@ -1,4 +1,5 @@
 using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using Bloodthirst.Systems.CameraSystem;
 using UnityEngine;
@@ -7,14 +8,14 @@ namespace Bloodthirst.Runtime.BAdapter
 {
     [BAdapterFor(typeof(ICameraController))]
     [RequireComponent(typeof(ICameraController))]
-    public class CameraControllerAdapter : MonoBehaviour, IQuerySingletonPass
+    public class CameraControllerAdapter : MonoBehaviour, IOnSceneLoaded
     {
-        void IQuerySingletonPass.Execute()
+        void IOnSceneLoaded.OnLoaded(ISceneInstanceManager sceneInstance)
         {
             ICameraController cam = GetComponent<ICameraController>();
             CameraManager _cameraManager = BProviderRuntime.Instance.GetSingleton<CameraManager>();
             
-            cam.Initialize(_cameraManager);
+            cam.Register(_cameraManager);
         }
     }
 }

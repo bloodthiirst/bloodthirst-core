@@ -1,8 +1,8 @@
-﻿using Bloodthirst.Core.Utils;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -22,6 +22,11 @@ namespace Bloodthirst.Core.Utils
             }
 
             ListPool<GameObject>.Release(cache);
+        }
+
+        public static void MoveToScene(GameObject go , Scene scene)
+        {
+            SceneManager.MoveGameObjectToScene(go, scene);
         }
 
         public static List<GameObject> GetAllRootGameObjects()

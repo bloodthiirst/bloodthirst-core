@@ -10,10 +10,10 @@ namespace Bloodthirst.Core.AdvancedPool
         /// </summary>
         public abstract Type PooledType { get; }
 
-        public abstract void Get(out GameObject go);
+        public abstract GameObject Get();
 
         public abstract void Return(GameObject t);
 
-        protected abstract string GetName(Component original, int index);
+        protected abstract string GetName(UnityEngine.Object original, int index);
     }
 }

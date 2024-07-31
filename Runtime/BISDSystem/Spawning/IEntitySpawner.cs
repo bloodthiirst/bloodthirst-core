@@ -15,8 +15,5 @@ namespace Bloodthirst.Core.BISDSystem
         IGlobalPool GenericUnityPool { get; set; }
         T InjectStates<T>(T entity) where T : MonoBehaviour;
         List<GameObject> LoadGameState(GameStateSaveInstance gameData);
-        void RemoveEntity<T>(T player) where T : MonoBehaviour;
-        T SpawnEntity<T>() where T : MonoBehaviour;
-        T SpawnEntity<T>(Predicate<T> filter) where T : MonoBehaviour;
     }
 }

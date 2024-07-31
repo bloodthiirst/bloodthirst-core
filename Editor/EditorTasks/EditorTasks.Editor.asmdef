@@ -1,0 +1,23 @@
+{
+    "name": "EditorTasks.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:439df852977ff5c40bca39a22cbdc1ca",
+        "GUID:a3dbf460a21998748b81fc4dc39d3590",
+        "GUID:fc39af5560e2f0d45a684977ceb06a77"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Sirenix.Serialization.dll",
+        "Sirenix.Serialization.Config.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

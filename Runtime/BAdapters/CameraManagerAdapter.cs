@@ -1,5 +1,5 @@
 ﻿using Bloodthirst.Core.BProvider;
-using Bloodthirst.Scripts.Core.GamePassInitiator;
+using Bloodthirst.Core.Setup;
 using Bloodthirst.Systems.CameraSystem;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -8,9 +8,11 @@ namespace Bloodthirst.Runtime.BAdapter
 {
     [BAdapterFor(typeof(CameraManager))]
     [RequireComponent(typeof(CameraManager))]
-    public class CameraManagerAdapter : MonoBehaviour, ISetupSingletonPass
+    public class CameraManagerAdapter : MonoBehaviour , IPreGameSetup
     {
-        void ISetupSingletonPass.Execute()
+        public int Order => 0;
+
+        void IPreGameSetup.Execute()
         {
             CameraManager cameraManager = GetComponent<CameraManager>();
 

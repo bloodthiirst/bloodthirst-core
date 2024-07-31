@@ -1,4 +1,5 @@
 ﻿using Bloodthirst.Core.BProvider;
+using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.UI;
 using Bloodthirst.Scripts.Core.GamePassInitiator;
 using UnityEngine;
@@ -7,9 +8,9 @@ namespace Bloodthirst.Runtime.BAdapter
 {
     [BAdapterFor(typeof(IWindowLayer))]
     [RequireComponent(typeof(IWindowLayer))]
-    public class WindowLayerAdapter : MonoBehaviour, IQuerySingletonPass
+    public class WindowLayerAdapter : MonoBehaviour, IOnSceneLoaded , IOnSceneUnload
     {
-        void IQuerySingletonPass.Execute()
+        void IOnSceneLoaded.OnLoaded(ISceneInstanceManager sceneInstance)
         {
             IWindowLayer windowLayer = GetComponent<IWindowLayer>();
             BProviderRuntime.Instance.RegisterSingleton<IWindowLayer, IWindowLayer>(windowLayer);
@@ -17,7 +18,7 @@ namespace Bloodthirst.Runtime.BAdapter
             windowLayer.OnInitialize();
         }
 
-        private void OnDestroy()
+        void IOnSceneUnload.OnUnload(ISceneInstanceManager sceneInstance)
         {
             IWindowLayer windowLayer = GetComponent<IWindowLayer>();
             windowLayer.OnDestroy();

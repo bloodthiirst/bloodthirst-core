@@ -26,11 +26,6 @@
     <!-- ORIGINAL TAB -->
     <engine:Label text="Original Tab :" class="title mt-10" />
     <engine:VisualElement name="OriginalTabContainer"/>
-
-
-
-    <engine:Label text="Original Tab :" class="title mt-10" />
-    <engine:VisualElement name="OriginalTabContainer"/>
     
     <!-- ADD DUPLICATE TAB -->
     <engine:Button name="AddTabBtn" text="Add Duplicate Tab" class="mb-10" />

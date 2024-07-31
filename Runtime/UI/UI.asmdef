@@ -4,13 +4,12 @@
     "references": [
         "GUID:3da459fe7e92dc7448c122ceb8b69e06",
         "GUID:1473e5c488cfd1b4f8a3082aad49e732",
-        "GUID:6857bedb558067a489921f99fde28582",
-        "GUID:d87cdfa4d38432247bf492b28a4d5364"
+        "GUID:6857bedb558067a489921f99fde28582"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
+    "overrideReferences": true,
     "precompiledReferences": [
         "DOTween.dll",
         "Sirenix.OdinInspector.Attributes.dll"

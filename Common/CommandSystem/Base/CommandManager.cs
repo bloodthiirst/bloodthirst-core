@@ -44,6 +44,23 @@ namespace Bloodthirst.System.CommandSystem
             commandBatches[updateOrder].Add(cmd);
         }
 
+        public void Clear()
+        {
+            for (int l = 0; l < commandBatches.Count; l++)
+            {
+                for (int i = commandBatches[l].Count - 1; i > -1; i--)
+                {
+                    ICommandBase cmd = commandBatches[l][i];
+
+                    cmd.Interrupt();
+                }
+
+                commandBatches[l].Clear();
+            }
+
+            commandBatches.Clear();
+        }
+
         public void Tick(float deltaTime)
         {
             for (int l = 0; l < commandBatches.Count; l++)

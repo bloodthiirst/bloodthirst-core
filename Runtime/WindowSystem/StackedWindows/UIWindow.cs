@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 
 namespace Bloodthirst.Core.UI
 {
-    public abstract class UIWindow : MonoBehaviour, IUIWindow, IPointerDownHandler, IAwakePass
+    public abstract class UIWindow : MonoBehaviour, IUIWindow, IPointerDownHandler
     {
         [SerializeField]
         protected RectTransform parentTransform;
@@ -52,17 +52,12 @@ namespace Bloodthirst.Core.UI
         public abstract IEnumerator Close();
         public abstract IEnumerator Focus();
         public abstract IEnumerator Unfocus();
-        private void Execute()
+        private void Awake()
         {
             IsOpen = false;
             IsFocused = false;
             Manager.Add(this);
             StartCoroutine(Close());
-        }
-
-        void IAwakePass.Execute()
-        {
-            Execute();
         }
 
         public void OnDestroy()

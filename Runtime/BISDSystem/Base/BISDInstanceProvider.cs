@@ -1,5 +1,8 @@
-﻿using Bloodthirst.Core.BProvider;
+﻿using Bloodthirst.Core.AdvancedPool;
+using Bloodthirst.Core.AdvancedPool.Pools;
+using Bloodthirst.Core.BProvider;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Core.BISDSystem
 {
@@ -17,17 +20,36 @@ namespace Bloodthirst.Core.BISDSystem
         public GameObject GetInstanceToInject()
         {
             EntitySpawner spawner = BProviderRuntime.Instance.GetSingleton<EntitySpawner>();
+            IGlobalPool globalPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>();
 
-            return spawner
-                .SpawnEntity<EntityIdentifier>(e => e.EntityType == EntityType)
-                .gameObject;
+            IPoolBehaviour pool = null;
+
+            foreach (IPoolBehaviour p in globalPool.AllPools)
+            {
+                if (!p.Prefab.TryGetComponent(out EntityIdentifier ent))
+                {
+                    continue;
+                }
+
+                if (ent.EntityType != entityType)
+                {
+                    continue;
+                }
+
+                pool = p;
+                break;
+            }
+
+            Assert.IsNotNull(pool);
+
+            return pool.Pool.Get();
         }
 
         public void PostStatesApplied(GameObject gameObject)
         {
             BProviderRuntime.Instance.
                 GetSingleton<EntitySpawner>().
-                InjectStates<EntityIdentifier>(gameObject.GetComponent<EntityIdentifier>());
+                InjectStates(gameObject);
         }
     }
 }

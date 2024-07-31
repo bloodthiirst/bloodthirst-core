@@ -6,10 +6,7 @@ using UnityEngine;
 using Bloodthirst.Core.Utils;
 
 #if ODIN_INSPECTOR
-#if ODIN_INSPECTOR
 	using Sirenix.OdinInspector;
-#endif
-using Bloodthirst.Core.Utils;
 #endif
 
 #if UNITY_EDITOR

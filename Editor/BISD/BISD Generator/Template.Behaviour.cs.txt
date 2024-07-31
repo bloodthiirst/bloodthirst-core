@@ -2,7 +2,7 @@
 using Bloodthirst.Core.BISDSystem;
 using UnityEngine;
 
-namespace Assets.Scripts.Game.[MODELNAME]Model
+namespace [NAMESPACE].[MODELNAME]Model
 {
     [BISDTag("[MODELNAME]" , ClassType.BEHAVIOUR)]
     public class [MODELNAME]Behaviour : EntityBehaviour<[MODELNAME]Data, [MODELNAME]State, [MODELNAME]Instance>

@@ -119,12 +119,12 @@ namespace Bloodthirst.Editor.BNodeTree
         /// <returns></returns>
         private IEnumerable<MemberInfo> GetAllMembers()
         {
-            foreach (PropertyInfo f in NodeType.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            foreach (PropertyInfo f in NodeType.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.GetCustomAttribute<IgnoreBindableAttribute>() == null))
             {
                 yield return f;
             }
 
-            foreach (FieldInfo f in NodeType.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            foreach (FieldInfo f in NodeType.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where( f => f.GetCustomAttribute<IgnoreBindableAttribute>() == null))
             {
                 yield return f;
             }

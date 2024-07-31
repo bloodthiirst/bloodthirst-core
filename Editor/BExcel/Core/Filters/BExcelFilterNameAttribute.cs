@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bloodthirst.Editor.BSearch
+namespace Bloodthirst.Editor.BExcelEditor
 {
     public class BExcelFilterNameAttribute : Attribute
     {

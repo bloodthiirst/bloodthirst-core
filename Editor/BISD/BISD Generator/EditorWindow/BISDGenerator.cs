@@ -52,6 +52,7 @@ namespace Bloodthirst.Core.BISD.Editor
         public VisualElement BISDList => rootVisualElement.Q<VisualElement>(name = "BISDList");
 
         public TextField ModelName => rootVisualElement.Q<TextField>(name = "ModelName");
+        public TextField NamespaceValue => rootVisualElement.Q<TextField>(nameof(NamespaceValue));
         public TextField SearchFilter => rootVisualElement.Q<TextField>(name = "SearchFilter");
 
         public Label PathPreview => rootVisualElement.Q<Label>(name = "PathPreview");
@@ -376,10 +377,10 @@ namespace Bloodthirst.Core.BISD.Editor
         {
             string currentFolder = GetSelectedPathOrFallback();
 
-            GenerateFiles(currentFolder, ModelName.value);
+            GenerateFiles(currentFolder, ModelName.value , NamespaceValue.value);
         }
 
-        private void GenerateFiles(string currentFolder, string modelName)
+        private void GenerateFiles(string currentFolder, string modelName , string namepsaceName)
         {
             string FolderName = modelName + "Model";
 
@@ -387,13 +388,13 @@ namespace Bloodthirst.Core.BISD.Editor
 
             string relativePath = AssetDatabase.GUIDToAssetPath(folderGUID) + "/";
 
-            CommandManagerEditor.RunInstant(new CreateBehaviourFileCommand(modelName, relativePath));
-            CommandManagerEditor.RunInstant(new CreateInstanceFileCommand(modelName, relativePath));
-            CommandManagerEditor.RunInstant(new CreateInstancePartialFileCommand(modelName, relativePath));
-            CommandManagerEditor.RunInstant(new CreateStateFileCommand(modelName, relativePath));
-            CommandManagerEditor.RunInstant(new CreateDataFileCommand(modelName, relativePath));
-            CommandManagerEditor.RunInstant(new CreateGameSaveFileCommand(modelName, relativePath));
-            CommandManagerEditor.RunInstant(new CreateGameSaveHandlerFileCommand(modelName, relativePath));
+            CommandManagerEditor.RunInstant(new CreateBehaviourFileCommand(modelName, namepsaceName ,relativePath));
+            CommandManagerEditor.RunInstant(new CreateInstanceFileCommand(modelName, namepsaceName, relativePath));
+            CommandManagerEditor.RunInstant(new CreateInstancePartialFileCommand(modelName, namepsaceName, relativePath));
+            CommandManagerEditor.RunInstant(new CreateStateFileCommand(modelName, namepsaceName, relativePath));
+            CommandManagerEditor.RunInstant(new CreateDataFileCommand(modelName, namepsaceName, relativePath));
+            CommandManagerEditor.RunInstant(new CreateGameSaveFileCommand(modelName, namepsaceName, relativePath));
+            CommandManagerEditor.RunInstant(new CreateGameSaveHandlerFileCommand(modelName, namepsaceName, relativePath)) ;
         }
 
         private void OnModelNameChanged(ChangeEvent<string> evt)

@@ -2,7 +2,7 @@
 using Bloodthirst.Core.BISDSystem;
 using System;
 
-namespace Assets.Scripts.Game.[MODELNAME]Model
+namespace [NAMESPACE].[MODELNAME]Model
 {
     [BISDTag("[MODELNAME]" , ClassType.STATE)]
     [Serializable]

@@ -12,9 +12,6 @@ namespace Bloodthirst.Core.BISDSystem
         IInitializeIdentifier,
         IInitializeInstance,
 
-        IHasEntityInstanceRegister,
-        IHasEntityInstanceProvider,
-
         IBehaviour,
         IBehaviourInstance<INSTANCE>,
         IBehaviourState<STATE>,
@@ -106,8 +103,8 @@ namespace Bloodthirst.Core.BISDSystem
 
                 instance.BeforeEntityRemoved -= OnEntityRemove;
                 instance.BeforeEntityRemoved += OnEntityRemove;
-                instance.OnIsActiveChanged += OnIsActiveChanged;
 
+                instance.OnIsActiveChanged += OnIsActiveChanged;
 
                 instance.NotifyInstanceBinded();
 
@@ -168,7 +165,6 @@ namespace Bloodthirst.Core.BISDSystem
         /// </summary>
         protected virtual void InitializeInstance(EntityIdentifier entityIdentifier)
         {
-
             // try loading from injector
             IInstanceInjector<INSTANCE> injector = GetComponentInChildren<IInstanceInjector<INSTANCE>>();
 
@@ -258,16 +254,6 @@ namespace Bloodthirst.Core.BISDSystem
         void IInitializeInstance.InitializeInstance(EntityIdentifier entityIdentifier)
         {
             InitializeInstance(entityIdentifier);
-        }
-
-        void IHasEntityInstanceRegister.InitializeEntityInstanceRegister(IEntityInstanceRegister instanceRegister)
-        {
-            EntityInstanceRegister = instanceRegister;
-        }
-
-        void IHasEntityInstanceProvider.InitializeEntityInstanceProvider(IEntityInstanceProvider instanceProvider)
-        {
-            Instance.InstanceProvider = instanceProvider;
         }
 
         void IInitializeIdentifier.InitializeIdentifier(EntityIdentifier entityIdentifier)

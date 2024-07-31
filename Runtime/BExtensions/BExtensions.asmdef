@@ -1,14 +1,14 @@
 {
     "name": "BExtensions",
     "rootNamespace": "",
-    "references": [
-        "GUID:399acc38f79c20d4c87fec7d1a9c7f20"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Sirenix.OdinInspector.Attributes.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

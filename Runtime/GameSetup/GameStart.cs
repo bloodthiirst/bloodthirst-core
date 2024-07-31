@@ -6,16 +6,24 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Bloodthirst.Core.Utils;
-using Sirenix.OdinInspector;
 using UnityEngine.Pool;
+using Sirenix.Utilities;
+using Sirenix.OdinInspector;
+using System;
 
 namespace Bloodthirst.Core.Setup
 {
     public class GameStart : MonoBehaviour
     {
+        [SerializeField]
+        private bool runInBackground;
 
         [SerializeField]
         private bool executeOnStart;
+
+        [SerializeField]
+        private int targetFramerate;
+
         public bool ExecuteOnStart
         {
             get => executeOnStart;
@@ -25,82 +33,69 @@ namespace Bloodthirst.Core.Setup
         // Start is called before the first frame update
         IEnumerator Start()
         {
-            if (executeOnStart)
-                yield return Setup();
+            Application.runInBackground = runInBackground;
 
-            else
-                yield break;
+            if (executeOnStart)
+            {
+                yield return Setup();
+            }
+
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = targetFramerate;
         }
 
         public IEnumerator Setup()
         {
             // query
             using (ListPool<GameObject>.Get(out List<GameObject> allGos))
+            using (ListPool<IPreGameSetup>.Get(out List<IPreGameSetup> preSetups))
+            using (ListPool<IGameSetup>.Get(out List<IGameSetup> gameSetups))
+            using (ListPool<IAsynOperationWrapper>.Get(out List<IAsynOperationWrapper> asyncOps))
+            using (ListPool<IPostGameSetup>.Get(out List<IPostGameSetup> postSetups))
             {
                 GameObjectUtils.GetAllRootGameObjects(allGos);
-                string[] oldNames = allGos.Select(p => p.name).ToArray();
 
                 // pre
-                List<IPreGameSetup> preSetups = GameObjectUtils.GetAllComponents<IPreGameSetup>(allGos, true).OrderBy(p => p.Order).ToList();
-
-                foreach (IPreGameSetup p in preSetups)
                 {
-                    p.Execute();
+                    GameObjectUtils.GetAllComponents<IPreGameSetup>(ref preSetups, allGos, true);
+                    preSetups.Sort((a, b) => a.Order.CompareTo(b.Order));
+
+                    foreach (IPreGameSetup p in preSetups)
+                    {
+                        p.Execute();
+                    }
                 }
+
                 // setup
-                LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
-
-                List<IGameSetup> gameSetups = new List<IGameSetup>();
-                GameObjectUtils.GetAllComponents(ref gameSetups, true);
-
-                List<IAsynOperationWrapper> asyncOps = gameSetups.SelectMany(g => g.GetAsynOperations()).ToList();
-
-                foreach (IAsynOperationWrapper op in asyncOps)
                 {
-                    manager.RunAsyncTask(op);
+                    LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
+
+                    GameObjectUtils.GetAllComponents(ref gameSetups, true);
+
+                    foreach (IGameSetup g in gameSetups)
+                    {
+                        asyncOps.AddRange(g.GetAsynOperations());
+                    }
+
+                    foreach (IAsynOperationWrapper op in asyncOps)
+                    {
+                        manager.RunAsyncTask(op);
+                    }
+
+                    yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
                 }
-                yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
 
                 // post
-                allGos.Clear();
-                GameObjectUtils.GetAllRootGameObjects(allGos);
-
-                /*
-                 * check for scene count change
-                string[] newNames = allGos.Select(p => p.name).ToArray();
-
-                Dictionary<string, int> counter = new Dictionary<string, int>();
-
-                foreach (string n in oldNames)
                 {
-                    if (counter.ContainsKey(n))
-                    {
-                        counter[n]++;
-                    }
-                    else
-                    {
-                        counter.Add(n, 1);
-                    }
-                }
-                foreach (string n in newNames)
-                {
-                    if (counter.ContainsKey(n))
-                    {
-                        counter[n]++;
-                    }
-                    else
-                    {
-                        counter.Add(n, 1);
-                    }
-                }
-                */
+                    allGos.Clear();
+                    GameObjectUtils.GetAllRootGameObjects(allGos);
 
+                    GameObjectUtils.GetAllComponents<IPostGameSetup>(ref postSetups ,allGos, true);
 
-                List<IPostGameSetup> postSetups = GameObjectUtils.GetAllComponents<IPostGameSetup>(allGos, true).ToList();
-
-                foreach (IPostGameSetup p in postSetups)
-                {
-                    p.Execute();
+                    foreach (IPostGameSetup p in postSetups)
+                    {
+                        p.Execute();
+                    }
                 }
             }
         }

@@ -15,7 +15,8 @@ xsi:schemaLocation="
   <engine:Label text="-Type the name of model to generate :"/>
   <engine:Label text="-Path preview : "/>
   <engine:Label name="PathPreview" />
-  <engine:TextField name="ModelName"></engine:TextField>
+  <engine:TextField name="ModelName" label="Model name"></engine:TextField>
+  <engine:TextField name="NamespaceValue" label="Namespace"></engine:TextField>
   
   <engine:Button text="Generate Model" name="GenerateBtn"/>
   <engine:Button text="Refresh Models" name="RefreshBtn"/>

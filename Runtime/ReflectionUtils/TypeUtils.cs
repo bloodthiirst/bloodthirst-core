@@ -1,7 +1,4 @@
-﻿#if ODIN_INSPECTOR
-	using Sirenix.Utilities;
-#endif
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,7 +11,7 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class TypeUtils
     {
-        private static List<Type> allTypes;
+        private static Type[] allTypes;
 
         public readonly static Type[] PrimitiveTypes = new Type[]
         {
@@ -99,7 +96,7 @@ namespace Bloodthirst.Core.Utils
                     allTypes = AppDomain.CurrentDomain
                                 .GetAssemblies()
                                 .SelectMany(asm => asm.GetTypes())
-                                .ToList();
+                                .ToArray();
                 }
 
                 return allTypes;
@@ -275,7 +272,6 @@ namespace Bloodthirst.Core.Utils
             return IsSubTypeOf(child, parent);
         }
 
-
         private static string GetNiceNameRecursive(Type t)
         {
             if(t == typeof(int))
@@ -333,9 +329,7 @@ namespace Bloodthirst.Core.Utils
         public static string GetNiceName(Type t)
         {
             return GetNiceNameRecursive(t);
-
         }
-
 
         //
         // Summary:

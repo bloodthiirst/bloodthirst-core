@@ -11,6 +11,7 @@ namespace Bloodthirst.Core.BISD.CodeGeneration
     {
         public BISDInfoContainer Container { get; set; }
         public string ModelName { get; set; }
+
         public Type TypeRef { get; set; }
         public TextAsset TextAsset { get; set; }
     }

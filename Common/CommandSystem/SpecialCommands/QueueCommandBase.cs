@@ -94,11 +94,16 @@ namespace Bloodthirst.System.CommandSystem
             {
                 while (commandQueue.Count != 0)
                 {
-                    CommandSettings cmd = commandQueue.Dequeue();
+                    CommandSettings cmdSetting = commandQueue.Dequeue();
 
-                    cmd.Command.GetExcutingCommand().Interrupt();
+                    ICommandBase cmd = cmdSetting.Command.GetExcutingCommand();
+                    
+                    if (cmd.CommandState == COMMAND_STATE.EXECUTING)
+                    {
+                        cmd.Interrupt();
+                    } 
 
-                    OnCommandRemoved?.Invoke(this, cmd.Command);
+                    OnCommandRemoved?.Invoke(this, cmdSetting.Command);
                 }
             }
         }

@@ -4,7 +4,6 @@
     "references": [
         "GUID:1473e5c488cfd1b4f8a3082aad49e732",
         "GUID:5312972b1d3a8464c89ba3f6181dabeb",
-        "GUID:399acc38f79c20d4c87fec7d1a9c7f20",
         "GUID:12e5c912b42f2454ab6e7e789904681c",
         "GUID:3da459fe7e92dc7448c122ceb8b69e06",
         "GUID:315fc73ff153fb24a8d896a4a2b90157",
@@ -14,8 +13,11 @@
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Sirenix.OdinInspector.Attributes.dll",
+        "Sirenix.Serialization.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

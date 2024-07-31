@@ -5,7 +5,7 @@ using System;
 using Bloodthirst.Core.BISD.CodeGeneration;
 using Bloodthirst.Core.BISDSystem;
 
-namespace Assets.Scripts.Game.[MODELNAME]Model
+namespace [NAMESPACE].[MODELNAME]Model
 {
 	[BISDTag("[MODELNAME]" , ClassType.INSTANCE_MAIN)]
     public partial class [MODELNAME]Instance : EntityInstance<[MODELNAME]Data,[MODELNAME]State,[MODELNAME]Instance>
