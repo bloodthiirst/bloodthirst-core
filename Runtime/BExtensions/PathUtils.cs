@@ -233,6 +233,7 @@ namespace Bloodthirst.Scripts.Utils
             return false;
         }
 
+        [Obsolete("Instead of using this every frame , consider converting the path a manhatten path using the \"NormalToManhattenPathConverter\" method")]
         public static WALKING_RESULT WalkAlongPathManhatten(IReadOnlyList<Vector3> path, float speed, ref WalkingState walkingState)
         {
             float distanceToWalk = speed;
@@ -260,42 +261,31 @@ namespace Bloodthirst.Scripts.Utils
             return WALKING_RESULT.WALKING;
         }
 
-        public static WALKING_RESULT WalkAlongPath(IReadOnlyList<Vector3> path, double speed, ref WalkingState walkingState, int finalIndex)
+        public static WALKING_RESULT WalkAlongPath(IReadOnlyList<Vector3> path, float speed, ref WalkingState walkingState)
         {
-            double distanceToWalk = speed;
+            float distanceToWalk = speed;
 
             // we try walking down the path
-            for (; walkingState.pathIndex < finalIndex; walkingState.pathIndex++)
+            while (walkingState.pathIndex < path.Count)
             {
-                Vector3 vecToEndOfSegment = path[walkingState.pathIndex + 1] - walkingState.currentPosition;
+                bool reachedPoint = GetNormalDisplacement(path, distanceToWalk, ref walkingState, out Vector3 pos, out Vector3 normal, out float walked);
 
-                double distanceToEndOfSegement = Math.Sqrt(vecToEndOfSegment.x * vecToEndOfSegment.x + vecToEndOfSegment.y * vecToEndOfSegment.y + vecToEndOfSegment.z * vecToEndOfSegment.z);
+                walkingState.currentPosition = pos;
+                walkingState.totalDistanceWalked += walked;
+                walkingState.lastWalkingDirection = normal;
+                distanceToWalk -= walked;
 
-                // if we can walk more than the current segment
-                // snap to the next point
-                // and continue
-                if (distanceToWalk >= distanceToEndOfSegement || distanceToEndOfSegement <= float.Epsilon)
-                {
-                    walkingState.currentPosition = path[walkingState.pathIndex + 1];
-                    walkingState.totalDistanceWalked += distanceToEndOfSegement;
-                    distanceToWalk -= distanceToEndOfSegement;
-                    continue;
-                }
-
-                // walk along the segment using the rest of the distance left
-                double scaler = distanceToWalk / distanceToEndOfSegement;
-                walkingState.currentPosition.x += (float)(vecToEndOfSegment.x * scaler);
-                walkingState.currentPosition.y += (float)(vecToEndOfSegment.y * scaler);
-                walkingState.currentPosition.z += (float)(vecToEndOfSegment.z * scaler);
-
-                walkingState.totalDistanceWalked += distanceToWalk;
-
-                return WALKING_RESULT.WALKING;
+                if (!reachedPoint)
+                    break;
             }
 
-            walkingState.currentPosition = path[finalIndex];
+            // if we reached the end of the path
+            if (walkingState.pathIndex == path.Count)
+            {
+                return WALKING_RESULT.DONE;
+            }
 
-            return WALKING_RESULT.DONE;
+            return WALKING_RESULT.WALKING;
         }
     }
 }

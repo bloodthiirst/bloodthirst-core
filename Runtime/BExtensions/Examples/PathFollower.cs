@@ -1,6 +1,6 @@
 using Bloodthirst.Scripts.Utils;
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using System;
 using System.Collections.Generic;
@@ -14,13 +14,13 @@ public class PathFollower : MonoBehaviour
     [BoxGroup("Inputs")]
 #endif
     [SerializeField]
-    private double speed;
+    private float speed;
 
 #if ODIN_INSPECTOR
     [BoxGroup("Inputs")]
 #endif
     [SerializeField]
-    private double subDelta = 0.002d;
+    private float subDelta = 0.002f;
 
 #if ODIN_INSPECTOR
     [BoxGroup("Inputs")]
@@ -64,31 +64,31 @@ public class PathFollower : MonoBehaviour
     [BoxGroup("State")]
 #endif
     [SerializeField]
-    private double currentSpeedPerSecond;
+    private float currentSpeedPerSecond;
 
 #if ODIN_INSPECTOR
     [BoxGroup("State")]
 #endif
     [SerializeField]
-    private double curentIterationPerFrame;
+    private float curentIterationPerFrame;
 
 #if ODIN_INSPECTOR
     [BoxGroup("State")]
 #endif
     [SerializeField]
-    private double pathLength;
+    private float pathLength;
 
 #if ODIN_INSPECTOR
     [BoxGroup("State")]
 #endif
     [SerializeField]
-    private double totalDuration;
+    private float totalDuration;
 
 #if ODIN_INSPECTOR
     [BoxGroup("State")]
 #endif
     [SerializeField]
-    private double currentDuration;
+    private float currentDuration;
 
 #if ODIN_INSPECTOR
     [BoxGroup("State")]
@@ -102,13 +102,13 @@ public class PathFollower : MonoBehaviour
     [SerializeField]
     private WalkingState state;
 
-    private double accumulate = 0;
+    private float accumulate = 0;
 
-    private double lastSpeed;
+    private float lastSpeed;
 
-    
+
 #if ODIN_INSPECTOR
-[Button]
+    [Button]
 #endif
 
     private void ResetFollow()
@@ -133,13 +133,13 @@ public class PathFollower : MonoBehaviour
 
         pathLength = points.LineLength(0, gotToIndex);
 
-        totalDuration = PhysicsUtils.SolveForDurationQuad(speed, pathLength);
-        lastSpeed = GetTimeDependentSpeedQuad(totalDuration);
+        totalDuration = (float)PhysicsUtils.SolveForDurationQuad((double)speed, (double)pathLength);
+        lastSpeed = (float)GetTimeDependentSpeedQuad(totalDuration);
     }
 
-    
+
 #if ODIN_INSPECTOR
-[Button]
+    [Button]
 #endif
 
     private void StartFollow()
@@ -167,9 +167,9 @@ public class PathFollower : MonoBehaviour
         {
             curentIterationPerFrame++;
 
-            currentSpeedPerSecond = GetTimeDependentSpeedQuad(currentDuration);
-            
-            result = PathUtils.WalkAlongPath(points, currentSpeedPerSecond * subDelta, ref state, gotToIndex);
+            currentSpeedPerSecond = (float)GetTimeDependentSpeedQuad(currentDuration);
+
+            result = PathUtils.WalkAlongPath(points, (float)currentSpeedPerSecond * subDelta, ref state);
 
             accumulate -= subDelta;
             currentDuration += subDelta;

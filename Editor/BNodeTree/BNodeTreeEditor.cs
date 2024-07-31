@@ -15,7 +15,6 @@ using Sirenix.Utilities;
 using Bloodthirst.Runtime.BNodeTree;
 using Bloodthirst.BEventSystem;
 using UnityEngine.Assertions;
-using Sirenix.Utilities;
 
 namespace Bloodthirst.Editor.BNodeTree
 {
