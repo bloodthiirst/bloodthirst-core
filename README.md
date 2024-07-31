@@ -17,11 +17,11 @@ This repo needs a few dependencies/settings :
 - DOTween (You need to remove/add "DOTWEEN" to your Scripting Define Symbols depending on the package being present of not )
 - TextMeshPro
 
-### Cool ! Now that you have a brief a idea about what this package will provide ill try to introduce the most interresting systems along with a brief description to get you familiar.
+### Cool ! Now that you have a brief idea about what this package will provide ill try to introduce the most interresting systems along with a brief description to get you familiar.
 
 ### Runtime
-* AdvancedPool : The runtime part of an utomatic pooling system , all you have to do is mark a prefab in the prject with a certain component and "refresh" and TADA ! 
-The system will generate a strongly typed pool for all marked prefabs , put it in a special scene made for pools and do all the tedious heavy lifting.
+* AdvancedPool : The runtime part of an automatic pooling system , all you have to do is mark a prefab in the project with a certain component and "refresh" and TADA ! 
+The system will generate pools for all marked prefabs , put it in a special scene made for pools and do all the tedious heavy lifting.
 * CommandSystem : A robust customizable to systems that manages async tasks/action in multiple-flexible ways : Task-Queue, Task-List , Task-Tree ... The backbone of every serious project.
 * BProvider : a custom Dependecy injection framework
 * BJson : a custom JSON serializer that works with unity objects.
@@ -35,6 +35,7 @@ The system will generate a strongly typed pool for all marked prefabs , put it i
 * BType : Contains extra type-reflection related features that are used by other systems.
 * SocketLayer : My first jab at a custom nextwork layer , supports UDP-TCP.
 * WindowSystem : An elegant way to manage UI dialogs and window seemlessly with stacking and transitions.
+* Localization : BExcel (editor tool below) will generate localization data that will be usable in game for localized text.
 ### EditorTools
 * BInspector : a generic custom inspector (WIP)
 * BNodeTree : generic Node tree editor
@@ -44,7 +45,7 @@ The system will generate a strongly typed pool for all marked prefabs , put it i
 * AdvancedTypeCache : Using Roslyn compiler to see which file contains which type in a thorough way.
 * BAdapter : the glue between systems and the custom Dependency injection library (BProvider)
 * SceneCreator : A tool for generating scenes and referencing them in a clean way.
-
+* BExcel : spreatsheet processing editor that can be used to extract data from spreadsheets to assets usable in unity , one of the main uses is for localization
 ## Lastly
 That wasn't a full description of all the systems available , if you like what you see feel free to dig through the code or you it.
 
