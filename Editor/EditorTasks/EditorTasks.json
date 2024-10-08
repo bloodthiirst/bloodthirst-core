@@ -4,19 +4,8 @@
     "commands": {
         "$id": 1,
         "$type": "1|System.Collections.Generic.List`1[[Bloodthirst.System.CommandSystem.ICommandBase, CommandSystem.Common]], mscorlib",
-        "$rlength": 1,
+        "$rlength": 0,
         "$rcontent": [
-            {
-                "$id": 2,
-                "$type": "2|Bloodthirst.Editor.ActionCommand, EditorTasks.Editor",
-                "detailedInfo": false,
-                "commandState": 2,
-                "fallbackCommand": null,
-                "owner": null,
-                "removeWhenDone": true,
-                "updateOrder": 0,
-                "act": null
-            }
         ]
     }
 }

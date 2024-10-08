@@ -111,7 +111,7 @@ public class GameStateMachine<TGameState> where TGameState : IGameState
     /// <param name="pathAToParent"></param>
     /// <param name="pathBToParent"></param>
     /// <returns></returns>
-    private TGameState FindCommonParent(TGameState stateA, TGameState stateB, List<TGameState> pathAToParent, List<TGameState> pathBToParent)
+    public TGameState FindCommonParent(TGameState stateA, TGameState stateB, List<TGameState> pathAToParent, List<TGameState> pathBToParent)
     {
 
         if (stateA.Equals(stateB))

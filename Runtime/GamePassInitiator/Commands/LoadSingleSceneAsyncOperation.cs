@@ -67,13 +67,15 @@ namespace Bloodthirst.Core.Setup
 
         public override void OnStart()
         {
+            if (seconds == 0f)
+                Success();
         }
 
         public override void OnTick(float delta)
         {
-            CurrentProgress += delta / seconds;
-        
-            if(CurrentProgress >= 1)
+            CurrentProgress = Mathf.Clamp01(currentProgress + (delta / seconds));
+
+            if (currentProgress == 1)
             {
                 Success();
             }

@@ -4,6 +4,7 @@
 using Bloodthirst.JsonUnityObject;
 using System.Collections.Generic;
 using UnityEngine;
+using static Bloodthirst.Core.BISDSystem.SaveLoadManager;
 
 namespace Bloodthirst.Core.BISDSystem
 {
@@ -18,9 +19,9 @@ namespace Bloodthirst.Core.BISDSystem
         public string Title { get => title; set => title = value; }
 
         [SerializeField]
-        private Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> gameDatas;
+        private List<SavedEntityEntry> gameDatas;
 
-        public Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> GameDatas { get => gameDatas; set => gameDatas = value; }
+        public List<SavedEntityEntry> GameDatas { get => gameDatas; set => gameDatas = value; }
 
     }
 }

@@ -5,9 +5,8 @@ namespace Bloodthirst.Core.Utils
 {
     public static class SceneUtils
     {
-        public static List<Scene> GetAllScenesInHierarchy(out Scene activeSceneIndex)
+        public static void GetAllScenesInHierarchy(out Scene activeSceneIndex, List<Scene> allScenes)
         {
-            List<Scene> allScenes = new List<Scene>();
 
             for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
             {
@@ -17,8 +16,6 @@ namespace Bloodthirst.Core.Utils
             }
 
             activeSceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-
-            return allScenes;
         }
     }
 }

@@ -1,15 +1,10 @@
 using Bloodthirst.Core.SceneManager;
 using Bloodthirst.Core.BProvider;
-using Bloodthirst.Scripts.Core.Utils;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Bloodthirst.Core.Utils;
 using UnityEngine.Pool;
-using Sirenix.Utilities;
-using Sirenix.OdinInspector;
-using System;
 
 namespace Bloodthirst.Core.Setup
 {

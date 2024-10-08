@@ -36,6 +36,7 @@ namespace Bloodthirst.Editor.BRecorder
 
             if(getExistingFile != null)
             {
+                newAsset.name = getExistingFile.name;
                 EditorUtility.CopySerializedIfDifferent(newAsset, getExistingFile);
             }
             else

@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -97,6 +98,14 @@ namespace Bloodthirst.Core.Utils
             string pathToCurrentFolder = obj.ToString();
 
             return pathToCurrentFolder;
+        }
+
+        public static string GetFolderContainingAsset(UnityEngine.Object asset)
+        {
+            string originalPath = AssetDatabase.GetAssetPath(asset);
+            string originalFolderPath = Path.GetDirectoryName(originalPath).Replace("\\", "/");
+
+            return originalFolderPath;
         }
 
         public static string GetFolderFromPath(string path)

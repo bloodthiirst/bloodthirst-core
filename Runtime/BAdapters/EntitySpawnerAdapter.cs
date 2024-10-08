@@ -15,9 +15,6 @@ namespace Bloodthirst.Runtime.BAdapter
         {
             EntitySpawner spawner = GetComponent<EntitySpawner>();
             BProviderRuntime.Instance.RegisterSingleton(spawner);
-
-            IGlobalPool globalPool = BProviderRuntime.Instance.GetSingleton<IGlobalPool>();
-            spawner.GenericUnityPool = globalPool;
         }
     }
 }

@@ -8,53 +8,88 @@ namespace Bloodthirst.Core.BISDSystem
 {
     public class EntitySpawner : MonoBehaviour
     {
-        public IGlobalPool GenericUnityPool { get; set; }
-
         #region setup
-        public void PostInject(GameObject entity)
+        public void AssignID(GameObject entity)
         {
             // we set the id after since we might be creating new instances of the states
             EntityIdentifier id = entity.GetComponent<EntityIdentifier>();
 
-            id.Id = EntityManager.GetNextId();
+            id.Id = EntityID.GetNextId();
 
             id.TriggerSpawned();
         }
 
-        public void InjectStates(GameObject entity)
+        public void PostEntityLoaded(GameObject entity)
+        {
+            using (ListPool<IPostEntitiesLoaded>.Get(out var tmp))
+            {
+                entity.GetComponentsInChildren(true, tmp);
+
+                foreach (IPostEntitiesLoaded cmp in tmp)
+                {
+                    cmp.PostEntitiesLoaded();
+                }
+            }
+        }
+
+        public static void IntializeInstances(EntityIdentifier id)
+        {
+            Assert.IsNotNull(id);
+
+            using (ListPool<IInitializeInstance>.Get(out List<IInitializeInstance> tmp))
+            {
+                id.GetComponentsInChildren(tmp);
+
+                // initialize identifier
+                foreach (IInitializeInstance init in tmp)
+                {
+                    init.InitializeInstance(id);
+                }
+            }
+        }
+
+        public static void IntializeEntityIdentifier(EntityIdentifier id)
+        {
+            Assert.IsNotNull(id);
+
+            using (ListPool<IInitializeIdentifier>.Get(out List<IInitializeIdentifier> tmp))
+            {
+                id.GetComponentsInChildren(tmp);
+
+                // initialize identifier
+                foreach (IInitializeIdentifier init in tmp)
+                {
+                    init.InitializeIdentifier(id);
+                }
+            }
+        }
+
+        public static void PostInitialize(EntityIdentifier id)
+        {
+            Assert.IsNotNull(id);
+
+            using (ListPool<IEntityPostInit>.Get(out List<IEntityPostInit> tmp))
+            {
+                id.GetComponentsInChildren(tmp);
+
+                // initialize identifier
+                foreach (IEntityPostInit init in tmp)
+                {
+                    init.PostInit();
+                }
+            }
+        }
+
+        public static void InjectStates(GameObject entity)
         {
             // get instance register and provider and identifier
 
             EntityIdentifier id = entity.GetComponentInChildren<EntityIdentifier>();
             Assert.IsNotNull(id);
 
-            using (ListPool<IInitializeIdentifier>.Get(out List<IInitializeIdentifier> initIDs))
-            using (ListPool<IInitializeInstance>.Get(out List<IInitializeInstance> initInstances))
-            using (ListPool<IEntityPostInit>.Get(out List<IEntityPostInit> postInits))
-            {
-                entity.GetComponentsInChildren(initIDs);
-                entity.GetComponentsInChildren(initInstances);
-                entity.GetComponentsInChildren(postInits);
-
-                // initialize identifier
-                foreach (IInitializeIdentifier init in initIDs)
-                {
-                    init.InitializeIdentifier(id);
-                }
-
-                // init instancee
-
-                foreach (IInitializeInstance init in initInstances)
-                {
-                    init.InitializeInstance(id);
-                }
-
-                // post init
-                foreach (IEntityPostInit post in postInits)
-                {
-                    post.PostInit();
-                }
-            }
+            IntializeEntityIdentifier(id);
+            IntializeInstances(id);
+            PostInitialize(id);
         }
         public BEHAVIOUR AddBehaviour<BEHAVIOUR, INSTANCE, STATE, DATA>(MonoBehaviour entity) where DATA : EntityData where STATE : class, IEntityState<DATA>, new() where INSTANCE : EntityInstance<DATA, STATE, INSTANCE>, new() where BEHAVIOUR : EntityBehaviour<DATA, STATE, INSTANCE>
         {
@@ -93,7 +128,9 @@ namespace Bloodthirst.Core.BISDSystem
         #region  load game
         public List<GameObject> LoadGameState(GameStateSaveInstance gameData)
         {
-            return SaveLoadManager.Load(gameData, true);
+            List<GameObject> gameState = new List<GameObject>();
+            SaveLoadManager.LoadEntities(gameData.GameDatas, gameState, true);
+            return gameState;
         }
         #endregion
     }

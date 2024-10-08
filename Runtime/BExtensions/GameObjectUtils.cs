@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -8,70 +9,93 @@ namespace Bloodthirst.Core.Utils
 {
     public static class GameObjectUtils
     {
+        public static string GetReadableElapsedTime(DateTime from, DateTime to)
+        {
+            const int SECOND = 1;
+            const int MINUTE = 60 * SECOND;
+            const int HOUR = 60 * MINUTE;
+            const int DAY = 24 * HOUR;
+            const int MONTH = 30 * DAY;
+
+            var ts = new TimeSpan(to.Ticks - from.Ticks);
+            double delta = Math.Abs(ts.TotalSeconds);
+
+            if (delta < 1 * MINUTE)
+                return ts.Seconds == 1 ? "one second ago" : ts.Seconds + " seconds ago";
+
+            if (delta < 2 * MINUTE)
+                return "a minute ago";
+
+            if (delta < 45 * MINUTE)
+                return ts.Minutes + " minutes ago";
+
+            if (delta < 90 * MINUTE)
+                return "an hour ago";
+
+            if (delta < 24 * HOUR)
+                return ts.Hours + " hours ago";
+
+            if (delta < 48 * HOUR)
+                return "yesterday";
+
+            if (delta < 30 * DAY)
+                return ts.Days + " days ago";
+
+            if (delta < 12 * MONTH)
+            {
+                int months = Convert.ToInt32(Math.Floor((double)ts.Days / 30));
+                return months <= 1 ? "one month ago" : months + " months ago";
+            }
+            else
+            {
+                int years = Convert.ToInt32(Math.Floor((double)ts.Days / 365));
+                return years <= 1 ? "one year ago" : years + " years ago";
+            }
+        }
+
         public static void GetAllRootGameObjects(List<GameObject> lst)
         {
-            List<GameObject> cache = ListPool<GameObject>.Get();
-
-            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            using (ListPool<GameObject>.Get(out List<GameObject> cache))
             {
-                UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
+                for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+                {
+                    UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
 
-                scene.GetRootGameObjects(cache);
+                    scene.GetRootGameObjects(cache);
 
-                lst.AddRange(cache);
+                    lst.AddRange(cache);
+                }
             }
-
-            ListPool<GameObject>.Release(cache);
         }
 
-        public static void MoveToScene(GameObject go , Scene scene)
+        public static void MoveToScene(GameObject go, Scene scene)
         {
             SceneManager.MoveGameObjectToScene(go, scene);
-        }
-
-        public static List<GameObject> GetAllRootGameObjects()
-        {
-            List<GameObject> lst = new List<GameObject>();
-            List<GameObject> cache = new List<GameObject>();
-            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
-            {
-                UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
-
-                scene.GetRootGameObjects(cache);
-
-                lst.AddRange(cache);
-            }
-
-            return lst;
-        }
-
-        public static List<T> GetAllComponents<T>(List<GameObject> gos, bool includeInactive)
-        {
-            List<T> list = new List<T>();
-
-            GetAllComponents(ref list, gos, true);
-
-            return list;
         }
 
         public static void GetAllComponents<T>(ref List<T> list, bool includeInactive)
         {
             list = CollectionsUtils.CreateOrClear(list);
 
-            List<GameObject> gos = GetAllRootGameObjects();
+            using (ListPool<GameObject>.Get(out var gos))
+            {
+                GetAllRootGameObjects(gos);
 
-            GetAllComponents(ref list, gos, includeInactive);
+                GetAllComponents(ref list, gos, includeInactive);
+            }
         }
 
-        public static void GetAllComponents<T>(ref List<T> list, IList<GameObject> go, bool includeInactive)
+        public static void GetAllComponents<T>(ref List<T> list, IReadOnlyList<GameObject> go, bool includeInactive)
         {
-            for (int i = 0; i < go.Count; i++)
+            using (ListPool<T>.Get(out List<T> tmp))
             {
-                GameObject rootGameObject = go[i];
-                T[] childrenInterfaces = rootGameObject.GetComponentsInChildren<T>(includeInactive);
-                foreach (T childInterface in childrenInterfaces)
+                for (int i = 0; i < go.Count; i++)
                 {
-                    list.Add(childInterface);
+                    GameObject rootGameObject = go[i];
+
+                    tmp.Clear();
+                    rootGameObject.GetComponentsInChildren(includeInactive, tmp);
+                    list.AddRange(tmp);
                 }
             }
         }
@@ -103,7 +127,7 @@ namespace Bloodthirst.Core.Utils
         {
             for (int i = t.childCount - 1; i >= 0; i--)
             {
-                Object.DestroyImmediate(t.GetChild(i).gameObject);
+                UnityEngine.Object.DestroyImmediate(t.GetChild(i).gameObject);
             }
         }
     }

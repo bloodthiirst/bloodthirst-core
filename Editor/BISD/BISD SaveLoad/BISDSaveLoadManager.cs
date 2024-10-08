@@ -4,14 +4,14 @@ using UnityEngine.UIElements;
 using Bloodthirst.Editor;
 using System;
 using Bloodthirst.Core.BISDSystem;
-using Bloodthirst.Core.Utils;
+using System.Collections.Generic;
 
 namespace Bloodthirst.Core.BISD.Editor
 {
     [InitializeOnLoad]
     public class BISDSaveLoadManager : EditorWindow
     {
-        private const string PATH_USS =  EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD SaveLoad/BISDSaveLoadManager.uss";
+        private const string PATH_USS = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD SaveLoad/BISDSaveLoadManager.uss";
         private const string PATH_UXML = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "BISD/BISD SaveLoad/BISDSaveLoadManager.uxml";
 
         [MenuItem("Bloodthirst Tools/BISD Pattern/Save & Load Manager")]
@@ -37,9 +37,10 @@ namespace Bloodthirst.Core.BISD.Editor
 
         static BISDSaveLoadManager()
         {
+#if UNITY_EDITOR
             if (!EditorConsts.ON_ASSEMBLY_RELOAD_BISD_SAVE_MANAGER)
                 return;
-
+#endif
             SaveLoadManager.Initialize();
         }
 
@@ -62,9 +63,9 @@ namespace Bloodthirst.Core.BISD.Editor
             EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
 
-            if(!EditorConsts.ON_ASSEMBLY_RELOAD_BISD_SAVE_MANAGER)
+            if (!EditorConsts.ON_ASSEMBLY_RELOAD_BISD_SAVE_MANAGER)
             {
-                EditorUtility.DisplayDialog("Error", "Enable Assembly reload for BISD save manager" , "Ok");
+                EditorUtility.DisplayDialog("Error", "Enable Assembly reload for BISD save manager", "Ok");
             }
         }
 
@@ -104,8 +105,9 @@ namespace Bloodthirst.Core.BISD.Editor
             GameStateSaveInstance data = CreateInstance<GameStateSaveInstance>();
 
             data.Title = titleTxt.value;
+            data.GameDatas = new List<SavedEntityEntry>();
 
-            data.GameDatas = SaveLoadManager.SaveRuntimeState();
+            SaveLoadManager.SaveRuntimeState(data.GameDatas);
 
             AssetDatabase.CreateAsset(data, selectPathTxt.value);
 
@@ -118,12 +120,12 @@ namespace Bloodthirst.Core.BISD.Editor
 
         private void OnSelectPathClicked()
         {
-            string path = EditorUtility.SaveFilePanel("Select path to save the asset", "Assets", "GameData Save" , "asset");
+            string path = EditorUtility.SaveFilePanel("Select path to save the asset", "Assets", "GameData Save", "asset");
 
             if (string.IsNullOrEmpty(path))
                 return;
 
-            selectPathTxt.value = FileUtil.GetProjectRelativePath(path);            
+            selectPathTxt.value = FileUtil.GetProjectRelativePath(path);
 
             OnSettingsChanged?.Invoke();
         }

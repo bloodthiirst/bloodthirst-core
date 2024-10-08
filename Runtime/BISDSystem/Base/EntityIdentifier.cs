@@ -1,19 +1,26 @@
 ﻿using Bloodthirst.Core.AdvancedPool;
+using Bloodthirst.Core.AdvancedPool.Pools;
+using Bloodthirst.Core.BProvider;
+
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.BISDSystem
 {
+
     /// <summary>
     /// <para>This component is the main identifying part of the game entities</para>
     /// <para>It is meant to be the main primary compnent that has multiple BISD instances under it to form a complete game entity</para>
     /// <para>It acts as the "parent" of the entity and it's main identitfier , it also determines the lifecycle of the entity since it is used to spawn and remove the entity from the game world</para>
     /// </summary>
     [GeneratePool]
-    public class EntityIdentifier : MonoBehaviour, ISavableIdentifier
+    public class EntityIdentifier : MonoBehaviour
     {
         [SerializeField]
         private int id;
@@ -30,17 +37,25 @@ namespace Bloodthirst.Core.BISDSystem
 
         private void HandleIdChanged(int identifier)
         {
-            IBehaviourInstance[] all = GetComponentsInChildren<IBehaviourInstance>(true);
-
-            for (int i = 0; i < all.Length; i++)
+            using (ListPool<IBehaviourInstance>.Get(out List<IBehaviourInstance> all))
             {
-                IBehaviourInstance curr = all[i];
+                GetComponentsInChildren(true, all);
 
-                IEntityState state = curr.Instance.State;
+                for (int i = 0; i < all.Count; i++)
+                {
+                    IBehaviourInstance curr = all[i];
 
-                state.Id = identifier;
+                    if(curr.Instance?.State == null)
+                    {
+                        continue;
+                    }
 
-                curr.Instance.State = state;
+                    IEntityState state = curr.Instance.State;
+
+                    state.Id = identifier;
+
+                    curr.Instance.State = state;
+                }
             }
         }
 
@@ -57,25 +72,8 @@ namespace Bloodthirst.Core.BISDSystem
         /// </summary>
         public event Action<EntityIdentifier> OnEntityRemoved;
 
-        [SerializeField]
-        private PrefabReferenceData prefabReferenceData;
-
-        /// <summary>
-        /// Prefab used to spawn this entity
-        /// </summary>
-        public PrefabReferenceData PrefabReferenceData => prefabReferenceData;
-
-        [SerializeField]
-        private EntityType entityType;
-
-        /// <summary>
-        /// <para>Serve as the "TYPE ID" for the game entities</para>
-        /// </summary>
-        public EntityType EntityType => entityType;
-
-        
 #if ODIN_INSPECTOR
-[Button]
+        [Button]
 #endif
 
         /// <summary>
@@ -87,9 +85,9 @@ namespace Bloodthirst.Core.BISDSystem
             OnEntityRemoved?.Invoke(this);
         }
 
-        
+
 #if ODIN_INSPECTOR
-[Button]
+        [Button]
 #endif
 
         /// <summary>
@@ -99,15 +97,6 @@ namespace Bloodthirst.Core.BISDSystem
         public void TriggerSpawned()
         {
             OnEntitySpawned?.Invoke(this);
-        }
-
-        public ISavableInstanceProvider GetInstanceProvider()
-        {
-            return new BISDInstanceProvider()
-            {
-                Id = Id,
-                EntityType = entityType
-            };
         }
     }
 }

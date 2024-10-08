@@ -7,6 +7,7 @@ using Bloodthirst.Core.Utils;
 using Bloodthirst.Core.SceneManager.DependencyInjector;
 using Bloodthirst.Core.PersistantAsset;
 using UnityEngine;
+using UnityEngine.Pool;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -61,11 +62,11 @@ namespace Bloodthirst.Core.GameInitPass
         {
             BProvider.BProvider scProvider = new BProvider.BProvider();
 
-            foreach(ScriptableObject sc in allScriptables)
+            foreach (ScriptableObject sc in allScriptables)
             {
                 Type scType = sc.GetType();
 
-                if( sc is  ISingletonScriptableObject singleton)
+                if (sc is ISingletonScriptableObject singleton)
                 {
                     scProvider.RegisterSingleton(scType, singleton);
                     continue;
@@ -79,15 +80,19 @@ namespace Bloodthirst.Core.GameInitPass
 
         private void SceneDependencies()
         {
-            List<GameObject> allGOs = GameObjectUtils.GetAllRootGameObjects();
+            using (ListPool<GameObject>.Get(out List<GameObject> allGOs))
+            using (ListPool<ISceneDependencyInjector>.Get(out List<ISceneDependencyInjector> sceneDependencyInjector))
+            {           
+                GameObjectUtils.GetAllRootGameObjects(allGOs);
 
-            // scene dependency for single scene stuff
-            List<ISceneDependencyInjector> sceneDependencyInjector = GameObjectUtils.GetAllComponents<ISceneDependencyInjector>(allGOs, false);
+                // scene dependency for single scene stuff
+                GameObjectUtils.GetAllComponents(ref sceneDependencyInjector, allGOs, false);
 
-            foreach (ISceneDependencyInjector inj in sceneDependencyInjector)
-            {
-                BProvider.BProvider injectionProvider = inj.GetProvider();
-                BProviderRuntime.Instance.MergeWith(injectionProvider);
+                foreach (ISceneDependencyInjector inj in sceneDependencyInjector)
+                {
+                    BProvider.BProvider injectionProvider = inj.GetProvider();
+                    BProviderRuntime.Instance.MergeWith(injectionProvider);
+                }
             }
         }
 

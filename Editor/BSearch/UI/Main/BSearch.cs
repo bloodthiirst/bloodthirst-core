@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine.SceneManagement;
 using UnityEditor.SceneManagement;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Editor.BSearch
 {
@@ -230,31 +231,34 @@ namespace Bloodthirst.Editor.BSearch
             if (Scenes.value)
             {
                 // save previously open scenes
-                List<Scene> prevSceneDetails = SceneUtils.GetAllScenesInHierarchy(out Scene active);
-
-                // search
-                List<SceneAsset> allScenes = EditorUtils.FindAssetsAs<SceneAsset>("t:scene");
-                List<object> objs = allScenes.Cast<object>().ToList();
-
-                // this already opens all the scenes
-                List<List<ResultPath>> res = CurrentSearchFilter.GetSearchResults(objs);
-                results.AddRange(res);
-
-                // restore the scenes
-                IEnumerable<string> scenesToUnload = allScenes.Select( s => AssetDatabase.GetAssetPath(s)).Except(prevSceneDetails.Select(s => s.path));
-
-                foreach (string s in scenesToUnload)
+                using (ListPool<Scene>.Get(out List<Scene> prevSceneDetails))
                 {
-                    Scene scene = SceneManager.GetSceneByPath(s);
+                    SceneUtils.GetAllScenesInHierarchy(out Scene active, prevSceneDetails);
 
-                    if (scene.isLoaded)
+                    // search
+                    List<SceneAsset> allScenes = EditorUtils.FindAssetsAs<SceneAsset>("t:scene");
+                    List<object> objs = allScenes.Cast<object>().ToList();
+
+                    // this already opens all the scenes
+                    List<List<ResultPath>> res = CurrentSearchFilter.GetSearchResults(objs);
+                    results.AddRange(res);
+
+                    // restore the scenes
+                    IEnumerable<string> scenesToUnload = allScenes.Select(s => AssetDatabase.GetAssetPath(s)).Except(prevSceneDetails.Select(s => s.path));
+
+                    foreach (string s in scenesToUnload)
                     {
-                        EditorSceneManager.CloseScene(scene, true);
-                    }
-                }
+                        Scene scene = SceneManager.GetSceneByPath(s);
 
-                SceneManager.SetActiveScene(active);
-            }   
+                        if (scene.isLoaded)
+                        {
+                            EditorSceneManager.CloseScene(scene, true);
+                        }
+                    }
+
+                    SceneManager.SetActiveScene(active);
+                }
+            }
 
 
             if (results.Count == 0)
@@ -273,8 +277,8 @@ namespace Bloodthirst.Editor.BSearch
                 {
                     ResultPath p = resultPath[i];
                     BSearchResultPath path = new BSearchResultPath();
-                    path.Setup(p , resultPath.Count - i);
-                   
+                    path.Setup(p, resultPath.Count - i);
+
                     r.PathsContainer.Add(path);
                     CachedUIs.Add(path);
                 }

@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using Bloodthirst.Core.Utils;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Scripts.Utils
 {
@@ -85,13 +88,49 @@ namespace Bloodthirst.Scripts.Utils
         }
 
         /// <summary>
-        /// Returns the angle of the vector in degrees
+        /// <para>Returns the angle of the vector in degrees</para>
+        /// <para>The value returned is between -180 and 180</para>
         /// </summary>
         /// <param name="vec"></param>
         /// <returns></returns>
         public static float ToAngleDeg(this Vector2 vec)
         {
             return Mathf.Atan2(vec.y, vec.x) * Mathf.Rad2Deg;
+        }
+
+        /// <summary>
+        /// Snaps to the closest angles
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <param name="discreteAngles">The angles need to be sorted</param>
+        /// <returns></returns>
+        public static float SnapToClosestAngle(float angle , IReadOnlyList<float> discreteAngles)
+        {
+            Assert.IsTrue(angle <= 180);
+            Assert.IsTrue(angle >= -180);
+
+            if (angle < 0)
+            {
+                angle = 360 + angle;
+            }
+
+            float closestAngle = 0;
+
+            for (int i = 0; i < discreteAngles.Count - 1; ++i)
+            {
+                var curr = discreteAngles[i];
+                var next = discreteAngles[i + 1];
+                if (!MathUtils.IsBetween(angle, curr, next))
+                    continue;
+
+                var diffA = angle - curr;
+                var diffB = next - angle;
+
+                closestAngle = diffA < diffB ? curr : next;
+                break;
+            }
+
+            return closestAngle;
         }
 
         /// <summary>

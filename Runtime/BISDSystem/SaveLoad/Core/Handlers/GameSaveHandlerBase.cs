@@ -19,7 +19,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         public abstract TSave GetSave(TState state, SavingContext context);
         public abstract TState GetState(TSave save, LoadingContext context);
-        public abstract void LinkReferences(TSave save, TState state, LoadingContext context);
+        public abstract void LinkReferences(LoadingInfo loadingInfo, LoadingContext context);
 
         TSave IGameStateSaver<TSave, TState>.GetSave(TState state, SavingContext context)
         {
@@ -30,9 +30,9 @@ namespace Bloodthirst.Core.BISDSystem
         {
             return GetState(save, context);
         }
-        void IGameStateLoader<TSave, TState>.LinkReferences(TSave save, TState state, LoadingContext context)
+        void IGameStateLoader<TSave, TState>.LinkReferences(LoadingInfo loadingInfo, LoadingContext context)
         {
-            LinkReferences(save, state, context);
+            LinkReferences(loadingInfo, context);
         }
 
         ISavableGameSave IGameStateSaver.GetSave(ISavableState state, SavingContext context)
@@ -45,9 +45,9 @@ namespace Bloodthirst.Core.BISDSystem
             return GetState((TSave)save, context);
         }
 
-        void IGameStateLoader.LinkReferences(ISavableGameSave save, ISavableState state, LoadingContext context)
+        void IGameStateLoader.LinkReferences(LoadingInfo loadingInfo, LoadingContext context)
         {
-            LinkReferences((TSave)save, (TState)state, context);
+            LinkReferences(loadingInfo, context);
         }
     }
 }

@@ -1,17 +1,22 @@
 ﻿using Bloodthirst.Core.Utils;
-using Bloodthirst.Scripts.Core.Utils;
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.BISDSystem
 {
+
+    public struct SavedEntityEntry
+    {
+        public ISavableInstanceProvider instanceProvider;
+        public List<ISavableGameSave> states;
+    }
 
     public class SaveLoadManager
     {
@@ -37,12 +42,14 @@ namespace Bloodthirst.Core.BISDSystem
                 .Where(t => !t.IsAbstract)
                 .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IGameStateSaver)));
 
+            Loaders.Clear();
             foreach (Type l in loadTypes)
             {
                 IGameStateLoader loader = (IGameStateLoader)Activator.CreateInstance(l);
                 Loaders.Add(loader);
             }
 
+            Savers.Clear();
             foreach (Type s in saveTypes)
             {
                 IGameStateSaver saver = (IGameStateSaver)Activator.CreateInstance(s);
@@ -50,149 +57,202 @@ namespace Bloodthirst.Core.BISDSystem
             }
         }
 
-        
+
 #if ODIN_INSPECTOR
-[Button]
+        [Button]
 #endif
 
-        public static Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> SaveRuntimeState()
+        public static void SaveRuntimeState(IReadOnlyList<GameObject> gos, List<SavedEntityEntry> results)
         {
-            Dictionary<ISavableIdentifier, List<ISavableGameSave>> savableToGamesaves = new Dictionary<ISavableIdentifier, List<ISavableGameSave>>();
-
             SavingContext context = new SavingContext();
 
             // get all savables
-            List<ISavableBehaviour> savables = new List<ISavableBehaviour>();
-            GameObjectUtils.GetAllComponents(ref savables, false);
-
-            // get all the savables and organize themm into key/value pairs of instance -> states
-            foreach (ISavableBehaviour saveBhv in savables)
+            using (DictionaryPool<ISavableIdentifier, List<ISavableGameSave>>.Get(out Dictionary<ISavableIdentifier, List<ISavableGameSave>> savableToGamesaves))
+            using (ListPool<ISavableBehaviour>.Get(out List<ISavableBehaviour> savables))
+            using (ListPool<ISavableIdentifier>.Get(out List<ISavableIdentifier> ids))
             {
-                ISavable savable = saveBhv.GetSavable();
-                ISavableIdentifier id = savable.GetIdentifierInfo();
+                GameObjectUtils.GetAllComponents(ref savables, gos, false);
+                GameObjectUtils.GetAllComponents(ref ids, gos, false);
 
-                Assert.IsNotNull(id);
-
-                if (!savableToGamesaves.TryGetValue(id, out List<ISavableGameSave> gameStates))
+                // add the IDs
+                foreach(ISavableIdentifier id in ids )
                 {
-                    gameStates = new List<ISavableGameSave>();
-                    savableToGamesaves.Add(id, gameStates);
+                    savableToGamesaves.Add(id, new List<ISavableGameSave>());
                 }
 
-                // get the correct saver
-                IGameStateSaver saver = Savers.FirstOrDefault(s => s.From == savable.SavableStateType);
+                // get all the savables and organize themm into key/value pairs of instance -> states
+                foreach (ISavableBehaviour saveBhv in savables)
+                {
+                    Component casted = (Component)saveBhv;
+                    Assert.IsNotNull(casted);
 
-                // create the gamesave from the state
-                ISavableGameSave gameData = saver.GetSave(savable.GetSavableState(), context);
-                gameStates.Add(gameData);
+                    ISavableIdentifier id = casted.GetComponent<ISavableIdentifier>();
+                    Assert.IsNotNull(id);
+
+                    ISavable savable = saveBhv.GetSavable();
+
+                    if (!savableToGamesaves.TryGetValue(id, out List<ISavableGameSave> gameStates))
+                    {
+                        gameStates = new List<ISavableGameSave>();
+                        savableToGamesaves.Add(id, gameStates);
+                    }
+
+                    // get the correct saver
+                    IGameStateSaver saver = Savers.FirstOrDefault(s => s.From == savable.SavableStateType);
+                    Assert.IsNotNull(saver);
+
+                    // create the gamesave from the state
+                    ISavableGameSave gameData = saver.GetSave(savable.GetSavableState(), context);
+                    //Assert.IsNotNull(gameData);
+
+                    gameStates.Add(gameData);
+                }
+
+                // finally after all the states are grouped by instance
+                // we save them with the key being a class that contains all the necessary info to spawn or load
+                foreach (KeyValuePair<ISavableIdentifier, List<ISavableGameSave>> savable in savableToGamesaves)
+                {
+                    ISavableInstanceProvider instanceProvider = savable.Key.GetInstanceProvider();
+                    List<ISavableGameSave> states = savable.Value;
+
+                    results.Add(new SavedEntityEntry()
+                    {
+                        instanceProvider = instanceProvider,
+                        states = states
+                    });
+                }
             }
-
-            // finally after all the states are grouped by instance
-            // we save them with the key being a class that contains all the necessary info to spawn or load
-            Dictionary<ISavableInstanceProvider, List<ISavableGameSave>> finalSaveData = savableToGamesaves.ToDictionary(kv => kv.Key.GetInstanceProvider(), kv => kv.Value);
-
-            return finalSaveData;
+        }
+        
+        public static void SaveRuntimeState(List<SavedEntityEntry> results)
+        {
+            using (ListPool<GameObject>.Get(out var gos))
+            {
+                GameObjectUtils.GetAllRootGameObjects(gos);
+                SaveRuntimeState(gos, results);
+            }
         }
 
-        public static List<GameObject> Load(GameStateSaveInstance gameData, bool withPostLoad)
+        public static void LoadEntities(IReadOnlyList<SavedEntityEntry> savedEntities, List<GameObject> spawnedEntities, bool withPostLoad)
         {
-            List<SpawnInstanceIdPair> allSpawned = new List<SpawnInstanceIdPair>();
+            Assert.IsTrue(spawnedEntities.Count == 0);
 
             LoadingContext context = new LoadingContext();
 
-            Dictionary<GameObject, List<LoadingInfo>> loadingInfo = new Dictionary<GameObject, List<LoadingInfo>>();
-
-            // for each entity
-            foreach (KeyValuePair<ISavableInstanceProvider, List<ISavableGameSave>> kv in gameData.GameDatas)
+            using (ListPool<SpawnInstanceIdPair>.Get(out List<SpawnInstanceIdPair> allSpawned))
+            using (ListPool<ISavableGameSave>.Get(out List<ISavableGameSave> gameSavesForEntity))
+            using (ListPool<ISavableState>.Get(out List<ISavableState> statesForInstance))
+            using (ListPool<ISavableBehaviour>.Get(out List<ISavableBehaviour> savablesToLoad))
+            using (ListPool<IPostEntitiesLoaded>.Get(out List<IPostEntitiesLoaded> postLoads))
+            using (DictionaryPool<GameObject, List<LoadingInfo>>.Get(out var loadingInfo))
             {
-
-                List<LoadingInfo> loadingPerInstance = new List<LoadingInfo>();
-
-                // get the id component of the entity
-                GameObject spawned = kv.Key.GetInstanceToInject();
-
-                // copy the saved gameStates
-                List<ISavableGameSave> gameSavesForEntity = kv.Value.ToList();
-
-                // states to inject into the instance
-                List<ISavableState> statesForInstance = new List<ISavableState>();
-
-                // generate the runtime state from the saves
-                // get the loader
-                // get the gameData
-                // get the state
-                for (int i = 0; i < gameSavesForEntity.Count; i++)
+                // for each entity
+                foreach (SavedEntityEntry kv in savedEntities)
                 {
-                    ISavableGameSave g = gameSavesForEntity[i];
-                    LoadingInfo loading = new LoadingInfo();
+                    List<LoadingInfo> loadingPerInstance = new List<LoadingInfo>();
 
-                    IGameStateLoader stateLoader = Loaders.FirstOrDefault(l => l.From == g.GetType());
+                    // get the id component of the entity
+                    GameObject spawned = kv.instanceProvider.GetInstanceToInject();
 
-                    ISavableState state = stateLoader.GetState(g, context);
+                    EntityIdentifier id = spawned.GetComponent<EntityIdentifier>();
+                    Assert.IsNotNull(id);
 
-                    statesForInstance.Add(state);
+                    EntitySpawner.IntializeEntityIdentifier(id);
 
-                    // cache the data
-                    loading.GameData = g;
-                    loading.State = state;
-                    loading.Loader = stateLoader;
+                    // TODO : set state with the instance
+                    EntitySpawner.IntializeInstances(id);
 
-                    loadingPerInstance.Add(loading);
-                }
+                    // copy the saved gameStates
+                    gameSavesForEntity.Clear();
+                    gameSavesForEntity.AddRange(kv.states);
 
-                loadingInfo.Add(spawned, loadingPerInstance);
+                    // states to inject into the instance
+                    statesForInstance.Clear();
 
-                // spawn the entity with the preloaded state
-                ISavableBehaviour[] savablesToLoad = spawned.GetComponentsInChildren<ISavableBehaviour>();
-
-                /// adding states to instances
-                for (int i = 0; i < savablesToLoad.Length; i++)
-                {
-                    ISavableBehaviour savableBhv = savablesToLoad[i];
-                    ISavable savable = savableBhv.GetSavable();
-                    LoadingInfo loading = loadingPerInstance.FirstOrDefault(ins => ins.State.GetType() == savable.SavableStateType);
-
-                    loading.Instance = savable;
-
-                    savable.ApplyState(loading.State);
-
-                    context.AddInstance(savable);
-                }
-
-                allSpawned.Add(new SpawnInstanceIdPair() { SpawnedInstance = spawned, SpawnInfo = kv.Key });
-            }
-
-            // link refs
-            foreach (KeyValuePair<GameObject, List<LoadingInfo>> kv in loadingInfo)
-            {
-                foreach (LoadingInfo v in kv.Value)
-                {
-                    v.Loader.LinkReferences(v.GameData, v.State, context);
-                }
-            }
-
-            // post instance applied
-            // for example : do the whole instance linking/refresh state for BISD
-            foreach (SpawnInstanceIdPair s in allSpawned)
-            {
-                s.SpawnInfo.PostStatesApplied(s.SpawnedInstance);
-            }
-
-            // after all entities are loaded
-            if (withPostLoad)
-            {
-                foreach (SpawnInstanceIdPair s in allSpawned)
-                {
-                    IPostEntitiesLoaded[] postLoads = s.SpawnedInstance.GetComponentsInChildren<IPostEntitiesLoaded>(true);
-
-                    foreach (IPostEntitiesLoaded p in postLoads)
+                    // generate the runtime state from the saves
+                    // get the loader
+                    // get the gameData
+                    // get the state
+                    for (int i = 0; i < gameSavesForEntity.Count; i++)
                     {
-                        p.PostEntitiesLoaded();
+                        ISavableGameSave g = gameSavesForEntity[i];
+                        LoadingInfo loading = new LoadingInfo();
+
+                        IGameStateLoader stateLoader = Loaders.FirstOrDefault(l => l.From == g.GetType());
+
+                        ISavableState state = stateLoader.GetState(g, context);
+
+                        statesForInstance.Add(state);
+
+                        // cache the data
+                        loading.GameData = g;
+                        loading.State = state;
+                        loading.Loader = stateLoader;
+
+                        loadingPerInstance.Add(loading);
+                    }
+
+                    loadingInfo.Add(spawned, loadingPerInstance);
+
+                    // spawn the entity with the preloaded state
+                    savablesToLoad.Clear();
+                    spawned.GetComponentsInChildren(true, savablesToLoad);
+
+                    /// adding states to instances
+                    for (int i = 0; i < savablesToLoad.Count; i++)
+                    {
+                        ISavableBehaviour savableBhv = savablesToLoad[i];
+                        ISavable savable = savableBhv.GetSavable();
+                        LoadingInfo loading = loadingPerInstance.FirstOrDefault(ins => ins.State.GetType() == savable.SavableStateType);
+
+                        loading.Instance = savable;
+
+                        // this line assigns the state to the instance
+                        savable.ApplyState(loading.State);
+
+                        context.AddInstance(savable);
+                    }
+
+                    allSpawned.Add(new SpawnInstanceIdPair() { SpawnedInstance = spawned, SpawnInfo = kv.instanceProvider });
+                }
+
+                // link refs
+                foreach (KeyValuePair<GameObject, List<LoadingInfo>> kv in loadingInfo)
+                {
+                    foreach (LoadingInfo v in kv.Value)
+                    {
+                        v.Loader.LinkReferences(v, context);
                     }
                 }
-            }
 
-            return allSpawned.Select(p => p.SpawnedInstance).ToList();
+                // after all entities are loaded
+                if (withPostLoad)
+                {
+                    foreach (SpawnInstanceIdPair s in allSpawned)
+                    {
+                        postLoads.Clear();
+                        s.SpawnedInstance.GetComponentsInChildren(true, postLoads);
+
+                        foreach (IPostEntitiesLoaded p in postLoads)
+                        {
+                            p.PostEntitiesLoaded();
+                        }
+                    }
+                }
+
+                foreach (SpawnInstanceIdPair s in allSpawned)
+                {
+                    EntityIdentifier id = s.SpawnedInstance.GetComponent<EntityIdentifier>();
+                    Assert.IsNotNull(id);
+
+                    EntitySpawner.PostInitialize(id);
+                }
+
+                foreach (SpawnInstanceIdPair s in allSpawned)
+                {
+                    spawnedEntities.Add(s.SpawnedInstance);
+                }
+            }
         }
     }
 }

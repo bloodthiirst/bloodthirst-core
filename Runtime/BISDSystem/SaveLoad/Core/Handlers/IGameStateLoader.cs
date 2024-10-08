@@ -7,7 +7,7 @@ namespace Bloodthirst.Core.BISDSystem
         where TSave : ISavableGameSave
     {
         TState GetState(TSave save, LoadingContext context);
-        void LinkReferences(TSave save, TState state, LoadingContext context);
+        void LinkReferences(LoadingInfo loadingInfo, LoadingContext context);
     }
 
     public interface IGameStateLoader
@@ -15,6 +15,6 @@ namespace Bloodthirst.Core.BISDSystem
         Type From { get; }
         Type To { get; }
         ISavableState GetState(ISavableGameSave save, LoadingContext context);
-        void LinkReferences(ISavableGameSave save, ISavableState state, LoadingContext context);
+        void LinkReferences(LoadingInfo loadingInfo, LoadingContext context);
     }
 }

@@ -746,8 +746,6 @@ namespace Bloodthirst.Editor.BNodeTree
 
             string projectPath = Application.dataPath;
 
-
-
             if (!savePath.StartsWith(projectPath))
                 return false;
 
@@ -763,6 +761,7 @@ namespace Bloodthirst.Editor.BNodeTree
             }
             else
             {
+                treeData.name = existingAsset.name;
                 EditorUtility.CopySerializedIfDifferent(treeData, existingAsset);
                 AssetDatabase.SaveAssets();
             }

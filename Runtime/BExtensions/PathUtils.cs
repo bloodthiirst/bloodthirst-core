@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using static Bloodthirst.Scripts.Utils.PathUtils;
 
 namespace Bloodthirst.Scripts.Utils
 {
@@ -282,6 +280,7 @@ namespace Bloodthirst.Scripts.Utils
             // if we reached the end of the path
             if (walkingState.pathIndex == path.Count)
             {
+                walkingState.currentPosition = path[path.Count - 1];
                 return WALKING_RESULT.DONE;
             }
 

@@ -23,7 +23,7 @@ namespace Bloodthirst.UI
 
         public IEnumerator OpenCrt(IWindowUI window)
         {
-            graphicRaycaster.enabled = false;
+            graphicRaycaster.enabled = true;
             canvas.enabled = true;
 
             float t = 0;
@@ -36,8 +36,6 @@ namespace Bloodthirst.UI
 
                 yield return null;
             }
-            
-            graphicRaycaster.enabled = true;
         }
 
         public IEnumerator CloseCrt(IWindowUI window)

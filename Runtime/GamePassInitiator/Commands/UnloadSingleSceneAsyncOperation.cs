@@ -87,7 +87,7 @@ namespace Bloodthirst.Core.Setup
 }
             }
 
-            BProviderRuntime.Instance.RemoveSingleton<ISceneInstanceManager>(sceneInstanceManager);
+            BProviderRuntime.Instance.RemoveInstance<ISceneInstanceManager>(sceneInstanceManager);
 
             op = UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(sceneInstanceManager.ScenePath);
 

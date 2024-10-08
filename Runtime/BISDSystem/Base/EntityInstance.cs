@@ -20,11 +20,6 @@ namespace Bloodthirst.Core.BISDSystem
         #region ISavable
         Type ISavable.SavableStateType => stateType;
 
-        ISavableIdentifier ISavable.GetIdentifierInfo()
-        {
-            return EntityIdentifier;
-        }
-
         ISavableState ISavable.GetSavableState()
         {
             return State;
@@ -112,8 +107,9 @@ namespace Bloodthirst.Core.BISDSystem
             }
             set
             {
+                STATE old = state;
                 state = value;
-                OnStateChanged(state);
+                OnStateChanged(old , state);
                 OnStateChangedEvent?.Invoke(state);
             }
         }
@@ -164,7 +160,7 @@ namespace Bloodthirst.Core.BISDSystem
             State = state;
         }
 
-        protected virtual void OnStateChanged(STATE state)
+        protected virtual void OnStateChanged(STATE oldState , STATE newState)
         {
 
         }

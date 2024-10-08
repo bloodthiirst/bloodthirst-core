@@ -1,6 +1,9 @@
 ﻿using Bloodthirst.Scripts.Utils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 /// <summary>
 /// An attempt to make an array optimized to deal with interating with a collection where we need a lot of add/remove ops
@@ -214,6 +217,19 @@ public class InOutArray<T>
             iterateJumpTable[iterateIndex](item, i);
         }
 
+    }
+
+    public void GetAll(List<T> lst)
+    {
+        lst.Capacity = Mathf.Max(lst.Capacity, count);
+
+        for (int i = 0; i < BufferSize; i++)
+        {
+            if (flagArray[i] != 1)
+                continue;
+
+            lst.Add(InternalArray[i]);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
