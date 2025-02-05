@@ -19,9 +19,6 @@ namespace Bloodthirst.Runtime.BAdapter
             LoadingManager loadingManager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
 
             sceneManager.Initialize(loadingManager);
-
-            BProviderRuntime.Instance.RegisterInstance(sceneManager);
-            BProviderRuntime.Instance.RegisterSingleton(sceneManager.SceneManagerType, sceneManager);
         }
 
         void IOnSceneUnload.OnUnload(ISceneInstanceManager sceneInstance)
@@ -29,9 +26,6 @@ namespace Bloodthirst.Runtime.BAdapter
             ISceneInstanceManager sceneManager = GetComponent<ISceneInstanceManager>();
 
             Assert.IsNotNull(sceneManager);
-
-            BProviderRuntime.Instance.RemoveInstance(sceneManager);
-            BProviderRuntime.Instance.RemoveSingleton(sceneManager.SceneManagerType, sceneManager);
 
             Debug.Log($"Before Scene Unloaded {sceneManager.ScenePath}");
         }

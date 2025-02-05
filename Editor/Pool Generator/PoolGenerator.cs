@@ -221,7 +221,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
             Assert.IsNotNull(globalPool);
 
-            GlobalPoolData poolData = EditorUtils.FindAssets<GlobalPoolData>(Array.Empty<string>()).FirstOrDefault();
+            GlobalPoolData poolData = EditorUtils.FindAssetsByType<GlobalPoolData>(Array.Empty<string>()).FirstOrDefault();
             Assert.IsNotNull(poolData);
 
             globalPool.PoolData = poolData;
@@ -243,24 +243,28 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
         private static List<Component> GetAllPoolablePrefabs()
         {
             // search for prefabs
-            List<GameObject> allPrefabs = EditorUtils.FindAssetsAs<GameObject>("t:prefab");
-            List<Component> lst = new List<Component>(allPrefabs.Count);
-
-            for (int i = 0; i < allPrefabs.Count; i++)
+            using (ListPool<GameObject>.Get(out List<GameObject> allPrefabs))
             {
-                GameObject currPrefab = allPrefabs[i];
+                allPrefabs.AddRange(EditorUtils.FindAssetsAs<GameObject>("t:prefab"));
+                List<Component> lst = new List<Component>(allPrefabs.Count);
 
-                foreach (Type poolableType in PoolableTypes)
+                for (int i = 0; i < allPrefabs.Count; i++)
                 {
-                    if (currPrefab.TryGetComponent(poolableType, out Component comp))
+                    GameObject currPrefab = allPrefabs[i];
+
+                    foreach (Type poolableType in PoolableTypes)
                     {
-                        lst.Add(comp);
-                        break;
+                        if (currPrefab.TryGetComponent(poolableType, out Component comp))
+                        {
+                            lst.Add(comp);
+                            break;
+                        }
                     }
                 }
+
+                return lst;
             }
 
-            return lst;
         }
 
         /// <summary>
@@ -314,7 +318,7 @@ namespace Bloodthirst.Core.AdvancedPool.Editor
 
         private static void QueryPrefabs()
         {
-            GlobalPoolData poolData = EditorUtils.FindAssets<GlobalPoolData>(Array.Empty<string>()).FirstOrDefault();
+            GlobalPoolData poolData = EditorUtils.FindAssetsByType<GlobalPoolData>(Array.Empty<string>()).FirstOrDefault();
             Assert.IsNotNull(poolData);
 
             foreach (Component p in PoolablePrefabs)

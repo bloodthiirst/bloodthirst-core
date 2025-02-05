@@ -102,6 +102,7 @@ public class SceneLoadHelper : EditorWindow
 
     VisualElement RowsContainer => root.Q<VisualElement>(name = nameof(RowsContainer));
     Button LoadAllBtn => root.Q<Button>(name = nameof(LoadAllBtn));
+    Button PlayFromEntryScene => root.Q<Button>(name = nameof(PlayFromEntryScene));
 
     private void OnDisable()
     {
@@ -139,7 +140,38 @@ public class SceneLoadHelper : EditorWindow
         }
 
         LoadAllBtn.clickable.clicked += HandleLoadAll;
+        PlayFromEntryScene.clickable.clicked += HandlePlayFromEntry;
+
         RedrawUI();
+    }
+
+    private void HandlePlayFromEntry()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            EditorApplication.ExitPlaymode();
+        }
+
+        string entryScenePath = "Assets/Scenes/EntryPoint/EntryPoint.unity";
+
+        EditorSceneManager.OpenScene(entryScenePath , OpenSceneMode.Additive);
+
+        foreach (SceneAsset s in GetScenes())
+        {
+            string path = AssetDatabase.GetAssetPath(s);
+
+            Scene scene = EditorSceneManager.GetSceneByPath(path);
+
+            if (scene.path == entryScenePath)
+                continue;
+
+            if (!scene.isLoaded)
+                continue;
+
+            EditorSceneManager.CloseScene(scene , true);
+        }
+
+        EditorApplication.EnterPlaymode();
     }
 
     private void HandleSceneCreated(Scene scene, NewSceneSetup setup, NewSceneMode mode)
@@ -207,7 +239,7 @@ public class SceneLoadHelper : EditorWindow
 
     private IEnumerable<SceneAsset> GetScenes()
     {
-        return EditorUtils.FindAssets<SceneAsset>("Assets/Scenes");
+        return EditorUtils.FindAssetsByType<SceneAsset>("Assets/Scenes");
     }
 
     private void HandleLoadAll()

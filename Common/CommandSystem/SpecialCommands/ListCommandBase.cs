@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.System.CommandSystem
 {
@@ -23,14 +25,17 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T Add(ICommandBase command, bool removeOnDone)
+        public T Add(ICommandBase command, bool removeOnDone, [CallerFilePath] string callerPath = "", [CallerLineNumber] int lineNumber = 0)
         {
+            Assert.IsNotNull(command);
+#if DEBUG
+            command.DebugInfo = new CommandDebugInfo()
+            {
+                AddedFromFilepath = callerPath,
+                AddedFromLine = lineNumber,
+            };
+#endif
             CommandSettings commandSettings = new CommandSettings() { Command = command };
-            return Add(commandSettings , removeOnDone);
-        }
-
-        internal T Add(CommandSettings commandSettings, bool removeOnDone)
-        {
             commandSettings.Command.RemoveWhenDone = removeOnDone;
             commandsList.Add(commandSettings);
             OnCommandAdded?.Invoke(this, commandSettings.Command);

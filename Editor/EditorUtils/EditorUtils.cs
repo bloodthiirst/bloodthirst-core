@@ -25,9 +25,9 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static string GetProjectTabPath()
         {
-            if(GetActiveFolderPathCached == null)
+            if (GetActiveFolderPathCached == null)
             {
-                GetActiveFolderPathCached = (Func<string>) typeof(ProjectWindowUtil)
+                GetActiveFolderPathCached = (Func<string>)typeof(ProjectWindowUtil)
                     .GetMethod("GetActiveFolderPath", BindingFlags.Static | BindingFlags.NonPublic)
                     .CreateDelegate(typeof(Func<string>));
             }
@@ -42,27 +42,24 @@ namespace Bloodthirst.Core.Utils
             return tex;
         }
 
-        public static List<T> FindAssets<T>(params string[] paths) where T : UnityEngine.Object
+        public static IEnumerable<T> FindAssetsByType<T>(params string[] paths) where T : UnityEngine.Object
         {
-            List<T> queryResults = AssetDatabase
-                .FindAssets($"t:{typeof(T).Name}" , paths)
-                .Select(g => AssetDatabase.GUIDToAssetPath(g))
-                .Select(p => AssetDatabase.LoadAssetAtPath<T>(p))
-                .ToList();
-
-            return queryResults;
+            return FindAssetsAs<T>($"t:{typeof(T).Name}", paths);
         }
 
-        public static List<T> FindAssetsAs<T>(string queryText , params string[] paths)
+        public static IEnumerable<T> FindAssetsAs<T>(string filter, params string[] paths) where T : UnityEngine.Object
         {
-            List<T> queryResults = AssetDatabase
-                .FindAssets(queryText , paths)
-                .Select(g => AssetDatabase.GUIDToAssetPath(g))
-                .Select(p => AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(p))
-                .Cast<T>()
-                .ToList();
+            string[] assetGuids = AssetDatabase.FindAssets(filter, paths);
 
-            return queryResults;
+            for (int i = 0; i < assetGuids.Length; i++)
+            {
+                string guid = assetGuids[i];
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+
+                T asset = AssetDatabase.LoadAssetAtPath<T>(path);
+
+                yield return asset;
+            }
         }
 
 
@@ -272,7 +269,7 @@ namespace Bloodthirst.Core.Utils
             if (string.IsNullOrEmpty(path))
                 return null;
 
-            if(!path.StartsWith("Resources/"))
+            if (!path.StartsWith("Resources/"))
             {
                 Debug.LogWarning($"The prefab {poolablePrefab.name} isn't placed in the Resources folder");
                 return path;

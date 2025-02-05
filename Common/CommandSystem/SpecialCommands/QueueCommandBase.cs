@@ -3,6 +3,8 @@
 #endif
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.System.CommandSystem
 {
@@ -18,7 +20,7 @@ namespace Bloodthirst.System.CommandSystem
         public event Action<ICommandBase, ICommandBase> OnCommandAdded;
 
         #if ODIN_INSPECTOR[ShowInInspector]#endif
-        private Queue<CommandSettings> commandQueue;
+        protected Queue<CommandSettings> commandQueue;
         private readonly bool propagateFailOrInterrupt;
 
         public QueueCommandBase(bool propagateFailOrInterrupt = false) : base()
@@ -33,8 +35,16 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T Enqueue(ICommandBase command,  bool removeOnDone = true)
+        public T Enqueue(ICommandBase command,  bool removeOnDone = true, [CallerFilePath] string calledPath = "", [CallerLineNumber] int lineNumber = 0)
         {
+            Assert.IsNotNull(command);
+#if DEBUG
+            command.DebugInfo = new CommandDebugInfo()
+            {
+                AddedFromFilepath = calledPath,
+                AddedFromLine = lineNumber,
+            };
+#endif
             command.RemoveWhenDone = removeOnDone;
             commandQueue.Enqueue(new CommandSettings() { Command = command });
 

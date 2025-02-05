@@ -5,6 +5,8 @@ using Bloodthirst.Editor.Commands;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine.Pool;
+using UnityEngine;
 
 namespace Bloodthirst.Core.GameEventSystem
 {
@@ -38,17 +40,21 @@ namespace Bloodthirst.Core.GameEventSystem
             if (!GameEventSystemUtils.IsGameEventClass(implementedClass, out Type enumType))
                 return;
 
-            List<GameEventSystemAsset> allEventAssets = EditorUtils.FindAssets<GameEventSystemAsset>();
 
-            for (int i = 0; i < allEventAssets.Count; i++)
+            using (ListPool<GameEventSystemAsset>.Get(out List<GameEventSystemAsset> allEventAssets))
             {
-                GameEventSystemAsset a = allEventAssets[i];
+                allEventAssets.AddRange(EditorUtils.FindAssetsByType<GameEventSystemAsset>());
 
-                if (a.enumName != enumType.Name)
-                    continue;
+                for (int i = 0; i < allEventAssets.Count; i++)
+                {
+                    GameEventSystemAsset a = allEventAssets[i];
 
-                a.RemoveByClass(implementedClass.Name);
-                CommandManagerEditor.RunInstant(new RegenerateEnumScriptCommand(a));
+                    if (a.enumName != enumType.Name)
+                        continue;
+
+                    a.RemoveByClass(implementedClass.Name);
+                    CommandManagerEditor.RunInstant(new RegenerateEnumScriptCommand(a));
+                }
             }
 
 

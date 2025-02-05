@@ -7,6 +7,7 @@ using Bloodthirst.Core.Utils;
 using System.Collections.Generic;
 using Bloodthirst.Editor;
 using UnityEditor.UIElements;
+using UnityEngine.Pool;
 
 public class FindShader : EditorWindow
 {
@@ -107,28 +108,31 @@ public class FindShader : EditorWindow
 
         if (targetShader == null && !string.IsNullOrEmpty(SearchTextField.value))
         {
-            List<Shader> allShader = EditorUtils.FindAssets<Shader>();
-
-            string normalizedSearchTxt = SearchTextField.value.ToLower();
-
-            for (int i = 0; i < allShader.Count; ++i)
+            using (ListPool<Shader>.Get(out List<Shader> allShader))
             {
-                Shader curr = allShader[i];
+                allShader.AddRange(EditorUtils.FindAssetsByType<Shader>());
 
-                ShaderImporter shaderImporter = (ShaderImporter)ShaderImporter.GetAtPath(AssetDatabase.GetAssetPath(curr));
-                ShaderInfo shaderInfo = ShaderUtil.GetShaderInfo(curr);
-                ShaderData shaderData = ShaderUtil.GetShaderData(curr);
+                string normalizedSearchTxt = SearchTextField.value.ToLower();
 
-                bool isFound =
-                    shaderImporter.assetPath.ToLower().Contains(normalizedSearchTxt) ||
-                    shaderInfo.name.ToLower().Contains(normalizedSearchTxt);
+                for (int i = 0; i < allShader.Count; ++i)
+                {
+                    Shader curr = allShader[i];
 
-                if (!isFound)
-                    continue;
+                    ShaderImporter shaderImporter = (ShaderImporter)ShaderImporter.GetAtPath(AssetDatabase.GetAssetPath(curr));
+                    ShaderInfo shaderInfo = ShaderUtil.GetShaderInfo(curr);
+                    ShaderData shaderData = ShaderUtil.GetShaderData(curr);
 
-                targetShader = curr;
-                ShaderObjectField.value = curr;
-                break;
+                    bool isFound =
+                        shaderImporter.assetPath.ToLower().Contains(normalizedSearchTxt) ||
+                        shaderInfo.name.ToLower().Contains(normalizedSearchTxt);
+
+                    if (!isFound)
+                        continue;
+
+                    targetShader = curr;
+                    ShaderObjectField.value = curr;
+                    break;
+                }
             }
         }
 
@@ -139,22 +143,24 @@ public class FindShader : EditorWindow
         }
 
 
-        List<Material> allMaterials = EditorUtils.FindAssets<Material>();
-
-
-        for (int i = 0; i < allMaterials.Count; i++)
+        using (ListPool<Material>.Get(out List<Material> allMaterials))
         {
-            Material m = allMaterials[i];
+            allMaterials.AddRange(EditorUtils.FindAssetsByType<Material>());
 
-            if (m.shader != targetShader)
-                continue;
+            for (int i = 0; i < allMaterials.Count; i++)
+            {
+                Material m = allMaterials[i];
 
-            SearchEnty searchEnty = new SearchEnty();
-            searchEnty.Material = m;
-            searchEnties.Add(searchEnty);
+                if (m.shader != targetShader)
+                    continue;
+
+                SearchEnty searchEnty = new SearchEnty();
+                searchEnty.Material = m;
+                searchEnties.Add(searchEnty);
+            }
+
+            ResultListView.RefreshItems();
         }
-
-        ResultListView.RefreshItems();
     }
 
 

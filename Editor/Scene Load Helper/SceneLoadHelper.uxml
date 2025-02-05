@@ -12,6 +12,7 @@ xsi:schemaLocation="
 "
 >
   <engine:Label text="Scene Load Helper" />
+  <engine:Button name="PlayFromEntryScene" text="Play from EntryPoint" class="big-btn"/>
   <engine:VisualElement name="RowsContainer"/>
   <engine:Button name="LoadAllBtn" text="Load all additively" class="big-btn"/>
 </engine:UXML>

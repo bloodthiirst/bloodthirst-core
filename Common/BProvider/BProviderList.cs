@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Bloodthirst.Core.BProvider
 {
@@ -50,6 +51,13 @@ namespace Bloodthirst.Core.BProvider
 
         public void Add(T element)
         {
+#if UNITY_EDITOR
+            if(elements.Contains(element))
+            {
+                Debug.LogError($"Instance of {element} is already added");
+            }
+#endif
+
             elements.Add(element);
             onAdded?.Invoke(element);
             OnAdded?.Invoke(element);

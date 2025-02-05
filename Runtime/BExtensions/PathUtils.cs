@@ -1,30 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Scripts.Utils
 {
     public static class PathUtils
     {
-        public static float LineLength(this IList<Vector3> vecs)
+        public static void WalkDistance(IReadOnlyList<Vector3> pts, float distance, out Vector3 pos, out Vector3 dir)
         {
-            if (vecs.Count < 2)
-                return 0;
+            Assert.IsTrue(pts.Count >= 2);
+            Assert.IsTrue(distance >= 0);
 
-            float length = 0;
+            float walkedDist = distance;
 
-            Vector3 prev = vecs[0];
-
-            for (int i = 1; i < vecs.Count; i++)
+            for(int i = 0; i < pts.Count - 1; ++i)
             {
-                Vector3 curr = vecs[i];
+                Vector3 curr = pts[i];
+                Vector3 next = pts[i + 1];
 
-                length += (curr - prev).magnitude;
+                Vector3 currDir = next - curr;
+                float dist = currDir.magnitude;
+                
+                if(dist < walkedDist)
+                {
+                    walkedDist -= dist;
+                    continue;
+                }
 
-                prev = curr;
+                pos = curr + (currDir / dist) * walkedDist;
+                dir = currDir / dist;
+                return;
             }
 
-            return length;
+            pos = pts[pts.Count - 1];
+            dir = (pos - pts[pts.Count - 2]).normalized;
+
+        }
+        public static float LineLength(this IList<Vector3> vecs)
+        {
+            return LineLength(vecs , 0, vecs.Count - 1);
         }
 
         public static float LineLength(this IList<Vector3> vecs, int start, int endIndex)

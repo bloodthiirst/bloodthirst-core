@@ -7,6 +7,6 @@ namespace Bloodthirst.Editor.BSearch
     {
         event Action<IBSearchFilter> OnFilterChanged;
         bool IsValid();
-        List<List<ResultPath>> GetSearchResults(List<object> rootIsntancesa);
+        List<List<ResultPath>> GetSearchResults(IEnumerable<object> rootIsntancesa);
     }
 }

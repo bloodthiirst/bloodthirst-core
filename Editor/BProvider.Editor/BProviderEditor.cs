@@ -64,7 +64,7 @@ namespace Bloodthirst.Core.BProvider.Editor
 
         private void Initialize()
         {
-            List<BProviderAsset> allAssets = EditorUtils.FindAssets<BProviderAsset>();
+            List<BProviderAsset> allAssets = EditorUtils.FindAssetsByType<BProviderAsset>().ToList();
             ProviderAsset = new SearchableDropdown("Select Datasource", -1, allAssets, this, MakeItem, BindItem, SearchTerm, SelectedAsString);
             EditorProviderAssetContainer.Add(ProviderAsset);
 
@@ -172,7 +172,7 @@ namespace Bloodthirst.Core.BProvider.Editor
             BProviderAsset asset = CreateInstance<BProviderAsset>();
             AssetDatabase.CreateAsset(asset, path);
 
-            ProviderAsset.UpdateSource(EditorUtils.FindAssets<BProviderAsset>());
+            ProviderAsset.UpdateSource(EditorUtils.FindAssetsByType<BProviderAsset>().ToList());
 
             IndexWrapper createdAsset = ProviderAsset.AllValues.FirstOrDefault(c =>  object.ReferenceEquals( c.Value , asset));
 

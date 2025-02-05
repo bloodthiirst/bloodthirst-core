@@ -12,6 +12,8 @@ namespace Bloodthirst.System.CommandSystem
     }
     public abstract class CommandBase<T> : ICommandBase where T : CommandBase<T>
     {
+        public CommandDebugInfo DebugInfo { get; set; }
+
 #if UNITY_EDITOR && ODIN_INSPECTOR
         [HideInEditorMode]
 #endif

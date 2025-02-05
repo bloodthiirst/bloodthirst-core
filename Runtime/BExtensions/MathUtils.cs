@@ -6,7 +6,7 @@ namespace Bloodthirst.Core.Utils
     public static class MathUtils
     {
         /// <summary>
-        /// Is val between min and max ? (inclusive)
+        /// Is val between min (inclusive) and max (inclusive) ?
         /// </summary>
         /// <param name="val"></param>
         /// <param name="min"></param>
@@ -14,6 +14,27 @@ namespace Bloodthirst.Core.Utils
         /// <returns></returns>
         public static bool IsBetween(float val, float min, float max)
         {
+            Assert.IsTrue(min < max);
+
+            if (val < min)
+                return false;
+            if (val > max)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Is val between min (inclusive) and max (inclusive) ?
+        /// </summary>
+        /// <param name="val"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static bool IsBetween(int val, int min, int max)
+        {
+            Assert.IsTrue(min < max);
+
             if (val < min)
                 return false;
             if (val > max)

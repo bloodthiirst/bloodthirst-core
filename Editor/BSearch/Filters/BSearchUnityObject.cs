@@ -43,7 +43,7 @@ namespace Bloodthirst.Editor.BSearch
         {
             return Value != null;
         }
-        List<List<ResultPath>> IBSearchFilter.GetSearchResults(List<object> rootItems)
+        List<List<ResultPath>> IBSearchFilter.GetSearchResults(IEnumerable<object> rootItems)
         {
             return SearchByValue(IsEqual, rootItems);
         }
@@ -162,7 +162,7 @@ namespace Bloodthirst.Editor.BSearch
             return instance.ToString();
         }
 
-        public List<List<ResultPath>> SearchByValue(Predicate<object> condition, List<object> rootItems)
+        public List<List<ResultPath>> SearchByValue(Predicate<object> condition, IEnumerable<object> rootItems)
         {
             HashSet<object> searchedCache = new HashSet<object>();
             List<List<ResultPath>> results = new List<List<ResultPath>>();

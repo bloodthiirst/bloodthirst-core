@@ -2,6 +2,8 @@
 	using Sirenix.OdinInspector;
 #endif
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.System.CommandSystem
 {
@@ -28,8 +30,18 @@ namespace Bloodthirst.System.CommandSystem
         /// <param name="owner"></param>
         /// <param name="removeWhenDone"></param>
         /// <returns></returns>
-        public void AppendCommand(object owner, ICommandBase cmd, bool removeWhenDone, int updateOrder = 0)
+        public void AppendCommand(object owner, ICommandBase cmd, bool removeWhenDone, int updateOrder = 0 , [CallerFilePath] string calledPath = "" , [CallerLineNumber] int lineNumber = 0)
         {
+            Assert.IsNotNull(cmd);
+
+#if DEBUG
+            cmd.DebugInfo = new CommandDebugInfo()
+            {
+                AddedFromFilepath = calledPath,
+                AddedFromLine = lineNumber,
+            };
+#endif
+
             cmd.UpdateOrder = updateOrder;
             cmd.Owner = owner;
             cmd.RemoveWhenDone = removeWhenDone;

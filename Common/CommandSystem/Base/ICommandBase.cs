@@ -2,14 +2,21 @@
 
 namespace Bloodthirst.System.CommandSystem
 {
+    public struct CommandDebugInfo
+    {
+        public string AddedFromFilepath;
+        public int AddedFromLine;
+    }
+
     public interface ICommandBase
     {
+        CommandDebugInfo DebugInfo { get; set; }
+
         event Action<ICommandBase> OnCommandStart;
 
         event Action<ICommandBase> OnCommandEnd;
-        
         object Owner { get; set; }
-        
+
         COMMAND_STATE CommandState { get; set; }
 
         int UpdateOrder { get; set; }

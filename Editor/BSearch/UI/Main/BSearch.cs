@@ -214,7 +214,7 @@ namespace Bloodthirst.Editor.BSearch
 
             if (ScriptableObjects.value)
             {
-                List<object> objs = EditorUtils.FindAssets<ScriptableObject>().Cast<object>().ToList();
+                List<object> objs = EditorUtils.FindAssetsByType<ScriptableObject>().Cast<object>().ToList();
                 List<List<ResultPath>> res = CurrentSearchFilter.GetSearchResults(objs);
 
                 results.AddRange(res);
@@ -222,7 +222,7 @@ namespace Bloodthirst.Editor.BSearch
 
             if (Prefabs.value)
             {
-                List<object> objs = EditorUtils.FindAssetsAs<object>("t:prefab");
+                IEnumerable<object> objs = EditorUtils.FindAssetsAs<GameObject>("t:prefab").Cast<object>();
                 List<List<ResultPath>> res = CurrentSearchFilter.GetSearchResults(objs);
 
                 results.AddRange(res);
@@ -236,7 +236,7 @@ namespace Bloodthirst.Editor.BSearch
                     SceneUtils.GetAllScenesInHierarchy(out Scene active, prevSceneDetails);
 
                     // search
-                    List<SceneAsset> allScenes = EditorUtils.FindAssetsAs<SceneAsset>("t:scene");
+                    IEnumerable<SceneAsset> allScenes = EditorUtils.FindAssetsAs<SceneAsset>("t:scene");
                     List<object> objs = allScenes.Cast<object>().ToList();
 
                     // this already opens all the scenes

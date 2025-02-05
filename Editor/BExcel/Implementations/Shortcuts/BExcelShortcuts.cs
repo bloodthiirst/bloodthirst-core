@@ -1,5 +1,6 @@
 using Bloodthirst.Core.Utils;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -11,10 +12,10 @@ namespace Bloodthirst.Editor.BExcelEditor
         [MenuItem("Bloodthirst Tools/Shortcuts/Update Localization")]
         public static void UpdateLocalization()
         {
-            List<BExcelOutput> assets = EditorUtils.FindAssets<BExcelOutput>();
-            Assert.IsTrue(assets.Count == 1);
-
-            BExcelOutput asset = assets[0];
+            IEnumerable<BExcelOutput> assets = EditorUtils.FindAssetsByType<BExcelOutput>();
+            
+            BExcelOutput asset = assets.FirstOrDefault();
+            Assert.IsNotNull(asset);
 
             BExcelExport export = new BExcelExport();
             export.AssetExportPath = AssetDatabase.GetAssetPath(asset);
