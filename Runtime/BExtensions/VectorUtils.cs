@@ -2,11 +2,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Scripts.Utils
 {
     public static class VectorUtils
     {
+        public struct VectorIndexPair
+        {
+            public Vector2 position;
+            public int index;
+        }
+
+        public static void GetClosestInDirection(IReadOnlyList<Vector2> allSelection, Vector2 start, Vector2 dir, List<VectorIndexPair> sortedResult)
+        {
+            Assert.IsTrue( Mathf.Approximately( dir.sqrMagnitude , 1));
+            Assert.IsTrue(sortedResult.Count == 0);
+
+            // copy vec-index pairs
+            for (int i = 0; i < allSelection.Count; i++)
+            {
+                sortedResult.Add(new VectorIndexPair() { index = i, position = allSelection[i] });
+            }
+
+            int rectCurrIdx = allSelection.IndexOf(start);
+            Assert.IsTrue(rectCurrIdx != -1);
+
+            VectorIndexPair rectCurr = sortedResult[rectCurrIdx];
+
+            sortedResult.RemoveAt(rectCurrIdx);
+
+            // remove the objects we consider non-aligned with dir
+            for (int i = sortedResult.Count - 1; i >= 0; i--)
+            {
+                VectorIndexPair curr = sortedResult[i];
+                Vector2 vecA = curr.position - rectCurr.position;
+
+                float dotA = Vector2.Dot(vecA.normalized, dir);
+
+                if (dotA < 0.1f)
+                {
+                    sortedResult.RemoveAt(i);
+                }
+
+            }
+
+            if (sortedResult.Count == 0)
+            {
+                return;
+            }
+
+            // sort by alignment with dir , if angle is equal then we compare distance
+            sortedResult.Sort((a, b) =>
+            {
+                Vector2 vecA = a.position - rectCurr.position;
+                Vector2 vecB = b.position - rectCurr.position;
+
+                float dotA = Vector2.Dot(vecA.normalized, dir);
+                float dotB = Vector2.Dot(vecB.normalized, dir);
+
+                float distA = Vector2.SqrMagnitude(vecA);
+                float distB = Vector2.SqrMagnitude(vecB);
+
+                float angleDiff = Mathf.Abs(dotA - dotB);
+
+                if (angleDiff < 0.2f)
+                {
+                    return distA < distB ? -1 : 1;
+                }
+
+                return dotA > dotB ? -1 : 1;
+            });
+        }
+
         public static Vector3 To3D(this Vector2 vec2)
         {
             return new Vector3(vec2.x, 0, vec2.y);
@@ -30,11 +98,11 @@ namespace Bloodthirst.Scripts.Utils
         /// <summary>
         /// Find some projected angle measure off some forward around some axis.
         /// </summary>
-        /// <param name="v"></param>
+        /// <param name="point"></param>
         /// <param name="forward"></param>
         /// <param name="axis"></param>
         /// <returns>Angle in degrees</returns>
-        public static float AngleOffAroundAxis(Vector3 v, Vector3 forward, Vector3 axis, bool clockwise = false)
+        public static float AngleOffAroundAxis(Vector3 point, Vector3 forward, Vector3 axis, bool clockwise = false)
         {
             Vector3 right;
             if (clockwise)
@@ -47,7 +115,7 @@ namespace Bloodthirst.Scripts.Utils
                 right = Vector3.Cross(axis, forward);
                 forward = Vector3.Cross(right, axis);
             }
-            return Mathf.Atan2(Vector3.Dot(v, right), Vector3.Dot(v, forward)) * Mathf.Rad2Deg;
+            return Mathf.Atan2(Vector3.Dot(point, right), Vector3.Dot(point, forward)) * Mathf.Rad2Deg;
         }
 
         /// Determines whether point P is inside the triangle ABC
@@ -104,7 +172,7 @@ namespace Bloodthirst.Scripts.Utils
         /// <param name="angle"></param>
         /// <param name="discreteAngles">The angles need to be sorted</param>
         /// <returns></returns>
-        public static float SnapToClosestAngle(float angle , IReadOnlyList<float> discreteAngles)
+        public static float SnapToClosestAngle(float angle, IReadOnlyList<float> discreteAngles)
         {
             Assert.IsTrue(angle <= 180);
             Assert.IsTrue(angle >= -180);

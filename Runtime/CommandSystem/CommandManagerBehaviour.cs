@@ -10,11 +10,8 @@ using UnityEngine;
 
 namespace Bloodthirst.System.CommandSystem
 {
-
-    public class CommandManagerBehaviour : MonoBehaviour , IUpdatable , ICommandManagerProvider
+    public sealed class CommandManagerBehaviour : MonoBehaviour , IUpdatable , ICommandManagerProvider
     {
-
-
 #if ODIN_INSPECTOR
 [ShowInInspector]
 #endif
@@ -53,7 +50,7 @@ namespace Bloodthirst.System.CommandSystem
         {
             if (EditorApplication.isPlaying)
             {
-                GameObject.FindObjectOfType<CommandManagerBehaviour>().Initialize();
+                GameObject.FindFirstObjectByType<CommandManagerBehaviour>().Initialize();
             }
         }
 #endif

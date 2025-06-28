@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine.UIElements;
 using UnityEditor;
+using Sirenix.OdinInspector.Editor;
 
 
 namespace Bloodthirst.Editor.BNodeTree
@@ -13,6 +14,7 @@ namespace Bloodthirst.Editor.BNodeTree
     {
         private const string UXML_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/PortInfo/PortInfoBaseElement.uxml";
         private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/PortInfo/PortInfoBaseElement.uss";
+        private IMGUIContainer odinDrawer;
 
         private VisualElement PortInfoRoot { get; set; }
         public VisualElement VisualElement => PortInfoRoot;
@@ -26,8 +28,6 @@ namespace Bloodthirst.Editor.BNodeTree
         public IPortType PortType { get; set; }
 
         public bool IsShowingInfo { get; private set; }
-
-        private List<IValueDrawer> BindableUIs { get; set; }
 
         public PortInfoBaseElement(PortBaseElement port, IPortType portType)
         {
@@ -43,9 +43,6 @@ namespace Bloodthirst.Editor.BNodeTree
             BorderActive.pickingMode = PickingMode.Ignore;
             BorderSelected.pickingMode = PickingMode.Ignore;
 
-            // bindable
-            BindableUIs = new List<IValueDrawer>();
-
             // parent node ui
             PortBase = port;
 
@@ -54,92 +51,25 @@ namespace Bloodthirst.Editor.BNodeTree
 
             PortName.text = PortType.PortName;
 
-            if (ValidMembers().Count == 0)
-            {
-                NoFieldsAvailable.style.display = DisplayStyle.Flex;
-                FieldsContainer.style.display = DisplayStyle.None;
-            }
-            else
-            {
-                NoFieldsAvailable.style.display = DisplayStyle.None;
-                FieldsContainer.style.display = DisplayStyle.Flex;
 
-                SetupFields();
-            }
+
+            NoFieldsAvailable.style.display = DisplayStyle.None;
+            FieldsContainer.style.display = DisplayStyle.Flex;
+
+
+            PropertyTree newTree = PropertyTree.Create(portType);
+
+            odinDrawer = new IMGUIContainer();
+            odinDrawer.onGUIHandler = () =>
+            {
+                InspectorProperty inspectorProperty = newTree.RootProperty;
+                newTree.Draw(false);
+                newTree.UpdateTree();
+            };
+
+            FieldsContainer.Add(odinDrawer);
 
             PortInfoRoot.MarkDirtyRepaint();
-        }
-
-        private IEnumerable<MemberInfo> GetAllMembers()
-        {
-            foreach (PropertyInfo f in PortType.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-            {
-                if (f.CanRead)
-                {
-                    if (f.GetGetMethod(true).IsFinal)
-                    {
-                        continue;
-                    }
-                }
-
-                if (f.CanWrite)
-                {
-                    if (f.GetSetMethod(true).IsFinal)
-                    {
-                        continue;
-                    }
-                }
-
-                yield return f;
-            }
-
-            foreach (FieldInfo f in PortType.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-            {
-                yield return f;
-            }
-
-        }
-
-        public List<MemberInfo> ValidMembers()
-        {
-            Dictionary<string, List<MemberInfo>> allInterfaceMembers = PortType.GetType()
-                .GetInterfaces()
-                .SelectMany(i => i.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                .Where(m => m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property)
-                .GroupBy(m => m.Name)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            List<MemberInfo> members = GetAllMembers().ToList();
-
-            List<MemberInfo> lst = members
-                .Where(m => !m.Name.EndsWith("__BackingField"))
-                .Where(m =>
-                    {
-                        if (!allInterfaceMembers.TryGetValue(m.Name, out List<MemberInfo> list))
-                        {
-                            return true;
-                        }
-
-                        foreach (MemberInfo interfaceMember in list)
-                        {
-                            if (interfaceMember.GetCustomAttribute<IgnoreBindableAttribute>() != null)
-                                return false;
-                        }
-
-                        return true;
-                    })
-                .ToList();
-
-            return lst;
-        }
-
-        private void SetupFields()
-        {
-            IBInspectorDrawer inspector = BInspectorProvider.DefaultInspector;
-
-            VisualElement ui = inspector.CreateInspectorGUI(PortType).RootContainer;
-
-            FieldsContainer.Add(ui);
         }
 
         public void AfterAddToCanvas()
@@ -150,6 +80,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public void BeforeRemoveFromCanvas()
         {
+            odinDrawer.Dispose();
             PortInfoRoot.UnregisterCallback<ClickEvent>(OnClick);
             PortInfoRoot.UnregisterCallback<ContextClickEvent>(OnRightClick);
         }

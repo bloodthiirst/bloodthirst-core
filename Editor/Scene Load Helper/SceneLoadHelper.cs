@@ -50,14 +50,14 @@ public class SceneEntry : VisualElement
         scenePath = AssetDatabase.GetAssetPath(sceneAsset);
 
         SceneAsset.objectType = typeof(SceneAsset);
-        SceneAsset.value = sceneAsset;
+        SceneAsset.SetValueWithoutNotify(sceneAsset);
         SceneAsset.SetEnabled(false);
 
         bool isLoaded = SceneManager.GetSceneByPath(scenePath).isLoaded;
         bool isOnlyScene = SceneManager.loadedSceneCount == 1 && isLoaded;
 
         IsOpen.SetEnabled(false);
-        IsOpen.value = isLoaded;
+        IsOpen.SetValueWithoutNotify(isLoaded);
 
         LoadAdditivelyBtn.SetEnabled(!isLoaded);
         LoadSingleBtn.SetEnabled(!isOnlyScene);
@@ -89,31 +89,19 @@ public class SceneLoadHelper : EditorWindow
     private const string USS_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Load Helper/SceneLoadHelper.uss";
     private const string UXML_PATH = EditorConsts.GLOBAL_EDITOR_FOLRDER_PATH + "Scene Load Helper/SceneLoadHelper.uxml";
 
-
     [MenuItem("Bloodthirst Tools/Scene Management/Scene Load Helper Window")]
     public static void ShowExample()
     {
         SceneLoadHelper wnd = GetWindow<SceneLoadHelper>();
         wnd.titleContent = new GUIContent("SceneLoadHelper");
-
     }
 
     VisualElement root;
-
     VisualElement RowsContainer => root.Q<VisualElement>(name = nameof(RowsContainer));
     Button LoadAllBtn => root.Q<Button>(name = nameof(LoadAllBtn));
     Button PlayFromEntryScene => root.Q<Button>(name = nameof(PlayFromEntryScene));
 
-    private void OnDisable()
-    {
-        EditorSceneManager.newSceneCreated -= HandleSceneCreated;
-        AssetWatcher.OnAssetEdited -= HandleChange;
-        AssetWatcher.OnAssetCreated -= HandleChange;
-        AssetWatcher.OnAssetRemoved -= HandleChange;
-        AssetWatcher.OnAssetMoved -= HandleChange;
-    }
-
-    public void OnEnable()
+    private void CreateGUI()
     {
         EditorSceneManager.newSceneCreated += HandleSceneCreated;
         AssetWatcher.OnAssetEdited += HandleChange;
@@ -145,6 +133,15 @@ public class SceneLoadHelper : EditorWindow
         RedrawUI();
     }
 
+    private void OnDestroy()
+    {
+        EditorSceneManager.newSceneCreated -= HandleSceneCreated;
+        AssetWatcher.OnAssetEdited -= HandleChange;
+        AssetWatcher.OnAssetCreated -= HandleChange;
+        AssetWatcher.OnAssetRemoved -= HandleChange;
+        AssetWatcher.OnAssetMoved -= HandleChange;
+    }
+
     private void HandlePlayFromEntry()
     {
         if (EditorApplication.isPlaying)
@@ -154,7 +151,7 @@ public class SceneLoadHelper : EditorWindow
 
         string entryScenePath = "Assets/Scenes/EntryPoint/EntryPoint.unity";
 
-        EditorSceneManager.OpenScene(entryScenePath , OpenSceneMode.Additive);
+        EditorSceneManager.OpenScene(entryScenePath, OpenSceneMode.Additive);
 
         foreach (SceneAsset s in GetScenes())
         {
@@ -168,7 +165,7 @@ public class SceneLoadHelper : EditorWindow
             if (!scene.isLoaded)
                 continue;
 
-            EditorSceneManager.CloseScene(scene , true);
+            EditorSceneManager.CloseScene(scene, true);
         }
 
         EditorApplication.EnterPlaymode();
@@ -244,7 +241,7 @@ public class SceneLoadHelper : EditorWindow
 
     private void HandleLoadAll()
     {
-        foreach(SceneAsset s in GetScenes())
+        foreach (SceneAsset s in GetScenes())
         {
             string path = AssetDatabase.GetAssetPath(s);
 
@@ -253,7 +250,7 @@ public class SceneLoadHelper : EditorWindow
             if (scene.isLoaded)
                 continue;
 
-            EditorSceneManager.OpenScene(path , OpenSceneMode.Additive);
+            EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
         }
 
         RedrawUI();
@@ -262,7 +259,7 @@ public class SceneLoadHelper : EditorWindow
     private void HandleUnload(SceneEntry entry)
     {
         Scene scene = EditorSceneManager.GetSceneByPath(entry.ScenePath);
-        EditorSceneManager.CloseScene(scene , true);
+        EditorSceneManager.CloseScene(scene, true);
 
         RedrawUI();
     }

@@ -29,7 +29,7 @@ namespace Bloodthirst.Core.GameEventSystem
         public string EnumName { get; }
         public string NamespaceValue { get; }
 
-        protected override void Execute()
+        public override void Execute()
         {
             string templateText = File.ReadAllText(ENUM_TEMPLATE);
 

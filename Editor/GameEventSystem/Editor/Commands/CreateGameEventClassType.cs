@@ -39,7 +39,7 @@ namespace Bloodthirst.Core.GameEventSystem
         public string ClassType { get; }
         public string NamespaceValue { get; }
 
-        protected override void Execute()
+        public override void Execute()
         {
             string templateText = File.ReadAllText(TYPE_TEMPLATE);
 

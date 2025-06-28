@@ -24,6 +24,7 @@ namespace Bloodthirst.UI
         public IEnumerator OpenCrt(IWindowUI window)
         {
             graphicRaycaster.enabled = true;
+            canvasGroup.interactable = true;
             canvas.enabled = true;
 
             float t = 0;
@@ -41,6 +42,7 @@ namespace Bloodthirst.UI
         public IEnumerator CloseCrt(IWindowUI window)
         {
             graphicRaycaster.enabled = false;
+            canvasGroup.interactable = false;
 
             float t = 0;
 
@@ -59,12 +61,16 @@ namespace Bloodthirst.UI
         public void CloseImmidiate(IWindowUI window)
         {
             canvas.enabled = false;
+            canvasGroup.interactable = false;
+            graphicRaycaster.enabled = false;
             canvasGroup.alpha = 0;
         }
 
         public void OpenImmidiate(IWindowUI window)
         {
             canvas.enabled = true;
+            canvasGroup.interactable = true;
+            graphicRaycaster.enabled = true;
             canvasGroup.alpha = 1;
         }
     }

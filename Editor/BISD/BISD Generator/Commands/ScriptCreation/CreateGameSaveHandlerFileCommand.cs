@@ -25,7 +25,7 @@ namespace Bloodthirst.Core.BISD.Editor.Commands
             this.relativeFolderPath = relativePath;
         }
 
-        protected override void Execute()
+        public override void Execute()
         {
             string finalPath = EditorUtils.PathToProject + "/" + relativeFolderPath;
             string scriptText = AssetDatabase.LoadAssetAtPath<TextAsset>(LOAD_SAVE_TEMPALTE).text

@@ -29,7 +29,19 @@ namespace Bloodthirst.Core.Setup
             Debug.Log("[IPostGameEnd] Game has unloaded successfully");
         }
 
-        private IEnumerator End()
+        private void Awake()
+        {
+            Application.quitting += HandleQuitting;
+        }
+
+        private void HandleQuitting()
+        {
+            Application.quitting -= HandleQuitting;
+
+            CleanupBeforeEnd();
+        }
+
+        private void CleanupBeforeEnd()
         {
             using (ListPool<GameObject>.Get(out List<GameObject> allGOs))
             using (ListPool<IPreGameEnd>.Get(out List<IPreGameEnd> preGameEnd))
@@ -49,9 +61,10 @@ namespace Bloodthirst.Core.Setup
                         e.Execute();
                     }
                 }
-
+                /*
                 LoadingManager manager = BProviderRuntime.Instance.GetSingleton<LoadingManager>();
 
+                
                 // setup
                 {
                     GameObjectUtils.GetAllComponents(ref gameEnds, true);
@@ -75,7 +88,7 @@ namespace Bloodthirst.Core.Setup
                 }
 
                 yield return new WaitWhile(() => manager.State == LOADDING_STATE.LOADING);
-
+                */
                 // post
                 {
                     // refetch because IGameEnd will destroy most of the game scenes
@@ -91,11 +104,7 @@ namespace Bloodthirst.Core.Setup
                     }
 
                 }
-#if UNITY_EDITOR
-                EditorApplication.ExitPlaymode();
-#else
-            Application.Quit(0);
-#endif
+
             }
         }
 
@@ -105,9 +114,12 @@ namespace Bloodthirst.Core.Setup
 #endif
         public void Quit()
         {
-            StartCoroutine(End());
+#if UNITY_EDITOR
+            EditorApplication.ExitPlaymode();
+#else
+            Application.Quit(0);
+#endif
         }
-
 
     }
 }

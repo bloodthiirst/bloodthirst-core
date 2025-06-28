@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Assertions;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -10,9 +12,85 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class CollectionsUtils
     {
-        private static Random rng = new Random();
+        /// <summary>
+        /// <para>Shift every element in the list by <paramref name="rotationOffset"/> , behaving like a ring-buffer or a circular-linked-list </para>
+        /// <para>if an element goes out of bounds (beyond 0 or list.Count) , it loops backs to the start or end , similar to a carouselle </para>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="rotationOffset"></param>
+        public static void Rotate<T>(this IList<T> list, int rotationOffset)
+        {
+            int count = list.Count;
 
-        public static void Shuffle<T>(this IList<T> list)
+            if (count == 0)
+            {
+                return;
+            }
+
+            rotationOffset = rotationOffset % count;
+
+            if (rotationOffset == 0)
+            {
+                return;
+            }
+
+            using (ListPool<T>.Get(out List<T> tmp))
+            {
+                for (int i = 0; i < count; ++i)
+                {
+                    int curr = (i + count + rotationOffset) % count;
+
+                    tmp.Add(list[curr]);
+                }
+
+                for (int i = 0; i < tmp.Count; i++)
+                {
+                    list[i] = tmp[i];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Comapres two collections and returns true if both of them contains the same elements (without considering the order of elements)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool CollectionEquals<T>(IReadOnlyList<T> a , IReadOnlyList<T> b)
+        {
+            if(a.Count != b.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < a.Count; i++)
+            {
+                T el1 = a[i];
+                bool found = false;
+
+                for (int i1 = 0; i1 < b.Count; i1++)
+                {
+                    T el2 = b[i1];
+
+                    if(el1.Equals(el2))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static void Shuffle<T>(this IList<T> list , Random rng )
         {
             int n = list.Count;
             while (n > 1)
@@ -88,6 +166,22 @@ namespace Bloodthirst.Core.Utils
             }
 
             return new string(chatArray);
+        }
+
+        /// <summary>
+        /// Index of for ReadOnlyList
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static int IndexOf<T>(this IReadOnlyList<T> list, Predicate<T> filter)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (filter(list[i])) return i;
+            }
+            return -1;
         }
 
         /// <summary>

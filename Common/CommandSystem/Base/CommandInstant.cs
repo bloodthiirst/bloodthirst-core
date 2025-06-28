@@ -91,7 +91,7 @@ namespace Bloodthirst.System.CommandSystem
             Execute();
         }
 
-        protected abstract void Execute();
+        public abstract void Execute();
 
         /// <summary>
         /// Executed when the command ends with the status of success , defined in command and triggered automatically
@@ -206,7 +206,7 @@ namespace Bloodthirst.System.CommandSystem
             return GetResult();
         }
 
-        protected override void Execute()
+        public override void Execute()
         {
             Result = GetResult();
         }

@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.Utils
 {
@@ -7,8 +10,67 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class GraphicsUtils
     {
-        public static void GetCorners(this Bounds bounds, Vector3[] points)
+        public static Rect ComputeScreenSize(GameObject gameObject, Camera cam, Vector3 worldPos )
         {
+            Bounds bounds = GraphicsUtils.GetBounds(gameObject);
+
+            using (ListPool<Vector3>.Get(out List<Vector3> cornersWorld))
+            using (ListPool<Vector3>.Get(out List<Vector3> cornersScreen))
+            {
+                CollectionsUtils.ExpandeSize(cornersWorld, 8);
+                GraphicsUtils.GetCorners(bounds, cornersWorld);
+
+                for (int i = 0; i < cornersWorld.Count; i++)
+                {
+                    Vector3 c = cornersWorld[i];
+                    c += worldPos;
+                    Vector3 screenPos = cam.WorldToScreenPoint(c);
+                    cornersScreen.Add(screenPos);
+                }
+
+                Vector2 xMinMax = new Vector2(cornersScreen[0].x, float.NegativeInfinity);
+                Vector2 yMinMax = new Vector2(float.PositiveInfinity, float.NegativeInfinity);
+
+                for (int i = 0; i < cornersScreen.Count; i++)
+                {
+                    Vector3 curr = cornersScreen[i];
+                    xMinMax.x = Mathf.Min(curr.x, xMinMax.x);
+                    xMinMax.y = Mathf.Max(curr.x, xMinMax.y);
+
+                    yMinMax.x = Mathf.Min(curr.y, yMinMax.x);
+                    yMinMax.y = Mathf.Max(curr.y, yMinMax.y);
+                }
+
+                Vector2 size = new Vector2(xMinMax.y - xMinMax.x, yMinMax.y - yMinMax.x);
+                Rect rect = new Rect(xMinMax.x , yMinMax.x , size.x , size.y);
+
+                return rect;
+            }
+        }
+
+        public static Bounds GetBounds(GameObject obj)
+        {
+            Bounds bounds = new Bounds();
+            using (ListPool<Renderer>.Get(out List<Renderer> renderers))
+            {
+                obj.GetComponentsInChildren<Renderer>(renderers);
+
+                //Encapsulate for all renderers
+                foreach (Renderer renderer in renderers)
+                {
+                    if (renderer.enabled)
+                    {
+                        bounds.Encapsulate(renderer.bounds);
+                    }
+                }
+
+                return bounds;
+            }
+        }
+
+        public static void GetCorners(this Bounds bounds, IList<Vector3> points)
+        {
+            Assert.IsTrue(points.Count == 8);
             Vector3 boundPoint1 = bounds.min;
             Vector3 boundPoint2 = bounds.max;
             Vector3 boundPoint3 = new Vector3(boundPoint1.x, boundPoint1.y, boundPoint2.z);

@@ -1,11 +1,15 @@
-﻿using System;
+﻿using Bloodthirst.Core.Utils;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
+using UnityEngine.Pool;
 using UnityEngine.UI;
 
 namespace Bloodthirst.Core.UI
 {
-    public class UIButton : Selectable , IPointerClickHandler
+    public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler
     {
         [SerializeField]
         private ButtonState state;
@@ -24,18 +28,87 @@ namespace Bloodthirst.Core.UI
 
         [SerializeField]
         private ClickEvent clickEvent;
-        public ClickEvent ClickEvent => clickEvent;
+
+        private Action<UIButton, ButtonState> clickEventCsharp;
+
+        public event Action<UIButton, ButtonState> ClickEvent
+        {
+            add
+            {
+                clickEventCsharp += value;
+                Assert.IsTrue(CheckDuplicateCallbacks());
+            }
+            remove
+            {
+                clickEventCsharp -= value;
+                Assert.IsTrue(CheckDuplicateCallbacks());
+            }
+        }
 
         public event Action<UIButton> OnStateChanged;
 
-        public void OnPointerClick(PointerEventData eventData)
+        public bool ShouldProcess(BaseEventData eventData)
         {
-            if(state != ButtonState.Enabled)
+            using (ListPool<IUIEventFilter>.Get(out var filters))
+            {
+                GetComponents(filters);
+
+                foreach (var f in filters)
+                {
+                    if (!f.ShouldProcess(eventData))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
+        {
+            if (!ShouldProcess(eventData))
             {
                 return;
             }
 
-            clickEvent.Invoke(this , state);
+            if (state != ButtonState.Enabled)
+            {
+                return;
+            }
+
+            Assert.IsTrue(CheckDuplicateCallbacks());
+
+            clickEvent.Invoke(this, state);
+            clickEventCsharp?.Invoke(this, state);
+        }
+
+        private bool CheckDuplicateCallbacks()
+        {
+            bool isValid =
+                !GameObjectUtils.HasDuplicateSubscriptions(clickEvent) &&
+                !GameObjectUtils.HasDuplicateSubscriptions(clickEventCsharp);
+
+            return isValid;
+        }
+
+
+        void ISubmitHandler.OnSubmit(BaseEventData eventData)
+        {
+            if (!ShouldProcess(eventData))
+            {
+                return;
+            }
+
+            if (state != ButtonState.Enabled)
+            {
+                return;
+            }
+
+            Assert.IsTrue(CheckDuplicateCallbacks());
+
+            clickEvent.Invoke(this, state);
+            clickEventCsharp?.Invoke(this, state);
         }
     }
 }

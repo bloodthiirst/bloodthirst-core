@@ -1,5 +1,5 @@
 ﻿#if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,10 @@ namespace Bloodthirst.System.CommandSystem
         public event Action<ICommandBase, ICommandBase> OnCommandRemoved;
         public event Action<ICommandBase, ICommandBase> OnCommandAdded;
 
-        #if ODIN_INSPECTOR[ShowInInspector]#endif
+
+
+
+#if ODIN_INSPECTOR                           [ShowInInspector]#endif
         protected Queue<CommandSettings> commandQueue;
         private readonly bool propagateFailOrInterrupt;
 
@@ -35,7 +38,7 @@ namespace Bloodthirst.System.CommandSystem
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public T Enqueue(ICommandBase command,  bool removeOnDone = true, [CallerFilePath] string calledPath = "", [CallerLineNumber] int lineNumber = 0)
+        public T Enqueue(ICommandBase command, bool removeOnDone = true, [CallerFilePath] string calledPath = "", [CallerLineNumber] int lineNumber = 0)
         {
             Assert.IsNotNull(command);
 #if DEBUG
@@ -48,7 +51,7 @@ namespace Bloodthirst.System.CommandSystem
             command.RemoveWhenDone = removeOnDone;
             commandQueue.Enqueue(new CommandSettings() { Command = command });
 
-            OnCommandAdded?.Invoke(this , command);
+            OnCommandAdded?.Invoke(this, command);
 
             return (T)this;
         }
@@ -67,6 +70,21 @@ namespace Bloodthirst.System.CommandSystem
                     currCmd.Start();
                 }
 
+                if (currCmd.IsDone())
+                {
+                    goto isDone;
+                }
+
+                currCmd.OnTick(delta);
+
+                if (currCmd.IsDone())
+                {
+                    goto isDone;
+                }
+
+                return;
+
+            isDone:
                 // if command is done , dequeue
                 if (currCmd.IsDone())
                 {
@@ -107,11 +125,11 @@ namespace Bloodthirst.System.CommandSystem
                     CommandSettings cmdSetting = commandQueue.Dequeue();
 
                     ICommandBase cmd = cmdSetting.Command.GetExcutingCommand();
-                    
+
                     if (cmd.CommandState == COMMAND_STATE.EXECUTING)
                     {
                         cmd.Interrupt();
-                    } 
+                    }
 
                     OnCommandRemoved?.Invoke(this, cmdSetting.Command);
                 }

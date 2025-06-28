@@ -51,7 +51,7 @@ namespace Bloodthirst.Runtime.BNodeTree
     /// Wrapper class that define a treenode behaviour with a specific node base class
     /// </summary>
     /// <typeparam name="TNodeType"></typeparam>
-    public abstract class BNodeTreeBehaviourBase<TNode> : BNodeTreeBehaviourBase where TNode : INodeType<TNode>, INodeType
+    public abstract class BNodeTreeBehaviourBase<TNode> : BNodeTreeBehaviourBase where TNode : INodeType
     {
 #if UNITY_EDITOR
         private const string TYPE_WARNING_MESSAGE = "The type of the node data needs to match the type of the tree behaviour";
@@ -170,14 +170,14 @@ namespace Bloodthirst.Runtime.BNodeTree
             }
 
             // try to nagivate from current node to next
-            IEnumerable<IPortType<TNode>> outputPortsConst = ActiveNodeTyped.GetPorts(PORT_DIRECTION.OUTPUT).Cast<IPortType<TNode>>();
+            IEnumerable<IPortType> outputPortsConst = ActiveNodeTyped.GetPorts(PORT_DIRECTION.OUTPUT).Cast<IPortType>();
 
-            foreach (IPortType<TNode> curr in outputPortsConst)
+            foreach (IPortType curr in outputPortsConst)
             {
                 if (curr.LinkAttached == null)
                     continue;
 
-                ActiveNodeTyped = curr.LinkAttached.ToTyped.ParentNode;
+                ActiveNodeTyped = (TNode) curr.LinkAttached.To.ParentNode;
                 return;
             }
 

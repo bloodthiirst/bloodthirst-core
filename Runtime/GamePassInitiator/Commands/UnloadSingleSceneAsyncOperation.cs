@@ -69,6 +69,7 @@ namespace Bloodthirst.Core.Setup
 
         public override void OnStart()
         {
+            Debug.Log($"Started Unloading Scene {sceneInstanceManager.ScenePath}");
             Scene scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(sceneInstanceManager.ScenePath);
 
             if (triggerCallbacks)

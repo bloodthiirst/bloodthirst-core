@@ -69,7 +69,7 @@ namespace Bloodthirst.Runtime.BNodeTree
         /// Create a copy of the node tree structure
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TNode> BuildAllNodes<TNode>() where TNode : INodeType<TNode>, INodeType
+        public IEnumerable<TNode> BuildAllNodes<TNode>() where TNode : INodeType
         {
             Assert.IsTrue(TypeUtils.IsSubTypeOf(NodeBaseType, typeof(TNode)), $"You're trying to get a node structure of type {NodeBaseType.Name} as use it as {typeof(TNode).Name}");
 
@@ -90,12 +90,12 @@ namespace Bloodthirst.Runtime.BNodeTree
             foreach (LinkData l in Links)
             {
                 // get the 2 nodes linked
-                TNode fromNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.FromNodeIndex);
-                TNode toNode = allNodes.FirstOrDefault(n => ((INodeType<TNode>)n).NodeID == l.ToNodeIndex);
+                TNode fromNode = allNodes.FirstOrDefault(n => n.NodeID == l.FromNodeIndex);
+                TNode toNode = allNodes.FirstOrDefault(n => n.NodeID == l.ToNodeIndex);
 
                 // get the ports of the nodes linked
-                IPortType<TNode> fromPort = (IPortType<TNode>)((INodeType)fromNode).Ports[l.FromPortIndex];
-                IPortType<TNode> toPort = (IPortType<TNode>)((INodeType)toNode).Ports[l.ToPortIndex];
+                IPortType fromPort = ((INodeType)fromNode).Ports[l.FromPortIndex];
+                IPortType toPort = ((INodeType)toNode).Ports[l.ToPortIndex];
 
                 // assign nodes as parents of the ports
                 fromPort.ParentNode = fromNode;

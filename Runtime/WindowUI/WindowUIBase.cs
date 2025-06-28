@@ -1,11 +1,8 @@
-﻿// ======================================================================
-// This file contains proprietary technology owned by Virtual Beings SAS.
-// Copyright 2011-2024 Virtual Beings SAS.
-// ======================================================================
-
-using System;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Bloodthirst.UI
 {
@@ -26,8 +23,6 @@ namespace Bloodthirst.UI
         public event Action<IWindowUI> BeforeWindowClosed;
 
         public event Action<IWindowUI> OnWindowClosed;
-
-        private IWindowUIEffect _windowEffect;
 
         private Coroutine _handle;
 
@@ -82,9 +77,35 @@ namespace Bloodthirst.UI
             BeforeWindowOpened?.Invoke(this);
             BeforeOpen();
 
-            if (TryGetComponent(out _windowEffect))
+            using (ListPool<IWindowUIEffect>.Get(out List<IWindowUIEffect> tmp))
+            using (ListPool<IEnumerator>.Get(out List<IEnumerator> crts))
             {
-                yield return _windowEffect.OpenCrt(this);
+                GetComponentsInChildren(tmp);
+
+                // get components on the same gameobject only
+                foreach (IWindowUIEffect cmp in tmp)
+                {
+                    MonoBehaviour casted = (MonoBehaviour)cmp;
+                    if (casted.gameObject == gameObject)
+                    {
+                        crts.Add(cmp.OpenCrt(this));
+                    }
+                }
+
+                while (crts.Count != 0)
+                {
+                    for (int i = crts.Count - 1; i >= 0; i--)
+                    {
+                        IEnumerator crt = crts[i];
+
+                        if (!crt.MoveNext())
+                        {
+                            crts.RemoveAt(i);
+                        }
+                    }
+
+                    yield return null;
+                }
             }
 
             _state = WindowState.Open;
@@ -98,9 +119,35 @@ namespace Bloodthirst.UI
             BeforeWindowClosed?.Invoke(this);
             BeforeClose();
 
-            if (TryGetComponent(out _windowEffect))
+            using (ListPool<IWindowUIEffect>.Get(out List<IWindowUIEffect> tmp))
+            using (ListPool<IEnumerator>.Get(out List<IEnumerator> crts))
             {
-                yield return _windowEffect.CloseCrt(this);
+                GetComponentsInChildren(tmp);
+
+                // get components on the same gameobject only
+                foreach (IWindowUIEffect cmp in tmp)
+                {
+                    MonoBehaviour casted = (MonoBehaviour)cmp;
+                    if (casted.gameObject == gameObject)
+                    {
+                        crts.Add(cmp.CloseCrt(this));
+                    }
+                }
+
+                while (crts.Count != 0)
+                {
+                    for (int i = crts.Count - 1; i >= 0; i--)
+                    {
+                        IEnumerator crt = crts[i];
+
+                        if (!crt.MoveNext())
+                        {
+                            crts.RemoveAt(i);
+                        }
+                    }
+
+                    yield return null;
+                }
             }
             _state = WindowState.Closed;
             OnWindowClosed?.Invoke(this);
@@ -116,9 +163,19 @@ namespace Bloodthirst.UI
             BeforeWindowOpened?.Invoke(this);
             BeforeOpen();
 
-            if (TryGetComponent(out _windowEffect))
+            using (ListPool<IWindowUIEffect>.Get(out List<IWindowUIEffect> tmp))
             {
-                _windowEffect.OpenImmidiate(this);
+                GetComponentsInChildren(tmp);
+
+                // get components on the same gameobject only
+                foreach (IWindowUIEffect cmp in tmp)
+                {
+                    MonoBehaviour casted = (MonoBehaviour)cmp;
+                    if (casted.gameObject == gameObject)
+                    {
+                        cmp.OpenImmidiate(this);
+                    }
+                }
             }
 
             _state = WindowState.Open;
@@ -136,9 +193,19 @@ namespace Bloodthirst.UI
             BeforeWindowClosed?.Invoke(this);
             BeforeClose();
 
-            if (TryGetComponent(out _windowEffect))
+            using (ListPool<IWindowUIEffect>.Get(out List<IWindowUIEffect> tmp))
             {
-                _windowEffect.CloseImmidiate(this);
+                GetComponentsInChildren(tmp);
+
+                // get components on the same gameobject only
+                foreach (IWindowUIEffect cmp in tmp)
+                {
+                    MonoBehaviour casted = (MonoBehaviour)cmp;
+                    if (casted.gameObject == gameObject)
+                    {
+                        cmp.CloseImmidiate(this);
+                    }
+                }
             }
             _state = WindowState.Closed;
             OnWindowClosed?.Invoke(this);

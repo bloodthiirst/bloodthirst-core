@@ -16,12 +16,9 @@ namespace Bloodthirst.Core.Utils
         {
             Assert.IsTrue(min < max);
 
-            if (val < min)
-                return false;
-            if (val > max)
-                return false;
+            bool isValid = val <= max && val >= min;
 
-            return true;
+            return isValid;
         }
 
         /// <summary>
@@ -35,12 +32,9 @@ namespace Bloodthirst.Core.Utils
         {
             Assert.IsTrue(min < max);
 
-            if (val < min)
-                return false;
-            if (val > max)
-                return false;
+            bool isValid = val <= max && val >= min;
 
-            return true;
+            return isValid;
         }
 
         public static float Remap(float val, float oldMin, float oldMax, float newMin, float newMax)

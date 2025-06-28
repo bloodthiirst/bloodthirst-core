@@ -1,14 +1,74 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace Bloodthirst.Core.Utils
 {
     public static class GameObjectUtils
     {
+
+        public static bool HasDuplicateSubscriptions(UnityEventBase unityEvt)
+        {
+            bool hasDuplicate = false;
+
+            using (HashSetPool<string>.Get(out var tmp))
+            {
+                int count = unityEvt.GetPersistentEventCount();
+                for (int i = 0; i < count; i++)
+                {
+                    string evt = unityEvt.GetPersistentMethodName(i);
+
+                    if (!tmp.Add(evt))
+                    {
+                        Debug.LogError($"Method named {evt} has been added more than once to {nameof(ClickEvent)}");
+                        hasDuplicate = true;
+                    }
+                }
+            }
+
+            return hasDuplicate;
+        }
+
+        public static bool IsEmptyDelegate(Delegate evt)
+        {
+            return evt == null;
+        }
+
+        public static bool HasDuplicateSubscriptions(Delegate evt)
+        {
+            if(evt == null)
+            {
+                return false;
+            }
+
+            bool hasDuplicate = false;
+
+            using (HashSetPool<Delegate>.Get(out HashSet<Delegate> tmp))
+            {
+                Delegate[] callbacks = evt.GetInvocationList();
+
+                for (int i = 0; i < callbacks.Length; i++)
+                {
+                    Delegate callback = callbacks[i];
+
+                    if (!tmp.Add(evt))
+                    {
+                        Debug.LogError($"Method named {callback.Method.Name} has been added more than once to {evt.Method} at {evt.Target}");
+                        hasDuplicate = true;
+                    }
+                }
+            }
+
+            return hasDuplicate;
+        }
+
         public static string GetReadableElapsedTime(DateTime from, DateTime to)
         {
             const int SECOND = 1;
@@ -51,6 +111,34 @@ namespace Bloodthirst.Core.Utils
                 int years = Convert.ToInt32(Math.Floor((double)ts.Days / 365));
                 return years <= 1 ? "one year ago" : years + " years ago";
             }
+        }
+
+        public static string GetGameObjectScenePath(GameObject gameObject)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            Transform curr = gameObject.transform;
+
+            using (ListPool<string>.Get(out List<string> tmp))
+            {
+                while (curr != null)
+                {
+                    tmp.Add(curr.name);
+                    curr = curr.parent;
+                }
+
+                tmp.Reverse();
+
+                sb.Append(gameObject.scene.name);
+
+                foreach (string s in tmp)
+                {
+                    sb.Append('/');
+                    sb.Append(s);
+                }
+            }
+
+            return sb.ToString();
         }
 
         public static void GetAllRootGameObjects(List<GameObject> lst)

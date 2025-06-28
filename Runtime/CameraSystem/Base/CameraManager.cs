@@ -1,16 +1,24 @@
 ﻿using Bloodthirst.Scripts.Utils;
 
 #if ODIN_INSPECTOR
-	using Sirenix.OdinInspector;
+using Sirenix.OdinInspector;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Systems.CameraSystem
 {
-    public class CameraManager  : MonoBehaviour
+    public interface ICameraTransition
+    {
+        ICameraController To { get; }
+        bool IsDone();
+        void GetCameraState(out Vector3 pos, out Quaternion rot);
+    }
+
+    public class CameraManager : MonoBehaviour
     {
         public struct CameraState
         {
@@ -18,20 +26,15 @@ namespace Bloodthirst.Systems.CameraSystem
             public Quaternion rotation;
         }
 
-        private delegate void OnCameraChangedEvent(CameraState oldState , CameraState newState);
-
-        private static readonly Type callbackType = typeof(OnCameraChangedEvent);
-
-        
 #if ODIN_INSPECTOR
-[ShowInInspector]
+        [ShowInInspector]
 #endif
 
-        HashSet<ICameraController> AllCameras = new HashSet<ICameraController>();
+        private HashSet<ICameraController> allControllers = new HashSet<ICameraController>();
 
-        
+        public ICollection<ICameraController> AllControllers => allControllers;
 #if ODIN_INSPECTOR
-[ShowInInspector]
+        [ShowInInspector]
 #endif
 
         public ICameraController ActiveCamera { get; private set; }
@@ -58,15 +61,9 @@ namespace Bloodthirst.Systems.CameraSystem
 
         private Vector3 previousPosition;
         private Quaternion previousRotation;
+        private ICameraTransition transition;
 
         public event Action<CameraState, CameraState> OnCameraViewChanged;
-
-        private OnCameraChangedEvent[] onChangedLookup = new OnCameraChangedEvent[2];
-
-        private void HandleOnChangedNoOp(CameraState prev , CameraState curr)
-        {
-
-        }
 
         private void HandleOnChangedCallback(CameraState prev, CameraState curr)
         {
@@ -78,130 +75,107 @@ namespace Bloodthirst.Systems.CameraSystem
             previousPosition = sceneCamera.transform.position;
             previousRotation = sceneCamera.transform.rotation;
 
-            onChangedLookup[0] = HandleOnChangedNoOp;
-            onChangedLookup[1] = HandleOnChangedCallback;
-
             isManagerActive = true;
 
-            PickInitialCamera();
+            if (initCamera == null)
+            {
+                return;
+            }
+
+            Assert.IsTrue(allControllers.Contains(initCamera));
+            ChangeCameraImmidiately(initCamera);
         }
 
         public void RegisterCamera(ICameraController camera)
         {
-            AllCameras.Add(camera);
+            bool isAdded = allControllers.Add(camera);
+            Assert.IsTrue(true);
+
+            camera.OnRegister();
         }
 
-        public void RemoveCamera(ICameraController camera)
+        public void UnregisterCamera(ICameraController camera)
         {
-            AllCameras.Remove(camera);
+            camera.OnUnregister();
+            bool isRemoved = allControllers.Remove(camera);
+            Assert.IsTrue(true);
         }
 
-        private void PickInitialCamera()
+        public void ChangeCamera(ICameraController to, ICameraTransition transition)
         {
-            if (initCamera == null)
-                return;
-
-            if (AllCameras.Contains(initCamera))
-            {
-                ChangeCamera(initCamera);
-            }
-        }
-
-        public void ChangeCamera(ICameraController camera)
-        {
-
-            if (!isManagerActive || isInTransition || ActiveCamera == camera || !AllCameras.Contains(camera))
-                return;
-
-            // disable old camera
-            if (ActiveCamera != null)
-            {
-                ActiveCamera = null;
-            }
-
-            ActiveCamera = camera;
-
-            isInTransition = true;
-
-            // get new position and rotation
-            Vector3 position = default;
-            Quaternion rotation = default;
-
-            camera.ApplyTransform(out position, out rotation);
-
-            /*
-            Sequence seqPosition = DOTween.Sequence()
-                                    .Append(sceneCamera.transform.DOMove(position, transitionDuration))
-                                    .SetEase(easeMode);
-
-
-
-            Sequence seqRotation = DOTween.Sequence()
-                                    .Append(sceneCamera.transform.DORotateQuaternion(rotation, transitionDuration))
-                                    .SetEase(easeMode);
-
-            Sequence mergedPosAndRot = DOTween.Sequence()
-                .Join(seqRotation)
-                .Join(seqPosition)
-                .OnComplete(OnTransitionComplete)
-                .OnUpdate(OnTransitionUpdate);
-
-            // play the transition
-            mergedPosAndRot.Play();
-            */
-            // todo : remporary fix , to avoid using dotween
-            sceneCamera.transform.SetLocalPositionAndRotation(position , rotation);
-            camera.OnCameraControllerSelected(false);
-        }
-
-        private void OnTransitionComplete()
-        {
-            isInTransition = false;
-        }
-        private void OnTransitionUpdate()
-        {
-            Vector3 pos = sceneCamera.transform.position;
-            Quaternion rot = sceneCamera.transform.rotation;
-            UpdateCameraView(pos, rot);
+            this.transition = transition;
         }
 
         public void ChangeCameraImmidiately(ICameraController camera)
         {
-            if (isInTransition)
-                return;
+            Assert.IsTrue(transition == null);
 
             if (ActiveCamera == camera)
+            {
                 return;
+            }
 
-            if (!AllCameras.Contains(camera))
+            if (camera != null && !allControllers.Contains(camera))
+            {
                 return;
+            }
 
             // disable old camera
             if (ActiveCamera != null)
             {
+                ActiveCamera.OnCameraControllerDeselected();
                 ActiveCamera = null;
             }
 
+            ActiveCamera = camera;
+
+            if (ActiveCamera == null)
+            {
+                return;
+            }
+
+            ActiveCamera.OnCameraControllerSelected(true);
+
+            if (!ActiveCamera.isEnabled)
+            {
+                return;
+            }
+
             // get new position and rotation
-            camera.ApplyTransform(out Vector3 position, out Quaternion rotation);
+            ActiveCamera.ApplyTransform(out Vector3 position, out Quaternion rotation);
 
             sceneCamera.transform.position = position;
             sceneCamera.transform.rotation = rotation;
-
-            ActiveCamera = camera;
-
-            camera.OnCameraControllerSelected(true);
-
         }
 
-        private void LateUpdate()
+        private void Update()
         {
-            if (pause || !isManagerActive || isInTransition || ActiveCamera == null)
+            if ((ActiveCamera is UnityEngine.Object casted && casted == null) || (ActiveCamera == null))
+            {
                 return;
+            }
 
-            ActiveCamera.ApplyTransform(out Vector3 pos, out Quaternion rot);
+            if (transition != null && transition.IsDone())
+            {
+                ActiveCamera = transition.To;
+                transition = null;
+            }
 
-            UpdateCameraView(pos, rot);
+            if (pause || !isManagerActive || ActiveCamera == null)
+            {
+                return;
+            }
+
+            if (transition != null)
+            {
+                transition.GetCameraState(out Vector3 pos, out Quaternion rot);
+                UpdateCameraView(pos, rot);
+            }
+            else
+            {
+                ActiveCamera.ApplyTransform(out Vector3 pos, out Quaternion rot);
+                UpdateCameraView(pos, rot);
+            }
         }
 
         private void UpdateCameraView(Vector3 pos, Quaternion rot)
@@ -210,7 +184,7 @@ namespace Bloodthirst.Systems.CameraSystem
             CameraState currState = new CameraState() { position = pos, rotation = rot };
 
             bool hasChanged = previousRotation != rot || previousPosition != pos;
-            
+
             previousPosition = pos;
             previousRotation = rot;
 

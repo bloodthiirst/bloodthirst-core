@@ -17,11 +17,8 @@ using Sirenix.OdinInspector;
 
 namespace Bloodthirst.Core.GameInitPass
 {
-    public class DependenciesInjectorBehaviour : MonoBehaviour, IPreGameSetup, IPostGameSetup
+    public class DependenciesInjectorBehaviour : MonoBehaviour , IPostGameSetup
     {
-        [SerializeField]
-        private int preGameSetupOrder;
-
         [SerializeField]
         private List<ScriptableObject> allScriptables;
 
@@ -46,19 +43,12 @@ namespace Bloodthirst.Core.GameInitPass
         }
 #endif
 
-        int IPreGameSetup.Order => preGameSetupOrder;
-
-        void IPreGameSetup.Execute()
-        {
-            ScriptableObjects();
-        }
-
         void IPostGameSetup.Execute()
         {
             SceneDependencies();
         }
 
-        private void ScriptableObjects()
+        public void RegisterUnityObjects()
         {
             BProvider.BProvider scProvider = new BProvider.BProvider();
 

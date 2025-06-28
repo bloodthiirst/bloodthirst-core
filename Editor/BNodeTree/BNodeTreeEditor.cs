@@ -15,6 +15,7 @@ using Sirenix.Utilities;
 using Bloodthirst.Runtime.BNodeTree;
 using Bloodthirst.BEventSystem;
 using UnityEngine.Assertions;
+using System.IO;
 
 namespace Bloodthirst.Editor.BNodeTree
 {
@@ -557,7 +558,6 @@ namespace Bloodthirst.Editor.BNodeTree
 
                 .Where(t => TypeUtils.IsSubTypeOf(t, typeof(INodeType)))
                 .Where(t => t != typeof(INodeType))
-                .Where(t => t != typeof(INodeType<>))
                 .Where(t => t != typeof(NodeBase<>))
 
                 //.Where(t => t.BaseType == typeof(NodeBase<>).MakeGenericType(t))
@@ -737,7 +737,17 @@ namespace Bloodthirst.Editor.BNodeTree
         }
         public bool Save()
         {
-            string savePath = EditorUtility.SaveFilePanel("Save tree data", "Assets", "TreeNodeData", "asset");
+            var dialogPath = "Assets";
+            var dialogFilename = "TreeNodeData";
+
+            if(selectedNodeData != null)
+            {
+                string fullPath = AssetDatabase.GetAssetPath(selectedNodeData);
+                dialogFilename = Path.GetFileName(fullPath);
+                dialogPath = Path.GetDirectoryName(fullPath);
+            }
+
+            string savePath = EditorUtility.SaveFilePanel("Save tree data", dialogPath, dialogFilename, "asset");
 
             if (string.IsNullOrEmpty(savePath))
                 return false;

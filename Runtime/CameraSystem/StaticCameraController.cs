@@ -6,7 +6,7 @@ using Bloodthirst.Systems.CameraSystem;
 #endif
 using UnityEngine;
 
-public class StaticCameraController : CameraControllerBase<StaticCameraController>
+public class StaticCameraController : MonoBehaviour,  ICameraController
 {
 #if ODIN_INSPECTOR
     [BoxGroup("Horizontal Rotation")]
@@ -47,10 +47,10 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
 
     private MouseUtils _mouseUtils;
 
+    public bool isEnabled { get; set; }
 
-    public override void OnRegister(CameraManager cameraManager)
+    public void OnRegister()
     {
-        base.OnRegister(cameraManager);
         _mouseUtils = BProviderRuntime.Instance.GetSingleton<MouseUtils>();
     }
 
@@ -72,7 +72,7 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
         velocityHorizontal = Input.GetAxis("Horizontal");
     }
 
-    public override void ApplyTransform(out Vector3 position, out Quaternion rotation)
+    void ICameraController.ApplyTransform(out Vector3 position, out Quaternion rotation)
     {
         var rot = Quaternion.Euler(xRotationValue, yRotationValue, 0);
 
@@ -89,8 +89,8 @@ public class StaticCameraController : CameraControllerBase<StaticCameraControlle
         rotation = transform.rotation;
     }
 
-    public override void OnCameraControllerSelected(bool isImmidiate)
-    {
+    void ICameraController.OnCameraControllerSelected(bool isImmidiate) { }
 
-    }
+    void ICameraController.OnCameraControllerDeselected() { }
+    void ICameraController.OnUnregister() { }
 }

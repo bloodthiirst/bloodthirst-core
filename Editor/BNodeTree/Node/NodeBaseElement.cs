@@ -8,6 +8,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+using Sirenix.OdinInspector.Editor;
+
 namespace Bloodthirst.Editor.BNodeTree
 {
     public class NodeBaseElement
@@ -47,6 +49,8 @@ namespace Bloodthirst.Editor.BNodeTree
         public bool IsNodeActive { get; set; }
         public INodeType NodeType { get; }
         public INodeEditor NodeEditor { get; }
+
+        private IMGUIContainer odinDrawer;
 
         public Vector2 NodeSize
         {
@@ -110,64 +114,19 @@ namespace Bloodthirst.Editor.BNodeTree
             NodeNameAttribute nameAttr = NodeType.GetType().GetCustomAttribute<NodeNameAttribute>();
             NodeName.text = nameAttr == null ? NodeType.GetType().Name : nameAttr.Name;
 
-            SetupFields();
-        }
+            //SetupFields();
+            
+            PropertyTree newTree = PropertyTree.Create(nodeType);
 
-        /// <summary>
-        /// Get all members of the node type
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerable<MemberInfo> GetAllMembers()
-        {
-            foreach (PropertyInfo f in NodeType.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(f => f.GetCustomAttribute<IgnoreBindableAttribute>() == null))
+            odinDrawer = new IMGUIContainer();
+            odinDrawer.onGUIHandler = () =>
             {
-                yield return f;
-            }
+                InspectorProperty inspectorProperty = newTree.RootProperty;
+                newTree.Draw(false);
+                newTree.UpdateTree();
+            };
 
-            foreach (FieldInfo f in NodeType.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where( f => f.GetCustomAttribute<IgnoreBindableAttribute>() == null))
-            {
-                yield return f;
-            }
-        }
-
-        /// <summary>
-        /// Get the filtred members that should be shown on the node's ui
-        /// </summary>
-        /// <returns></returns>
-        private List<MemberInfo> ValidMembers()
-        {
-            IEnumerable<MemberInfo> allInterfaceMembers = NodeType.GetType().GetInterfaces().SelectMany(i => i.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
-
-            IEnumerable<MemberInfo> members = GetAllMembers()
-
-                .Where(m =>
-                {
-                    List<MemberInfo> mem = allInterfaceMembers.Where(i => i.Name == m.Name).ToList();
-
-                    if (mem.Count == 0)
-                        return true;
-
-                    return mem.FirstOrDefault(im => im != null && im.GetCustomAttribute<IgnoreBindableAttribute>() == null) != null;
-                })
-
-                .Where(m => !m.Name.EndsWith("__BackingField"));
-
-            List<MemberInfo> lst = members.ToList();
-
-            return lst.ToList();
-        }
-
-        /// <summary>
-        /// Create the ui for the fields of the node
-        /// </summary>
-        private void SetupFields()
-        {
-            IBInspectorDrawer inspector = BInspectorProvider.DefaultInspector;
-
-            BInspectorDefault.RootEditor rootEditor = inspector.CreateInspectorGUI(NodeType);
-            VisualElement ui = rootEditor.RootContainer;
-
-            FieldsContainer.Add(ui);
+            FieldsContainer.Add(odinDrawer);
         }
 
         #region add input
@@ -439,6 +398,8 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public void BeforeRemoveFromCanvas()
         {
+            odinDrawer.Dispose();
+
             // node events
             NodeType.OnPortAdded -= HandleAddPort;
             // moving

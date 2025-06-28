@@ -4,16 +4,16 @@ using System;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {
-    public class PortDefault<TNode> : IPortType<TNode>, IPortType where TNode : INodeType<TNode>, INodeType
+    public class PortDefault<TNode> : IPortType where TNode : INodeType
     {
         #region PortDefault<TNode> implementation
         [BInspectorIgnore]
-        public Type PortValueType { get; protected set; }
+        public Type PortValueType { get; set; }
 
         [OdinSerialize]
         public string PortName { get; set; }
         [BInspectorIgnore]
-        internal TNode ParentNode { get; set; }
+        public INodeType ParentNode { get; set; }
         
         [BInspectorIgnore]
         [OdinSerialize]
@@ -21,60 +21,10 @@ namespace Bloodthirst.Runtime.BNodeTree
         
         [BInspectorIgnore]
         [OdinSerialize]
-        internal PORT_TYPE PortType { get; set; }
-        [BInspectorIgnore]
-        public ILinkType<TNode> LinkAttached { get; internal set; }
-        #endregion
-
-        #region IPortType<TNode> implementation
+        public PORT_TYPE PortType { get; set; }
 
         [BInspectorIgnore]
-        Type IPortType<TNode>.PortValueType => PortValueType;
-
-        [BInspectorIgnore]
-        string IPortType<TNode>.PortName { get => PortName; set => PortName = value; }
-
-        [BInspectorIgnore]
-        PORT_TYPE IPortType<TNode>.PortType { get => PortType; set => PortType = value; }
-
-        [BInspectorIgnore]
-        PORT_DIRECTION IPortType<TNode>.PortDirection { get => PortDirection; set => PortDirection = value; }
-
-        [BInspectorIgnore]
-        TNode IPortType<TNode>.ParentNode { get => ParentNode; set => ParentNode = value; }
-
-        [BInspectorIgnore]
-        ILinkType<TNode> IPortType<TNode>.LinkAttached
-        {
-            get => LinkAttached;
-            set => LinkAttached = value;
-        }
-
-        #endregion
-
-        #region IPortType implementation
-
-        [BInspectorIgnore]
-        Type IPortType.PortValueType => PortValueType;
-
-        [BInspectorIgnore]
-        string IPortType.PortName { get => PortName; set => PortName = value; }
-
-        [BInspectorIgnore]
-        PORT_TYPE IPortType.PortType { get => PortType; set => PortType = value; }
-
-        [BInspectorIgnore]
-        PORT_DIRECTION IPortType.PortDirection { get => PortDirection; set => PortDirection = value; }
-
-        [BInspectorIgnore]
-        INodeType IPortType.ParentNode { get => ParentNode; set => ParentNode = (TNode)value; }
-
-        [BInspectorIgnore]
-        ILinkType IPortType.LinkAttached
-        {
-            get => LinkAttached;
-            set => LinkAttached = (ILinkType<TNode>)value;
-        }
+        public ILinkType LinkAttached { get; set; }
         #endregion
 
         public PortDefault()
@@ -87,7 +37,7 @@ namespace Bloodthirst.Runtime.BNodeTree
             return null;
         }
 
-        public virtual bool CanLinkTo(IPortType<TNode> otherPort)
+        public virtual bool CanLinkTo(IPortType otherPort)
         {
             // can't connect same direction nodes
             if (PortDirection == otherPort.PortDirection)
@@ -99,11 +49,6 @@ namespace Bloodthirst.Runtime.BNodeTree
         object IPortType.GetPortValue()
         {
             return GetPortValue();
-        }
-
-        bool IPortType.CanLinkTo(IPortType otherPort)
-        {
-            return CanLinkTo((IPortType<TNode>)otherPort);
         }
     }
 }

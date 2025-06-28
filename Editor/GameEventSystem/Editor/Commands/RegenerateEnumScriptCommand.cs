@@ -26,7 +26,7 @@ namespace Bloodthirst.Core.GameEventSystem
 
         public GameEventSystemAsset Asset { get; }
 
-        protected override void Execute()
+        public override void Execute()
         {
             List<MonoScript> allScripts = EditorUtils.FindScriptAssets();
 

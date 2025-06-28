@@ -26,9 +26,11 @@ namespace Bloodthirst.Core.BISDSystem
             public ISavableInstanceProvider SpawnInfo { get; set; }
         }
 
-        private static List<IGameStateLoader> Loaders { get; set; } = new List<IGameStateLoader>();
+        private static List<IGameStateLoader> loaders = new List<IGameStateLoader>();
 
-        private static List<IGameStateSaver> Savers { get; set; } = new List<IGameStateSaver>();
+        private static List<IGameStateSaver> savers = new List<IGameStateSaver>();
+        public static IReadOnlyList<IGameStateLoader> Loaders => loaders;
+        public static IReadOnlyList<IGameStateSaver> Savers => savers;
 
         public static void Initialize()
         {
@@ -42,18 +44,18 @@ namespace Bloodthirst.Core.BISDSystem
                 .Where(t => !t.IsAbstract)
                 .Where(t => TypeUtils.IsSubTypeOf(t, typeof(IGameStateSaver)));
 
-            Loaders.Clear();
+            loaders.Clear();
             foreach (Type l in loadTypes)
             {
                 IGameStateLoader loader = (IGameStateLoader)Activator.CreateInstance(l);
-                Loaders.Add(loader);
+                loaders.Add(loader);
             }
 
-            Savers.Clear();
+            savers.Clear();
             foreach (Type s in saveTypes)
             {
                 IGameStateSaver saver = (IGameStateSaver)Activator.CreateInstance(s);
-                Savers.Add(saver);
+                savers.Add(saver);
             }
         }
 
@@ -98,7 +100,7 @@ namespace Bloodthirst.Core.BISDSystem
                     }
 
                     // get the correct saver
-                    IGameStateSaver saver = Savers.FirstOrDefault(s => s.From == savable.SavableStateType);
+                    IGameStateSaver saver = savers.FirstOrDefault(s => s.From == savable.SavableStateType);
                     Assert.IsNotNull(saver);
 
                     // create the gamesave from the state
@@ -178,7 +180,7 @@ namespace Bloodthirst.Core.BISDSystem
                         ISavableGameSave g = gameSavesForEntity[i];
                         LoadingInfo loading = new LoadingInfo();
 
-                        IGameStateLoader stateLoader = Loaders.FirstOrDefault(l => l.From == g.GetType());
+                        IGameStateLoader stateLoader = loaders.FirstOrDefault(l => l.From == g.GetType());
 
                         ISavableState state = stateLoader.GetState(g, context);
 

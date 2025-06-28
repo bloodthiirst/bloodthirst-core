@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Bloodthirst.Core.Utils
@@ -14,6 +15,35 @@ namespace Bloodthirst.Core.Utils
 
     public static class StringExtensions
     {
+        public static IEnumerable<char> GetLetters()
+        {
+            for(char c = 'a'; c != 'z'; c++)
+            {
+                yield return c;
+            }
+        }
+
+        public static IEnumerable<char> GetNumbers()
+        {
+            for (char c = '0'; c != 9; c++)
+            {
+                yield return c;
+            }
+        }
+
+
+        public static string GetRandom(int length, IReadOnlyList<char> fromCharaceters)
+        {
+            StringBuilder sb = new StringBuilder(length);
+            
+            for (int i = 0; i < length; ++i)
+            {
+                int idx = RandomNumberGenerator.GetInt32(fromCharaceters.Count);
+                sb.Append(fromCharaceters[idx]);
+            }
+
+            return sb.ToString();
+        }
 
         private static List<int> AllIndexesOf(this string str, string value)
         {
