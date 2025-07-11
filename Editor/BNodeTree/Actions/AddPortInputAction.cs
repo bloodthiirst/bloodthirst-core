@@ -33,7 +33,7 @@ namespace Bloodthirst.Editor.BNodeTree
             defaultPort.PortType = PORT_TYPE.VARIABLE;
             defaultPort.PortName = "Input";
 
-            evt.Node.NodeType.AddPort(defaultPort , defaultPort.PortDirection , defaultPort.PortType);
+            evt.Node.NodeType.AddPort(defaultPort);
         }
     }
 }

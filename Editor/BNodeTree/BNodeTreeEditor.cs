@@ -302,7 +302,7 @@ namespace Bloodthirst.Editor.BNodeTree
             for (int i = AllNodes.Count - 1; i >= 0; i--)
             {
                 NodeBaseElement curr = AllNodes[i];
-                RemoveNode(curr);
+                RemoveNode(curr.NodeType);
             }
         }
 
@@ -325,6 +325,7 @@ namespace Bloodthirst.Editor.BNodeTree
                 new ResizeNodeAction(),
                 new AddPortInputAction(),
                 new AddPortOutputAction(),
+                new RemovePortAction(),
                 new TogglePortInfoAction(),
 
                 // selection
@@ -679,11 +680,23 @@ namespace Bloodthirst.Editor.BNodeTree
             link.AfterAddToCanvas();
 
             return link;
-
         }
 
-        public void RemoveNode(NodeBaseElement node)
+        public void RemoveLink(ILinkType link)
         {
+            LinkElement linkElem = AllLinks.FirstOrDefault(l => l.LinkType == link);
+            AllLinks.Remove(linkElem);
+
+            link.From.LinkAttached = null;
+            link.To.LinkAttached = null;
+
+            linkElem.BeforeRemoveFromCanvas();
+            Canvas.Remove(linkElem.VisualElement);
+        }
+
+        public void RemoveNode(INodeType nodeType)
+        {
+            NodeBaseElement node = AllNodes.FirstOrDefault(n => n.NodeType == nodeType);
             // instance remove
             AllNodes.Remove(node);
             SelectedNodes.Remove(node);
@@ -699,12 +712,7 @@ namespace Bloodthirst.Editor.BNodeTree
                 if (curr.From.ParentNode != node && curr.To.ParentNode != node)
                     continue;
 
-                curr.From.Link = null;
-                curr.To.Link = null;
-
-                AllLinks.RemoveAt(i);
-                curr.BeforeRemoveFromCanvas();
-                Canvas.Remove(curr.VisualElement);
+                RemoveLink(curr.LinkType);
             }
 
             node.AfterRemoveFromCanvs();

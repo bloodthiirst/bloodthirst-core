@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 using Sirenix.OdinInspector.Editor;
+using NUnit.Framework;
 
 namespace Bloodthirst.Editor.BNodeTree
 {
@@ -50,6 +51,7 @@ namespace Bloodthirst.Editor.BNodeTree
         public INodeType NodeType { get; }
         public INodeEditor NodeEditor { get; }
 
+        private PropertyTree odinTree;
         private IMGUIContainer odinDrawer;
 
         public Vector2 NodeSize
@@ -115,80 +117,45 @@ namespace Bloodthirst.Editor.BNodeTree
             NodeName.text = nameAttr == null ? NodeType.GetType().Name : nameAttr.Name;
 
             //SetupFields();
-            
-            PropertyTree newTree = PropertyTree.Create(nodeType);
+
+            odinTree = PropertyTree.Create(nodeType);
 
             odinDrawer = new IMGUIContainer();
             odinDrawer.onGUIHandler = () =>
             {
-                InspectorProperty inspectorProperty = newTree.RootProperty;
-                newTree.Draw(false);
-                newTree.UpdateTree();
+                InspectorProperty inspectorProperty = odinTree.RootProperty;
+                odinTree.Draw(false);
+                odinTree.UpdateTree();
             };
 
             FieldsContainer.Add(odinDrawer);
         }
 
-        #region add input
-        private void AddConstInputPort(IPortType curr)
+
+        public void AddPort(IPortType curr)
         {
             PortBaseElement input = new PortBaseElement(NodeEditor, this, curr);
-            InputPortsContainer.Add(input.VisualElement);
 
             Ports.Add(input);
 
+            VisualElement container = null;
+            if (curr.PortDirection == PORT_DIRECTION.INPUT)
+            {
+                container = InputPortsContainer;
+            }
+            else
+            {
+                container = OutputPortsContainer;
+            }
+
+            Assert.IsNotNull(container);
+
+            container.Add(input.VisualElement);
+
             input.AfterAddToCanvas();
         }
-        public void AddVariableInputPort(IPortType curr)
-        {
-            PortBaseElement input = new PortBaseElement(NodeEditor, this, curr);
-            InputPortsContainer.Add(input.VisualElement);
 
-            Ports.Add(input);
-
-            input.AfterAddToCanvas();
-        }
-        #endregion
-
-        #region add output
-        private void AddConstOutputPort(IPortType port)
-        {
-            PortBaseElement output = new PortBaseElement(NodeEditor, this, port);
-            OutputPortsContainer.Add(output.VisualElement);
-
-            Ports.Add(output);
-
-            output.AfterAddToCanvas();
-        }
-
-        public void AddVariableOutputPort(IPortType port)
-        {
-            PortBaseElement output = new PortBaseElement(NodeEditor, this, port);
-            OutputPortsContainer.Add(output.VisualElement);
-
-            Ports.Add(output);
-
-            output.AfterAddToCanvas();
-        }
-        #endregion
-
-        #region remove output
-        private void RemoveConstOutputPort(IPortType port)
-        {
-            PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
-
-            if (curr == null)
-            {
-                throw new Exception("Port not found when trying to remove");
-            }
-            curr.BeforeRemoveFromCanvas();
-
-            OutputPortsContainer.Remove(curr.VisualElement);
-
-            Ports.Remove(curr);
-        }
-
-        private void RemoveVariableOutputPort(IPortType port)
+        public void RemovePort(IPortType port)
         {
             PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
 
@@ -197,43 +164,25 @@ namespace Bloodthirst.Editor.BNodeTree
                 throw new Exception("Port not found when trying to remove");
             }
 
-            curr.BeforeRemoveFromCanvas();
-            OutputPortsContainer.Remove(curr.VisualElement);
-            Ports.Remove(curr);
-        }
-        #endregion
+            VisualElement container = null;
 
-        #region remove input
-        private void RemoveConstInputPort(IPortType port)
-        {
-            PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
-
-            if (curr == null)
+            if (port.PortDirection == PORT_DIRECTION.INPUT)
             {
-                throw new Exception("Port not found when trying to remove");
+                container = InputPortsContainer;
             }
-
-            curr.BeforeRemoveFromCanvas();
-            InputPortsContainer.Remove(curr.VisualElement);
-            Ports.Remove(curr);
-        }
-
-        private void RemoveVariableInputPort(IPortType port)
-        {
-            PortBaseElement curr = Ports.FirstOrDefault(p => p.PortType == port);
-
-            if (curr == null)
+            else
             {
-                throw new Exception("Port not found when trying to remove");
+                container = OutputPortsContainer;
             }
 
             curr.BeforeRemoveFromCanvas();
 
-            Ports.Remove(curr);
+            container.Remove(curr.VisualElement);
 
-            InputPortsContainer.Remove(curr.VisualElement);
+            port.ParentNode.RemovePort(port);
+
+            Ports.Remove(curr);
         }
-        #endregion
 
         public void RefreshPorts()
         {
@@ -249,50 +198,17 @@ namespace Bloodthirst.Editor.BNodeTree
             // input ports
             foreach (IPortType p in NodeType.Ports)
             {
-
-                if ((p.PortDirection == PORT_DIRECTION.INPUT && p.PortType == PORT_TYPE.CONST))
-                {
-                    AddConstInputPort(p);
-                    continue;
-                }
-                if ((p.PortDirection == PORT_DIRECTION.INPUT && p.PortType == PORT_TYPE.VARIABLE))
-                {
-                    AddVariableInputPort(p);
-                    continue;
-                }
-                // output ports 
-                if ((p.PortDirection == PORT_DIRECTION.OUTPUT && p.PortType == PORT_TYPE.CONST))
-                {
-                    AddConstOutputPort(p);
-                    continue;
-                }
-                if ((p.PortDirection == PORT_DIRECTION.OUTPUT && p.PortType == PORT_TYPE.VARIABLE))
-                {
-                    AddVariableOutputPort(p);
-                    continue;
-                }
+                AddPort(p);
             }
         }
 
         private void ClearAllPorts()
         {
             // input ports
-            foreach (IPortType p in NodeType.GetPorts(PORT_DIRECTION.INPUT, PORT_TYPE.CONST))
+            for (int i = NodeType.Ports.Count - 1; i >= 0; i--)
             {
-                RemoveConstInputPort(p);
-            }
-            foreach (IPortType p in NodeType.GetPorts(PORT_DIRECTION.INPUT, PORT_TYPE.VARIABLE))
-            {
-                RemoveVariableInputPort(p);
-            }
-            // output ports 
-            foreach (IPortType p in NodeType.GetPorts(PORT_DIRECTION.OUTPUT, PORT_TYPE.CONST))
-            {
-                RemoveConstOutputPort(p);
-            }
-            foreach (IPortType p in NodeType.GetPorts(PORT_DIRECTION.OUTPUT, PORT_TYPE.VARIABLE))
-            {
-                RemoveVariableOutputPort(p);
+                IPortType p = NodeType.Ports[i];
+                RemovePort(p);
             }
         }
 
@@ -349,25 +265,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         private void HandleAddPort(IPortType port)
         {
-            if (port.PortDirection == PORT_DIRECTION.INPUT && port.PortType == PORT_TYPE.CONST)
-            {
-                AddConstInputPort(port);
-            }
-
-            if (port.PortDirection == PORT_DIRECTION.INPUT && port.PortType == PORT_TYPE.VARIABLE)
-            {
-                AddVariableInputPort(port);
-            }
-
-            if (port.PortDirection == PORT_DIRECTION.OUTPUT && port.PortType == PORT_TYPE.CONST)
-            {
-                AddConstOutputPort(port);
-            }
-
-            if (port.PortDirection == PORT_DIRECTION.OUTPUT && port.PortType == PORT_TYPE.VARIABLE)
-            {
-                AddVariableOutputPort(port);
-            }
+            AddPort(port);
         }
 
         private void OnResizeUp(MouseUpEvent evt)
@@ -399,6 +297,7 @@ namespace Bloodthirst.Editor.BNodeTree
         public void BeforeRemoveFromCanvas()
         {
             odinDrawer.Dispose();
+            odinTree.Dispose();
 
             // node events
             NodeType.OnPortAdded -= HandleAddPort;

@@ -7,13 +7,22 @@ namespace Bloodthirst.Editor.BNodeTree
 {
     public class LinkNodesAction : NodeEditorActionBase
     {
-        private List<KeyCode> cancelKeyboardShortcut = new List<KeyCode>()
-        {
-            KeyCode.Escape,
-            KeyCode.Delete
-        };
+
+        private readonly KeyCode deselectKeycode = KeyCode.Escape;
+        private readonly KeyCode deleteKeycode = KeyCode.Delete;
+
+        private List<KeyCode> cancelKeyboardShortcut;
 
         private PortBaseElement PendingLinkingPort { get; set; }
+
+        public LinkNodesAction()
+        {
+            cancelKeyboardShortcut = new List<KeyCode>()
+            {
+                deselectKeycode,
+                deleteKeycode
+            };
+        }
 
         public override void OnDisable()
         {

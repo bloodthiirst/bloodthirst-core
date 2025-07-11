@@ -90,6 +90,26 @@ namespace Bloodthirst.Core.Utils
             return true;
         }
 
+        /// <summary>
+        /// Comapres two collections and returns true if both of them contains the same elements (without considering the order of elements)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool CollectionEquals<T>(IEnumerable<T> a, IEnumerable<T> b)
+        {
+            using(ListPool<T>.Get(out List<T> aList))
+            using(ListPool<T>.Get(out List<T> bList))
+            {
+                aList.AddRange(a);
+                bList.AddRange(b);
+
+                return CollectionEquals(aList, bList);
+            }
+        }
+
+
         public static void Shuffle<T>(this IList<T> list , Random rng )
         {
             int n = list.Count;

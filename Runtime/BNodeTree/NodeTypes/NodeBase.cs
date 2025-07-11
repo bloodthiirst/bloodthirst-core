@@ -31,18 +31,16 @@ namespace Bloodthirst.Runtime.BNodeTree
         /// </summary>
         protected virtual void SetupPorts() { }
 
-        public void AddPort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type) where TPort : IPortType
+        public void AddPort<TPort>(TPort port) where TPort : IPortType
         {
             port.ParentNode = this;
-            port.PortDirection = direction;
-            port.PortType = type;
 
             Ports.Add(port);
 
             OnPortAdded?.Invoke(port);
         }
 
-        public void RemovePort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type) where TPort : IPortType
+        public void RemovePort<TPort>(TPort port) where TPort : IPortType
         {
             if (!Ports.Remove(port))
                 return;

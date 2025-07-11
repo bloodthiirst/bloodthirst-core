@@ -21,9 +21,10 @@ namespace Bloodthirst.Editor.BNodeTree
         Vector2 CanvasSize { get; }
 
         LinkElement AddLink(PortBaseElement start, PortBaseElement end);
+        void RemoveLink(ILinkType link);
         void AddNode(INodeType node, Vector2 worldMousePos , Vector2? size , bool worldSpace = true);
         bool IsInsideNode(Vector2 pos);
-        void RemoveNode(NodeBaseElement node);
+        void RemoveNode(INodeType node);
         Vector2 WorldToCanvas(Vector2 pos);
         Vector2 WorldToContainer(Vector2 pos);
     }

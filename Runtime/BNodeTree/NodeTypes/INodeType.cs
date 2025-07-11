@@ -12,7 +12,7 @@ namespace Bloodthirst.Runtime.BNodeTree
         event Action<IPortType> OnPortRemoved;
         [BInspectorIgnore]
         IReadOnlyList<IPortType> Ports { get; }
-        void AddPort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type) where TPort : IPortType;
-        void RemovePort<TPort>(TPort port, PORT_DIRECTION direction, PORT_TYPE type) where TPort : IPortType;
+        void AddPort<TPort>(TPort port) where TPort : IPortType;
+        void RemovePort<TPort>(TPort port) where TPort : IPortType;
     }
 }

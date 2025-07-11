@@ -14,6 +14,7 @@ namespace Bloodthirst.Editor.BNodeTree
     {
         private const string UXML_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/PortInfo/PortInfoBaseElement.uxml";
         private const string USS_PATH = BNodeTreeEditorUtils.EDITOR_BASE_PATH + "/PortInfo/PortInfoBaseElement.uss";
+        private PropertyTree odinTree;
         private IMGUIContainer odinDrawer;
 
         private VisualElement PortInfoRoot { get; set; }
@@ -51,20 +52,17 @@ namespace Bloodthirst.Editor.BNodeTree
 
             PortName.text = PortType.PortName;
 
-
-
             NoFieldsAvailable.style.display = DisplayStyle.None;
             FieldsContainer.style.display = DisplayStyle.Flex;
 
-
-            PropertyTree newTree = PropertyTree.Create(portType);
+            odinTree = PropertyTree.Create(portType);
 
             odinDrawer = new IMGUIContainer();
             odinDrawer.onGUIHandler = () =>
             {
-                InspectorProperty inspectorProperty = newTree.RootProperty;
-                newTree.Draw(false);
-                newTree.UpdateTree();
+                InspectorProperty inspectorProperty = odinTree.RootProperty;
+                odinTree.Draw(false);
+                odinTree.UpdateTree();
             };
 
             FieldsContainer.Add(odinDrawer);
@@ -81,6 +79,7 @@ namespace Bloodthirst.Editor.BNodeTree
         public void BeforeRemoveFromCanvas()
         {
             odinDrawer.Dispose();
+            odinTree.Dispose();
             PortInfoRoot.UnregisterCallback<ClickEvent>(OnClick);
             PortInfoRoot.UnregisterCallback<ContextClickEvent>(OnRightClick);
         }

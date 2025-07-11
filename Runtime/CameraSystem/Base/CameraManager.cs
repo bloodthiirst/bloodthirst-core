@@ -1,4 +1,6 @@
 ﻿using Bloodthirst.Scripts.Utils;
+using Bloodthirst.System.CommandSystem;
+
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -6,6 +8,7 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -101,14 +104,24 @@ namespace Bloodthirst.Systems.CameraSystem
             Assert.IsTrue(true);
         }
 
-        public void ChangeCamera(ICameraController to, ICameraTransition transition)
+        public void ChangeCamera(ICameraController to, ICameraTransition newTransition)
         {
-            this.transition = transition;
+            if(transition != null && transition is ICommandBase cmd)
+            {
+                cmd.Interrupt();
+                transition = null;
+            }
+
+            transition = newTransition;
         }
 
         public void ChangeCameraImmidiately(ICameraController camera)
         {
-            Assert.IsTrue(transition == null);
+            if(transition != null && transition is ICommandBase cmd)
+            {
+                cmd.Interrupt();
+                transition = null;
+            }
 
             if (ActiveCamera == camera)
             {
