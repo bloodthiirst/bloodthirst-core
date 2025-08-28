@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEditor;
+using UnityEditor.Experimental;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Pool;
 using UnityEngine.UIElements;
 
 namespace Bloodthirst.Core.Utils
@@ -62,6 +65,42 @@ namespace Bloodthirst.Core.Utils
             }
         }
 
+        [MenuItem("Bloodthirst Tools/Shortcuts/Reserialize selected")]
+        public static void ReserializeSelected()
+        {
+            if(Selection.objects.Length == 0)
+            {
+                EditorUtility.DisplayDialog("Error", "Atleast one asset needs to be selected", "Yes");
+                return;
+            }
+
+            using (ListPool<UnityEngine.Object>.Get(out List<UnityEngine.Object> selected))
+            using (ListPool<string>.Get(out List<string> paths))
+            {
+                StringBuilder sb = new StringBuilder();
+
+                selected.AddRange(Selection.objects);
+
+                sb.AppendLine("Are you sure you want to re-serialize all these assets ?");
+                foreach (UnityEngine.Object g in selected)
+                {
+                    string p = AssetDatabase.GetAssetPath(g);
+                    paths.Add(p);
+                    sb.AppendLine(p);
+                }
+
+                bool userAnswer = EditorUtility.DisplayDialog("Confirmation", sb.ToString(), "Yes", "No");
+
+                if (!userAnswer)
+                {
+                    return;
+                }
+
+                AssetDatabase.ForceReserializeAssets(paths, ForceReserializeAssetsOptions.ReserializeAssetsAndMetadata);
+
+                EditorUtility.DisplayDialog("Sucess", "Reserialization done", "Yes");
+            }
+        }
 
         /// <summary>
         /// Clears the console in the editor

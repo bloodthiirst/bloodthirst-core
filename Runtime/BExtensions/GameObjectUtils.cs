@@ -13,6 +13,23 @@ namespace Bloodthirst.Core.Utils
 {
     public static class GameObjectUtils
     {
+        [Flags]
+        public enum ResetFlag
+        {
+            PositionAndRotation,
+            Scale,
+            All
+        }
+        public static void ResetTransform(this Transform t , ResetFlag flag = ResetFlag.All )
+        {
+            switch (flag)
+            {
+                case ResetFlag.PositionAndRotation: { t.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity); return; }
+                case ResetFlag.Scale: { t.localScale = Vector3.one; return; }
+                case ResetFlag.All: { t.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity); t.localScale = Vector3.one; return; }
+                default: { throw new NotImplementedException($"Missing case {flag}"); }
+            }
+        }
 
         public static bool HasDuplicateSubscriptions(UnityEventBase unityEvt)
         {

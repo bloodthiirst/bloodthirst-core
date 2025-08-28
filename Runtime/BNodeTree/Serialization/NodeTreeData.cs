@@ -3,13 +3,13 @@ using Bloodthirst.Core.Utils;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Assertions;
 using System.Reflection;
+using Sirenix.Serialization;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {

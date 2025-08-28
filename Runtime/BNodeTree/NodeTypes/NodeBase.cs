@@ -6,25 +6,20 @@ namespace Bloodthirst.Runtime.BNodeTree
 {
     public abstract class NodeBase<T> : INodeType where T : NodeBase<T>
     {
+        [OdinSerialize]
+        private int nodeID = -1;
+
+        [OdinSerialize]
+        private List<IPortType> ports = new List<IPortType>();
+        
         public event Action<IPortType> OnPortAdded;
 
         public event Action<IPortType> OnPortRemoved;
 
-        [OdinSerialize]
-        public int NodeID { get; set; } = -1;
-
-        [OdinSerialize]
-        public List<IPortType> Ports { get; set; }
+        public int NodeID { get => nodeID; set => nodeID = value; }
+        public List<IPortType> Ports { get => ports; set => ports = value; }
 
         IReadOnlyList<IPortType> INodeType.Ports => Ports;
-
-
-        public NodeBase()
-        {
-            Ports = new List<IPortType>();
-
-            SetupPorts();
-        }
 
         /// <summary>
         /// Method used to add and assemble all the ports of the node

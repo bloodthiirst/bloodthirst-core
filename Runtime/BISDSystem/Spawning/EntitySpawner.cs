@@ -6,7 +6,7 @@ using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public class EntitySpawner : MonoBehaviour
+    public class EntitySpawner
     {
         #region setup
         public void AssignID(GameObject entity)

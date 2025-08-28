@@ -6,7 +6,6 @@ namespace Bloodthirst.Core.SceneManager
 {
     public interface ISceneInstanceManager
     {
-        Type SceneManagerType { get; }
         bool IsScenePlaying { get; }
         bool IsSceneVisible { get; }
         bool IsConfigScene { get; set; }

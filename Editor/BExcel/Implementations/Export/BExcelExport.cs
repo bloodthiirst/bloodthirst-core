@@ -96,6 +96,12 @@ namespace Bloodthirst.Editor.BExcelEditor
                     for (int i = 0; i < tab.Dimension.Columns; ++i)
                     {
                         string headerCell = tab.Cells[1, i + 1].Text;
+                        
+                        if(string.IsNullOrEmpty(headerCell))
+                        {
+                            break;
+                        }
+                        
                         cols.Add(headerCell);
                     }
                 }

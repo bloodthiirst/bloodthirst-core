@@ -85,6 +85,9 @@ namespace Bloodthirst.Core.Audio
 
         private void ResetAudioSource(AudioSource audioSource)
         {
+            audioSource.volume = 1;
+            audioSource.loop = false;
+            audioSource.outputAudioMixerGroup = null;
             audioSource.playOnAwake = false;
             audioSource.clip = null;
         }
@@ -93,12 +96,11 @@ namespace Bloodthirst.Core.Audio
         {
             for (int i = busyAudioSources.Count - 1; i >= 0; i--)
             {
-
                 currentAudio = busyAudioSources[i];
 
                 // if the audio stopped
 
-                if (!currentAudio.isPlaying)
+                if (!currentAudio.isPlaying && currentAudio.time >= currentAudio.clip.length)
                 {
                     busyAudioSources.RemoveAt(i);
 

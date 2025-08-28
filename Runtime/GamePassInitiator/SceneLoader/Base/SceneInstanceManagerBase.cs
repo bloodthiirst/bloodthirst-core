@@ -6,21 +6,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Bloodthirst.Core.SceneManager
 {
-    public abstract class SceneInstanceManager<T> : MonoBehaviour,
-        ISceneInstanceManager
-        where T : SceneInstanceManager<T>
+    public abstract class SceneInstanceManagerBase : MonoBehaviour, ISceneInstanceManager
     {
 
-        Type ISceneInstanceManager.SceneManagerType => typeof(T);
-
-        public event Action<T> OnSceneVisibilityChanged;
-        public event Action<T> OnSceneStateChanged;
+        public event Action<ISceneInstanceManager> OnSceneVisibilityChanged;
+        public event Action<ISceneInstanceManager> OnSceneStateChanged;
 
         [SerializeField]
         private bool isConfigScene;
@@ -217,7 +212,7 @@ namespace Bloodthirst.Core.SceneManager
 
             previouslyActiveGO.Clear();
 
-            OnSceneStateChanged?.Invoke((T)this);
+            OnSceneStateChanged?.Invoke(this);
         }
 
 #if ODIN_INSPECTOR
@@ -246,7 +241,7 @@ namespace Bloodthirst.Core.SceneManager
                 }
             }
 
-            OnSceneStateChanged?.Invoke((T)this);
+            OnSceneStateChanged?.Invoke(this);
         }
 #if ODIN_INSPECTOR
         [TitleGroup("Toggle graphical components active in the scene", GroupID = "ShowHide")]
@@ -280,7 +275,7 @@ namespace Bloodthirst.Core.SceneManager
 
             // trigger event
 
-            OnSceneVisibilityChanged?.Invoke((T)this);
+            OnSceneVisibilityChanged?.Invoke(this);
         }
 
 #if ODIN_INSPECTOR
@@ -321,7 +316,7 @@ namespace Bloodthirst.Core.SceneManager
 
             // trigger event
 
-            OnSceneVisibilityChanged?.Invoke((T)this);
+            OnSceneVisibilityChanged?.Invoke(this);
         }
 
 #if ODIN_INSPECTOR

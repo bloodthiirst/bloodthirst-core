@@ -9,8 +9,11 @@ using UnityEngine.UI;
 
 namespace Bloodthirst.Core.UI
 {
-    public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler
+    public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler , IPointerDownHandler
     {
+        [SerializeField]
+        private TriggerMode triggerMode;
+
         [SerializeField]
         private ButtonState state;
         public ButtonState State
@@ -65,8 +68,36 @@ namespace Bloodthirst.Core.UI
             return true;
         }
 
+        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
+        {
+            if(triggerMode != TriggerMode.OnDown)
+            {
+                return;
+            }
+
+            if (!ShouldProcess(eventData))
+            {
+                return;
+            }
+
+            if (state != ButtonState.Enabled)
+            {
+                return;
+            }
+
+            Assert.IsTrue(CheckDuplicateCallbacks());
+
+            clickEvent.Invoke(this, state);
+            clickEventCsharp?.Invoke(this, state);
+        }
+
         void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
         {
+            if (triggerMode != TriggerMode.Default)
+            {
+                return;
+            }
+
             if (!ShouldProcess(eventData))
             {
                 return;

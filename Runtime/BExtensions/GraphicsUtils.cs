@@ -71,14 +71,20 @@ namespace Bloodthirst.Core.Utils
         public static void GetCorners(this Bounds bounds, IList<Vector3> points)
         {
             Assert.IsTrue(points.Count == 8);
-            Vector3 boundPoint1 = bounds.min;
-            Vector3 boundPoint2 = bounds.max;
-            Vector3 boundPoint3 = new Vector3(boundPoint1.x, boundPoint1.y, boundPoint2.z);
-            Vector3 boundPoint4 = new Vector3(boundPoint1.x, boundPoint2.y, boundPoint1.z);
-            Vector3 boundPoint5 = new Vector3(boundPoint2.x, boundPoint1.y, boundPoint1.z);
-            Vector3 boundPoint6 = new Vector3(boundPoint1.x, boundPoint2.y, boundPoint2.z);
-            Vector3 boundPoint7 = new Vector3(boundPoint2.x, boundPoint1.y, boundPoint2.z);
-            Vector3 boundPoint8 = new Vector3(boundPoint2.x, boundPoint2.y, boundPoint1.z);
+            Vector3 min = bounds.min;
+            Vector3 max = bounds.max;
+
+            // bottom Y square
+            Vector3 boundPoint1 = new Vector3(min.x, min.y, min.z);
+            Vector3 boundPoint2 = new Vector3(max.x, min.y, max.z);
+            Vector3 boundPoint3 = new Vector3(min.x, min.y, max.z);
+            Vector3 boundPoint4 = new Vector3(max.x, min.y, min.z);
+
+            // top Y square
+            Vector3 boundPoint5 = new Vector3(min.x, max.y, min.z);
+            Vector3 boundPoint6 = new Vector3(max.x, max.y, max.z);
+            Vector3 boundPoint7 = new Vector3(min.x, max.y, max.z);
+            Vector3 boundPoint8 = new Vector3(max.x, max.y, min.z);
 
             points[0] = boundPoint1;
             points[1] = boundPoint2;

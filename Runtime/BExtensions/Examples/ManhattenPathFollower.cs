@@ -1,5 +1,7 @@
 using Bloodthirst.Scripts.Utils;
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 using System.Collections.Generic;
 using UnityEngine;
 using static Bloodthirst.Scripts.Utils.PathUtils;

@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
+using UnityEngine.SceneManagement;
 
 namespace Bloodthirst.Core.AdvancedPool
 {
@@ -60,12 +62,15 @@ namespace Bloodthirst.Core.AdvancedPool
                 return;
             }
 
-            IOnDespawn[] array = t.GetComponentsInChildren<IOnDespawn>(true);
-
-            for (int i = 0; i < array.Length; i++)
+            using (ListPool<IOnDespawn>.Get(out List<IOnDespawn> tmp))
             {
-                IOnDespawn onSpawn = array[i];
-                onSpawn.OnDespawn();
+                t.GetComponentsInChildren(true, tmp);
+
+                for (int i = 0; i < tmp.Count; i++)
+                {
+                    IOnDespawn onSpawn = tmp[i];
+                    onSpawn.OnDespawn();
+                }
             }
 
             t.transform.SetParent(poolTransform);
@@ -93,12 +98,15 @@ namespace Bloodthirst.Core.AdvancedPool
             obj.transform.SetParent(null);
             obj.gameObject.SetActive(true);
 
-            IOnSpawn[] array = obj.GetComponentsInChildren<IOnSpawn>(true);
-
-            for (int i = 0; i < array.Length; i++)
+            using (ListPool<IOnSpawn>.Get(out List<IOnSpawn> tmp))
             {
-                IOnSpawn onSpawn = array[i];
-                onSpawn.OnSpawn();
+                obj.GetComponentsInChildren(true, tmp);
+
+                for (int i = 0; i < tmp.Count; i++)
+                {
+                    IOnSpawn onSpawn = tmp[i];
+                    onSpawn.OnSpawn();
+                }
             }
 
             return obj.gameObject;
