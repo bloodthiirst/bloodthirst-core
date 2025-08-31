@@ -149,11 +149,6 @@ namespace Bloodthirst.Systems.CameraSystem
 
             ActiveCamera.OnCameraControllerSelected(true);
 
-            if (!ActiveCamera.isEnabled)
-            {
-                return;
-            }
-
             // get new position and rotation
             ActiveCamera.ApplyTransform(out Vector3 position, out Quaternion rotation);
 
