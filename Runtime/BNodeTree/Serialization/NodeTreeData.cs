@@ -10,6 +10,9 @@ using System.Linq;
 using UnityEngine.Assertions;
 using System.Reflection;
 using Sirenix.Serialization;
+using System.Diagnostics;
+using Sirenix.Serialization.Utilities;
+using System.IO;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {
@@ -17,7 +20,9 @@ namespace Bloodthirst.Runtime.BNodeTree
     {
 
 
-#if ODIN_INSPECTOR        [ShowInInspector]
+
+
+#if ODIN_INSPECTOR                           [ShowInInspector]
         [OdinSerialize]
 #endif
         private Type nodeBaseType;
@@ -28,8 +33,11 @@ namespace Bloodthirst.Runtime.BNodeTree
 #endif
         [BJsonIgnore]
         private List<NodeData> nodes;
-       
-#if ODIN_INSPECTOR        [ShowInInspector]
+
+
+
+
+#if ODIN_INSPECTOR                           [ShowInInspector]
         [OdinSerialize]
 #endif
         [BJsonIgnore]
@@ -53,7 +61,7 @@ namespace Bloodthirst.Runtime.BNodeTree
                 NodeData node = nodes[i];
                 Type t = node.NodeType.GetType();
 
-                BindingFlags flags  = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+                BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
                 MethodInfo validateMethod = t.GetMethod("OnValidate", flags);
 
                 if (validateMethod == null)
@@ -64,6 +72,18 @@ namespace Bloodthirst.Runtime.BNodeTree
             }
         }
 #endif
+
+        private static T DeepCopy<T>(T src)
+        {
+            using MemoryStream mem = new MemoryStream(1024 * 16);
+            using Cache<SerializationContext> cache = Cache<SerializationContext>.Claim();
+            using Cache<DeserializationContext> cache2 = Cache<DeserializationContext>.Claim();
+            cache.Value.Config.SerializationPolicy = SerializationPolicies.Everything;
+            cache2.Value.Config.SerializationPolicy = SerializationPolicies.Everything;
+            SerializationUtility.SerializeValue(src, mem, DataFormat.Binary, out var unityObjects, cache);
+            mem.Position = 0L;
+            return SerializationUtility.DeserializeValue<T>(mem, DataFormat.Binary, unityObjects, cache2);
+        }
 
         /// <summary>
         /// Create a copy of the node tree structure
@@ -81,9 +101,17 @@ namespace Bloodthirst.Runtime.BNodeTree
             {
                 // doesn't work for IL2CPP
                 // TNode nodeType = BCopier<TNode>.Instance.Copy((TNode)n.NodeType);
-                TNode nodeType = (TNode) SerializationUtility.CreateCopy((TNode)n.NodeType);
+                try
+                {
+                    //TNode nodeType = (TNode)SerializationUtility.CreateCopy((TNode)n.NodeType);
+                    TNode nodeType = DeepCopy((TNode)n.NodeType);
+                    allNodes.Add(nodeType);
+                }
+                catch (Exception ex)
+                {
+                    UnityEngine.Debug.LogException(ex);
+                }
 
-                allNodes.Add(nodeType);
             }
 
             // link the port references

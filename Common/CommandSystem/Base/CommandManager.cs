@@ -77,23 +77,43 @@ namespace Bloodthirst.System.CommandSystem
         {
             for (int l = 0; l < commandBatches.Count; l++)
             {
-                for (int i = commandBatches[l].Count - 1; i > -1; i--)
+                List<ICommandBase> currCommands = commandBatches[l];
+
+                bool cmdsWereAdded = true;
+
+                int removeCount = 0;
+                int startCount = currCommands.Count;
+                int rangeStart = 0;
+
+                while (cmdsWereAdded)
                 {
-                    ICommandBase cmd = commandBatches[l][i];
-
-                    if (cmd.CommandState == COMMAND_STATE.WATING)
+                    removeCount = 0;
+                    
+                    for (int i = startCount - 1; i >= rangeStart; i--)
                     {
-                        cmd.Start();
+                        ICommandBase cmd = commandBatches[l][i];
+
+                        if (cmd.CommandState == COMMAND_STATE.WATING)
+                        {
+                            cmd.Start();
+                        }
+
+                        if (cmd.IsDone() && cmd.RemoveWhenDone)
+                        {
+                            commandBatches[l].RemoveAt(i);
+                            removeCount++;
+                            continue;
+                        }
+
+                        // else tick
+                        cmd.OnTick(deltaTime);
                     }
 
-                    if (cmd.IsDone() && cmd.RemoveWhenDone)
-                    {
-                        commandBatches[l].RemoveAt(i);
-                        continue;
-                    }
+                    int leftOverCmds = startCount - removeCount;
+                    cmdsWereAdded = currCommands.Count > leftOverCmds;
 
-                    // else tick
-                    cmd.OnTick(deltaTime);
+                    startCount = currCommands.Count;
+                    rangeStart = leftOverCmds;
                 }
             }
         }

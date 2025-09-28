@@ -1,16 +1,437 @@
-﻿using System.Collections.Generic;
+﻿using Bloodthirst.Scripts.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Pool;
 
 namespace Bloodthirst.Core.Utils
 {
+    public struct ConvexShape
+    {
+        public Vector2[] points;
+        public Vector2 center;
+    }
+    public struct TriangleIndicies
+    {
+        public int v1;
+        public int v2;
+        public int v3;
+    }
+
+    public struct EdgeIndicies
+    {
+        public int e1;
+        public int e2;
+    }
+
     /// <summary>
     /// an extension class containing helper methods for types / reflection
     /// </summary>
     public static class GraphicsUtils
     {
-        public static Rect ComputeScreenSize(GameObject gameObject, Camera cam, Vector3 worldPos )
+
+
+        public static TriangleIndicies AlignTriangleNormal(IReadOnlyList<Vector2> points, TriangleIndicies tri, Vector3 up)
+        {
+            Vector2 v1 = points[tri.v1];
+            Vector2 v2 = points[tri.v2];
+            Vector2 v3 = points[tri.v3];
+
+            Vector3 normal = Vector3.Cross(v3 - v1, v2 - v1);
+
+            TriangleIndicies corretTri = tri;
+
+            if (Vector3.Dot(normal, up) < 0)
+            {
+                corretTri.v1 = tri.v2;
+                corretTri.v2 = tri.v1;
+            }
+
+            return corretTri;
+        }
+
+        private struct TriangleOutlinePairs
+        {
+            public TriangleIndicies tri;
+            public EdgeIndicies edge;
+        }
+
+        /// <summary>
+        /// TODO : remake this in a way that accounts for a single tri being associated with MORE than one edge
+        /// </summary>
+        /// <param name="points"></param>
+        /// <param name="triangles"></param>
+        /// <param name="outlineEdges"></param>
+        /// <param name="outlineMesh"></param>
+        /// <param name="width"></param>
+        public static void GenerateOutlineMesh(IReadOnlyList<Vector2> points, IReadOnlyList<TriangleIndicies> triangles, IReadOnlyList<EdgeIndicies> outlineEdges, float width , List<Vector2> outlineVerts, List<int> outlineIndicies)
+        {
+            using (HashSetPool<Vector2>.Get(out HashSet<Vector2> dupCheck))
+            {
+                foreach (Vector2 p in points)
+                {
+                    dupCheck.Add(p);
+                }
+
+                Assert.IsTrue(dupCheck.Count == points.Count, "Duplicate points detected");
+            }
+
+            using (ListPool<TriangleOutlinePairs>.Get(out List<TriangleOutlinePairs> triangleOutlines))
+            using (ListPool<int>.Get(out List<int> indiciesTmp))
+            using (ListPool<EdgeIndicies>.Get(out List<EdgeIndicies> outlineEdgesCopy))
+            using (ListPool<int>.Get(out var edgeFilter))
+            using (HashSetPool<int>.Get(out var edgeIndicies))
+            using (DictionaryPool<Vector2, int>.Get(out var vertToIndexLookup))
+            using (DictionaryPool<EdgeIndicies, Vector2>.Get(out var edgeToNormal))
+            using (DictionaryPool<int, Vector2>.Get(out var indexToAvgNormal))
+            using (DictionaryPool<EdgeIndicies, TriangleIndicies>.Get(out var edgeToTriangle))
+            using (ListPool<TriangleIndicies>.Get(out List<TriangleIndicies> outlineMeshTris))
+            using (ListPool<Vector2>.Get(out List<Vector2> outlineMeshVerticies2D))
+            using (ListPool<int>.Get(out List<int> outlineMeshIndicies))
+            {
+                outlineEdgesCopy.AddRange(outlineEdges);
+
+                foreach (TriangleIndicies t in triangles)
+                {
+                    indiciesTmp.Clear();
+                    indiciesTmp.Add(t.v1);
+                    indiciesTmp.Add(t.v2);
+                    indiciesTmp.Add(t.v3);
+
+                    for (int i = outlineEdgesCopy.Count - 1; i >= 0; i--)
+                    {
+                        EdgeIndicies e = outlineEdgesCopy[i];
+
+                        if (indiciesTmp.Contains(e.e1) && indiciesTmp.Contains(e.e2))
+                        {
+                            edgeToTriangle.Add(e, t);
+
+                            triangleOutlines.Add(new TriangleOutlinePairs()
+                            {
+                                edge = e,
+                                tri = t
+                            });
+
+                            outlineEdgesCopy.RemoveAt(i);
+                        }
+                    }
+                }
+
+                foreach (EdgeIndicies e in outlineEdges)
+                {
+                    edgeFilter.Clear();
+                    edgeFilter.Add(e.e1);
+                    edgeFilter.Add(e.e2);
+
+                    int freeVert = -1;
+
+                    TriangleIndicies t = edgeToTriangle[e];
+
+                    if (!edgeFilter.Contains(t.v1))
+                    {
+                        freeVert = t.v1;
+                    }
+
+                    if (!edgeFilter.Contains(t.v2))
+                    {
+                        freeVert = t.v2;
+                    }
+
+                    if (!edgeFilter.Contains(t.v3))
+                    {
+                        freeVert = t.v3;
+                    }
+
+                    Assert.IsTrue(freeVert != -1);
+
+                    int v1 = edgeFilter[0];
+                    int v2 = edgeFilter[1];
+
+                    edgeIndicies.Add(v1);
+                    edgeIndicies.Add(v2);
+
+                    Vector2 freeVertPos = points[freeVert];
+                    Vector2 v1Pos = points[v1];
+                    Vector2 v2Pos = points[v2];
+
+                    Vector3 normal = Vector3.Cross(v2Pos - v1Pos, freeVertPos - v1Pos).normalized;
+                    Vector2 outlineVec = Quaternion.AngleAxis(90, normal) * (v2Pos - v1Pos);
+                    outlineVec.Normalize();
+
+                    if (Vector2.Dot(outlineVec, freeVertPos - v1Pos) < 0)
+                    {
+                        outlineVec *= -1;
+                    }
+
+                    if (!Application.isPlaying)
+                    {
+                        Handles.color = Color.white;
+                        Handles.ArrowHandleCap(-1, Vector3.Lerp(v1Pos, v2Pos, 0.5f), Quaternion.LookRotation(outlineVec, Vector3.forward), 1, EventType.Repaint);
+                        Handles.color = Color.black;
+                        Handles.ArrowHandleCap(-1, Vector3.Lerp(v1Pos, v2Pos, 0.5f), Quaternion.LookRotation(outlineVec, Vector3.forward), width, EventType.Repaint);
+                    }
+
+                    edgeToNormal.Add(e, outlineVec);
+                }
+
+                foreach (int i in edgeIndicies)
+                {
+                    Vector2 sum = default;
+                    int cnt = 0;
+
+                    foreach (KeyValuePair<EdgeIndicies, Vector2> e in edgeToNormal)
+                    {
+                        if (e.Key.e1 == i || e.Key.e2 == i)
+                        {
+                            sum += e.Value;
+                            cnt++;
+                        }
+                    }
+
+                    Assert.IsTrue(cnt == 2);
+
+                    Vector2 avgNormal = (sum / cnt).normalized;
+                    indexToAvgNormal.Add(i, avgNormal);
+
+
+                    if (!Application.isPlaying)
+                    {
+                        Vector2 p = points[i];
+                        Handles.color = Color.cyan;
+                        Handles.ArrowHandleCap(-1, p, Quaternion.LookRotation(avgNormal, Vector3.forward), 1, EventType.Repaint);
+                    }
+                }
+
+                float outlineWith = width;
+
+                foreach (var (e, n) in edgeToNormal)
+                {
+                    EdgeIndicies currEdge = e;
+
+                    var e1AvgNormal = indexToAvgNormal[currEdge.e1];
+                    var e2AvgNormal = indexToAvgNormal[currEdge.e2];
+
+                    Vector2 v1Pos = points[e.e1];
+                    Vector2 v2Pos = points[e.e2];
+
+                    var proj1 = Vector2.Dot(n, e1AvgNormal);
+                    var proj2 = Vector2.Dot(n, e2AvgNormal);
+
+                    Vector2 v3Pos = v1Pos + (e1AvgNormal / proj1 * outlineWith);
+                    Vector2 v4Pos = v2Pos + (e2AvgNormal / proj2 * outlineWith);
+
+                    if (!Application.isPlaying)
+                    {
+                        Handles.color = Color.yellow;
+                        Handles.ArrowHandleCap(-1, v1Pos, Quaternion.LookRotation(e1AvgNormal, Vector3.forward), proj1, EventType.Repaint);
+                        Handles.ArrowHandleCap(-1, v2Pos, Quaternion.LookRotation(e2AvgNormal, Vector3.forward), proj2, EventType.Repaint);
+                    }
+
+                    if (!vertToIndexLookup.TryGetValue(v1Pos, out var v1Idx)) { v1Idx = vertToIndexLookup.Count; vertToIndexLookup.Add(v1Pos, v1Idx); }
+                    if (!vertToIndexLookup.TryGetValue(v2Pos, out var v2Idx)) { v2Idx = vertToIndexLookup.Count; vertToIndexLookup.Add(v2Pos, v2Idx); }
+                    if (!vertToIndexLookup.TryGetValue(v3Pos, out var v3Idx)) { v3Idx = vertToIndexLookup.Count; vertToIndexLookup.Add(v3Pos, v3Idx); }
+                    if (!vertToIndexLookup.TryGetValue(v4Pos, out var v4Idx)) { v4Idx = vertToIndexLookup.Count; vertToIndexLookup.Add(v4Pos, v4Idx); }
+
+                    TriangleIndicies t1 = new TriangleIndicies() { v1 = v1Idx, v2 = v3Idx, v3 = v4Idx };
+                    TriangleIndicies t2 = new TriangleIndicies() { v1 = v4Idx, v2 = v2Idx, v3 = v1Idx };
+
+                    outlineMeshTris.Add(t1);
+                    outlineMeshTris.Add(t2);
+                }
+
+                // add point to the outline vertex list
+                outlineMeshVerticies2D.ExpandeSize(vertToIndexLookup.Count);
+                foreach (KeyValuePair<Vector2, int> kv in vertToIndexLookup)
+                {
+                    outlineMeshVerticies2D[kv.Value] = kv.Key;
+                }
+
+                for (int i = 0; i < outlineMeshTris.Count; i++)
+                {
+                    TriangleIndicies t = outlineMeshTris[i];
+                    t = GraphicsUtils.AlignTriangleNormal(outlineMeshVerticies2D, t, Vector3.forward);
+                    outlineMeshTris[i] = t;
+
+                    outlineMeshIndicies.Add(t.v1);
+                    outlineMeshIndicies.Add(t.v2);
+                    outlineMeshIndicies.Add(t.v3);
+                }
+
+                outlineIndicies.AddRange(outlineMeshIndicies);
+                outlineVerts.AddRange(outlineMeshVerticies2D);
+            }
+        }
+
+        public static void GetMeshOutline(IReadOnlyList<TriangleIndicies> triangles, List<EdgeIndicies> outlineEdges)
+        {
+            using (DictionaryPool<EdgeIndicies, int>.Get(out Dictionary<EdgeIndicies, int> edges))
+            {
+                foreach (TriangleIndicies t in triangles)
+                {
+                    EdgeIndicies e1 = new EdgeIndicies() { e1 = Mathf.Min(t.v1, t.v2), e2 = Mathf.Max(t.v1, t.v2) };
+                    EdgeIndicies e2 = new EdgeIndicies() { e1 = Mathf.Min(t.v2, t.v3), e2 = Mathf.Max(t.v2, t.v3) };
+                    EdgeIndicies e3 = new EdgeIndicies() { e1 = Mathf.Min(t.v3, t.v1), e2 = Mathf.Max(t.v3, t.v1) };
+
+                    if (!edges.TryGetValue(e1, out var cnt1)) { edges.Add(e1, 0); }
+                    if (!edges.TryGetValue(e2, out var cnt2)) { edges.Add(e2, 0); }
+                    if (!edges.TryGetValue(e3, out var cnt3)) { edges.Add(e3, 0); }
+
+                    edges[e1] = cnt1 + 1;
+                    edges[e2] = cnt2 + 1;
+                    edges[e3] = cnt3 + 1;
+                }
+
+                foreach (KeyValuePair<EdgeIndicies, int> e in edges)
+                {
+                    if (e.Value != 1) { continue; }
+
+                    outlineEdges.Add(e.Key);
+                }
+            }
+        }
+
+        public static ConvexShape PointsToConvexShapes(IReadOnlyList<Vector2> points)
+        {
+            using (ListPool<Vector2>.Get(out var orderedPoints))
+            using (ListPool<Vector2>.Get(out var convexPoints))
+            {
+                Vector2 middlePoint = default;
+
+                foreach (Vector2 p in points)
+                {
+                    middlePoint += p;
+                }
+
+                middlePoint /= points.Count;
+
+                orderedPoints.AddRange(points.OrderBy(a =>
+                {
+                    Vector2 vec = a - middlePoint;
+                    float angle = Mathf.Atan2(vec.y, vec.x) * Mathf.Rad2Deg;
+                    float remapped = angle >= 0 ? angle : 360 + angle;
+                    return remapped;
+                }));
+
+                float correctSign = 1;
+
+                for (int i = 0; i < orderedPoints.Count; ++i)
+                {
+                    Vector2 curr = orderedPoints[i];
+                    Vector2 prev = orderedPoints[(i - 1 + orderedPoints.Count) % orderedPoints.Count];
+                    Vector2 next = orderedPoints[(i + 1 + orderedPoints.Count) % orderedPoints.Count];
+
+                    float angle = Vector2.SignedAngle(curr - prev, next - curr);
+                    float sign = angle < 0 ? -1 : 1;
+
+                    if (sign == correctSign)
+                    {
+                        convexPoints.Add(curr);
+                        continue;
+                    }
+                }
+
+                return new ConvexShape() { points = convexPoints.ToArray(), center = middlePoint };
+            }
+        }
+
+        public static bool FindIntersections(Vector2 center1, float radius1, Vector2 center2, float radius2,
+                                         out Vector2 intersection1, out Vector2 intersection2)
+        {
+            intersection1 = Vector2.zero;
+            intersection2 = Vector2.zero;
+
+            float d = Vector2.Distance(center1, center2);
+
+            // No solution: circles are too far apart or one is contained inside the other
+            if (d > radius1 + radius2 || d < Mathf.Abs(radius1 - radius2))
+            {
+                return false;
+            }
+
+            // Circles are coincident (infinite solutions)
+            if (d == 0 && radius1 == radius2)
+            {
+                return false;
+            }
+
+            // Distance from center1 to the midpoint between intersections
+            float a = (radius1 * radius1 - radius2 * radius2 + d * d) / (2 * d);
+
+            // Height from midpoint to intersection points
+            float h = Mathf.Sqrt(radius1 * radius1 - a * a);
+
+            // Midpoint between intersections
+            Vector2 p = center1 + a * (center2 - center1) / d;
+
+            // Intersection points
+            intersection1 = new Vector2(
+                p.x + h * (center2.y - center1.y) / d,
+                p.y - h * (center2.x - center1.x) / d
+            );
+
+            intersection2 = new Vector2(
+                p.x - h * (center2.y - center1.y) / d,
+                p.y + h * (center2.x - center1.x) / d
+            );
+
+            return true;
+        }
+
+        public static bool TwoCircleIntersection(Vector3 a, Vector3 b, int resolution, out Vector2 inter1, out Vector2 inter2, List<Vector2> points)
+        {
+            Vector2 aCenter = new Vector2(a.x, a.y);
+            float aRad = a.z;
+
+            Vector2 bCenter = new Vector2(b.x, b.y);
+            float bRad = b.z;
+
+            Vector2 fromAtoB = bCenter - aCenter;
+
+            bool exists = FindIntersections(aCenter, aRad, bCenter, bRad, out inter1, out inter2);
+
+            if (!exists)
+            {
+                return false;
+            }
+
+            Vector2 midPoint = Vector2.Lerp(inter1, inter2, 0.5f);
+
+            float aAnglePerSlice = default;
+            float bAnglePerSlice = default;
+
+            // B
+            {
+                float bFullAngle = Vector2.SignedAngle(inter1 - bCenter, aCenter - bCenter) * 2;
+                bAnglePerSlice = bFullAngle / resolution;
+            }
+
+            // A
+            {
+                float aFullAngle = Vector2.SignedAngle(inter1 - aCenter, bCenter - aCenter) * 2;
+                aAnglePerSlice = aFullAngle / resolution;
+            }
+
+            points.Add(midPoint);
+
+            for (int i = 1; i < resolution; i++)
+            {
+                Vector2 p1Inter = aCenter + (Vector2)(Quaternion.AngleAxis(aAnglePerSlice * i, Vector3.forward) * (inter1 - aCenter));
+                points.Add(p1Inter);
+            }
+
+            for (int i = 1; i < resolution; i++)
+            {
+                Vector2 p2Inter = bCenter + (Vector2)(Quaternion.AngleAxis(bAnglePerSlice * i, Vector3.forward) * (inter1 - bCenter));
+                points.Add(p2Inter);
+            }
+
+            return true;
+        }
+
+        public static Rect ComputeScreenSize(GameObject gameObject, Camera cam, Vector3 worldPos)
         {
             Bounds bounds = GraphicsUtils.GetBounds(gameObject);
 
@@ -42,7 +463,7 @@ namespace Bloodthirst.Core.Utils
                 }
 
                 Vector2 size = new Vector2(xMinMax.y - xMinMax.x, yMinMax.y - yMinMax.x);
-                Rect rect = new Rect(xMinMax.x , yMinMax.x , size.x , size.y);
+                Rect rect = new Rect(xMinMax.x, yMinMax.x, size.x, size.y);
 
                 return rect;
             }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,6 +19,12 @@ namespace Bloodthirst.Core.Utils
             Scale,
             All
         }
+
+        public static bool HasComponent<T>(this Component curr) where T : Component
+        {
+            return curr.TryGetComponent(out T _);
+        }
+
         public static void ResetTransform(this Transform t , ResetFlag flag = ResetFlag.All )
         {
             switch (flag)

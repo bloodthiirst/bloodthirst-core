@@ -485,6 +485,8 @@ namespace Bloodthirst.Editor.BNodeTree
             Assert.IsNotNull(defaultNodeType);
 
             INodeType firstNode = (INodeType)Activator.CreateInstance(defaultNodeType);
+            firstNode.SetupInitialPorts();
+
             AddNode(firstNode, Vector3.zero);
         }
 
@@ -632,7 +634,6 @@ namespace Bloodthirst.Editor.BNodeTree
             }
 
             NodeBaseElement node = new NodeBaseElement(n, this);
-
 
             // add nodes to list
             AllNodes.Add(node);

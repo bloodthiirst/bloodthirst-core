@@ -10,6 +10,9 @@ namespace Bloodthirst.Runtime.BNodeTree
         int NodeID { get; set; }
         event Action<IPortType> OnPortAdded;
         event Action<IPortType> OnPortRemoved;
+
+        void SetupInitialPorts();
+
         [BInspectorIgnore]
         IReadOnlyList<IPortType> Ports { get; }
         void AddPort<TPort>(TPort port) where TPort : IPortType;

@@ -24,7 +24,7 @@ namespace Bloodthirst.Runtime.BNodeTree
         /// <summary>
         /// Method used to add and assemble all the ports of the node
         /// </summary>
-        protected virtual void SetupPorts() { }
+        public virtual void SetupInitialPorts() { }
 
         public void AddPort<TPort>(TPort port) where TPort : IPortType
         {

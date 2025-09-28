@@ -23,8 +23,10 @@ namespace Bloodthirst.Editor.BNodeTree
             NodeCreationData data = (NodeCreationData)menuItem;
 
             INodeType node = data.NodeCreationInfo.NodeCreator();
+            node.SetupInitialPorts();
 
             NodeEditor.AddNode(node, data.MousePosition , null);
+
         }
 
         private struct NodeCreationData
