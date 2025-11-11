@@ -5,6 +5,7 @@
 #endif
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Bloodthirst.Core.Audio
 {
@@ -29,7 +30,9 @@ namespace Bloodthirst.Core.Audio
             Clear();
 
             if (isPreload)
+            {
                 Preload();
+            }
         }
 
 #if ODIN_INSPECTOR || ODIN_INSPECTOR_3
@@ -75,7 +78,8 @@ namespace Bloodthirst.Core.Audio
         {
             for (int i = 0; i < preloadValue; i++)
             {
-                AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+                GameObject go = new GameObject($"Pooled Audio Source");
+                AudioSource audioSource = go.AddComponent<AudioSource>();
 
                 ResetAudioSource(audioSource);
 
@@ -83,14 +87,6 @@ namespace Bloodthirst.Core.Audio
             }
         }
 
-        private void ResetAudioSource(AudioSource audioSource)
-        {
-            audioSource.volume = 1;
-            audioSource.loop = false;
-            audioSource.outputAudioMixerGroup = null;
-            audioSource.playOnAwake = false;
-            audioSource.clip = null;
-        }
 
         private void Update()
         {
@@ -109,51 +105,58 @@ namespace Bloodthirst.Core.Audio
             }
         }
 
-        public AudioSource GetStandaloneAudioSource()
+        private void ResetAudioSource(AudioSource audioSource)
         {
-            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.transform.SetParent(transform);
+            audioSource.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
 
-            standaloneAudioSources.Add(audioSource);
-
-            ResetAudioSource(audioSource);
-
-            return audioSource;
-        }
-
-        public void RemoveStandaloneAudioSource(AudioSource audioSource)
-        {
-            // if item was found and removed
-
-            if (standaloneAudioSources.Remove(audioSource))
-            {
-                freeAudioSources.Enqueue(audioSource);
-            }
+            audioSource.volume = 1;
+            audioSource.loop = false;
+            audioSource.outputAudioMixerGroup = null;
+            audioSource.playOnAwake = false;
+            audioSource.clip = null;
         }
 
         private AudioSource GetFreeAudioSource()
         {
             if (freeAudioSources.Count == 0)
             {
-                AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+                GameObject go = new GameObject("Pooled Audio Source");
+                AudioSource audioSource = go.AddComponent<AudioSource>();
 
                 return audioSource;
             }
 
             return freeAudioSources.Dequeue();
         }
-
-#if ODIN_INSPECTOR
-        #if ODIN_INSPECTOR[Button]#endif
-#endif
-        public AudioSource PlayOnShot(AudioClip audioClip)
+  
+        public AudioSource GetStandaloneAudioSource()
         {
-            if (audioClip == null)
-                return null;
-
             AudioSource audioSource = GetFreeAudioSource();
-
             ResetAudioSource(audioSource);
 
+            standaloneAudioSources.Add(audioSource);
+
+            return audioSource;
+        }
+
+        public void ReturnStandaloneAudioSource(AudioSource audioSource)
+        {
+            bool removed = standaloneAudioSources.Remove(audioSource);
+            Assert.IsTrue(removed);
+
+            freeAudioSources.Enqueue(audioSource);
+        }
+
+#if ODIN_INSPECTOR        [Button]#endif
+        public AudioSource PlayOnShot(AudioClip audioClip , Vector3 pos)
+        {
+            Assert.IsNotNull(audioClip);
+
+            AudioSource audioSource = GetFreeAudioSource();
+            ResetAudioSource(audioSource);
+
+            audioSource.transform.position = pos;
             audioSource.clip = audioClip;
 
             audioSource.Play();
