@@ -6,11 +6,11 @@ namespace Bloodthirst.Core.BISDSystem
     public abstract class GameSaveHandlerBase<TSave, TState> :
     IGameStateSaver,
     IGameStateLoader
-    where TSave : ISavableGameSave
-    where TState : ISavableState
+    where TSave : ISaveState
+    where TState : IRuntimeState
     {
 
-        public abstract bool CanLoad(GameObject entity, ISavableGameSave save);
+        public abstract bool CanLoad(GameObject entity, ISaveState save);
         public abstract bool CanSave(GameObject entity);
         public abstract TSave GenerateGameSave(TState state);
         public abstract TSave GetSave(GameObject entity, SavingContext context);
@@ -42,7 +42,7 @@ namespace Bloodthirst.Core.BISDSystem
 
         bool IGameStateLoader.CanLoad(GameObject entity, object save)
         {
-            return CanLoad(entity, (ISavableGameSave)save);
+            return CanLoad(entity, (ISaveState)save);
         }
 
         object IGameStateSaver.GenerateGameSave(object state)

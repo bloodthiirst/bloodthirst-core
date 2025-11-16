@@ -125,6 +125,7 @@ namespace Bloodthirst.Core.BISDSystem
             LoadingContext context = new LoadingContext();
 
             using (ListPool<IPostEntitiesLoaded>.Get(out List<IPostEntitiesLoaded> postLoads))
+            using (ListPool<EntityIdentifier>.Get(out List<EntityIdentifier> ids))
             using (DictionaryPool<IGameStateLoader, EntityStatePair>.Get(out Dictionary<IGameStateLoader, EntityStatePair> entityStatePairs))
             {
                 // for each entity
@@ -136,6 +137,8 @@ namespace Bloodthirst.Core.BISDSystem
                     EntityIdentifier id = spawned.GetComponent<EntityIdentifier>();
                     Assert.IsNotNull(id);
 
+                    ids.Add(id);
+
                     EntitySpawner.IntializeEntityIdentifier(id);
 
                     EntitySpawner.IntializeInstances(id);
@@ -144,14 +147,19 @@ namespace Bloodthirst.Core.BISDSystem
 
                     foreach (object saveState in kv.states)
                     {
+                        bool foundLoader = false;
+
                         foreach (IGameStateLoader loader in loaders)
                         {
                             if (!loader.CanLoad(spawned, saveState)) { continue; }
 
+                            foundLoader = true;
                             object gameState = loader.ApplyState(spawned, saveState, context);
 
                             entityStatePairs.Add(loader, new EntityStatePair() { entity = spawned, state = gameState });
                         }
+
+                        Assert.IsTrue(foundLoader);
                     }
 
                 }
@@ -165,10 +173,10 @@ namespace Bloodthirst.Core.BISDSystem
                 // after all entities are loaded
                 if (withPostLoad)
                 {
-                    foreach (EntityStatePair s in entityStatePairs.Values)
+                    foreach (EntityIdentifier id in ids)
                     {
                         postLoads.Clear();
-                        s.entity.GetComponentsInChildren(true, postLoads);
+                        id.GetComponentsInChildren(true, postLoads);
 
                         foreach (IPostEntitiesLoaded p in postLoads)
                         {
@@ -177,17 +185,14 @@ namespace Bloodthirst.Core.BISDSystem
                     }
                 }
 
-                foreach (EntityStatePair s in entityStatePairs.Values)
+                foreach (EntityIdentifier id in ids)
                 {
-                    EntityIdentifier id = s.entity.GetComponent<EntityIdentifier>();
-                    Assert.IsNotNull(id);
-
                     EntitySpawner.PostInitialize(id);
                 }
 
-                foreach (EntityStatePair s in entityStatePairs.Values)
+                foreach (EntityIdentifier id in ids)
                 {
-                    spawnedEntities.Add(s.entity);
+                    spawnedEntities.Add(id.gameObject);
                 }
             }
         }

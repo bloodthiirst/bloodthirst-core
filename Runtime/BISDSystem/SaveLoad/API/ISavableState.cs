@@ -1,6 +1,6 @@
 ﻿namespace Bloodthirst.Core.BISDSystem
 {
-    public interface ISavableState
+    public interface IRuntimeState
     {
     }
 }

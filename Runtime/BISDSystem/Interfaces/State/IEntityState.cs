@@ -5,7 +5,7 @@
         T Data { get; set; }
     }
 
-    public interface IEntityState : ISavableState
+    public interface IEntityState : IRuntimeState
     {
         int Id { get; set; }
 
