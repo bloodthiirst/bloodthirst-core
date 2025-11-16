@@ -7,7 +7,6 @@ using UnityEngine;
 namespace Bloodthirst.Core.BISDSystem
 {
     public abstract class EntityBehaviour<DATA, STATE, INSTANCE> : MonoBehaviour,
-        ISavableBehaviour,
 
         IInitializeIdentifier,
         IInitializeInstance,
@@ -233,13 +232,6 @@ namespace Bloodthirst.Core.BISDSystem
         void IPostEntitiesLoaded.PostEntitiesLoaded()
         {
             PostEntityLoaded();
-        }
-        #endregion
-
-        #region savable
-        public ISavable GetSavable()
-        {
-            return Instance;
         }
         #endregion
     }

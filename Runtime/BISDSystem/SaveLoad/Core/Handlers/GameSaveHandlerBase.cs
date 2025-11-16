@@ -1,53 +1,53 @@
 using System;
+using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
     public abstract class GameSaveHandlerBase<TSave, TState> :
-    IGameStateSaver<TSave, TState>,
-    IGameStateLoader<TSave, TState>
-    where TState : ISavableState
+    IGameStateSaver,
+    IGameStateLoader
     where TSave : ISavableGameSave
+    where TState : ISavableState
     {
-        private static readonly Type saveType = typeof(TSave);
-        private static readonly Type stateType = typeof(TState);
 
-        Type IGameStateLoader.From => saveType;
-        Type IGameStateLoader.To => stateType;
+        public abstract bool CanLoad(GameObject entity, ISavableGameSave save);
+        public abstract bool CanSave(GameObject entity);
+        public abstract TSave GenerateGameSave(TState state);
+        public abstract TSave GetSave(GameObject entity, SavingContext context);
+        public abstract TState ApplyState(GameObject entity, TSave save, LoadingContext context);
+        public abstract void LinkReferences(GameObject entity, TState state, LoadingContext context);
 
-        Type IGameStateSaver.From => stateType;
-        Type IGameStateSaver.To => saveType;
-
-        public abstract TSave GetSave(TState state, SavingContext context);
-        public abstract TState GetState(TSave save, LoadingContext context);
-        public abstract void LinkReferences(LoadingInfo loadingInfo, LoadingContext context);
-
-        TSave IGameStateSaver<TSave, TState>.GetSave(TState state, SavingContext context)
+        object IGameStateLoader.ApplyState(GameObject entity, object save, LoadingContext context)
         {
-            return GetSave(state, context);
+            TSave castedSave = (TSave)save;
+            TState castedState = ApplyState(entity, castedSave, context);
+            return castedState;
         }
 
-        TState IGameStateLoader<TSave, TState>.GetState(TSave save, LoadingContext context)
+        void IGameStateLoader.LinkReferences(GameObject entity, object state, LoadingContext context)
         {
-            return GetState(save, context);
-        }
-        void IGameStateLoader<TSave, TState>.LinkReferences(LoadingInfo loadingInfo, LoadingContext context)
-        {
-            LinkReferences(loadingInfo, context);
+            LinkReferences(entity, (TState)state, context);
         }
 
-        ISavableGameSave IGameStateSaver.GetSave(ISavableState state, SavingContext context)
+        object IGameStateSaver.GetSave(GameObject entity, SavingContext context)
         {
-            return GetSave((TState)state, context);
+            TSave castedSave = GetSave(entity, context);
+            return castedSave;
         }
 
-        ISavableState IGameStateLoader.GetState(ISavableGameSave save, LoadingContext context)
+        bool IGameStateSaver.CanSave(GameObject entity)
         {
-            return GetState((TSave)save, context);
+            return CanSave(entity);
         }
 
-        void IGameStateLoader.LinkReferences(LoadingInfo loadingInfo, LoadingContext context)
+        bool IGameStateLoader.CanLoad(GameObject entity, object save)
         {
-            LinkReferences(loadingInfo, context);
+            return CanLoad(entity, (ISavableGameSave)save);
+        }
+
+        object IGameStateSaver.GenerateGameSave(object state)
+        {
+            return GenerateGameSave((TState)state);
         }
     }
 }

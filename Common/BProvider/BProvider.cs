@@ -120,10 +120,8 @@ namespace Bloodthirst.Core.BProvider
 
         #region singleton
 
-        public TSingletonType GetSingleton<TSingletonType>() where TSingletonType : class
+        public object GetSingleton(Type t)
         {
-            Type t = typeof(TSingletonType);
-
             TypeInfo info = GetOrCreateInfo(t);
 
             if (info.SingletonLeaf == null)
@@ -131,7 +129,12 @@ namespace Bloodthirst.Core.BProvider
                 info.SingletonLeaf = info.SingletonTree.GetOrCreateLeaf(info.TreeParentsList);
             }
 
-            return (TSingletonType)info.SingletonLeaf?.Value?.Value;
+            return info.SingletonLeaf?.Value?.Value;
+        }
+
+        public TSingletonType GetSingleton<TSingletonType>() where TSingletonType : class
+        {
+            return (TSingletonType)GetSingleton(typeof(TSingletonType));
         }
 
         public IEnumerable<TSingletonType> GetSingletons<TSingletonType>() where TSingletonType : class

@@ -19,6 +19,11 @@ namespace Bloodthirst.Core.Utils
             Scale,
             All
         }
+        public static bool HasComponent<T>(this GameObject curr) where T : Component
+        {
+            return curr.TryGetComponent(out T _);
+        }
+
 
         public static bool HasComponent<T>(this Component curr) where T : Component
         {

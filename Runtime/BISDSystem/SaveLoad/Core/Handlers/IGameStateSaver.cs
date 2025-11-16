@@ -1,18 +1,12 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Bloodthirst.Core.BISDSystem
 {
-    public interface IGameStateSaver<TSave, TState> : IGameStateSaver
-        where TState : ISavableState
-        where TSave : ISavableGameSave
-    {
-        TSave GetSave(TState state, SavingContext context);
-    }
-
     public interface IGameStateSaver
     {
-        Type From { get; }
-        Type To { get; }
-        ISavableGameSave GetSave(ISavableState state, SavingContext context);
+        bool CanSave(GameObject entity);
+        object GenerateGameSave(object state);
+        object GetSave(GameObject entity, SavingContext context);
     }
 }
