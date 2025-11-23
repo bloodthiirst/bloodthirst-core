@@ -12,13 +12,9 @@ namespace Bloodthirst.Core.AdvancedPool
         private GameObject prefab;
 
         [SerializeField]
-        private string prefabPath;
-
-        [SerializeField]
         private int count;
 
         public GameObject Prefab { get => prefab; set => prefab = value; }
-        public string PrefabPath { get => prefabPath; set => prefabPath = value; }
         public int Count { get => count; set => count = value; }
 
         private GameObjectPoolBase unityPool;

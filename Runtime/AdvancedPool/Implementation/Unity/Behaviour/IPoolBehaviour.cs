@@ -7,7 +7,6 @@ namespace Bloodthirst.Core.AdvancedPool
     {
         Type Type { get; }
         GameObject Prefab { get; set; }
-        string PrefabPath { get; set; }
         int Count { get; set; }
         UnityPoolBase Pool { get; }
         void Initialize();

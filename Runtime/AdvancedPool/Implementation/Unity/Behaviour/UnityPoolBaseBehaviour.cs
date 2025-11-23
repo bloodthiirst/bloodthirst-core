@@ -57,9 +57,6 @@ namespace Bloodthirst.Core.AdvancedPool
 #endif
 
 #endif
-        private string prefabPath;
-        public string PrefabPath { get => prefabPath; set => prefabPath = value; }
-        string IPoolBehaviour.PrefabPath { get => prefabPath; set => prefabPath = value; }
 
         UnityPoolBase IPoolBehaviour.Pool => Pool;
 
