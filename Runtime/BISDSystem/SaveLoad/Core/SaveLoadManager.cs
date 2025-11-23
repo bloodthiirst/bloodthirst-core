@@ -15,7 +15,7 @@ namespace Bloodthirst.Core.BISDSystem
     public struct SavedEntityEntry
     {
         public ISavableInstanceProvider instanceProvider;
-        public List<object> states;
+        public List<ISaveState> states;
     }
 
     public class SaveLoadManager
@@ -23,7 +23,7 @@ namespace Bloodthirst.Core.BISDSystem
         private struct EntityStatePair
         {
             public GameObject entity;
-            public object state;
+            public IRuntimeState state;
         }
 
         private static List<IGameStateLoader> loaders = new List<IGameStateLoader>();
@@ -82,7 +82,7 @@ namespace Bloodthirst.Core.BISDSystem
                     // gameObject of the entity to save
                     GameObject saveableGo = casted.gameObject;
 
-                    List<object> statesList = new List<object>();
+                    List<ISaveState> statesList = new List<ISaveState>();
 
                     // get the correct saver
                     foreach (IGameStateSaver saver in savers)
@@ -90,7 +90,7 @@ namespace Bloodthirst.Core.BISDSystem
                         if (!saver.CanSave(saveableGo)) { continue; }
 
                         // create the gamesave from the state
-                        object saveData = saver.GetSave(saveableGo, context);
+                        ISaveState saveData = saver.GetSave(saveableGo, context);
                         Assert.IsNotNull(saveData);
 
                         statesList.Add(saveData);
@@ -145,7 +145,7 @@ namespace Bloodthirst.Core.BISDSystem
 
                     context.loadedEntities.Add(id);
 
-                    foreach (object saveState in kv.states)
+                    foreach (ISaveState saveState in kv.states)
                     {
                         bool foundLoader = false;
 
@@ -154,7 +154,7 @@ namespace Bloodthirst.Core.BISDSystem
                             if (!loader.CanLoad(spawned, saveState)) { continue; }
 
                             foundLoader = true;
-                            object gameState = loader.ApplyState(spawned, saveState, context);
+                            IRuntimeState gameState = loader.ApplyState(spawned, saveState, context);
 
                             entityStatePairs.Add(loader, new EntityStatePair() { entity = spawned, state = gameState });
                         }

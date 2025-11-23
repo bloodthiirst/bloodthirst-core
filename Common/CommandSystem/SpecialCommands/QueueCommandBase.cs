@@ -22,7 +22,7 @@ namespace Bloodthirst.System.CommandSystem
 
 
 
-#if ODIN_INSPECTOR                           [ShowInInspector]#endif
+#if ODIN_INSPECTOR        [ShowInInspector]#endif
         protected Queue<CommandSettings> commandQueue;
         private readonly bool propagateFailOrInterrupt;
 

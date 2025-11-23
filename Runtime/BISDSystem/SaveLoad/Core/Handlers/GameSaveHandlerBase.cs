@@ -17,19 +17,19 @@ namespace Bloodthirst.Core.BISDSystem
         public abstract TState ApplyState(GameObject entity, TSave save, LoadingContext context);
         public abstract void LinkReferences(GameObject entity, TState state, LoadingContext context);
 
-        object IGameStateLoader.ApplyState(GameObject entity, object save, LoadingContext context)
+        IRuntimeState IGameStateLoader.ApplyState(GameObject entity, ISaveState save, LoadingContext context)
         {
             TSave castedSave = (TSave)save;
             TState castedState = ApplyState(entity, castedSave, context);
             return castedState;
         }
 
-        void IGameStateLoader.LinkReferences(GameObject entity, object state, LoadingContext context)
+        void IGameStateLoader.LinkReferences(GameObject entity, IRuntimeState state, LoadingContext context)
         {
             LinkReferences(entity, (TState)state, context);
         }
 
-        object IGameStateSaver.GetSave(GameObject entity, SavingContext context)
+        ISaveState IGameStateSaver.GetSave(GameObject entity, SavingContext context)
         {
             TSave castedSave = GetSave(entity, context);
             return castedSave;
@@ -40,12 +40,12 @@ namespace Bloodthirst.Core.BISDSystem
             return CanSave(entity);
         }
 
-        bool IGameStateLoader.CanLoad(GameObject entity, object save)
+        bool IGameStateLoader.CanLoad(GameObject entity, ISaveState save)
         {
             return CanLoad(entity, (ISaveState)save);
         }
 
-        object IGameStateSaver.GenerateGameSave(object state)
+        ISaveState IGameStateSaver.GenerateGameSave(IRuntimeState state)
         {
             return GenerateGameSave((TState)state);
         }
