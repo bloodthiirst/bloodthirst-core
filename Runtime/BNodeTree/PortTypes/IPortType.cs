@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.BJson;
 using Bloodthirst.Runtime.BInspector;
 using System;
+using System.Collections.Generic;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {
@@ -36,7 +37,7 @@ namespace Bloodthirst.Runtime.BNodeTree
 
         [BJsonIgnore]
         [BInspectorIgnore]
-        ILinkType LinkAttached { get; set; }
+        List<ILinkType> LinkAttached { get; set; }
 
         bool CanLinkTo(IPortType otherPort);
     }

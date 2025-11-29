@@ -37,7 +37,7 @@ namespace Bloodthirst.Runtime.BNodeTree
 
 
 
-#if ODIN_INSPECTOR                           [ShowInInspector]
+#if ODIN_INSPECTOR        [ShowInInspector]
         [OdinSerialize]
 #endif
         [BJsonIgnore]
@@ -105,7 +105,14 @@ namespace Bloodthirst.Runtime.BNodeTree
                 {
                     //TNode nodeType = (TNode)SerializationUtility.CreateCopy((TNode)n.NodeType);
                     TNode nodeType = DeepCopy((TNode)n.NodeType);
+
+                    foreach (IPortType p in nodeType.Ports)
+                    {
+                        p.LinkAttached = new List<ILinkType>();
+                    }
+
                     allNodes.Add(nodeType);
+
                 }
                 catch (Exception ex)
                 {
@@ -137,8 +144,8 @@ namespace Bloodthirst.Runtime.BNodeTree
                 };
 
                 // attach the link
-                fromPort.LinkAttached = link;
-                toPort.LinkAttached = link;
+                fromPort.LinkAttached.Add(link);
+                toPort.LinkAttached.Add(link);
             }
 
             foreach (TNode n in allNodes)

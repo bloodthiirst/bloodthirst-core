@@ -618,6 +618,7 @@ namespace Bloodthirst.Editor.BNodeTree
 
         public void AddNode(INodeType n, Vector2 nodePosition, Vector2? size = null, bool worldSpace = true)
         {
+            
             // if no ID is assigned
             // then create one
             if (n.NodeID == -1)
@@ -666,8 +667,8 @@ namespace Bloodthirst.Editor.BNodeTree
             typedLink.From = from.PortType;
             typedLink.To = to.PortType;
 
-            to.PortType.LinkAttached = typedLink;
-            from.PortType.LinkAttached = typedLink;
+            to.PortType.LinkAttached.Add(typedLink);
+            from.PortType.LinkAttached.Add(typedLink);
 
             // ui
             LinkElement link = new LinkElement(this, typedLink, from, to);
@@ -878,6 +879,7 @@ namespace Bloodthirst.Editor.BNodeTree
                 foreach (IPortType o in n.NodeType.Ports)
                 {
                     o.ParentNode = n.NodeType;
+                    o.LinkAttached = new List<ILinkType>();
                 }
 
                 AddNode(n.NodeType, n.Position, n.Size, false);

@@ -10,10 +10,11 @@ using UnityEngine.UI;
 
 namespace Bloodthirst.Core.UI
 {
-    [RequireComponent(typeof(CanvasRenderer))]
+    [ExecuteAlways]
     public class UILineRenderer : MaskableGraphic
     {
         private readonly int LineLengthID = Shader.PropertyToID("_LineLength");
+        private readonly int LineThicknessID = Shader.PropertyToID("_LineThickness");
 
         /// <summary>
         /// Number of sub-parts (segements) in between each point
@@ -104,6 +105,12 @@ namespace Bloodthirst.Core.UI
         }
 #endif
 
+        private void Update()
+        {
+            this.SetVerticesDirty();
+            this.SetMaterialDirty();
+        }
+
         private void InitPoints()
         {
             if (points.Count < 4)
@@ -184,6 +191,7 @@ namespace Bloodthirst.Core.UI
             LineUtils.PointsToCurve(cachedInterpolatedPoints, settings, out float lineLength, ref pooledVerts, ref pooledIndices);
 
             materialForRendering.SetFloat(LineLengthID, lineLength);
+            materialForRendering.SetFloat(LineThicknessID, lineThickness);
 
             // send
             vbo.Clear();

@@ -177,7 +177,7 @@ namespace Bloodthirst.Runtime.BNodeTree
                 if (curr.LinkAttached == null)
                     continue;
 
-                ActiveNodeTyped = (TNode) curr.LinkAttached.To.ParentNode;
+                ActiveNodeTyped = (TNode)curr.LinkAttached[0].To.ParentNode;
                 return;
             }
 

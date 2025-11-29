@@ -53,10 +53,12 @@ namespace Bloodthirst.Editor.BNodeTree
                 return;
             }
 
-            ILinkType link = PendingLinkingPort.PortType.LinkAttached;
-            if (link != null)
+            foreach (ILinkType link in PendingLinkingPort.PortType.LinkAttached)
             {
-                NodeEditor.RemoveLink(link);
+                if (link != null)
+                {
+                    NodeEditor.RemoveLink(link);
+                }
             }
 
             PendingLinkingPort.ParentNode.RemovePort(PendingLinkingPort.PortType);

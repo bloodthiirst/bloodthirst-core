@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Runtime.BInspector;
 using Sirenix.Serialization;
 using System;
+using System.Collections.Generic;
 
 namespace Bloodthirst.Runtime.BNodeTree
 {
@@ -24,7 +25,7 @@ namespace Bloodthirst.Runtime.BNodeTree
         public PORT_TYPE PortType { get; set; }
 
         [BInspectorIgnore]
-        public ILinkType LinkAttached { get; set; }
+        public List<ILinkType> LinkAttached { get; set; } = new List<ILinkType>();
         #endregion
 
         public PortDefault()
