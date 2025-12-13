@@ -126,7 +126,7 @@ namespace Bloodthirst.Core.BISDSystem
 
             using (ListPool<IPostEntitiesLoaded>.Get(out List<IPostEntitiesLoaded> postLoads))
             using (ListPool<EntityIdentifier>.Get(out List<EntityIdentifier> ids))
-            using (DictionaryPool<IGameStateLoader, EntityStatePair>.Get(out Dictionary<IGameStateLoader, EntityStatePair> entityStatePairs))
+            using (DictionaryPool<IGameStateLoader, List<EntityStatePair>>.Get(out Dictionary<IGameStateLoader, List<EntityStatePair>> entityStatePairs))
             {
                 // for each entity
                 foreach (SavedEntityEntry kv in savedEntities)
@@ -156,7 +156,20 @@ namespace Bloodthirst.Core.BISDSystem
                             foundLoader = true;
                             IRuntimeState gameState = loader.ApplyState(spawned, saveState, context);
 
-                            entityStatePairs.Add(loader, new EntityStatePair() { entity = spawned, state = gameState });
+                            try
+                            {
+                                if (!entityStatePairs.TryGetValue(loader, out var pairs))
+                                {
+                                    pairs = new List<EntityStatePair>();
+                                    entityStatePairs.Add(loader, pairs);
+                                }
+
+                                pairs.Add(new EntityStatePair() { entity = spawned, state = gameState });
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogException(ex);
+                            }
                         }
 
                         Assert.IsTrue(foundLoader);
@@ -165,9 +178,14 @@ namespace Bloodthirst.Core.BISDSystem
                 }
 
                 // link refs
-                foreach (KeyValuePair<IGameStateLoader, EntityStatePair> kv in entityStatePairs)
+                foreach (KeyValuePair<IGameStateLoader, List<EntityStatePair>> kv in entityStatePairs)
                 {
-                    kv.Key.LinkReferences(kv.Value.entity, kv.Value.state, context);
+                    IGameStateLoader loader = kv.Key;
+
+                    foreach (var p in kv.Value)
+                    {
+                        loader.LinkReferences(p.entity, p.state, context);
+                    }
                 }
 
                 // after all entities are loaded

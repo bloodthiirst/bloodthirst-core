@@ -326,6 +326,7 @@ namespace Bloodthirst.Editor.BNodeTree
                 new AddPortInputAction(),
                 new AddPortOutputAction(),
                 new RemovePortAction(),
+                new UnlinkNodeAction(),
                 new TogglePortInfoAction(),
 
                 // selection
@@ -634,12 +635,17 @@ namespace Bloodthirst.Editor.BNodeTree
                 n.NodeID = generatedID;
             }
 
+            foreach (IPortType p in n.Ports)
+            {
+                p.LinkAttached = new List<ILinkType>();
+            }
+
             NodeBaseElement node = new NodeBaseElement(n, this);
 
             // add nodes to list
             AllNodes.Add(node);
+            
             CurrentNodeIDs.Add(n.NodeID);
-
 
             // add to ui
 
@@ -689,8 +695,8 @@ namespace Bloodthirst.Editor.BNodeTree
             LinkElement linkElem = AllLinks.FirstOrDefault(l => l.LinkType == link);
             AllLinks.Remove(linkElem);
 
-            link.From.LinkAttached = null;
-            link.To.LinkAttached = null;
+            link.From.LinkAttached.Remove(link);
+            link.To.LinkAttached.Remove(link);
 
             linkElem.BeforeRemoveFromCanvas();
             Canvas.Remove(linkElem.VisualElement);

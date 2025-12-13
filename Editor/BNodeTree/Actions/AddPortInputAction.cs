@@ -1,6 +1,7 @@
 ﻿using Bloodthirst.Core.Utils;
 using Bloodthirst.Runtime.BNodeTree;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Bloodthirst.Editor.BNodeTree
@@ -32,6 +33,7 @@ namespace Bloodthirst.Editor.BNodeTree
             defaultPort.PortDirection = PORT_DIRECTION.INPUT;
             defaultPort.PortType = PORT_TYPE.VARIABLE;
             defaultPort.PortName = "Input";
+            defaultPort.LinkAttached = new List<ILinkType>();
 
             evt.Node.NodeType.AddPort(defaultPort);
         }

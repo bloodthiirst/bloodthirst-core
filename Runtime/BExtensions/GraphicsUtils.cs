@@ -32,8 +32,6 @@ namespace Bloodthirst.Core.Utils
     /// </summary>
     public static class GraphicsUtils
     {
-
-
         public static TriangleIndicies AlignTriangleNormal(IReadOnlyList<Vector2> points, TriangleIndicies tri, Vector3 up)
         {
             Vector2 v1 = points[tri.v1];
